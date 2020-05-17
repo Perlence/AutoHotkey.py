@@ -1,57 +1,73 @@
 #NoEnv
 #Warn, All, MsgBox
-SetFormat, Integer, Hex
 
 global NULL := 0
 global PYTHON_DLL := "c:\Users\Sviatoslav\AppData\Local\Programs\Python\Python38\python38.dll"
 global METH_VARARGS := 0x0001
 global PYTHON_API_VERSION := 1013
 
-ahk_msg_box(self, args)
+AHKCallCmd(self, args)
 {
-    local param1 := NULL
-    local title := NULL
-    local text := NULL
-    local timeout := NULL
+    local cmd := NULL
+    ; Maximum number of AHK command arguments seems to be 11
+    local arg1 := NULL
+    local arg2 := NULL
+    local arg3 := NULL
+    local arg4 := NULL
+    local arg5 := NULL
+    local arg6 := NULL
+    local arg7 := NULL
+    local arg8 := NULL
+    local arg9 := NULL
+    local arg10 := NULL
+    local arg11 := NULL
 
     if (!DllCall(PYTHON_DLL "\PyArg_ParseTuple"
             , Ptr, args
-            , AStr, "|ssss:msg_box"
-            , Ptr, &param1
-            , Ptr, &title
-            , Ptr, &text
-            , Ptr, &timeout
+            , AStr, "s|sssssssssss:call_cmd"
+            , Ptr, &cmd
+            , Ptr, &arg1
+            , Ptr, &arg2
+            , Ptr, &arg3
+            , Ptr, &arg4
+            , Ptr, &arg5
+            , Ptr, &arg6
+            , Ptr, &arg7
+            , Ptr, &arg8
+            , Ptr, &arg9
+            , Ptr, &arg10
+            , Ptr, &arg11
             , "Cdecl") ) {
-        MsgBox, PyArg_ParseTuple failed
         return NULL
     }
 
-    if (param1 == NULL) {
-        ; Press OK to continue.
-        MsgBox
-        ; TODO: Return None.
-        return DllCall(PYTHON_DLL "\PyLong_FromLong", Int, 0, "Cdecl Ptr")
+    cmd := NumGet(cmd) ; Decode number from binary.
+    cmd := StrGet(cmd, "CP0") ; Read string from address `cmd`.
+
+    Loop, 11
+    {
+        if (arg%A_Index% != NULL) {
+            arg%A_Index% := NumGet(arg%A_Index%)
+            arg%A_Index% := StrGet(arg%A_Index%, "CP0")
+        }
     }
 
-    param1 := NumGet(param1) ; Decode number from binary.
-    param1 := StrGet(param1, "CP0") ; Read string from address "param1".
-
-    if (title == NULL) {
-        ; Short version of MsgBox
-        MsgBox, %param1%
-        return DllCall(PYTHON_DLL "\PyLong_FromLong", Int, 0, "Cdecl Ptr")
+    if (cmd == "MsgBox") {
+        if (arg1 == NULL) {
+            MsgBox
+        } else if (arg2 == NULL) {
+            MsgBox, %arg1%
+        } else {
+            MsgBox, % arg1,%arg2%,%arg3%,%arg4%
+        }
+    } else if (cmd == "Send") {
+        Send, %arg1%
+    } else {
+        ; TODO: Raise Python exception.
+        MsgBox, % "Unknown command " cmd
+        return DllCall(PYTHON_DLL "\PyLong_FromLong", Int, 1, "Cdecl Ptr")
     }
-
-    title := NumGet(title)
-    title := StrGet(title, "CP0")
-
-    text := NumGet(text)
-    text := StrGet(text, "CP0")
-
-    timeout := NumGet(timeout)
-    timeout := StrGet(timeout, "CP0")
-
-    MsgBox, % param1,%title%,%text%,%timeout%
+    ; TODO: Export other AHK commands.
     return DllCall(PYTHON_DLL "\PyLong_FromLong", Int, 0, "Cdecl Ptr")
 }
 
@@ -63,22 +79,22 @@ StrPutVar(string, ByRef var)
 }
 
 ; static PyMethodDef AHKMethods[] = {
-;     {"msg_box", ahk_msg_box, METH_VARARGS,
+;     {"call_cmd", AHKCallCmd, METH_VARARGS,
 ;      "docstring blablabla"},
 ;     {NULL, NULL, 0, NULL}
 ; };
 
-StrPutVar("msg_box", AHKMethod_msg_box_name)
-AHKMethod_msg_box_meth := RegisterCallback("ahk_msg_box", "C")
-AHKMethod_msg_box_flags := METH_VARARGS
-StrPutVar("Return the number of arguments received by the process.", AHKMethod_msg_box_doc)
+StrPutVar("call_cmd", AHKMethod_call_cmd_name)
+AHKMethod_call_cmd_meth := RegisterCallback("AHKCallCmd", "C")
+AHKMethod_call_cmd_flags := METH_VARARGS
+StrPutVar("Return the number of arguments received by the process.", AHKMethod_call_cmd_doc)
 PyMethodDef_size := A_PtrSize + A_PtrSize + 8 + A_PtrSize
 VarSetCapacity(AHKMethods, PyMethodDef_size * 2, 0)
 offset := 0
-NumPut(&AHKMethod_msg_box_name, AHKMethods, offset), offset += A_PtrSize
-NumPut(AHKMethod_msg_box_meth, AHKMethods, offset), offset += A_PtrSize
-NumPut(AHKMethod_msg_box_flags, AHKMethods, offset, "Int64"), offset += 8
-NumPut(&AHKMethod_msg_box_doc, AHKMethods, offset), offset += A_PtrSize
+NumPut(&AHKMethod_call_cmd_name, AHKMethods, offset), offset += A_PtrSize
+NumPut(AHKMethod_call_cmd_meth, AHKMethods, offset), offset += A_PtrSize
+NumPut(AHKMethod_call_cmd_flags, AHKMethods, offset, "Int64"), offset += 8
+NumPut(&AHKMethod_call_cmd_doc, AHKMethods, offset), offset += A_PtrSize
 NumPut(NULL, AHKMethods, offset), offset += A_PtrSize
 NumPut(NULL, AHKMethods, offset), offset += A_PtrSize
 NumPut(0, AHKMethods, offset, "Int64"), offset += 8
@@ -111,7 +127,7 @@ AHKModule_clear := NULL
 AHKModule_free := NULL
 VarSetCapacity(AHKModule, 104, 0)
 offset := 0
-NumPut(1, AHKModule, offset, "Int64"), offset := 40
+NumPut(1, AHKModule, offset, "Int64"), offset := 40 ; PyModuleDef_HEAD_INIT
 NumPut(&AHKModule_name, AHKModule, offset), offset += A_PtrSize
 NumPut(AHKModule_doc, AHKModule, offset), offset += A_PtrSize
 NumPut(AHKModule_size, AHKModule, offset, "Int64"), offset += 8
@@ -138,9 +154,11 @@ try:
     import sys
     import ahk
     ctypes.windll.user32.MessageBoxW(0, f"loaded", "AHK", 1)
-    ahk.msg_box()
-    ahk.msg_box("Hello, world")
-    ahk.msg_box("4", "", "Do you want to continue? (Press YES or NO)")
+    ahk.call_cmd("MsgBox")
+    ahk.call_cmd("MsgBox", "Hello, world")
+    ahk.call_cmd("MsgBox", "4", "", "Do you want to continue? (Press YES or NO)")
+    ahk.call_cmd("Send", "#r")
+    ahk.call_cmd("WinExist", "A")
 except:
     import ctypes
     import traceback
