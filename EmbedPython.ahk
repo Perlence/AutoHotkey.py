@@ -8,6 +8,7 @@ global PYTHON_API_VERSION := 1013
 
 AHKCallCmd(self, args)
 {
+    ; TODO: Insert C code for reference.
     local cmd := NULL
     ; Maximum number of AHK command arguments seems to be 11
     local arg1 := NULL
@@ -117,7 +118,7 @@ NumPut(NULL, AHKMethods, offset), offset += A_PtrSize
 ;   freefunc m_free;
 ; } PyModuleDef;
 
-StrPutVar("ahk", AHKModule_name)
+StrPutVar("_ahk", AHKModule_name)
 AHKModule_doc := NULL
 AHKModule_size := -1
 AHKModule_methods := &AHKMethods
@@ -152,13 +153,14 @@ py =
 try:
     import ctypes
     import sys
-    import ahk
+    import _ahk
     ctypes.windll.user32.MessageBoxW(0, f"loaded", "AHK", 1)
-    ahk.call_cmd("MsgBox")
-    ahk.call_cmd("MsgBox", "Hello, world")
-    ahk.call_cmd("MsgBox", "4", "", "Do you want to continue? (Press YES or NO)")
-    ahk.call_cmd("Send", "#r")
-    ahk.call_cmd("WinExist", "A")
+    _ahk.call_cmd("MsgBox")
+    _ahk.call_cmd("MsgBox", "Hello, world")
+    _ahk.call_cmd("MsgBox", "4", "", "Do you want to continue? (Press YES or NO)")
+    # TODO: Call command with Unicode strings.
+    _ahk.call_cmd("Send", "#r")
+    _ahk.call_cmd("WinExist", "A")
 except:
     import ctypes
     import traceback
@@ -180,5 +182,5 @@ DllCall(PYTHON_DLL "\PyImport_AppendInittab"
     , Cdecl)
 DllCall(PYTHON_DLL "\Py_Initialize", Cdecl)
 DllCall(PYTHON_DLL "\PyRun_SimpleString", AStr, py, Cdecl)
-; DllCall(PYTHON_DLL "\PyErr_PrintEx", Int, 1)
+; TODO: Show Python's syntax errors.
 DllCall(PYTHON_DLL "\Py_Finalize", Cdecl)
