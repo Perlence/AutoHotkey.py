@@ -23,7 +23,7 @@ _A_Args(){
  * 
  */
 _A_ScriptDir(){
-	return %mainDir% 
+    return %mainDir% 
 }
 
 
@@ -31,7 +31,7 @@ _A_ScriptDir(){
  * 
  */
 _A_ScriptFullPath(){
-	return %mainPath% 
+    return %mainPath% 
 }
 
 
@@ -39,8 +39,8 @@ _A_ScriptFullPath(){
  * 
  */
 _A_ScriptName(){
-	SplitPath, mainPath, mainFilename
-	return %mainFilename%
+    SplitPath, mainPath, mainFilename
+    return %mainFilename%
 }
 
 
@@ -48,7 +48,7 @@ _A_ScriptName(){
  * Implementation: Normalization.
  */
 _BlockInput(Mode){
-	BlockInput %Mode%
+    BlockInput %Mode%
 }
 
 
@@ -56,7 +56,7 @@ _BlockInput(Mode){
  * Implementation: Normalization.
  */
 _Click(Item1="",Item2="",Item3="",Item4="",Item5="",Item6="",Item7=""){
-	Click %Item1%,%Item2%,%Item3%,%Item4%,%Item5%,%Item6%,%Item7%
+    Click %Item1%,%Item2%,%Item3%,%Item4%,%Item5%,%Item6%,%Item7%
 }
 
 
@@ -66,11 +66,11 @@ _Click(Item1="",Item2="",Item3="",Item4="",Item5="",Item6="",Item7=""){
  * Because "getBuiltInVar()" only handles getters, these 2 had to be customized.
  */
 _Clipboard(a*){ ; variadic parameters, to detect the role (getter or setter)
-	if (a.MaxIndex()) { ; setter
-		Clipboard := a[1]
-	} else { ; getter
-		return Clipboard
-	}
+    if (a.MaxIndex()) { ; setter
+        Clipboard := a[1]
+    } else { ; getter
+        return Clipboard
+    }
 }
 
 
@@ -78,7 +78,7 @@ _Clipboard(a*){ ; variadic parameters, to detect the role (getter or setter)
  * Implementation: Normalization.
  */
 _ClipWait(SecondsToWait="",AnyKindOfData=""){
-	ClipWait %SecondsToWait%,%AnyKindOfData%
+    ClipWait %SecondsToWait%,%AnyKindOfData%
 }
 
 
@@ -86,7 +86,7 @@ _ClipWait(SecondsToWait="",AnyKindOfData=""){
  * Implementation: Normalization.
  */
 _Control(Cmd,Value="",Control="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
-	Control %Cmd%,%Value%,%Control%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
+    Control %Cmd%,%Value%,%Control%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
 }
 
 
@@ -94,7 +94,7 @@ _Control(Cmd,Value="",Control="",WinTitle="",WinText="",ExcludeTitle="",ExcludeT
  * Implementation: Normalization.
  */
 _ControlClick(ControlorPos="",WinTitle="",WinText="",WhichButton="",ClickCount="",Options="",ExcludeTitle="",ExcludeText=""){
-	ControlClick %ControlorPos%,%WinTitle%,%WinText%,%WhichButton%,%ClickCount%,%Options%,%ExcludeTitle%,%ExcludeText%
+    ControlClick %ControlorPos%,%WinTitle%,%WinText%,%WhichButton%,%ClickCount%,%Options%,%ExcludeTitle%,%ExcludeText%
 }
 
 
@@ -102,7 +102,7 @@ _ControlClick(ControlorPos="",WinTitle="",WinText="",WhichButton="",ClickCount="
  * Implementation: Normalization.
  */
 _ControlFocus(Control="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
-	ControlFocus %Control%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
+    ControlFocus %Control%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
 }
 
 
@@ -112,8 +112,8 @@ _ControlFocus(Control="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
  * In JS, we return an Object with 4 properties: X, Y, Width and Height.
  */
 _ControlGetPos(Control="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
-	ControlGetPos X,Y,Width,Height,%Control%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
-	return JS.Object("X", X, "Y", Y, "Width", Width, "Height", Height)
+    ControlGetPos X,Y,Width,Height,%Control%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
+    return JS.Object("X", X, "Y", Y, "Width", Width, "Height", Height)
 }
 
 
@@ -121,8 +121,8 @@ _ControlGetPos(Control="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText="")
  * Implementation: Normalization.
  */
 _ControlGet(Cmd,Value="",Control="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
-	ControlGet OutputVar,%Cmd%,%Value%,%Control%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
-	return OutputVar
+    ControlGet OutputVar,%Cmd%,%Value%,%Control%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
+    return OutputVar
 }
 
 
@@ -130,8 +130,8 @@ _ControlGet(Cmd,Value="",Control="",WinTitle="",WinText="",ExcludeTitle="",Exclu
  * Implementation: Normalization.
  */
 _ControlGetFocus(WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
-	ControlGetFocus OutputVar,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
-	return OutputVar
+    ControlGetFocus OutputVar,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
+    return OutputVar
 }
 
 
@@ -139,8 +139,8 @@ _ControlGetFocus(WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
  * Implementation: Normalization.
  */
 _ControlGetText(Control="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
-	ControlGetText OutputVar,%Control%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
-	return OutputVar
+    ControlGetText OutputVar,%Control%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
+    return OutputVar
 }
 
 
@@ -148,7 +148,7 @@ _ControlGetText(Control="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""
  * Implementation: Normalization.
  */
 _ControlMove(Control,X,Y,Width,Height,WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
-	ControlMove %Control%,%X%,%Y%,%Width%,%Height%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
+    ControlMove %Control%,%X%,%Y%,%Width%,%Height%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
 }
 
 
@@ -156,7 +156,7 @@ _ControlMove(Control,X,Y,Width,Height,WinTitle="",WinText="",ExcludeTitle="",Exc
  * Implementation: Normalization.
  */
 _ControlSend(Control="",Keys="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
-	ControlSend %Control%,%Keys%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
+    ControlSend %Control%,%Keys%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
 }
 
 
@@ -164,7 +164,7 @@ _ControlSend(Control="",Keys="",WinTitle="",WinText="",ExcludeTitle="",ExcludeTe
  * Implementation: Normalization.
  */
 _ControlSendRaw(Control="",Keys="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
-	ControlSendRaw %Control%,%Keys%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
+    ControlSendRaw %Control%,%Keys%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
 }
 
 
@@ -172,7 +172,7 @@ _ControlSendRaw(Control="",Keys="",WinTitle="",WinText="",ExcludeTitle="",Exclud
  * Implementation: Normalization.
  */
 _ControlSetText(Control="",NewText="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
-	ControlSetText %Control%,%NewText%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
+    ControlSetText %Control%,%NewText%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
 }
 
 
@@ -180,7 +180,7 @@ _ControlSetText(Control="",NewText="",WinTitle="",WinText="",ExcludeTitle="",Exc
  * Implementation: Normalization.
  */
 _CoordMode(Target,Mode=""){
-	CoordMode %Target%,%Mode%
+    CoordMode %Target%,%Mode%
 }
 
 
@@ -188,7 +188,7 @@ _CoordMode(Target,Mode=""){
  * Implementation: Normalization.
  */
 _Critical(Value=""){
-	Critical %Value%
+    Critical %Value%
 }
 
 
@@ -196,7 +196,7 @@ _Critical(Value=""){
  * Implementation: Normalization.
  */
 _DetectHiddenText(OnOff){
-	DetectHiddenText %OnOff%
+    DetectHiddenText %OnOff%
 }
 
 
@@ -204,7 +204,7 @@ _DetectHiddenText(OnOff){
  * Implementation: Normalization.
  */
 _DetectHiddenWindows(OnOff){
-	DetectHiddenWindows %OnOff%
+    DetectHiddenWindows %OnOff%
 }
 
 
@@ -212,7 +212,7 @@ _DetectHiddenWindows(OnOff){
  * Implementation: Normalization.
  */
 _Drive(Subcommand,Drive="",Value=""){
-	Drive %Subcommand%,%Drive%,%Value%
+    Drive %Subcommand%,%Drive%,%Value%
 }
 
 
@@ -220,8 +220,8 @@ _Drive(Subcommand,Drive="",Value=""){
  * Implementation: Normalization.
  */
 _DriveGet(Cmd,Value=""){
-	DriveGet OutputVar,%Cmd%,%Value%
-	return OutputVar
+    DriveGet OutputVar,%Cmd%,%Value%
+    return OutputVar
 }
 
 
@@ -229,8 +229,8 @@ _DriveGet(Cmd,Value=""){
  * Implementation: Normalization.
  */
 _DriveSpaceFree(Path){
-	DriveSpaceFree OutputVar,%Path%
-	return OutputVar+0
+    DriveSpaceFree OutputVar,%Path%
+    return OutputVar+0
 }
 
 
@@ -238,8 +238,8 @@ _DriveSpaceFree(Path){
  * Implementation: Normalization.
  */
 _EnvGet(EnvVarName){
-	EnvGet OutputVar,%EnvVarName%
-	return OutputVar
+    EnvGet OutputVar,%EnvVarName%
+    return OutputVar
 }
 
 
@@ -247,7 +247,7 @@ _EnvGet(EnvVarName){
  * Implementation: Normalization.
  */
 _EnvSet(EnvVar,Value){
-	return OutputVar
+    return OutputVar
 }
 
 
@@ -255,7 +255,7 @@ _EnvSet(EnvVar,Value){
  * Implementation: Normalization.
  */
 _EnvUpdate(){
-	EnvUpdate
+    EnvUpdate
 }
 
 
@@ -265,11 +265,11 @@ _EnvUpdate(){
  * Because "getBuiltInVar()" only handles getters, these 2 had to be customized.
  */
 _ErrorLevel(a*){ ; variadic parameters, to detect the role (getter or setter)
-	if (a.MaxIndex()) { ; setter
-		ErrorLevel := a[1]
-	} else { ; getter
-		return ErrorLevel
-	}
+    if (a.MaxIndex()) { ; setter
+        ErrorLevel := a[1]
+    } else { ; getter
+        return ErrorLevel
+    }
 }
 
 
@@ -277,7 +277,7 @@ _ErrorLevel(a*){ ; variadic parameters, to detect the role (getter or setter)
  * Implementation: Normalization.
  */
 _ExitApp(ExitCode=""){
-	ExitApp %ExitCode%
+    ExitApp %ExitCode%
 }
 
 
@@ -285,7 +285,7 @@ _ExitApp(ExitCode=""){
  * Implementation: Normalization.
  */
 _FileAppend(Text="",Filename="",Encoding=""){
-	FileAppend %Text%,%Filename%,%Encoding%
+    FileAppend %Text%,%Filename%,%Encoding%
 }
 
 
@@ -293,7 +293,7 @@ _FileAppend(Text="",Filename="",Encoding=""){
  * Implementation: Normalization.
  */
 _FileCopy(SourcePattern,DestPattern,Flag=""){
-	FileCopy %SourcePattern%,%DestPattern%,%Flag%
+    FileCopy %SourcePattern%,%DestPattern%,%Flag%
 }
 
 
@@ -301,7 +301,7 @@ _FileCopy(SourcePattern,DestPattern,Flag=""){
  * Implementation: Normalization.
  */
 _FileCopyDir(Source,Dest,Flag=""){
-	FileCopyDir %Source%,%Dest%,%Flag%
+    FileCopyDir %Source%,%Dest%,%Flag%
 }
 
 
@@ -309,7 +309,7 @@ _FileCopyDir(Source,Dest,Flag=""){
  * Implementation: Normalization.
  */
 _FileCreateDir(DirName){
-	FileCreateDir %DirName%
+    FileCreateDir %DirName%
 }
 
 
@@ -317,7 +317,7 @@ _FileCreateDir(DirName){
  * Implementation: Normalization.
  */
 _FileCreateShortcut(Target,LinkFile,WorkingDir="",Args="",Description="",IconFile="",ShortcutKey="",IconNumber="",RunState=""){
-	FileCreateShortcut %Target%,%LinkFile%,%WorkingDir%,%Args%,%Description%,%IconFile%,%ShortcutKey%,%IconNumber%,%RunState%
+    FileCreateShortcut %Target%,%LinkFile%,%WorkingDir%,%Args%,%Description%,%IconFile%,%ShortcutKey%,%IconNumber%,%RunState%
 }
 
 
@@ -325,7 +325,7 @@ _FileCreateShortcut(Target,LinkFile,WorkingDir="",Args="",Description="",IconFil
  * Implementation: Normalization.
  */
 _FileDelete(FilePattern){
-	FileDelete %FilePattern%
+    FileDelete %FilePattern%
 }
 
 
@@ -333,7 +333,7 @@ _FileDelete(FilePattern){
  * Implementation: Normalization.
  */
 _FileEncoding(Encoding=""){
-	FileEncoding %Encoding%
+    FileEncoding %Encoding%
 }
 
 
@@ -341,8 +341,8 @@ _FileEncoding(Encoding=""){
  * Implementation: Normalization.
  */
 _FileGetAttrib(Filename=""){
-	FileGetAttrib OutputVar,%Filename%
-	return OutputVar
+    FileGetAttrib OutputVar,%Filename%
+    return OutputVar
 }
 
 
@@ -352,8 +352,8 @@ _FileGetAttrib(Filename=""){
  * In JS, we return an Object with 7 properties: Target, Dir, Args, Description, Icon, IconNum, RunState.
  */
 _FileGetShortcut(LinkFile, Target="", Dir="", Args="", Description="", Icon="", IconNum="", RunState=""){
-	FileGetShortcut, %LinkFile%, %Target%, %Dir%, %Args%, %Description%, %Icon%, %IconNum%, %RunState%
-	return JS.Object("Target",Target, "Dir",Dir, "Args",Args, "Description",Description, "Icon",Icon, "IconNum",IconNum, "RunState",RunState)
+    FileGetShortcut, %LinkFile%, %Target%, %Dir%, %Args%, %Description%, %Icon%, %IconNum%, %RunState%
+    return JS.Object("Target",Target, "Dir",Dir, "Args",Args, "Description",Description, "Icon",Icon, "IconNum",IconNum, "RunState",RunState)
 }
 
 
@@ -361,8 +361,8 @@ _FileGetShortcut(LinkFile, Target="", Dir="", Args="", Description="", Icon="", 
  * Implementation: Normalization.
  */
 _FileGetSize(Filename="",Units=""){
-	FileGetSize OutputVar,%Filename%,%Units%
-	return OutputVar+0
+    FileGetSize OutputVar,%Filename%,%Units%
+    return OutputVar+0
 }
 
 
@@ -370,8 +370,8 @@ _FileGetSize(Filename="",Units=""){
  * Implementation: Normalization.
  */
 _FileGetTime(Filename="",WhichTime=""){
-	FileGetTime OutputVar,%Filename%,%WhichTime%
-	return OutputVar
+    FileGetTime OutputVar,%Filename%,%WhichTime%
+    return OutputVar
 }
 
 
@@ -379,8 +379,8 @@ _FileGetTime(Filename="",WhichTime=""){
  * Implementation: Normalization.
  */
 _FileGetVersion(Filename=""){
-	FileGetVersion OutputVar,%Filename%
-	return OutputVar
+    FileGetVersion OutputVar,%Filename%
+    return OutputVar
 }
 
 
@@ -388,7 +388,7 @@ _FileGetVersion(Filename=""){
  * Implementation: Normalization.
  */
 _FileMove(SourcePattern,DestPattern,Flag=""){
-	FileMove %SourcePattern%,%DestPattern%,%Flag%
+    FileMove %SourcePattern%,%DestPattern%,%Flag%
 }
 
 
@@ -396,7 +396,7 @@ _FileMove(SourcePattern,DestPattern,Flag=""){
  * Implementation: Normalization.
  */
 _FileMoveDir(Source,Dest,Flag=""){
-	FileMoveDir %Source%,%Dest%,%Flag%
+    FileMoveDir %Source%,%Dest%,%Flag%
 }
 
 
@@ -414,7 +414,7 @@ _FileMoveDir(Source,Dest,Flag=""){
  *           Data: The data retrieved from the file.
  */
 _FileOpen(fspec, flags, encoding:="CP0"){
-	return new FileObject(fspec, flags, encoding)
+    return new FileObject(fspec, flags, encoding)
 }
 
 
@@ -422,8 +422,8 @@ _FileOpen(fspec, flags, encoding:="CP0"){
  * Implementation: Normalization.
  */
 _FileRead(Filename){
-	FileRead OutputVar,%Filename%
-	return OutputVar
+    FileRead OutputVar,%Filename%
+    return OutputVar
 }
 
 
@@ -431,8 +431,8 @@ _FileRead(Filename){
  * Implementation: Normalization.
  */
 _FileReadLine(Filename,LineNum){
-	FileReadLine OutputVar,%Filename%,%LineNum%
-	return OutputVar
+    FileReadLine OutputVar,%Filename%,%LineNum%
+    return OutputVar
 }
 
 
@@ -440,7 +440,7 @@ _FileReadLine(Filename,LineNum){
  * Implementation: Normalization.
  */
 _FileRecycle(FilePattern){
-	FileRecycle %FilePattern%
+    FileRecycle %FilePattern%
 }
 
 
@@ -448,7 +448,7 @@ _FileRecycle(FilePattern){
  * Implementation: Normalization.
  */
 _FileRecycleEmpty(DriveLetter=""){
-	FileRecycleEmpty %DriveLetter%
+    FileRecycleEmpty %DriveLetter%
 }
 
 
@@ -456,7 +456,7 @@ _FileRecycleEmpty(DriveLetter=""){
  * Implementation: Normalization.
  */
 _FileRemoveDir(DirName,Recurse=""){
-	FileRemoveDir %DirName%,%Recurse%
+    FileRemoveDir %DirName%,%Recurse%
 }
 
 
@@ -464,8 +464,8 @@ _FileRemoveDir(DirName,Recurse=""){
  * Implementation: Normalization.
  */
 _FileSelectFile(Options="",RootDirOFilename="",Prompt="",Filter=""){
-	FileSelectFile OutputVar,%Options%,%RootDirOFilename%,%Prompt%,%Filter%
-	return OutputVar
+    FileSelectFile OutputVar,%Options%,%RootDirOFilename%,%Prompt%,%Filter%
+    return OutputVar
 }
 
 
@@ -473,8 +473,8 @@ _FileSelectFile(Options="",RootDirOFilename="",Prompt="",Filter=""){
  * Implementation: Normalization.
  */
 _FileSelectFolder(StartingFolder="",Options="",Prompt=""){
-	FileSelectFolder OutputVar,%StartingFolder%,%Options%,%Prompt%
-	return OutputVar
+    FileSelectFolder OutputVar,%StartingFolder%,%Options%,%Prompt%
+    return OutputVar
 }
 
 
@@ -482,7 +482,7 @@ _FileSelectFolder(StartingFolder="",Options="",Prompt=""){
  * Implementation: Normalization.
  */
 _FileSetAttrib(Attributes,FilePattern="",OperateOnFolders="",Recurse=""){
-	FileSetAttrib %Attributes%,%FilePattern%,%OperateOnFolders%,%Recurse%
+    FileSetAttrib %Attributes%,%FilePattern%,%OperateOnFolders%,%Recurse%
 }
 
 
@@ -490,7 +490,7 @@ _FileSetAttrib(Attributes,FilePattern="",OperateOnFolders="",Recurse=""){
  * Implementation: Normalization.
  */
 _FileSetTime(YYYYMMDDHH24MISS="",FilePattern="",WhichTime="",OperateOnFolders="",Recurse=""){
-	FileSetTime %YYYYMMDDHH24MISS%,%FilePattern%,%WhichTime%,%OperateOnFolders%,%Recurse%
+    FileSetTime %YYYYMMDDHH24MISS%,%FilePattern%,%WhichTime%,%OperateOnFolders%,%Recurse%
 }
 
 
@@ -498,8 +498,8 @@ _FileSetTime(YYYYMMDDHH24MISS="",FilePattern="",WhichTime="",OperateOnFolders=""
  * Implementation: Normalization.
  */
 _FormatTime(YYYYMMDDHH24MISS="",Format=""){
-	FormatTime OutputVar,%YYYYMMDDHH24MISS%,%Format%
-	return OutputVar
+    FormatTime OutputVar,%YYYYMMDDHH24MISS%,%Format%
+    return OutputVar
 }
 
 
@@ -507,7 +507,7 @@ _FormatTime(YYYYMMDDHH24MISS="",Format=""){
  * Implementation: Normalization.
  */
 _GroupActivate(GroupName,R=""){
-	GroupActivate %GroupName%,%R%
+    GroupActivate %GroupName%,%R%
 }
 
 
@@ -515,7 +515,7 @@ _GroupActivate(GroupName,R=""){
  * Implementation: Normalization.
  */
 _GroupAdd(GroupName,WinTitle="",WinText="",Label="",ExcludeTitle="",ExcludeText=""){
-	GroupAdd %GroupName%,%WinTitle%,%WinText%,%Label%,%ExcludeTitle%,%ExcludeText%
+    GroupAdd %GroupName%,%WinTitle%,%WinText%,%Label%,%ExcludeTitle%,%ExcludeText%
 }
 
 
@@ -523,7 +523,7 @@ _GroupAdd(GroupName,WinTitle="",WinText="",Label="",ExcludeTitle="",ExcludeText=
  * Implementation: Normalization.
  */
 _GroupClose(GroupName,Flag=""){
-	GroupClose %GroupName%,%Flag%
+    GroupClose %GroupName%,%Flag%
 }
 
 
@@ -531,7 +531,7 @@ _GroupClose(GroupName,Flag=""){
  * Implementation: Normalization.
  */
 _GroupDeactivate(GroupName,R=""){
-	GroupDeactivate %GroupName%,%R%
+    GroupDeactivate %GroupName%,%R%
 }
 
 
@@ -539,7 +539,7 @@ _GroupDeactivate(GroupName,R=""){
  * Implementation: Normalization.
  */
 _Gui(Subcommand,Param2="",Param3="",Param4=""){
-	Gui %Subcommand%,%Param2%,%Param3%,%Param4%
+    Gui %Subcommand%,%Param2%,%Param3%,%Param4%
 }
 
 
@@ -547,7 +547,7 @@ _Gui(Subcommand,Param2="",Param3="",Param4=""){
  * Implementation: Normalization.
  */
 _GuiControl(Subcommand,ControlID,Param3=""){
-	GuiControl %Subcommand%,%ControlID%,%Param3%
+    GuiControl %Subcommand%,%ControlID%,%Param3%
 }
 
 
@@ -555,8 +555,8 @@ _GuiControl(Subcommand,ControlID,Param3=""){
  * Implementation: Normalization.
  */
 _GuiControlGet(Subcommand="",ControlID="",Param4=""){
-	GuiControlGet OutputVar,%Subcommand%,%ControlID%,%Param4%
-	return OutputVar
+    GuiControlGet OutputVar,%Subcommand%,%ControlID%,%Param4%
+    return OutputVar
 }
 
 
@@ -567,32 +567,32 @@ _GuiControlGet(Subcommand="",ControlID="",Param4=""){
  * TODO: Add support for AltTab.
  */
 _Hotkey(KeyName, Closure="", Options=""){
-	if (KeyName == "") {
-		end("Invalid KeyName!")
-	}
-	StringLower, Closure, Closure	; uniformity, to allow case insesitivity
-	operation := ""
-	if (Closure == "on" || RegExMatch(Options, "i)\bOn\b")) {
-		operation := "on"
-	} else if (Closure == "off" || RegExMatch(Options, "i)\bOff\b")) {
-		operation := "off"
-	} else if (Closure == "toggle") {
-		operation := "toggle"
-	}
-	if (operation) {
-		if (!closures.HasKey("Hotkey" . KeyName)) {
-			end("Nonexistent hotkey!")
-		} else {
-			Hotkey %KeyName%, %operation%, %Options%
-		}
-	} else {
-		if (Closure!="") {
-			closures["Hotkey" . KeyName] := Closure
-			Hotkey %KeyName%, LabelHotkey, %Options%
-		} else {
-			Hotkey %KeyName%,, %Options%
-		}
-	}
+    if (KeyName == "") {
+        end("Invalid KeyName!")
+    }
+    StringLower, Closure, Closure	; uniformity, to allow case insesitivity
+    operation := ""
+    if (Closure == "on" || RegExMatch(Options, "i)\bOn\b")) {
+        operation := "on"
+    } else if (Closure == "off" || RegExMatch(Options, "i)\bOff\b")) {
+        operation := "off"
+    } else if (Closure == "toggle") {
+        operation := "toggle"
+    }
+    if (operation) {
+        if (!closures.HasKey("Hotkey" . KeyName)) {
+            end("Nonexistent hotkey!")
+        } else {
+            Hotkey %KeyName%, %operation%, %Options%
+        }
+    } else {
+        if (Closure!="") {
+            closures["Hotkey" . KeyName] := Closure
+            Hotkey %KeyName%, LabelHotkey, %Options%
+        } else {
+            Hotkey %KeyName%,, %Options%
+        }
+    }
 }
 
 
@@ -602,8 +602,8 @@ _Hotkey(KeyName, Closure="", Options=""){
  * In JS, we return an Object with 2 properties: X, Y.
  */
 _ImageSearch(X1,Y1,X2,Y2,ImageFile){
-	ImageSearch X,Y,%X1%,%Y1%,%X2%,%Y2%,%ImageFile%
-	return JS.Object("X",X, "Y",Y)
+    ImageSearch X,Y,%X1%,%Y1%,%X2%,%Y2%,%ImageFile%
+    return JS.Object("X",X, "Y",Y)
 }
 
 
@@ -611,7 +611,7 @@ _ImageSearch(X1,Y1,X2,Y2,ImageFile){
  * Implementation: Normalization.
  */
 _IniDelete(Filename,Section,Key=""){
-	IniDelete %Filename%,%Section%,%Key%
+    IniDelete %Filename%,%Section%,%Key%
 }
 
 
@@ -619,8 +619,8 @@ _IniDelete(Filename,Section,Key=""){
  * Implementation: Normalization.
  */
 _IniRead(Filename,Section="",Key="",Default=""){
-	IniRead OutputVar,%Filename%,%Section%,%Key%,%Default%
-	return OutputVar
+    IniRead OutputVar,%Filename%,%Section%,%Key%,%Default%
+    return OutputVar
 }
 
 
@@ -628,7 +628,7 @@ _IniRead(Filename,Section="",Key="",Default=""){
  * Implementation: Normalization.
  */
 _IniWrite(Value,Filename,Section,Key=""){
-	IniWrite %Value%,%Filename%,%Section%,%Key%
+    IniWrite %Value%,%Filename%,%Section%,%Key%
 }
 
 
@@ -636,8 +636,8 @@ _IniWrite(Value,Filename,Section,Key=""){
  * Implementation: Normalization.
  */
 _Input(Options="",EndKeys="",MatchList=""){
-	Input OutputVar,%Options%,%EndKeys%,%MatchList%
-	return OutputVar
+    Input OutputVar,%Options%,%EndKeys%,%MatchList%
+    return OutputVar
 }
 
 
@@ -645,8 +645,8 @@ _Input(Options="",EndKeys="",MatchList=""){
  * Implementation: Normalization.
  */
 _InputBox(Title="",Prompt="",HIDE="",Width="",Height="",X="",Y="",FontBlank="",Timeout="",Default=""){
-	InputBox OutputVar,%Title%,%Prompt%,%HIDE%,%Width%,%Height%,%X%,%Y%,,%Timeout%,%Default%
-	return OutputVar
+    InputBox OutputVar,%Title%,%Prompt%,%HIDE%,%Width%,%Height%,%X%,%Y%,,%Timeout%,%Default%
+    return OutputVar
 }
 
 
@@ -654,7 +654,7 @@ _InputBox(Title="",Prompt="",HIDE="",Width="",Height="",X="",Y="",FontBlank="",T
  * Implementation: Normalization.
  */
 _KeyHistory(){
-	KeyHistory 
+    KeyHistory 
 }
 
 
@@ -662,7 +662,7 @@ _KeyHistory(){
  * Implementation: Normalization.
  */
 _KeyWait(KeyName,Options=""){
-	KeyWait %KeyName%,%Options%
+    KeyWait %KeyName%,%Options%
 }
 
 
@@ -670,7 +670,7 @@ _KeyWait(KeyName,Options=""){
  * Implementation: Normalization.
  */
 _ListHotkeys(){
-	ListHotkeys 
+    ListHotkeys 
 }
 
 
@@ -694,27 +694,27 @@ _ListHotkeys(){
  *			Name,Type,Key,SubKey,TimeModified
  */
 _Loop(Param1,Param2="",Param3="",Param4=""){
-	output := JS.Array()
-	if (RegExMatch(Param1, "i)^parse$")) {
-		end("The Parse-Loop has been superseded by StrSplit().")
-	} else if (RegExMatch(Param1, "i)^read$")) {
-		Loop, %Param1%, %Param2%
-		{
+    output := JS.Array()
+    if (RegExMatch(Param1, "i)^parse$")) {
+        end("The Parse-Loop has been superseded by StrSplit().")
+    } else if (RegExMatch(Param1, "i)^read$")) {
+        Loop, %Param1%, %Param2%
+        {
             output.push(A_LoopReadLine)
-		}
-	} else {
-		global regNames
-		if (regNames.HasKey(Param1)) {
-			Loop, %Param1%, %Param2%, %Param3%, %Param4%
-			{
+        }
+    } else {
+        global regNames
+        if (regNames.HasKey(Param1)) {
+            Loop, %Param1%, %Param2%, %Param3%, %Param4%
+            {
                 output.push(JS.Object("Name", A_LoopRegName
                     ,"Type", A_LoopRegType
                     ,"Key", A_LoopRegKey
                     ,"SubKey", A_LoopRegSubKey
                     ,"TimeModified", A_LoopRegTimeModified))
-			}
-		} else {
-			Loop, %Param1%, %Param2%, %Param3%
+            }
+        } else {
+            Loop, %Param1%, %Param2%, %Param3%
             {
                 output.push(JS.Object("Name", A_LoopFileName
                     ,"Ext", A_LoopFileExt
@@ -730,9 +730,9 @@ _Loop(Param1,Param2="",Param3="",Param4=""){
                     ,"SizeKB", A_LoopFileSizeKB+0
                     ,"SizeMB", A_LoopFileSizeMB+0))
             }
-		}
-	}
-	return output
+        }
+    }
+    return output
 }
 
 
@@ -744,13 +744,13 @@ _Loop(Param1,Param2="",Param3="",Param4=""){
  *		2) the advanced mode (Advanced non-empty) returns an object with 2 properties: Text, Success.
  */
 _LV_GetText(RowNumber,ColumnNumber=1,Advanced=0){
-	if (Advanced) {
-		Success := LV_GetText(Text, RowNumber, ColumnNumber)
-		return JS.Object("Text",Text, "Success",Success)
-	} else {
-		LV_GetText(OutputVar, RowNumber, ColumnNumber)
-		return OutputVar
-	}
+    if (Advanced) {
+        Success := LV_GetText(Text, RowNumber, ColumnNumber)
+        return JS.Object("Text",Text, "Success",Success)
+    } else {
+        LV_GetText(OutputVar, RowNumber, ColumnNumber)
+        return OutputVar
+    }
 }
 
 
@@ -758,7 +758,7 @@ _LV_GetText(RowNumber,ColumnNumber=1,Advanced=0){
  * Implementation: Normalization.
  */
 _Menu(MenuName,Cmd,P3="",P4="",P5=""){
-	Menu %MenuName%,%Cmd%,%P3%,%P4%,%P5%
+    Menu %MenuName%,%Cmd%,%P3%,%P4%,%P5%
 }
 
 
@@ -766,7 +766,7 @@ _Menu(MenuName,Cmd,P3="",P4="",P5=""){
  * Implementation: Normalization.
  */
 _MouseClick(WhichButton="",X="",Y="",ClickCount="",Speed="",State="",R=""){
-	MouseClick %WhichButton%,%X%,%Y%,%ClickCount%,%Speed%,%State%,%R%
+    MouseClick %WhichButton%,%X%,%Y%,%ClickCount%,%Speed%,%State%,%R%
 }
 
 
@@ -774,7 +774,7 @@ _MouseClick(WhichButton="",X="",Y="",ClickCount="",Speed="",State="",R=""){
  * Implementation: Normalization.
  */
 _MouseClickDrag(WhichButton,X1,Y1,X2,Y2,Speed="",R=""){
-	MouseClickDrag %WhichButton%,%X1%,%Y1%,%X2%,%Y2%,%Speed%,%R%
+    MouseClickDrag %WhichButton%,%X1%,%Y1%,%X2%,%Y2%,%Speed%,%R%
 }
 
 
@@ -784,8 +784,8 @@ _MouseClickDrag(WhichButton,X1,Y1,X2,Y2,Speed="",R=""){
  * In JS, we return an Object with 4 properties: X, Y, Win, Control.
  */
 _MouseGetPos(Flag=""){
-	MouseGetPos X, Y, Win, Control, %Flag%
-	return JS.Object("X",X, "Y",Y, "Win",Win+0, "Control",Control)
+    MouseGetPos X, Y, Win, Control, %Flag%
+    return JS.Object("X",X, "Y",Y, "Win",Win+0, "Control",Control)
 }
 
 
@@ -793,7 +793,7 @@ _MouseGetPos(Flag=""){
  * Implementation: Normalization.
  */
 _MouseMove(X,Y,Speed="",R=""){
-	MouseMove %X%,%Y%,%Speed%,%R%
+    MouseMove %X%,%Y%,%Speed%,%R%
 }
 
 
@@ -804,13 +804,13 @@ _MouseMove(X,Y,Speed="",R=""){
  * Also, the case for no-parameters had to be intercepted.
  */
 _MsgBox(Param1="__Undefined", Title="__Undefined", Text="", Timeout=""){
-	if (Param1 == "__Undefined") {
-		MsgBox
-	} else if (Title == "__Undefined") {
-		MsgBox, %Param1%
-	} else {
-		MsgBox % Param1,%Title%,%Text%,%Timeout%
-	}
+    if (Param1 == "__Undefined") {
+        MsgBox
+    } else if (Title == "__Undefined") {
+        MsgBox, %Param1%
+    } else {
+        MsgBox % Param1,%Title%,%Text%,%Timeout%
+    }
 }
 
 
@@ -820,7 +820,7 @@ _MsgBox(Param1="__Undefined", Title="__Undefined", Text="", Timeout=""){
  * The migrated function uses instead closures.
  */
 _OnExit(Closure=""){
-	closures["OnExit"] := Closure
+    closures["OnExit"] := Closure
 }
 
 
@@ -835,18 +835,18 @@ _OnMessage(MsgNumber, Closure="__Undefined", MaxThreads=1){
     if (Closure == "__Undefined") {
         return fn
     } else if (Closure == "") {
-		closures.Remove(key)
-		OnMessage(MsgNumber, "", MaxThreads)
+        closures.Remove(key)
+        OnMessage(MsgNumber, "", MaxThreads)
         return fn
-	} else {
-		closures[key] := Closure
+    } else {
+        closures[key] := Closure
         OnMessage(MsgNumber, "OnMessageClosure", MaxThreads)
         if (fn) {
             return fn
         } else {
             return Closure
         }
-	}
+    }
 }
 
 
@@ -854,7 +854,7 @@ _OnMessage(MsgNumber, Closure="__Undefined", MaxThreads=1){
  * Implementation: Normalization.
  */
 _OutputDebug(Text){
-	OutputDebug %Text%
+    OutputDebug %Text%
 }
 
 
@@ -862,7 +862,7 @@ _OutputDebug(Text){
  * Implementation: Normalization.
  */
 _Pause(State="",OperateOnUnderlyingThread=""){
-	Pause %State%,%OperateOnUnderlyingThread%
+    Pause %State%,%OperateOnUnderlyingThread%
 }
 
 
@@ -870,8 +870,8 @@ _Pause(State="",OperateOnUnderlyingThread=""){
  * Implementation: Normalization.
  */
 _PixelGetColor(X,Y,Flags=""){
-	PixelGetColor OutputVar,%X%,%Y%,%Flags%
-	return OutputVar
+    PixelGetColor OutputVar,%X%,%Y%,%Flags%
+    return OutputVar
 }
 
 
@@ -881,8 +881,8 @@ _PixelGetColor(X,Y,Flags=""){
  * In JS, we return an Object with 2 properties: X, Y.
  */
 _PixelSearch(X1,Y1,X2,Y2,ColorID,Variation="",Flags=""){
-	PixelSearch X,Y,%X1%,%Y1%,%X2%,%Y2%,%ColorID%,%Variation%,%Flags%
-	return JS.Object("X",X, "Y",Y)
+    PixelSearch X,Y,%X1%,%Y1%,%X2%,%Y2%,%ColorID%,%Variation%,%Flags%
+    return JS.Object("X",X, "Y",Y)
 }
 
 
@@ -890,7 +890,7 @@ _PixelSearch(X1,Y1,X2,Y2,ColorID,Variation="",Flags=""){
  * Implementation: Normalization.
  */
 _PostMessage(Msg,wParam="",lParam="",Control="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
-	PostMessage %Msg%,%wParam%,%lParam%,%Control%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
+    PostMessage %Msg%,%wParam%,%lParam%,%Control%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
 }
 
 
@@ -898,7 +898,7 @@ _PostMessage(Msg,wParam="",lParam="",Control="",WinTitle="",WinText="",ExcludeTi
  * Implementation: Normalization.
  */
 _Process(Cmd,PIDorName,Param3=""){
-	Process %Cmd%,%PIDorName%,%Param3%
+    Process %Cmd%,%PIDorName%,%Param3%
 }
 
 
@@ -906,7 +906,7 @@ _Process(Cmd,PIDorName,Param3=""){
  * Implementation: Normalization.
  */
 _Progress(ProgressParam1,SubText="",MainText="",WinTitle="",FontName=""){
-	Progress %ProgressParam1%,%SubText%,%MainText%,%WinTitle%,%FontName%
+    Progress %ProgressParam1%,%SubText%,%MainText%,%WinTitle%,%FontName%
 }
 
 
@@ -919,12 +919,12 @@ _Progress(ProgressParam1,SubText="",MainText="",WinTitle="",FontName=""){
  * in which case the first two parameters are disregarded.
  */
 _Random(Min="",Max="",NewSeed=""){
-	If (NewSeed) {
-		Random,,%NewSeed%
-	} else {
-		Random OutputVar,%Min%,%Max%
-		return OutputVar+0
-	}
+    If (NewSeed) {
+        Random,,%NewSeed%
+    } else {
+        Random OutputVar,%Min%,%Max%
+        return OutputVar+0
+    }
 }
 
 
@@ -932,7 +932,7 @@ _Random(Min="",Max="",NewSeed=""){
  * Implementation: Normalization.
  */
 _RegDelete(RootKey,SubKey,ValueName=""){
-	RegDelete %RootKey%,%SubKey%,%ValueName%
+    RegDelete %RootKey%,%SubKey%,%ValueName%
 }
 
 
@@ -948,37 +948,37 @@ _RegDelete(RootKey,SubKey,ValueName=""){
  * what the matching mode is (default, P or O).
  */
 _RegExMatch(Haystack, NeedleRegEx, StartingPosition=1, Advanced=0){
-	if (Advanced) {
-		RegExMatch(NeedleRegEx, "^\W+\)", flags)
-		if (!flags) {
-			NeedleRegEx := "O)" . NeedleRegEx
-		} else {
-			if (!InStr(flags, "O", true)) {
-				NeedleRegEx := "O" . NeedleRegEx
-			}
-		}
-		RegExMatch(Haystack, NeedleRegEx, Match, StartingPosition)
+    if (Advanced) {
+        RegExMatch(NeedleRegEx, "^\W+\)", flags)
+        if (!flags) {
+            NeedleRegEx := "O)" . NeedleRegEx
+        } else {
+            if (!InStr(flags, "O", true)) {
+                NeedleRegEx := "O" . NeedleRegEx
+            }
+        }
+        RegExMatch(Haystack, NeedleRegEx, Match, StartingPosition)
         
         Pos := JS.Array()
         Len := JS.Array()
         Value := JS.Array()
         Name := JS.Array()        
         a := ["Pos",Pos, "Len",Len, "Value",Value, "Name",Name, "Count",Match.Count(), "Mark",Match.Mark()]
-		n := Match.Count() + 1
-		Loop, %n%
-		{
-			index := A_Index - 1
+        n := Match.Count() + 1
+        Loop, %n%
+        {
+            index := A_Index - 1
             Pos.push(Match.Pos(index))
             Len.push(Match.Len(index))
             Value.push(Match.Value(index))
             Name.push(Match.Name(index))
             a.Insert(index)
             a.Insert(Match[index])
-		}
-		return JS.Object(a*)
-	} else {
-		return RegExMatch(Haystack, NeedleRegEx, "", StartingPosition)
-	}
+        }
+        return JS.Object(a*)
+    } else {
+        return RegExMatch(Haystack, NeedleRegEx, "", StartingPosition)
+    }
 }
 
 
@@ -990,12 +990,12 @@ _RegExMatch(Haystack, NeedleRegEx, StartingPosition=1, Advanced=0){
  *		an Object will be returned, with 2 properties: Text, Count.
  */
 _RegExReplace(Haystack, NeedleRegEx, Replacement="", Limit=-1, StartingPosition=1, Advanced=0){
-	Text := RegExReplace(Haystack, NeedleRegEx, Replacement, Count, Limit, StartingPosition)
-	if (Advanced) {
-		return JS.Object("Text",Text, "Count",Count)
-	} else {
-		return Text
-	}
+    Text := RegExReplace(Haystack, NeedleRegEx, Replacement, Count, Limit, StartingPosition)
+    if (Advanced) {
+        return JS.Object("Text",Text, "Count",Count)
+    } else {
+        return Text
+    }
 }
 
 
@@ -1003,8 +1003,8 @@ _RegExReplace(Haystack, NeedleRegEx, Replacement="", Limit=-1, StartingPosition=
  * Implementation: Normalization.
  */
 _RegRead(RootKey,SubKey,ValueName=""){
-	RegRead OutputVar,%RootKey%,%SubKey%,%ValueName%
-	return OutputVar
+    RegRead OutputVar,%RootKey%,%SubKey%,%ValueName%
+    return OutputVar
 }
 
 
@@ -1012,7 +1012,7 @@ _RegRead(RootKey,SubKey,ValueName=""){
  * Implementation: Normalization.
  */
 _RegWrite(ValueType,RootKey,SubKey,ValueName="",Value=""){
-	RegWrite %ValueType%,%RootKey%,%SubKey%,%ValueName%,%Value%
+    RegWrite %ValueType%,%RootKey%,%SubKey%,%ValueName%,%Value%
 }
 
 
@@ -1020,7 +1020,7 @@ _RegWrite(ValueType,RootKey,SubKey,ValueName="",Value=""){
  * Implementation: Normalization.
  */
 _Reload(){
-	Reload 
+    Reload 
 }
 
 
@@ -1045,8 +1045,8 @@ _Require(path){
  * Implementation: Normalization.
  */
 _Run(Target, WorkingDir="", Flags=""){
-	Run %Target%, %WorkingDir%, %Flags%, OutputVar
-	return OutputVar
+    Run %Target%, %WorkingDir%, %Flags%, OutputVar
+    return OutputVar
 }
 
 
@@ -1054,7 +1054,7 @@ _Run(Target, WorkingDir="", Flags=""){
  * Implementation: Normalization.
  */
 _RunAs(User="",Password="",Domain=""){
-	RunAs %User%,%Password%,%Domain%
+    RunAs %User%,%Password%,%Domain%
 }
 
 
@@ -1064,7 +1064,7 @@ _RunAs(User="",Password="",Domain=""){
  * For JS, we cannot implement this feature and therefore don't return any PID (as opposed to "Run")
  */
 _RunWait(Target,WorkingDir="",Flags=""){
-	RunWait %Target%, %WorkingDir%, %Flags%
+    RunWait %Target%, %WorkingDir%, %Flags%
 }
 
 
@@ -1072,7 +1072,7 @@ _RunWait(Target,WorkingDir="",Flags=""){
  * Implementation: Normalization.
  */
 _Send(Keys){
-	Send %Keys%
+    Send %Keys%
 }
 
 
@@ -1080,7 +1080,7 @@ _Send(Keys){
  * Implementation: Normalization.
  */
 _SendEvent(Keys){
-	SendEvent %Keys%
+    SendEvent %Keys%
 }
 
 
@@ -1088,7 +1088,7 @@ _SendEvent(Keys){
  * Implementation: Normalization.
  */
 _SendInput(Keys){
-	SendInput %Keys%
+    SendInput %Keys%
 }
 
 
@@ -1096,7 +1096,7 @@ _SendInput(Keys){
  * Implementation: Normalization.
  */
 _SendLevel(Level){
-	SendLevel %Level%
+    SendLevel %Level%
 }
 
 
@@ -1104,7 +1104,7 @@ _SendLevel(Level){
  * Implementation: Normalization.
  */
 _SendMessage(Msg,wParam="",lParam="",Control="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText="",Timeout=""){
-	SendMessage %Msg%,%wParam%,%lParam%,%Control%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%,%Timeout%
+    SendMessage %Msg%,%wParam%,%lParam%,%Control%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%,%Timeout%
 }
 
 
@@ -1112,7 +1112,7 @@ _SendMessage(Msg,wParam="",lParam="",Control="",WinTitle="",WinText="",ExcludeTi
  * Implementation: Normalization.
  */
 _SendMode(Mode){
-	SendMode %Mode%
+    SendMode %Mode%
 }
 
 
@@ -1120,7 +1120,7 @@ _SendMode(Mode){
  * Implementation: Normalization.
  */
 _SendPlay(Keys){
-	SendPlay %Keys%
+    SendPlay %Keys%
 }
 
 
@@ -1128,7 +1128,7 @@ _SendPlay(Keys){
  * Implementation: Normalization.
  */
 _SendRaw(Keys){
-	SendRaw %Keys%
+    SendRaw %Keys%
 }
 
 
@@ -1136,7 +1136,7 @@ _SendRaw(Keys){
  * Implementation: Normalization.
  */
 _SetBatchLines(IntervalOrLineCount){
-	SetBatchLines %IntervalOrLineCount%
+    SetBatchLines %IntervalOrLineCount%
 }
 
 
@@ -1144,7 +1144,7 @@ _SetBatchLines(IntervalOrLineCount){
  * Implementation: Normalization.
  */
 _SetCapslockState(State=""){
-	SetCapslockState %State%
+    SetCapslockState %State%
 }
 
 
@@ -1152,7 +1152,7 @@ _SetCapslockState(State=""){
  * Implementation: Normalization.
  */
 _SetControlDelay(Delay){
-	SetControlDelay %Delay%
+    SetControlDelay %Delay%
 }
 
 
@@ -1160,7 +1160,7 @@ _SetControlDelay(Delay){
  * Implementation: Normalization.
  */
 _SetDefaultMouseSpeed(Speed){
-	SetDefaultMouseSpeed %Speed%
+    SetDefaultMouseSpeed %Speed%
 }
 
 
@@ -1168,7 +1168,7 @@ _SetDefaultMouseSpeed(Speed){
  * Implementation: Normalization.
  */
 _SetFormat(NumberType,Format){
-	SetFormat %NumberType%,%Format%
+    SetFormat %NumberType%,%Format%
 }
 
 
@@ -1176,7 +1176,7 @@ _SetFormat(NumberType,Format){
  * Implementation: Normalization.
  */
 _SetKeyDelay(Delay="",PressDuration="",Play=""){
-	SetKeyDelay %Delay%,%PressDuration%,%Play%
+    SetKeyDelay %Delay%,%PressDuration%,%Play%
 }
 
 
@@ -1184,7 +1184,7 @@ _SetKeyDelay(Delay="",PressDuration="",Play=""){
  * Implementation: Normalization.
  */
 _SetMouseDelay(Delay,Play=""){
-	SetMouseDelay %Delay%,%Play%
+    SetMouseDelay %Delay%,%Play%
 }
 
 
@@ -1192,7 +1192,7 @@ _SetMouseDelay(Delay,Play=""){
  * Implementation: Normalization.
  */
 _SetNumLockState(State=""){
-	SetNumLockState %State%
+    SetNumLockState %State%
 }
 
 
@@ -1200,7 +1200,7 @@ _SetNumLockState(State=""){
  * Implementation: Normalization.
  */
 _SetRegView(RegView){
-	SetRegView %RegView%
+    SetRegView %RegView%
 }
 
 
@@ -1208,7 +1208,7 @@ _SetRegView(RegView){
  * Implementation: Normalization.
  */
 _SetScrollLockState(State=""){
-	SetScrollLockState %State%
+    SetScrollLockState %State%
 }
 
 
@@ -1216,7 +1216,7 @@ _SetScrollLockState(State=""){
  * Implementation: Normalization.
  */
 _SetStoreCapslockMode(OnOrOff){
-	SetStoreCapslockMode %OnOrOff%
+    SetStoreCapslockMode %OnOrOff%
 }
 
 
@@ -1224,7 +1224,7 @@ _SetStoreCapslockMode(OnOrOff){
  * Implementation: Normalization.
  */
 _SetTitleMatchMode(Flag){
-	SetTitleMatchMode %Flag%
+    SetTitleMatchMode %Flag%
 }
 
 
@@ -1232,7 +1232,7 @@ _SetTitleMatchMode(Flag){
  * Implementation: Normalization.
  */
 _SetWinDelay(Delay){
-	SetWinDelay %Delay%
+    SetWinDelay %Delay%
 }
 
 
@@ -1240,7 +1240,7 @@ _SetWinDelay(Delay){
  * Implementation: Normalization.
  */
 _SetWorkingDir(DirName){
-	SetWorkingDir %DirName%
+    SetWorkingDir %DirName%
 }
 
 
@@ -1248,7 +1248,7 @@ _SetWorkingDir(DirName){
  * Implementation: Normalization.
  */
 _Shutdown(Code){
-	Shutdown %Code%
+    Shutdown %Code%
 }
 
 
@@ -1256,7 +1256,7 @@ _Shutdown(Code){
  * Implementation: Normalization.
  */
 _Sleep(DelayInMilliseconds){
-	Sleep %DelayInMilliseconds%
+    Sleep %DelayInMilliseconds%
 }
 
 
@@ -1267,8 +1267,8 @@ _Sleep(DelayInMilliseconds){
  * TODO: implement the "F MyFunction" flag.
  */
 _Sort(VarName,Options=""){
-	Sort VarName, %Options%
-	return VarName
+    Sort VarName, %Options%
+    return VarName
 }
 
 
@@ -1276,7 +1276,7 @@ _Sort(VarName,Options=""){
  * Implementation: Normalization.
  */
 _SoundBeep(Frequency="",Duration=""){
-	SoundBeep %Frequency%,%Duration%
+    SoundBeep %Frequency%,%Duration%
 }
 
 
@@ -1285,13 +1285,13 @@ _SoundBeep(Frequency="",Duration=""){
  * "SoundGet" is special because it has multiple return types (Number or String).
  */
 _SoundGet(ComponentType="",ControlType="",DeviceNumber=""){
-	SoundGet OutputVar, %ComponentType%, %ControlType%, %DeviceNumber%
-	static STRING_CONTROL_TYPES := {ONOFF:1, MUTE:1, MONO:1, LOUDNESS:1, STEREOENH:1, BASSBOOST:1}
-	if (STRING_CONTROL_TYPES.HasKey(ControlType)) {
-		return OutputVar
-	} else {
-		return OutputVar+0
-	}
+    SoundGet OutputVar, %ComponentType%, %ControlType%, %DeviceNumber%
+    static STRING_CONTROL_TYPES := {ONOFF:1, MUTE:1, MONO:1, LOUDNESS:1, STEREOENH:1, BASSBOOST:1}
+    if (STRING_CONTROL_TYPES.HasKey(ControlType)) {
+        return OutputVar
+    } else {
+        return OutputVar+0
+    }
 }
 
 
@@ -1299,8 +1299,8 @@ _SoundGet(ComponentType="",ControlType="",DeviceNumber=""){
  * Implementation: Normalization.
  */
 _SoundGetWaveVolume(DeviceNumber=""){
-	SoundGetWaveVolume OutputVar,%DeviceNumber%
-	return OutputVar+0
+    SoundGetWaveVolume OutputVar,%DeviceNumber%
+    return OutputVar+0
 }
 
 
@@ -1308,7 +1308,7 @@ _SoundGetWaveVolume(DeviceNumber=""){
  * Implementation: Normalization.
  */
 _SoundPlay(Filename,Wait=""){
-	SoundPlay %Filename%,%Wait%
+    SoundPlay %Filename%,%Wait%
 }
 
 
@@ -1316,7 +1316,7 @@ _SoundPlay(Filename,Wait=""){
  * Implementation: Normalization.
  */
 _SoundSet(NewSetting,ComponentType="",ControlType="",DeviceNumber=""){
-	SoundSet %NewSetting%,%ComponentType%,%ControlType%,%DeviceNumber%
+    SoundSet %NewSetting%,%ComponentType%,%ControlType%,%DeviceNumber%
 }
 
 
@@ -1324,7 +1324,7 @@ _SoundSet(NewSetting,ComponentType="",ControlType="",DeviceNumber=""){
  * Implementation: Normalization.
  */
 _SoundSetWaveVolume(Percent,DeviceNumber=""){
-	SoundSetWaveVolume %Percent%,%DeviceNumber%
+    SoundSetWaveVolume %Percent%,%DeviceNumber%
 }
 
 
@@ -1332,7 +1332,7 @@ _SoundSetWaveVolume(Percent,DeviceNumber=""){
  * Implementation: Normalization.
  */
 _SplashImage(Param1,Options="",SubText="",MainText="",WinTitle="",FontName=""){
-	SplashImage %Param1%,%Options%,%SubText%,%MainText%,%WinTitle%,%FontName%
+    SplashImage %Param1%,%Options%,%SubText%,%MainText%,%WinTitle%,%FontName%
 }
 
 
@@ -1340,7 +1340,7 @@ _SplashImage(Param1,Options="",SubText="",MainText="",WinTitle="",FontName=""){
  * Implementation: Normalization.
  */
 _SplashTextOff(){
-	SplashTextOff 
+    SplashTextOff 
 }
 
 
@@ -1348,7 +1348,7 @@ _SplashTextOff(){
  * Implementation: Normalization.
  */
 _SplashTextOn(Width="",Height="",Title="",Text=""){
-	SplashTextOn %Width%,%Height%,%Title%,%Text%
+    SplashTextOn %Width%,%Height%,%Title%,%Text%
 }
 
 
@@ -1358,8 +1358,8 @@ _SplashTextOn(Width="",Height="",Title="",Text=""){
  * In JS, we return an Object with 5 properties: FileName, Dir, Extension, NameNoExt, Drive
  */
 _SplitPath(InputVar){
-	SplitPath InputVar, FileName, Dir, Extension, NameNoExt, Drive
-	return JS.Object("FileName",FileName, "Dir",Dir, "Extension",Extension, "NameNoExt",NameNoExt, "Drive",Drive)
+    SplitPath InputVar, FileName, Dir, Extension, NameNoExt, Drive
+    return JS.Object("FileName",FileName, "Dir",Dir, "Extension",Extension, "NameNoExt",NameNoExt, "Drive",Drive)
 }
 
 
@@ -1367,8 +1367,8 @@ _SplitPath(InputVar){
  * Implementation: Normalization.
  */
 _StatusBarGetText(Part="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
-	StatusBarGetText OutputVar,%Part%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
-	return OutputVar
+    StatusBarGetText OutputVar,%Part%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
+    return OutputVar
 }
 
 
@@ -1376,7 +1376,7 @@ _StatusBarGetText(Part="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText="")
  * Implementation: Normalization.
  */
 _StatusBarWait(BarText="",Seconds="",Part#="",WinTitle="",WinText="",Interval="",ExcludeTitle="",ExcludeText=""){
-	StatusBarWait %BarText%,%Seconds%,%Part#%,%WinTitle%,%WinText%,%Interval%,%ExcludeTitle%,%ExcludeText%
+    StatusBarWait %BarText%,%Seconds%,%Part#%,%WinTitle%,%WinText%,%Interval%,%ExcludeTitle%,%ExcludeText%
 }
 
 
@@ -1384,7 +1384,7 @@ _StatusBarWait(BarText="",Seconds="",Part#="",WinTitle="",WinText="",Interval=""
  * Implementation: Normalization.
  */
 _StringCaseSense(Flag){
-	StringCaseSense %Flag%
+    StringCaseSense %Flag%
 }
 
 
@@ -1392,8 +1392,8 @@ _StringCaseSense(Flag){
  * Implementation: Normalization.
  */
 _StringGetPos(InputVar,SearchText,LRFlag="",Offset=""){
-	StringGetPos OutputVar,InputVar, %SearchText%,%LRFlag%,%Offset%
-	return OutputVar+0
+    StringGetPos OutputVar,InputVar, %SearchText%,%LRFlag%,%Offset%
+    return OutputVar+0
 }
 
 
@@ -1401,8 +1401,8 @@ _StringGetPos(InputVar,SearchText,LRFlag="",Offset=""){
  * Implementation: Normalization.
  */
 _StringLeft(InputVar,Count){
-	StringLeft OutputVar,InputVar,%Count%
-	return OutputVar
+    StringLeft OutputVar,InputVar,%Count%
+    return OutputVar
 }
 
 
@@ -1410,8 +1410,8 @@ _StringLeft(InputVar,Count){
  * Implementation: Normalization.
  */
 _StringLen(InputVar){
-	StringLen OutputVar,InputVar
-	return OutputVar
+    StringLen OutputVar,InputVar
+    return OutputVar
 }
 
 
@@ -1419,8 +1419,8 @@ _StringLen(InputVar){
  * Implementation: Normalization.
  */
 _StringLower(InputVar,T=""){
-	StringLower OutputVar,InputVar,%T%
-	return OutputVar
+    StringLower OutputVar,InputVar,%T%
+    return OutputVar
 }
 
 
@@ -1428,8 +1428,8 @@ _StringLower(InputVar,T=""){
  * Implementation: Normalization.
  */
 _StringMid(InputVar,StartChar,Count="",L=""){
-	StringMid OutputVar,InputVar,%StartChar%,%Count%,%L%
-	return OutputVar
+    StringMid OutputVar,InputVar,%StartChar%,%Count%,%L%
+    return OutputVar
 }
 
 
@@ -1437,8 +1437,8 @@ _StringMid(InputVar,StartChar,Count="",L=""){
  * Implementation: Normalization.
  */
 _StringReplace(InputVar,SearchText,ReplaceText="",ReplaceAll=""){
-	StringReplace OutputVar,InputVar,%SearchText%,%ReplaceText%,%ReplaceAll%
-	return OutputVar
+    StringReplace OutputVar,InputVar,%SearchText%,%ReplaceText%,%ReplaceAll%
+    return OutputVar
 }
 
 
@@ -1446,8 +1446,8 @@ _StringReplace(InputVar,SearchText,ReplaceText="",ReplaceAll=""){
  * Implementation: Normalization.
  */
 _StringRight(InputVar,Count){
-	StringRight OutputVar,InputVar,%Count%
-	return OutputVar
+    StringRight OutputVar,InputVar,%Count%
+    return OutputVar
 }
 
 
@@ -1455,8 +1455,8 @@ _StringRight(InputVar,Count){
  * Implementation: Normalization.
  */
 _StringTrimLeft(InputVar,Count){
-	StringTrimLeft OutputVar,InputVar,%Count%
-	return OutputVar
+    StringTrimLeft OutputVar,InputVar,%Count%
+    return OutputVar
 }
 
 
@@ -1464,8 +1464,8 @@ _StringTrimLeft(InputVar,Count){
  * Implementation: Normalization.
  */
 _StringTrimRight(InputVar,Count){
-	StringTrimRight OutputVar,InputVar,%Count%
-	return OutputVar
+    StringTrimRight OutputVar,InputVar,%Count%
+    return OutputVar
 }
 
 
@@ -1473,8 +1473,8 @@ _StringTrimRight(InputVar,Count){
  * Implementation: Normalization.
  */
 _StringUpper(InputVar,T=""){
-	StringUpper OutputVar,InputVar,%T%
-	return OutputVar
+    StringUpper OutputVar,InputVar,%T%
+    return OutputVar
 }
 
 
@@ -1482,7 +1482,7 @@ _StringUpper(InputVar,T=""){
  * Implementation: Normalization.
  */
 _Suspend(Mode=""){
-	Suspend %Mode%
+    Suspend %Mode%
 }
 
 
@@ -1494,12 +1494,12 @@ _Suspend(Mode=""){
  * Otherwise, the output will be Number.
  */
 _SysGet(Subcommand,Param2=""){
-	SysGet v, %Subcommand%, %Param2%
-	if (Subcommand == "Monitor") {
-		return JS.Object("Left",vLeft, "Top",vTop, "Right",vRight, "Bottom",vBottom)
-	} else if (Subcommand == "MonitorName") {
-		return v
-	} else {
+    SysGet v, %Subcommand%, %Param2%
+    if (Subcommand == "Monitor") {
+        return JS.Object("Left",vLeft, "Top",vTop, "Right",vRight, "Bottom",vBottom)
+    } else if (Subcommand == "MonitorName") {
+        return v
+    } else {
         return v+0
     }
 }
@@ -1509,7 +1509,7 @@ _SysGet(Subcommand,Param2=""){
  * Implementation: Normalization.
  */
 _Thread(Subcommand,Param2="",Param3=""){
-	Thread %Subcommand%,%Param2%,%Param3%
+    Thread %Subcommand%,%Param2%,%Param3%
 }
 
 
@@ -1517,7 +1517,7 @@ _Thread(Subcommand,Param2="",Param3=""){
  * Implementation: Normalization.
  */
 _ToolTip(Text="",X="",Y="",WhichToolTip=""){
-	ToolTip %Text%,%X%,%Y%,%WhichToolTip%
+    ToolTip %Text%,%X%,%Y%,%WhichToolTip%
 }
 
 
@@ -1526,13 +1526,13 @@ _ToolTip(Text="",X="",Y="",WhichToolTip=""){
  * "Transform" is special because it has multiple return types (Number or String).
  */
 _Transform(Cmd,Value1,Value2=""){
-	Transform OutputVar, %Cmd%, %Value1%, %Value2%
-	static STRING_COMMANDS := {Chr:1, HTML:1}
-	if (STRING_COMMANDS.HasKey(Cmd)) {
-		return OutputVar
-	} else {
-		return OutputVar+0
-	}
+    Transform OutputVar, %Cmd%, %Value1%, %Value2%
+    static STRING_COMMANDS := {Chr:1, HTML:1}
+    if (STRING_COMMANDS.HasKey(Cmd)) {
+        return OutputVar
+    } else {
+        return OutputVar+0
+    }
 }
 
 
@@ -1540,7 +1540,7 @@ _Transform(Cmd,Value1,Value2=""){
  * Implementation: Normalization.
  */
 _TrayTip(Title="",Text="",Seconds="",Options=""){
-	TrayTip %Title%,%Text%,%Seconds%,%Options%
+    TrayTip %Title%,%Text%,%Seconds%,%Options%
 }
 
 /**
@@ -1551,13 +1551,13 @@ _TrayTip(Title="",Text="",Seconds="",Options=""){
  *		2) the advanced mode (Advanced non-empty) returns an object with 2 properties: Text, Success.
  */
 _TV_GetText(ItemID, Advanced=0){
-	if (Advanced) {
+    if (Advanced) {
         Success := TV_GetText(OutputVar, ItemID)
-		return JS.Object("Text", OutputVar, "Success",Success)
-	} else {
-		TV_GetText(OutputVar, ItemID)
-		return OutputVar
-	}
+        return JS.Object("Text", OutputVar, "Success",Success)
+    } else {
+        TV_GetText(OutputVar, ItemID)
+        return OutputVar
+    }
 }
 
 
@@ -1565,7 +1565,7 @@ _TV_GetText(ItemID, Advanced=0){
  * Implementation: Normalization.
  */
 _UrlDownloadToFile(URL,Filename){
-	UrlDownloadToFile %URL%,%Filename%
+    UrlDownloadToFile %URL%,%Filename%
 }
 
 
@@ -1573,7 +1573,7 @@ _UrlDownloadToFile(URL,Filename){
  * Implementation: Normalization.
  */
 _WinActivate(WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
-	WinActivate %WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
+    WinActivate %WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
 }
 
 
@@ -1581,7 +1581,7 @@ _WinActivate(WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
  * Implementation: Normalization.
  */
 _WinActivateBottom(WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
-	WinActivateBottom %WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
+    WinActivateBottom %WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
 }
 
 
@@ -1589,7 +1589,7 @@ _WinActivateBottom(WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
  * Implementation: Normalization.
  */
 _WinClose(WinTitle="",WinText="",SecondsToWait="",ExcludeTitle="",ExcludeText=""){
-	WinClose %WinTitle%,%WinText%,%SecondsToWait%,%ExcludeTitle%,%ExcludeText%
+    WinClose %WinTitle%,%WinText%,%SecondsToWait%,%ExcludeTitle%,%ExcludeText%
 }
 
 
@@ -1600,7 +1600,7 @@ _WinClose(WinTitle="",WinText="",SecondsToWait="",ExcludeTitle="",ExcludeText=""
  * TODO: implement the List Cmd
  */
 _WinGet(Cmd="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
-	WinGet OutputVar,%Cmd%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
+    WinGet OutputVar,%Cmd%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
     StringLower, Cmd, Cmd
     static STRING_COMMANDS := {ProcessName:1, ProcessPath:1, ControlList:1, ControlListHwnd:1, Style:1, ExStyle:1}
     if (Cmd == "list") {
@@ -1611,11 +1611,11 @@ _WinGet(Cmd="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
         }
         return JS.Array(a*) ; variadic call
     } else if (STRING_COMMANDS.HasKey(Cmd)) {
-		return OutputVar
-	} else {
-		return OutputVar+0
-	}
-	
+        return OutputVar
+    } else {
+        return OutputVar+0
+    }
+    
 }
 
 
@@ -1625,8 +1625,8 @@ _WinGet(Cmd="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
  * In JS, we return an Object with 5 properties: X, Y, Width, Height, Title.
  */
 _WinGetActiveStats(){
-	WinGetActiveStats Title,Width,Height,X,Y
-	return JS.Object("Title",Title, "Width",Width, "Height",Height, "X",X, "Y",Y)
+    WinGetActiveStats Title,Width,Height,X,Y
+    return JS.Object("Title",Title, "Width",Width, "Height",Height, "X",X, "Y",Y)
 }
 
 
@@ -1634,8 +1634,8 @@ _WinGetActiveStats(){
  * Implementation: Normalization.
  */
 _WinGetActiveTitle(){
-	WinGetActiveTitle OutputVar
-	return OutputVar
+    WinGetActiveTitle OutputVar
+    return OutputVar
 }
 
 
@@ -1643,8 +1643,8 @@ _WinGetActiveTitle(){
  * Implementation: Normalization.
  */
 _WinGetClass(WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
-	WinGetClass OutputVar,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
-	return OutputVar
+    WinGetClass OutputVar,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
+    return OutputVar
 }
 
 
@@ -1654,8 +1654,8 @@ _WinGetClass(WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
  * In JS, we return an Object with 4 properties: X, Y, Width, Height.
  */
 _WinGetPos(WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
-	WinGetPos X, Y, Width, Height, %WinTitle%, %WinText%, %ExcludeTitle%, %ExcludeText%
-	return JS.Object("Width",Width, "Height",Height, "X",X, "Y",Y)
+    WinGetPos X, Y, Width, Height, %WinTitle%, %WinText%, %ExcludeTitle%, %ExcludeText%
+    return JS.Object("Width",Width, "Height",Height, "X",X, "Y",Y)
 }
 
 
@@ -1663,8 +1663,8 @@ _WinGetPos(WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
  * Implementation: Normalization.
  */
 _WinGetText(WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
-	WinGetText OutputVar,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
-	return OutputVar
+    WinGetText OutputVar,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
+    return OutputVar
 }
 
 
@@ -1672,8 +1672,8 @@ _WinGetText(WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
  * Implementation: Normalization.
  */
 _WinGetTitle(WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
-	WinGetTitle OutputVar,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
-	return OutputVar
+    WinGetTitle OutputVar,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
+    return OutputVar
 }
 
 
@@ -1681,7 +1681,7 @@ _WinGetTitle(WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
  * Implementation: Normalization.
  */
 _WinHide(WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
-	WinHide %WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
+    WinHide %WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
 }
 
 
@@ -1689,7 +1689,7 @@ _WinHide(WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
  * Implementation: Normalization.
  */
 _WinKill(WinTitle="",WinText="",SecondsToWait="",ExcludeTitle="",ExcludeText=""){
-	WinKill %WinTitle%,%WinText%,%SecondsToWait%,%ExcludeTitle%,%ExcludeText%
+    WinKill %WinTitle%,%WinText%,%SecondsToWait%,%ExcludeTitle%,%ExcludeText%
 }
 
 
@@ -1697,7 +1697,7 @@ _WinKill(WinTitle="",WinText="",SecondsToWait="",ExcludeTitle="",ExcludeText="")
  * Implementation: Normalization.
  */
 _WinMaximize(WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
-	WinMaximize %WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
+    WinMaximize %WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
 }
 
 
@@ -1705,7 +1705,7 @@ _WinMaximize(WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
  * Implementation: Normalization.
  */
 _WinMenuSelectItem(WinTitle,WinText,Menu,SubMenu1="",SubMenu2="",SubMenu3="",SubMenu4="",SubMenu5="",SubMenu6="",ExcludeTitle="",ExcludeText=""){
-	WinMenuSelectItem %WinTitle%,%WinText%,%Menu%,%SubMenu1%,%SubMenu2%,%SubMenu3%,%SubMenu4%,%SubMenu5%,%SubMenu6%,%ExcludeTitle%,%ExcludeText%
+    WinMenuSelectItem %WinTitle%,%WinText%,%Menu%,%SubMenu1%,%SubMenu2%,%SubMenu3%,%SubMenu4%,%SubMenu5%,%SubMenu6%,%ExcludeTitle%,%ExcludeText%
 }
 
 
@@ -1713,7 +1713,7 @@ _WinMenuSelectItem(WinTitle,WinText,Menu,SubMenu1="",SubMenu2="",SubMenu3="",Sub
  * Implementation: Normalization.
  */
 _WinMinimize(WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
-	WinMinimize %WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
+    WinMinimize %WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
 }
 
 
@@ -1721,7 +1721,7 @@ _WinMinimize(WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
  * Implementation: Normalization.
  */
 _WinMinimizeAll(){
-	WinMinimizeAll 
+    WinMinimizeAll 
 }
 
 
@@ -1729,7 +1729,7 @@ _WinMinimizeAll(){
  * Implementation: Normalization.
  */
 _WinMinimizeAllUndo(){
-	WinMinimizeAllUndo 
+    WinMinimizeAllUndo 
 }
 
 
@@ -1737,7 +1737,7 @@ _WinMinimizeAllUndo(){
  * Implementation: Normalization.
  */
 _WinMove(Param1,Param2,X="",Y="",Width="",Height="",ExcludeTitle="",ExcludeText=""){
-	WinMove %Param1%,%Param2%,%X%,%Y%,%Width%,%Height%,%ExcludeTitle%,%ExcludeText%
+    WinMove %Param1%,%Param2%,%X%,%Y%,%Width%,%Height%,%ExcludeTitle%,%ExcludeText%
 }
 
 
@@ -1745,7 +1745,7 @@ _WinMove(Param1,Param2,X="",Y="",Width="",Height="",ExcludeTitle="",ExcludeText=
  * Implementation: Normalization.
  */
 _WinRestore(WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
-	WinRestore %WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
+    WinRestore %WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
 }
 
 
@@ -1753,7 +1753,7 @@ _WinRestore(WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
  * Implementation: Normalization.
  */
 _WinSet(Attribute,Value,WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
-	WinSet %Attribute%,%Value%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
+    WinSet %Attribute%,%Value%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
 }
 
 
@@ -1761,7 +1761,7 @@ _WinSet(Attribute,Value,WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
  * Implementation: Normalization.
  */
 _WinSetTitle(Param1,WinText,NewTitle,ExcludeTitle="",ExcludeText=""){
-	WinSetTitle %Param1%,%WinText%,%NewTitle%,%ExcludeTitle%,%ExcludeText%
+    WinSetTitle %Param1%,%WinText%,%NewTitle%,%ExcludeTitle%,%ExcludeText%
 }
 
 
@@ -1769,7 +1769,7 @@ _WinSetTitle(Param1,WinText,NewTitle,ExcludeTitle="",ExcludeText=""){
  * Implementation: Normalization.
  */
 _WinShow(WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
-	WinShow %WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
+    WinShow %WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
 }
 
 
@@ -1777,7 +1777,7 @@ _WinShow(WinTitle="",WinText="",ExcludeTitle="",ExcludeText=""){
  * Implementation: Normalization.
  */
 _WinWait(WinTitle="",WinText="",Seconds="",ExcludeTitle="",ExcludeText=""){
-	WinWait %WinTitle%,%WinText%,%Seconds%,%ExcludeTitle%,%ExcludeText%
+    WinWait %WinTitle%,%WinText%,%Seconds%,%ExcludeTitle%,%ExcludeText%
 }
 
 
@@ -1785,7 +1785,7 @@ _WinWait(WinTitle="",WinText="",Seconds="",ExcludeTitle="",ExcludeText=""){
  * Implementation: Normalization.
  */
 _WinWaitActive(WinTitle="",WinText="",Seconds="",ExcludeTitle="",ExcludeText=""){
-	WinWaitActive %WinTitle%,%WinText%,%Seconds%,%ExcludeTitle%,%ExcludeText%
+    WinWaitActive %WinTitle%,%WinText%,%Seconds%,%ExcludeTitle%,%ExcludeText%
 }
 
 
@@ -1793,7 +1793,7 @@ _WinWaitActive(WinTitle="",WinText="",Seconds="",ExcludeTitle="",ExcludeText="")
  * Implementation: Normalization.
  */
 _WinWaitClose(WinTitle="",WinText="",Seconds="",ExcludeTitle="",ExcludeText=""){
-	WinWaitClose %WinTitle%,%WinText%,%Seconds%,%ExcludeTitle%,%ExcludeText%
+    WinWaitClose %WinTitle%,%WinText%,%Seconds%,%ExcludeTitle%,%ExcludeText%
 }
 
 
@@ -1801,5 +1801,5 @@ _WinWaitClose(WinTitle="",WinText="",Seconds="",ExcludeTitle="",ExcludeText=""){
  * Implementation: Normalization.
  */
 _WinWaitNotActive(WinTitle="",WinText="",Seconds="",ExcludeTitle="",ExcludeText=""){
-	WinWaitNotActive %WinTitle%,%WinText%,%Seconds%,%ExcludeTitle%,%ExcludeText%
+    WinWaitNotActive %WinTitle%,%WinText%,%Seconds%,%ExcludeTitle%,%ExcludeText%
 }
