@@ -535,12 +535,13 @@ _GroupDeactivate(GroupName,R=""){
 }
 
 
-/**
- * Implementation: Normalization.
- */
-_Gui(Subcommand,Param2="",Param3="",Param4=""){
-    Gui %Subcommand%,%Param2%,%Param3%,%Param4%
-}
+; TODO: Presense of Gui command makes the script persistent.
+; /**
+;  * Implementation: Normalization.
+;  */
+; _Gui(Subcommand,Param2="",Param3="",Param4=""){
+; 	Gui, %Subcommand%,%Param2%,%Param3%,%Param4%
+; }
 
 
 /**
@@ -570,7 +571,7 @@ _Hotkey(KeyName, Closure="", Options=""){
     if (KeyName == "") {
         end("Invalid KeyName!")
     }
-    StringLower, Closure, Closure	; uniformity, to allow case insesitivity
+    StringLower, Closure, Closure	; uniformity, to allow case insensitivity
     operation := ""
     if (Closure == "on" || RegExMatch(Options, "i)\bOn\b")) {
         operation := "on"
@@ -586,7 +587,7 @@ _Hotkey(KeyName, Closure="", Options=""){
             Hotkey %KeyName%, %operation%, %Options%
         }
     } else {
-        if (Closure!="") {
+        if (Closure != "") {
             closures["Hotkey" . KeyName] := Closure
             Hotkey %KeyName%, LabelHotkey, %Options%
         } else {
@@ -836,11 +837,12 @@ _OnMessage(MsgNumber, Closure="__Undefined", MaxThreads=1){
         return fn
     } else if (Closure == "") {
         closures.Remove(key)
-        OnMessage(MsgNumber, "", MaxThreads)
+        ; TODO: Presence of OnMessage makes the script persistent.
+        ; OnMessage(MsgNumber, "", MaxThreads)
         return fn
     } else {
         closures[key] := Closure
-        OnMessage(MsgNumber, "OnMessageClosure", MaxThreads)
+        ; OnMessage(MsgNumber, "OnMessageClosure", MaxThreads)
         if (fn) {
             return fn
         } else {

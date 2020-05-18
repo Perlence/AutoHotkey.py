@@ -2,13 +2,16 @@
 #Warn, All, MsgBox
 
 global NULL := 0
+; TODO: Find Python DLL with py.exe or in VIRTUAL_ENV.
 global PYTHON_DLL := "c:\Users\Sviatoslav\AppData\Local\Programs\Python\Python38\python38.dll"
 global METH_VARARGS := 0x0001
 global PYTHON_API_VERSION := 1013
 
+global closures := {}
+
 AHKCallCmd(self, args)
 {
-    ; TODO: Insert C code for reference.
+    ; const char *cmd;
     local cmd := NULL
     ; Maximum number of AHK command arguments seems to be 11
     local arg1 := NULL
@@ -53,21 +56,38 @@ AHKCallCmd(self, args)
         }
     }
 
-    if (cmd == "MsgBox") {
-        if (arg1 == NULL) {
-            MsgBox
-        } else if (arg2 == NULL) {
-            MsgBox, %arg1%
-        } else {
-            MsgBox, % arg1,%arg2%,%arg3%,%arg4%
-        }
-    } else if (cmd == "Send") {
-        Send, %arg1%
-    } else {
+    if (!Func("_" cmd)) {
         ; TODO: Raise Python exception.
-        MsgBox, % "Unknown command " cmd
+        end("Unknown command " cmd)
         return DllCall(PYTHON_DLL "\PyLong_FromLong", Int, 1, "Cdecl Ptr")
     }
+
+    if (arg1 == NULL) {
+        _%cmd%()
+    } else if (arg2 == NULL) {
+        _%cmd%(arg1)
+    } else if (arg3 == NULL) {
+        _%cmd%(arg1, arg2)
+    } else if (arg4 == NULL) {
+        _%cmd%(arg1, arg2, arg3)
+    } else if (arg5 == NULL) {
+        _%cmd%(arg1, arg2, arg3, arg4)
+    } else if (arg6 == NULL) {
+        _%cmd%(arg1, arg2, arg3, arg4, arg5)
+    } else if (arg7 == NULL) {
+        _%cmd%(arg1, arg2, arg3, arg4, arg5, arg6)
+    } else if (arg8 == NULL) {
+        _%cmd%(arg1, arg2, arg3, arg4, arg5, arg6, arg7)
+    } else if (arg9 == NULL) {
+        _%cmd%(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
+    } else if (arg10 == NULL) {
+        _%cmd%(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
+    } else if (arg11 == NULL) {
+        _%cmd%(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
+    } else {
+        _%cmd%(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
+    }
+
     ; TODO: Export other AHK commands.
     return DllCall(PYTHON_DLL "\PyLong_FromLong", Int, 0, "Cdecl Ptr")
 }
@@ -160,27 +180,102 @@ try:
     _ahk.call_cmd("MsgBox", "4", "", "Do you want to continue? (Press YES or NO)")
     # TODO: Call command with Unicode strings.
     _ahk.call_cmd("Send", "#r")
-    _ahk.call_cmd("WinExist", "A")
+    _ahk.call_cmd("NoSuchCommand", "A")
 except:
     import ctypes
     import traceback
     ctypes.windll.user32.MessageBoxW(0, traceback.format_exc(), "AHK", 1)
 )
 
-; ATTACH_PARENT_PROCESS := -1
-; DllCall("AllocConsole", Int, ATTACH_PARENT_PROCESS)
+OnExit, LabelOnExit
 
-; stdout := FileOpen("*", "w")
-; stdout.WriteLine("line 2")
-; stdout.WriteLine("line 3")
-; stdout.__Handle ; flush
+; ATTACH_PARENT_PROCESS := -1
+; DllCall("AttachConsole", UInt, ATTACH_PARENT_PROCESS)
+; DllCall("AllocConsole")
+
+; stdout := FileOpen(DllCall("GetStdHandle", "int", -11, "ptr"), "h `n")
+; stdout.WriteLine("line 1")
+; stdout.__Handle
 
 DllCall("LoadLibrary", Str, PYTHON_DLL)
 DllCall(PYTHON_DLL "\PyImport_AppendInittab"
-    , Ptr, &AHKModule_name
+    , Ptr, &AHKModule_name ; `AStr, "_ahk"` doesn't work for some reason
     , Ptr, RegisterCallback("PyInit_ahk", "C", 0)
     , Cdecl)
 DllCall(PYTHON_DLL "\Py_Initialize", Cdecl)
 DllCall(PYTHON_DLL "\PyRun_SimpleString", AStr, py, Cdecl)
-; TODO: Show Python's syntax errors.
+; TODO: Show Python syntax errors.
 DllCall(PYTHON_DLL "\Py_Finalize", Cdecl)
+
+
+; END AUTO-EXECUTE SECTION
+return
+
+
+/**
+* Wrapper for SKAN's function (see below)
+*/
+getArgs() {
+    CmdLine := DllCall("GetCommandLine", "Str")
+    CmdLine := RegExReplace(CmdLine, " /ErrorStdOut", "")
+    Skip := (A_IsCompiled ? 1 : 2)
+    argv := Args(CmdLine, Skip)
+    return argv
+}
+
+/**
+* By SKAN,  http://goo.gl/JfMNpN,  CD:23/Aug/2014 | MD:24/Aug/2014
+*/
+Args(CmdLine := "", Skip := 0) {    
+    Local pArgs := 0, nArgs := 0, A := []
+    pArgs := DllCall( "Shell32\CommandLineToArgvW", WStr, CmdLine, PtrP, nArgs, Ptr)
+    Loop % (nArgs)
+        if (A_Index > Skip)
+            A[A_Index - Skip] := StrGet(NumGet((A_Index - 1) * A_PtrSize + pArgs), "UTF-16")
+    Return A, A[0] := nArgs - Skip, DllCall("LocalFree", "Ptr", pArgs)  
+}
+
+trigger(key, args*) {
+    ; closure := closures[key]
+    ; if (closure) {
+    ;     return closure.call(0, args*)
+    ; }
+}
+
+end(message) {
+    message .= "`nThe application will now exit."
+    MsgBox % message
+    ExitApp
+}
+
+GuiClose:
+    if (trigger("GuiClose") == 0) {
+        return
+    }
+    ExitApp
+    return
+
+GuiContextMenu:
+GuiDropFiles:
+GuiEscape:
+GuiSize:
+OnClipboardChange:
+    trigger(A_ThisLabel)
+    return
+
+LabelOnExit:
+    if (trigger("OnExit") == 0) {
+        return
+    }
+    ExitApp
+    return
+
+LabelHotkey:
+    trigger("Hotkey" . A_ThisHotkey)
+    return
+
+OnMessageClosure(wParam, lParam, msg, hwnd){
+    trigger("OnMessage" . msg, wParam, lParam, msg, hwnd)
+}
+
+#Include %A_ScriptDir%\lib\API.ahk
