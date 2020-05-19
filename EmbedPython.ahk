@@ -30,20 +30,20 @@ AHKCallCmd(self, args)
     arg11 := NULL
 
     if (!DllCall(PYTHON_DLL "\PyArg_ParseTuple"
-            , Ptr, args
-            , AStr, "s|sssssssssss:call_cmd"
-            , Ptr, &cmd
-            , Ptr, &arg1
-            , Ptr, &arg2
-            , Ptr, &arg3
-            , Ptr, &arg4
-            , Ptr, &arg5
-            , Ptr, &arg6
-            , Ptr, &arg7
-            , Ptr, &arg8
-            , Ptr, &arg9
-            , Ptr, &arg10
-            , Ptr, &arg11
+            , "Ptr", args
+            , "AStr", "s|sssssssssss:call_cmd"
+            , "Ptr", &cmd
+            , "Ptr", &arg1
+            , "Ptr", &arg2
+            , "Ptr", &arg3
+            , "Ptr", &arg4
+            , "Ptr", &arg5
+            , "Ptr", &arg6
+            , "Ptr", &arg7
+            , "Ptr", &arg8
+            , "Ptr", &arg9
+            , "Ptr", &arg10
+            , "Ptr", &arg11
             , "Cdecl")) {
         return NULL
     }
@@ -62,7 +62,7 @@ AHKCallCmd(self, args)
     if (!Func("_" cmd)) {
         ; TODO: Raise Python exception.
         end("Unknown command " cmd)
-        return DllCall(PYTHON_DLL "\PyLong_FromLong", Int, 1, "Cdecl Ptr")
+        return DllCall(PYTHON_DLL "\PyLong_FromLong", "Int", 1, "Cdecl Ptr")
     }
 
     if (arg1 == NULL) {
@@ -102,14 +102,14 @@ AHKToPython(value) {
         ; TODO: Wrap AHK function to be called from Python?
         end("Not implemented")
     } else if (value == "") {
-        return DllCall(PYTHON_DLL "\PyUnicode_InternFromString", Ptr, &EMPTY_STRING, "Cdecl Ptr")
+        return DllCall(PYTHON_DLL "\PyUnicode_InternFromString", "Ptr", &EMPTY_STRING, "Cdecl Ptr")
     } else if (value+0 == value) {
         ; The value is a number.
-        return DllCall(PYTHON_DLL "\PyLong_FromLong", Int, value, "Cdecl Ptr")
+        return DllCall(PYTHON_DLL "\PyLong_FromLong", "Int", value, "Cdecl Ptr")
     } else {
         ; The value is a string.
         StrPutVar(value, encoded)
-        return DllCall(PYTHON_DLL "\PyUnicode_FromString", Ptr, &encoded, "Cdecl Ptr")
+        return DllCall(PYTHON_DLL "\PyUnicode_FromString", "Ptr", &encoded, "Cdecl Ptr")
     }
 }
 
@@ -233,15 +233,15 @@ OnExit, LabelOnExit
 ; stdout.WriteLine("line 1")
 ; stdout.__Handle
 
-DllCall("LoadLibrary", Str, PYTHON_DLL)
+DllCall("LoadLibrary", "Str", PYTHON_DLL)
 DllCall(PYTHON_DLL "\PyImport_AppendInittab"
-    , Ptr, &AHKModule_name ; `AStr, "_ahk"` doesn't work for some reason
-    , Ptr, RegisterCallback("PyInit_ahk", "C", 0)
-    , Cdecl)
-DllCall(PYTHON_DLL "\Py_Initialize", Cdecl)
-DllCall(PYTHON_DLL "\PyRun_SimpleString", Ptr, &py, Cdecl)
+    , "Ptr", &AHKModule_name ; `AStr, "_ahk"` doesn't work for some reason
+    , "Ptr", RegisterCallback("PyInit_ahk", "C", 0)
+    , "Cdecl")
+DllCall(PYTHON_DLL "\Py_Initialize", "Cdecl")
+DllCall(PYTHON_DLL "\PyRun_SimpleString", "Ptr", &py, "Cdecl")
 ; TODO: Show Python syntax errors.
-DllCall(PYTHON_DLL "\Py_Finalize", Cdecl)
+DllCall(PYTHON_DLL "\Py_Finalize", "Cdecl")
 
 
 ; END AUTO-EXECUTE SECTION
@@ -264,7 +264,7 @@ getArgs() {
 */
 Args(CmdLine := "", Skip := 0) {
     pArgs := 0, nArgs := 0, A := []
-    pArgs := DllCall( "Shell32\CommandLineToArgvW", WStr, CmdLine, PtrP, nArgs, Ptr)
+    pArgs := DllCall("Shell32\CommandLineToArgvW", "WStr", CmdLine, "PtrP", nArgs, "Ptr")
     Loop % (nArgs)
         if (A_Index > Skip)
             A[A_Index - Skip] := StrGet(NumGet((A_Index - 1) * A_PtrSize + pArgs), "UTF-16")
