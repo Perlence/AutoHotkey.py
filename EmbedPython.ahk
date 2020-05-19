@@ -9,22 +9,25 @@ global PYTHON_API_VERSION := 1013
 
 global closures := {}
 
+global EMPTY_STRING
+StrPutVar("", EMPTY_STRING)
+
 AHKCallCmd(self, args)
 {
     ; const char *cmd;
-    local cmd := NULL
+    cmd := NULL
     ; Maximum number of AHK command arguments seems to be 11
-    local arg1 := NULL
-    local arg2 := NULL
-    local arg3 := NULL
-    local arg4 := NULL
-    local arg5 := NULL
-    local arg6 := NULL
-    local arg7 := NULL
-    local arg8 := NULL
-    local arg9 := NULL
-    local arg10 := NULL
-    local arg11 := NULL
+    arg1 := NULL
+    arg2 := NULL
+    arg3 := NULL
+    arg4 := NULL
+    arg5 := NULL
+    arg6 := NULL
+    arg7 := NULL
+    arg8 := NULL
+    arg9 := NULL
+    arg10 := NULL
+    arg11 := NULL
 
     if (!DllCall(PYTHON_DLL "\PyArg_ParseTuple"
             , Ptr, args
@@ -41,7 +44,7 @@ AHKCallCmd(self, args)
             , Ptr, &arg9
             , Ptr, &arg10
             , Ptr, &arg11
-            , "Cdecl") ) {
+            , "Cdecl")) {
         return NULL
     }
 
@@ -63,38 +66,56 @@ AHKCallCmd(self, args)
     }
 
     if (arg1 == NULL) {
-        _%cmd%()
+        result := _%cmd%()
     } else if (arg2 == NULL) {
-        _%cmd%(arg1)
+        result := _%cmd%(arg1)
     } else if (arg3 == NULL) {
-        _%cmd%(arg1, arg2)
+        result := _%cmd%(arg1, arg2)
     } else if (arg4 == NULL) {
-        _%cmd%(arg1, arg2, arg3)
+        result := _%cmd%(arg1, arg2, arg3)
     } else if (arg5 == NULL) {
-        _%cmd%(arg1, arg2, arg3, arg4)
+        result := _%cmd%(arg1, arg2, arg3, arg4)
     } else if (arg6 == NULL) {
-        _%cmd%(arg1, arg2, arg3, arg4, arg5)
+        result := _%cmd%(arg1, arg2, arg3, arg4, arg5)
     } else if (arg7 == NULL) {
-        _%cmd%(arg1, arg2, arg3, arg4, arg5, arg6)
+        result := _%cmd%(arg1, arg2, arg3, arg4, arg5, arg6)
     } else if (arg8 == NULL) {
-        _%cmd%(arg1, arg2, arg3, arg4, arg5, arg6, arg7)
+        result := _%cmd%(arg1, arg2, arg3, arg4, arg5, arg6, arg7)
     } else if (arg9 == NULL) {
-        _%cmd%(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
+        result := _%cmd%(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
     } else if (arg10 == NULL) {
-        _%cmd%(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
+        result := _%cmd%(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
     } else if (arg11 == NULL) {
-        _%cmd%(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
+        result := _%cmd%(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
     } else {
-        _%cmd%(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
+        result := _%cmd%(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
     }
 
-    ; TODO: Export other AHK commands.
-    return DllCall(PYTHON_DLL "\PyLong_FromLong", Int, 0, "Cdecl Ptr")
+    return AHKToPython(result)
+}
+
+AHKToPython(value) {
+    if (IsObject(value)) {
+        ; TODO: Convert AHK object to Python dict.
+        end("Not implemented")
+    } else if (IsFunc(value)) {
+        ; TODO: Wrap AHK function to be called from Python?
+        end("Not implemented")
+    } else if (value == "") {
+        return DllCall(PYTHON_DLL "\PyUnicode_InternFromString", Ptr, &EMPTY_STRING, "Cdecl Ptr")
+    } else if (value+0 == value) {
+        ; The value is a number.
+        return DllCall(PYTHON_DLL "\PyLong_FromLong", Int, value, "Cdecl Ptr")
+    } else {
+        ; The value is a string.
+        StrPutVar(value, encoded)
+        return DllCall(PYTHON_DLL "\PyUnicode_FromString", Ptr, &encoded, "Cdecl Ptr")
+    }
 }
 
 StrPutVar(string, ByRef var)
 {
-    local encoding := "CP0"
+    encoding := "CP0"
     VarSetCapacity(var, StrPut(string, encoding))
     return StrPut(string, &var, encoding)
 }
@@ -146,6 +167,7 @@ AHKModule_slots := NULL
 AHKModule_traverse := NULL
 AHKModule_clear := NULL
 AHKModule_free := NULL
+global AHKModule
 VarSetCapacity(AHKModule, 104, 0)
 offset := 0
 NumPut(1, AHKModule, offset, "Int64"), offset := 40 ; PyModuleDef_HEAD_INIT
@@ -161,7 +183,6 @@ NumPut(AHKModule_free, AHKModule, offset), offset += A_PtrSize
 ; static PyObject*
 PyInit_ahk()
 {
-    global AHKModule
     return DllCall(PYTHON_DLL "\PyModule_Create2"
         , "Ptr", &AHKModule
         , "Int", PYTHON_API_VERSION
@@ -174,12 +195,24 @@ try:
     import ctypes
     import sys
     import _ahk
+
     ctypes.windll.user32.MessageBoxW(0, f"loaded", "AHK", 1)
-    _ahk.call_cmd("MsgBox")
+
+    temp = _ahk.call_cmd("EnvGet", "TEMP")
+    assert isinstance(temp, str), "EnvGet result must be a string"
+
+    rnd = _ahk.call_cmd("Random", "1", "10")
+    assert isinstance(rnd, int), "Random result must be an integer"
+
+    result = _ahk.call_cmd("MsgBox")
+    assert result == "", "MsgBox result must be an empty string"
     _ahk.call_cmd("MsgBox", "Hello, world")
     _ahk.call_cmd("MsgBox", "4", "", "Do you want to continue? (Press YES or NO)")
+
     # TODO: Call command with Unicode strings.
+
     _ahk.call_cmd("Send", "#r")
+
     _ahk.call_cmd("NoSuchCommand", "A")
 except:
     import ctypes
@@ -227,12 +260,12 @@ getArgs() {
 * By SKAN,  http://goo.gl/JfMNpN,  CD:23/Aug/2014 | MD:24/Aug/2014
 */
 Args(CmdLine := "", Skip := 0) {    
-    Local pArgs := 0, nArgs := 0, A := []
+    pArgs := 0, nArgs := 0, A := []
     pArgs := DllCall( "Shell32\CommandLineToArgvW", WStr, CmdLine, PtrP, nArgs, Ptr)
     Loop % (nArgs)
         if (A_Index > Skip)
             A[A_Index - Skip] := StrGet(NumGet((A_Index - 1) * A_PtrSize + pArgs), "UTF-16")
-    Return A, A[0] := nArgs - Skip, DllCall("LocalFree", "Ptr", pArgs)  
+    return A, A[0] := nArgs - Skip, DllCall("LocalFree", "Ptr", pArgs)  
 }
 
 trigger(key, args*) {
