@@ -1,10 +1,8 @@
 #NoEnv
 #Warn, All, MsgBox
 
-; TODO: Save the source as UTF-8 with BOM?
-
 global NULL := 0
-global ENCODING := "CP65001" ; UTF-8 code page
+global UTF8_ENCODING := "CP65001"
 ; TODO: Find Python DLL with py.exe or in VIRTUAL_ENV.
 global PYTHON_DLL := "c:\Users\Sviatoslav\AppData\Local\Programs\Python\Python38\python38.dll"
 global METH_VARARGS := 0x0001
@@ -51,13 +49,13 @@ AHKCallCmd(self, args)
     }
 
     cmd := NumGet(cmd) ; Decode number from binary.
-    cmd := StrGet(cmd, ENCODING) ; Read string from address `cmd`.
+    cmd := StrGet(cmd, UTF8_ENCODING) ; Read string from address `cmd`.
 
     Loop, 11
     {
         if (arg%A_Index% != NULL) {
             arg%A_Index% := NumGet(arg%A_Index%)
-            arg%A_Index% := StrGet(arg%A_Index%, ENCODING)
+            arg%A_Index% := StrGet(arg%A_Index%, UTF8_ENCODING)
         }
     }
 
@@ -117,8 +115,8 @@ AHKToPython(value) {
 
 StrPutVar(string, ByRef var)
 {
-    VarSetCapacity(var, StrPut(string, ENCODING))
-    return StrPut(string, &var, ENCODING)
+    VarSetCapacity(var, StrPut(string, UTF8_ENCODING))
+    return StrPut(string, &var, UTF8_ENCODING)
 }
 
 ; static PyMethodDef AHKMethods[] = {
@@ -223,6 +221,7 @@ except:
     import traceback
     ctypes.windll.user32.MessageBoxW(0, traceback.format_exc(), "AHK", 1)
 )
+StrPutVar(py, py)
 
 OnExit, LabelOnExit
 
@@ -240,7 +239,7 @@ DllCall(PYTHON_DLL "\PyImport_AppendInittab"
     , Ptr, RegisterCallback("PyInit_ahk", "C", 0)
     , Cdecl)
 DllCall(PYTHON_DLL "\Py_Initialize", Cdecl)
-DllCall(PYTHON_DLL "\PyRun_SimpleString", AStr, py, Cdecl)
+DllCall(PYTHON_DLL "\PyRun_SimpleString", Ptr, &py, Cdecl)
 ; TODO: Show Python syntax errors.
 DllCall(PYTHON_DLL "\Py_Finalize", Cdecl)
 
