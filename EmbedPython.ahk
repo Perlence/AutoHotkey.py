@@ -1,7 +1,10 @@
 #NoEnv
 #Warn, All, MsgBox
 
+; TODO: Save the source as UTF-8 with BOM?
+
 global NULL := 0
+global ENCODING := "CP65001" ; UTF-8 code page
 ; TODO: Find Python DLL with py.exe or in VIRTUAL_ENV.
 global PYTHON_DLL := "c:\Users\Sviatoslav\AppData\Local\Programs\Python\Python38\python38.dll"
 global METH_VARARGS := 0x0001
@@ -9,8 +12,7 @@ global PYTHON_API_VERSION := 1013
 
 global closures := {}
 
-global EMPTY_STRING
-StrPutVar("", EMPTY_STRING)
+global EMPTY_STRING := ""
 
 AHKCallCmd(self, args)
 {
@@ -49,13 +51,13 @@ AHKCallCmd(self, args)
     }
 
     cmd := NumGet(cmd) ; Decode number from binary.
-    cmd := StrGet(cmd, "CP0") ; Read string from address `cmd`.
+    cmd := StrGet(cmd, ENCODING) ; Read string from address `cmd`.
 
     Loop, 11
     {
         if (arg%A_Index% != NULL) {
             arg%A_Index% := NumGet(arg%A_Index%)
-            arg%A_Index% := StrGet(arg%A_Index%, "CP0")
+            arg%A_Index% := StrGet(arg%A_Index%, ENCODING)
         }
     }
 
@@ -115,9 +117,8 @@ AHKToPython(value) {
 
 StrPutVar(string, ByRef var)
 {
-    encoding := "CP0"
-    VarSetCapacity(var, StrPut(string, encoding))
-    return StrPut(string, &var, encoding)
+    VarSetCapacity(var, StrPut(string, ENCODING))
+    return StrPut(string, &var, ENCODING)
 }
 
 ; static PyMethodDef AHKMethods[] = {
@@ -193,10 +194,15 @@ py =
 (
 try:
     import ctypes
+    import os
     import sys
     import _ahk
 
-    ctypes.windll.user32.MessageBoxW(0, f"loaded", "AHK", 1)
+    ctypes.windll.user32.MessageBoxW(0, f"Hello from Python.", "AHK", 1)
+
+    os.environ["HELLO"] = "Привет"
+    hello = _ahk.call_cmd("EnvGet", "HELLO")
+    assert hello == os.environ["HELLO"]
 
     temp = _ahk.call_cmd("EnvGet", "TEMP")
     assert isinstance(temp, str), "EnvGet result must be a string"
@@ -206,10 +212,8 @@ try:
 
     result = _ahk.call_cmd("MsgBox")
     assert result == "", "MsgBox result must be an empty string"
-    _ahk.call_cmd("MsgBox", "Hello, world")
+    _ahk.call_cmd("MsgBox", "Hello, мир!")
     _ahk.call_cmd("MsgBox", "4", "", "Do you want to continue? (Press YES or NO)")
-
-    # TODO: Call command with Unicode strings.
 
     _ahk.call_cmd("Send", "#r")
 
@@ -226,7 +230,7 @@ OnExit, LabelOnExit
 ; DllCall("AttachConsole", UInt, ATTACH_PARENT_PROCESS)
 ; DllCall("AllocConsole")
 
-; stdout := FileOpen(DllCall("GetStdHandle", "int", -11, "ptr"), "h `n")
+; stdout := FileOpen(DllCall("GetStdHandle", "Int", -11, "Ptr"), "h `n")
 ; stdout.WriteLine("line 1")
 ; stdout.__Handle
 
@@ -259,13 +263,13 @@ getArgs() {
 /**
 * By SKAN,  http://goo.gl/JfMNpN,  CD:23/Aug/2014 | MD:24/Aug/2014
 */
-Args(CmdLine := "", Skip := 0) {    
+Args(CmdLine := "", Skip := 0) {
     pArgs := 0, nArgs := 0, A := []
     pArgs := DllCall( "Shell32\CommandLineToArgvW", WStr, CmdLine, PtrP, nArgs, Ptr)
     Loop % (nArgs)
         if (A_Index > Skip)
             A[A_Index - Skip] := StrGet(NumGet((A_Index - 1) * A_PtrSize + pArgs), "UTF-16")
-    return A, A[0] := nArgs - Skip, DllCall("LocalFree", "Ptr", pArgs)  
+    return A, A[0] := nArgs - Skip, DllCall("LocalFree", "Ptr", pArgs)
 }
 
 trigger(key, args*) {
