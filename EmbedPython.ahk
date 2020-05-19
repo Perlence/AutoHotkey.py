@@ -12,8 +12,7 @@ global closures := {}
 
 global EMPTY_STRING := ""
 
-AHKCallCmd(self, args)
-{
+AHKCallCmd(self, args) {
     ; const char *cmd;
     cmd := NULL
     ; Maximum number of AHK command arguments seems to be 11
@@ -108,15 +107,17 @@ AHKToPython(value) {
         return DllCall(PYTHON_DLL "\PyLong_FromLong", "Int", value, "Cdecl Ptr")
     } else {
         ; The value is a string.
-        StrPutVar(value, encoded)
+        encoded := EncodeString(value)
         return DllCall(PYTHON_DLL "\PyUnicode_FromString", "Ptr", &encoded, "Cdecl Ptr")
     }
 }
 
-StrPutVar(string, ByRef var)
-{
-    VarSetCapacity(var, StrPut(string, UTF8_ENCODING))
-    return StrPut(string, &var, UTF8_ENCODING)
+EncodeString(string) {
+    ; Convert a UTF-16 string to a UTF-8 one.
+    len := StrPut(string, UTF8_ENCODING)
+    VarSetCapacity(var, len)
+    StrPut(string, &var, UTF8_ENCODING)
+    return var
 }
 
 ; static PyMethodDef AHKMethods[] = {
@@ -125,10 +126,10 @@ StrPutVar(string, ByRef var)
 ;     {NULL, NULL, 0, NULL}
 ; };
 
-StrPutVar("call_cmd", AHKMethod_call_cmd_name)
+AHKMethod_call_cmd_name := EncodeString("call_cmd")
 AHKMethod_call_cmd_meth := RegisterCallback("AHKCallCmd", "C")
 AHKMethod_call_cmd_flags := METH_VARARGS
-StrPutVar("Return the number of arguments received by the process.", AHKMethod_call_cmd_doc)
+AHKMethod_call_cmd_doc := EncodeString("Return the number of arguments received by the process.")
 PyMethodDef_size := A_PtrSize + A_PtrSize + 8 + A_PtrSize
 VarSetCapacity(AHKMethods, PyMethodDef_size * 2, 0)
 offset := 0
@@ -158,7 +159,7 @@ NumPut(NULL, AHKMethods, offset), offset += A_PtrSize
 ;   freefunc m_free;
 ; } PyModuleDef;
 
-StrPutVar("_ahk", AHKModule_name)
+AHKModule_name := EncodeString("_ahk")
 AHKModule_doc := NULL
 AHKModule_size := -1
 AHKModule_methods := &AHKMethods
@@ -180,8 +181,7 @@ NumPut(AHKModule_clear, AHKModule, offset), offset += A_PtrSize
 NumPut(AHKModule_free, AHKModule, offset), offset += A_PtrSize
 
 ; static PyObject*
-PyInit_ahk()
-{
+PyInit_ahk() {
     return DllCall(PYTHON_DLL "\PyModule_Create2"
         , "Ptr", &AHKModule
         , "Int", PYTHON_API_VERSION
@@ -221,7 +221,7 @@ except:
     import traceback
     ctypes.windll.user32.MessageBoxW(0, traceback.format_exc(), "AHK", 1)
 )
-StrPutVar(py, py)
+py := EncodeString(py)
 
 OnExit, LabelOnExit
 
@@ -235,7 +235,7 @@ OnExit, LabelOnExit
 
 DllCall("LoadLibrary", "Str", PYTHON_DLL)
 DllCall(PYTHON_DLL "\PyImport_AppendInittab"
-    , "Ptr", &AHKModule_name ; `AStr, "_ahk"` doesn't work for some reason
+    , "Ptr", &AHKModule_name
     , "Ptr", RegisterCallback("PyInit_ahk", "C", 0)
     , "Cdecl")
 DllCall(PYTHON_DLL "\Py_Initialize", "Cdecl")
@@ -310,7 +310,7 @@ LabelHotkey:
     trigger("Hotkey" . A_ThisHotkey)
     return
 
-OnMessageClosure(wParam, lParam, msg, hwnd){
+OnMessageClosure(wParam, lParam, msg, hwnd) {
     trigger("OnMessage" . msg, wParam, lParam, msg, hwnd)
 }
 
