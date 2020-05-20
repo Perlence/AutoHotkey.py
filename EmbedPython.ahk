@@ -66,6 +66,7 @@ AHKCallCmd(self, args) {
     }
 
     ; TODO: Command may raise an exception. Catch and raise it in Python.
+    ; TODO: This arg ladder is duplicated in Commands.ahk. Remove it here.
     if (arg1 == NULL) {
         result := _%cmd%()
     } else if (arg2 == NULL) {
@@ -310,6 +311,7 @@ DllCall(PYTHON_DLL "\PyImport_AppendInittab"
     , "Ptr", &AHKModule_name
     , "Ptr", RegisterCallback("PyInit_ahk", "C", 0)
     , "Cdecl")
+; TODO: Pass CLI args to Python.
 DllCall(PYTHON_DLL "\Py_Initialize", "Cdecl")
 execResult := DllCall(PYTHON_DLL "\PyRun_SimpleString", "Ptr", &py, "Cdecl")
 if (execResult != 0) {
@@ -392,4 +394,4 @@ OnMessageClosure(wParam, lParam, msg, hwnd) {
     Trigger("OnMessage " . msg, wParam, lParam, msg, hwnd)
 }
 
-#Include <API>
+#Include <Commands>
