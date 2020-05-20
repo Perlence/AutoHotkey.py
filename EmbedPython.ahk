@@ -201,6 +201,8 @@ try:
 
     ctypes.windll.user32.MessageBoxW(0, f"Hello from Python.", "AHK", 1)
 
+    import ahk
+
     os.environ["HELLO"] = "Привет"
     hello = _ahk.call_cmd("EnvGet", "HELLO")
     assert hello == os.environ["HELLO"]
@@ -235,6 +237,14 @@ OnExit, LabelOnExit
 ; stdout := FileOpen(DllCall("GetStdHandle", "Int", -11, "Ptr"), "h `n")
 ; stdout.WriteLine("line 1")
 ; stdout.__Handle
+
+
+EnvGet, pythonPath, PYTHONPATH
+if (pythonPath == "") {
+    EnvSet, PYTHONPATH, %A_ScriptDir%
+} else {
+    EnvSet, PYTHONPATH, %pythonPath%;%A_ScriptDir%
+}
 
 DllCall("LoadLibrary", "Str", PYTHON_DLL)
 DllCall(PYTHON_DLL "\PyImport_AppendInittab"
