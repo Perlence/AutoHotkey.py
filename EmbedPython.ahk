@@ -317,4 +317,4 @@ OnMessageClosure(wParam, lParam, msg, hwnd) {
     trigger("OnMessage" . msg, wParam, lParam, msg, hwnd)
 }
 
-#Include %A_ScriptDir%\lib\API.ahk
+#Include <API>
