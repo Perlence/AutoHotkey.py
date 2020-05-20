@@ -254,7 +254,6 @@ DllCall(PYTHON_DLL "\PyImport_AppendInittab"
 DllCall(PYTHON_DLL "\Py_Initialize", "Cdecl")
 DllCall(PYTHON_DLL "\PyRun_SimpleString", "Ptr", &py, "Cdecl")
 ; TODO: Show Python syntax errors.
-DllCall(PYTHON_DLL "\Py_Finalize", "Cdecl")
 
 
 ; END AUTO-EXECUTE SECTION
@@ -297,13 +296,6 @@ end(message) {
     ExitApp
 }
 
-GuiClose:
-    if (trigger("GuiClose") == 0) {
-        return
-    }
-    ExitApp
-    return
-
 GuiContextMenu:
 GuiDropFiles:
 GuiEscape:
@@ -312,10 +304,12 @@ OnClipboardChange:
     trigger(A_ThisLabel)
     return
 
+GuiClose:
 LabelOnExit:
-    if (trigger("OnExit") == 0) {
+    if (trigger(A_ThisLabel) == 0) {
         return
     }
+    DllCall(PYTHON_DLL "\Py_Finalize", "Cdecl")
     ExitApp
     return
 
