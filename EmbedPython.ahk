@@ -10,7 +10,7 @@ global PYTHON_DLL := "c:\Users\Sviatoslav\AppData\Local\Programs\Python\Python38
 global METH_VARARGS := 0x0001
 global PYTHON_API_VERSION := 1013
 
-global closures := {}
+global CALLBACKS := {}
 
 AHKCallCmd(self, args) {
     ; const char *cmd;
@@ -28,7 +28,8 @@ AHKCallCmd(self, args) {
     arg10 := NULL
     arg11 := NULL
 
-    if (!DllCall(PYTHON_DLL "\PyArg_ParseTuple"
+    ; TODO: GetProcAddress of the frequently used functions.
+    if (not DllCall(PYTHON_DLL "\PyArg_ParseTuple"
             , "Ptr", args
             , "AStr", "s|sssssssssss:call_cmd"
             , "Ptr", &cmd
@@ -44,6 +45,7 @@ AHKCallCmd(self, args) {
             , "Ptr", &arg10
             , "Ptr", &arg11
             , "Cdecl")) {
+        End("Unknown command " cmd)
         return NULL
     }
 
@@ -58,12 +60,12 @@ AHKCallCmd(self, args) {
         }
     }
 
-    if (!Func("_" cmd)) {
+    if (not Func("_" cmd)) {
         ; TODO: Raise Python exception.
-        end("Unknown command " cmd)
-        return DllCall(PYTHON_DLL "\PyLong_FromLong", "Int", 1, "Cdecl Ptr")
+        End("Unknown command " cmd)
     }
 
+    ; TODO: Command may raise an exception. Catch and raise it in Python.
     if (arg1 == NULL) {
         result := _%cmd%()
     } else if (arg2 == NULL) {
@@ -93,13 +95,40 @@ AHKCallCmd(self, args) {
     return AHKToPython(result)
 }
 
+AHKSetCallback(self, args) {
+    ; const char *name
+    name := NULL
+    ; const PyObject *func
+    funcPtr := NULL
+    if (not DllCall(PYTHON_DLL "\PyArg_ParseTuple"
+            , "Ptr", args
+            , "AStr", "sO:set_callback"
+            , "Ptr", &name
+            , "Ptr", &funcPtr
+            , "Cdecl")) {
+        return NULL
+    }
+    name := NumGet(name)
+    name := StrGet(name, UTF8_ENCODING)
+    funcPtr := NumGet(funcPtr)
+
+    if (funcPtr == NULL or not DllCall(PYTHON_DLL "\PyCallable_Check", "Ptr", funcPtr, "Cdecl")) {
+        End("Callback function '" name "' is not callable")
+    }
+
+    DllCall(PYTHON_DLL "\Py_IncRef", "Ptr", funcPtr, "Cdecl")
+    CALLBACKS[name] := funcPtr
+
+    return PyNone()
+}
+
 AHKToPython(value) {
     if (IsObject(value)) {
         ; TODO: Convert AHK object to Python dict.
-        end("Not implemented")
+        End("Not implemented")
     } else if (IsFunc(value)) {
         ; TODO: Wrap AHK function to be called from Python?
-        end("Not implemented")
+        End("Not implemented")
     } else if (value == "") {
         if (EMPTY_STRING_INTERN == NULL) {
             EMPTY_STRING_INTERN := DllCall(PYTHON_DLL "\PyUnicode_InternFromString", "Ptr", &EMPTY_STRING, "Cdecl Ptr")
@@ -113,6 +142,15 @@ AHKToPython(value) {
         encoded := EncodeString(value)
         return DllCall(PYTHON_DLL "\PyUnicode_FromString", "Ptr", &encoded, "Cdecl Ptr")
     }
+}
+
+PyNone() {
+    ; TODO: Cache the pointer to None.
+    res := DllCall(PYTHON_DLL "\Py_BuildValue", "AStr", "", "Cdecl Ptr")
+    if (res == NULL) {
+        End("Cannot build None")
+    }
+    return res
 }
 
 EncodeString(string) {
@@ -129,17 +167,25 @@ EncodeString(string) {
 ;     {NULL, NULL, 0, NULL}
 ; };
 
+PyMethodDef_size := A_PtrSize + A_PtrSize + 8 + A_PtrSize
 AHKMethod_call_cmd_name := EncodeString("call_cmd")
 AHKMethod_call_cmd_meth := RegisterCallback("AHKCallCmd", "C")
 AHKMethod_call_cmd_flags := METH_VARARGS
-AHKMethod_call_cmd_doc := EncodeString("Return the number of arguments received by the process.")
-PyMethodDef_size := A_PtrSize + A_PtrSize + 8 + A_PtrSize
-VarSetCapacity(AHKMethods, PyMethodDef_size * 2, 0)
+AHKMethod_call_cmd_doc := EncodeString("Execute the given AutoHotkey command.")
+AHKMethod_set_callback_name := EncodeString("set_callback")
+AHKMethod_set_callback_meth := RegisterCallback("AHKSetCallback", "C")
+AHKMethod_set_callback_flags := METH_VARARGS
+AHKMethod_set_callback_doc := EncodeString("Set callback to be called by an AutoHotkey event.")
+VarSetCapacity(AHKMethods, PyMethodDef_size * 3, 0)
 offset := 0
 NumPut(&AHKMethod_call_cmd_name, AHKMethods, offset), offset += A_PtrSize
 NumPut(AHKMethod_call_cmd_meth, AHKMethods, offset), offset += A_PtrSize
 NumPut(AHKMethod_call_cmd_flags, AHKMethods, offset, "Int64"), offset += 8
 NumPut(&AHKMethod_call_cmd_doc, AHKMethods, offset), offset += A_PtrSize
+NumPut(&AHKMethod_set_callback_name, AHKMethods, offset), offset += A_PtrSize
+NumPut(AHKMethod_set_callback_meth, AHKMethods, offset), offset += A_PtrSize
+NumPut(AHKMethod_set_callback_flags, AHKMethods, offset, "Int64"), offset += 8
+NumPut(&AHKMethod_set_callback_doc, AHKMethods, offset), offset += A_PtrSize
 NumPut(NULL, AHKMethods, offset), offset += A_PtrSize
 NumPut(NULL, AHKMethods, offset), offset += A_PtrSize
 NumPut(0, AHKMethods, offset, "Int64"), offset += 8
@@ -201,8 +247,6 @@ try:
 
     ctypes.windll.user32.MessageBoxW(0, f"Hello from Python.", "AHK", 1)
 
-    import ahk
-
     os.environ["HELLO"] = "Привет"
     hello = _ahk.call_cmd("EnvGet", "HELLO")
     assert hello == os.environ["HELLO"]
@@ -219,6 +263,21 @@ try:
     _ahk.call_cmd("MsgBox", "4", "", "Do you want to continue? (Press YES or NO)")
 
     _ahk.call_cmd("Send", "#r")
+
+    import ahk
+
+    try:
+        ahk.hotkey('')
+    except ahk.AHKError:
+        pass
+    else:
+        assert False, "ahk.hotkey('') must raise an error"
+
+    @ahk.hotkey('AppsKey & t')
+    def show_msgbox():
+        _ahk.call_cmd("MsgBox", "Hello from hotkey.")
+    
+    _ahk.call_cmd("MsgBox", "Press AppsKey & t now.")
 
     _ahk.call_cmd("NoSuchCommand", "A")
 except:
@@ -252,8 +311,11 @@ DllCall(PYTHON_DLL "\PyImport_AppendInittab"
     , "Ptr", RegisterCallback("PyInit_ahk", "C", 0)
     , "Cdecl")
 DllCall(PYTHON_DLL "\Py_Initialize", "Cdecl")
-DllCall(PYTHON_DLL "\PyRun_SimpleString", "Ptr", &py, "Cdecl")
-; TODO: Show Python syntax errors.
+execResult := DllCall(PYTHON_DLL "\PyRun_SimpleString", "Ptr", &py, "Cdecl")
+if (execResult != 0) {
+    ; TODO: Show Python syntax errors.
+    End("Something went wrong in Python")
+}
 
 
 ; END AUTO-EXECUTE SECTION
@@ -283,14 +345,23 @@ Args(CmdLine := "", Skip := 0) {
     return A, A[0] := nArgs - Skip, DllCall("LocalFree", "Ptr", pArgs)
 }
 
-trigger(key, args*) {
-    ; closure := closures[key]
-    ; if (closure) {
-    ;     return closure.call(0, args*)
-    ; }
+Trigger(key, args*) {
+    funcObjPtr := CALLBACKS[key]
+    if (not funcObjPtr) {
+        return
+    }
+    argsPtr := NULL
+    result := DllCall(PYTHON_DLL "\PyObject_CallObject", "Ptr", funcObjPtr, "Ptr", argsPtr, "Cdecl Ptr")
+    if (result == "") {
+        End("Call to '" key "' callback failed: " ErrorLevel)
+    } else if (result == NULL) {
+        End("Call to '" key "' callback failed")
+    }
 }
 
-end(message) {
+End(message) {
+    ; TODO: Consider replacing some of End invocations with raising Python
+    ; exceptions.
     message .= "`nThe application will now exit."
     MsgBox % message
     ExitApp
@@ -301,24 +372,24 @@ GuiDropFiles:
 GuiEscape:
 GuiSize:
 OnClipboardChange:
-    trigger(A_ThisLabel)
+    Trigger(A_ThisLabel)
     return
 
 GuiClose:
 LabelOnExit:
-    if (trigger(A_ThisLabel) == 0) {
+    if (Trigger(A_ThisLabel) == 0) {
         return
     }
     DllCall(PYTHON_DLL "\Py_Finalize", "Cdecl")
     ExitApp
     return
 
-LabelHotkey:
-    trigger("Hotkey" . A_ThisHotkey)
+HotkeyLabel:
+    Trigger("Hotkey " . A_ThisHotkey)
     return
 
 OnMessageClosure(wParam, lParam, msg, hwnd) {
-    trigger("OnMessage" . msg, wParam, lParam, msg, hwnd)
+    Trigger("OnMessage " . msg, wParam, lParam, msg, hwnd)
 }
 
 #Include <API>

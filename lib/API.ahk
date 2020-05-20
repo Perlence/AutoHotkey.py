@@ -567,32 +567,13 @@ _GuiControlGet(Subcommand="",ControlID="",Param4=""){
  * The migrated function uses closures instead of labels.
  * TODO: Add support for AltTab.
  */
-_Hotkey(KeyName, Closure="", Options=""){
-    if (KeyName == "") {
-        end("Invalid KeyName!")
-    }
-    StringLower, Closure, Closure	; uniformity, to allow case insensitivity
-    operation := ""
-    if (Closure == "on" || RegExMatch(Options, "i)\bOn\b")) {
-        operation := "on"
-    } else if (Closure == "off" || RegExMatch(Options, "i)\bOff\b")) {
-        operation := "off"
-    } else if (Closure == "toggle") {
-        operation := "toggle"
-    }
-    if (operation) {
-        if (!closures.HasKey("Hotkey" . KeyName)) {
-            end("Nonexistent hotkey!")
-        } else {
-            Hotkey %KeyName%, %operation%, %Options%
-        }
+_Hotkey(Param1, Param2="__Undefined", Param3="__Undefined"){
+    if (Param2 == "__Undefined") {
+        Hotkey, %Param1%
+    } else if (Param3 == "__Undefined") {
+        Hotkey, %Param1%, %Param2%
     } else {
-        if (Closure != "") {
-            closures["Hotkey" . KeyName] := Closure
-            Hotkey %KeyName%, LabelHotkey, %Options%
-        } else {
-            Hotkey %KeyName%,, %Options%
-        }
+        Hotkey, %Param1%, %Param2%, %Param3%
     }
 }
 
@@ -831,7 +812,7 @@ _OnExit(Closure=""){
  * In JS, the function name becomes a closure.
  */
 _OnMessage(MsgNumber, Closure="__Undefined", MaxThreads=1){
-    key := "OnMessage" . MsgNumber
+    key := "OnMessage " . MsgNumber
     fn := closures[key]
     if (Closure == "__Undefined") {
         return fn
