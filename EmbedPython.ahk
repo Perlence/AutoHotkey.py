@@ -2,6 +2,8 @@
 #Warn, All, MsgBox
 
 global NULL := 0
+global EMPTY_STRING := ""
+global EMPTY_STRING_INTERN := NULL
 global UTF8_ENCODING := "CP65001"
 ; TODO: Find Python DLL with py.exe or in VIRTUAL_ENV.
 global PYTHON_DLL := "c:\Users\Sviatoslav\AppData\Local\Programs\Python\Python38\python38.dll"
@@ -9,8 +11,6 @@ global METH_VARARGS := 0x0001
 global PYTHON_API_VERSION := 1013
 
 global closures := {}
-
-global EMPTY_STRING := ""
 
 AHKCallCmd(self, args) {
     ; const char *cmd;
@@ -101,7 +101,10 @@ AHKToPython(value) {
         ; TODO: Wrap AHK function to be called from Python?
         end("Not implemented")
     } else if (value == "") {
-        return DllCall(PYTHON_DLL "\PyUnicode_InternFromString", "Ptr", &EMPTY_STRING, "Cdecl Ptr")
+        if (EMPTY_STRING_INTERN == NULL) {
+            EMPTY_STRING_INTERN := DllCall(PYTHON_DLL "\PyUnicode_InternFromString", "Ptr", &EMPTY_STRING, "Cdecl Ptr")
+        }
+        return EMPTY_STRING_INTERN
     } else if (value+0 == value) {
         ; The value is a number.
         return DllCall(PYTHON_DLL "\PyLong_FromLong", "Int", value, "Cdecl Ptr")
