@@ -7,14 +7,13 @@ import _ahk  # noqa
 # TODO: Write an __all__.
 
 
-class AHKError(Exception):
-    pass
+Error = _ahk.Error
 
 
 def hotkey(key_name, func=None, buffer=None, priority=0, max_threads=None,
            input_level=None):
     if key_name == "":
-        raise AHKError("invalid key name")
+        raise Error("invalid key name")
     
     if func is None:
         # Return the decorator.

@@ -45,7 +45,6 @@ AHKCallCmd(self, args) {
             , "Ptr", &arg10
             , "Ptr", &arg11
             , "Cdecl")) {
-        End("Unknown command " cmd)
         return NULL
     }
 
@@ -61,8 +60,8 @@ AHKCallCmd(self, args) {
     }
 
     if (not Func("_" cmd)) {
-        ; TODO: Raise Python exception.
-        End("Unknown command " cmd)
+        PyErr_SetString(AHKError, "unknown command " cmd)
+        return NULL
     }
 
     ; TODO: Command may raise an exception. Catch and raise it in Python.
@@ -114,13 +113,14 @@ AHKSetCallback(self, args) {
     funcPtr := NumGet(funcPtr)
 
     if (funcPtr == NULL or not DllCall(PYTHON_DLL "\PyCallable_Check", "Ptr", funcPtr, "Cdecl")) {
-        End("Callback function '" name "' is not callable")
+        PyErr_SetString(AHKError, "callback function '" name "' is not callable")
+        return NULL
     }
 
-    DllCall(PYTHON_DLL "\Py_IncRef", "Ptr", funcPtr, "Cdecl")
+    Py_IncRef(funcPtr)
     CALLBACKS[name] := funcPtr
 
-    return PyNone()
+    return Py_BuildNone()
 }
 
 AHKToPython(value) {
@@ -145,13 +145,18 @@ AHKToPython(value) {
     }
 }
 
-PyNone() {
+Py_BuildNone() {
     ; TODO: Cache the pointer to None.
     res := DllCall(PYTHON_DLL "\Py_BuildValue", "AStr", "", "Cdecl Ptr")
     if (res == NULL) {
         End("Cannot build None")
     }
     return res
+}
+
+PyErr_SetString(exception, message) {
+    encoded := EncodeString(message)
+    DllCall(PYTHON_DLL "\PyErr_SetString", "Ptr", AHKError, "Ptr", &encoded)
 }
 
 EncodeString(string) {
@@ -230,12 +235,61 @@ NumPut(AHKModule_traverse, AHKModule, offset), offset += A_PtrSize
 NumPut(AHKModule_clear, AHKModule, offset), offset += A_PtrSize
 NumPut(AHKModule_free, AHKModule, offset), offset += A_PtrSize
 
+global AHKError
+
 ; static PyObject*
 PyInit_ahk() {
-    return DllCall(PYTHON_DLL "\PyModule_Create2"
+    module := DllCall(PYTHON_DLL "\PyModule_Create2"
         , "Ptr", &AHKModule
         , "Int", PYTHON_API_VERSION
         , "Cdecl Ptr")
+    if (module == NULL) {
+        return NULL
+    }
+
+    base := NULL
+    dict := NULL
+    AHKError := DllCall(PYTHON_DLL "\PyErr_NewException"
+        , "AStr", "ahk.Error"
+        , "Ptr", base
+        , "Ptr", dict
+        , "Cdecl Ptr")
+    Py_XIncRef(AHKError)
+
+    result := DllCall(PYTHON_DLL "\PyModule_AddObject"
+        , "Ptr", module
+        , "AStr", "Error"
+        , "Ptr", AHKError
+        , "Cdecl")
+    if (result < 0) {
+        ; Adding failed.
+        Py_XDecRef(AHKError)
+        ; Py_CLEAR(AHKError);
+        Py_DecRef(module)
+        return NULL
+    }
+
+    return module
+}
+
+Py_IncRef(pyObject) {
+    DllCall(PYTHON_DLL "\Py_IncRef", "Ptr", pyObject, "Cdecl")
+}
+
+Py_XIncRef(pyObject) {
+    if (pyObject != NULL) {
+        Py_IncRef(pyObject)
+    }
+}
+
+Py_DecRef(pyObject) {
+    DllCall(PYTHON_DLL "\Py_DecRef", "Ptr", pyObject, "Cdecl")
+}
+
+Py_XDecRef(pyObject) {
+    if (pyObject != NULL) {
+        Py_DecRef(pyObject)
+    }
 }
 
 py =
@@ -247,7 +301,7 @@ try:
     import _ahk
 
     ctypes.windll.user32.MessageBoxW(0, f"Hello from Python.", "AHK", 1)
-
+    
     os.environ["HELLO"] = "Привет"
     hello = _ahk.call_cmd("EnvGet", "HELLO")
     assert hello == os.environ["HELLO"]
@@ -269,10 +323,12 @@ try:
 
     try:
         ahk.hotkey('')
-    except ahk.AHKError:
+    except ahk.Error:
         pass
     else:
         assert False, "ahk.hotkey('') must raise an error"
+    
+    ahk.hotkey('^t', func='not callable')
 
     @ahk.hotkey('AppsKey & t')
     def show_msgbox():
