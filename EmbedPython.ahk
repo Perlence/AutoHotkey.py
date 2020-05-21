@@ -29,70 +29,6 @@ return
 
 
 Main() {
-    py =
-(
-try:
-    import ctypes
-    import os
-    import sys
-    import _ahk
-
-    ctypes.windll.user32.MessageBoxW(0, f"Hello from Python.", "AHK", 1)
-
-    os.environ["HELLO"] = "Привет"
-    hello = _ahk.call_cmd("EnvGet", "HELLO")
-    assert hello == os.environ["HELLO"]
-
-    temp = _ahk.call_cmd("EnvGet", "TEMP")
-    assert isinstance(temp, str), "EnvGet result must be a string"
-
-    rnd = _ahk.call_cmd("Random", "1", "10")
-    assert isinstance(rnd, int), "Random result must be an integer"
-
-    result = _ahk.call_cmd("MsgBox")
-    assert result == "", "MsgBox result must be an empty string"
-    _ahk.call_cmd("MsgBox", "Hello, мир!")
-    _ahk.call_cmd("MsgBox", "4", "", "Do you want to continue? (Press YES or NO)")
-
-    _ahk.call_cmd("Send", "#r")
-
-    import ahk
-
-    try:
-        ahk.hotkey('')
-    except ahk.Error:
-        pass
-    else:
-        assert False, "ahk.hotkey('') must raise an error"
-    
-    try:
-        ahk.hotkey('^t', func='not callable')
-    except ahk.Error:
-        pass
-    else:
-        assert False, "passing a non-callable to ahk.hotkey must raise an error"
-
-    @ahk.hotkey('AppsKey & t')
-    def show_msgbox():
-        _ahk.call_cmd("MsgBox", "Hello from hotkey.")
-    
-    _ahk.call_cmd("MsgBox", "Press AppsKey & t now.")
-
-    try:
-        _ahk.call_cmd("NoSuchCommand", "A")
-    except ahk.Error:
-        pass
-    else:
-        assert False, "call_cmd must raise an error when the command is unknown"
-    
-    _ahk.call_cmd("ExitApp")
-except:
-    import ctypes
-    import traceback
-    ctypes.windll.user32.MessageBoxW(0, traceback.format_exc(), "AHK", 1)
-)
-    py := EncodeString(py)
-
     EnvGet, pythonPath, PYTHONPATH
     if (pythonPath == "") {
         EnvSet, PYTHONPATH, %A_ScriptDir%
@@ -106,12 +42,24 @@ except:
         , "Ptr", &AHKModule_name
         , "Ptr", RegisterCallback("PyInit_ahk", "C", 0)
         , "Cdecl")
-    ; TODO: Pass CLI args to Python.
     DllCall(PYTHON_DLL "\Py_Initialize", "Cdecl")
-    execResult := DllCall(PYTHON_DLL "\PyRun_SimpleString", "Ptr", &py, "Cdecl")
-    if (execResult != 0) {
+
+    argv0 := "AutoHotkey.exe"
+    packArgs := ["Ptr", &argv0]
+    for i, arg in A_Args {
+        argv%i% := arg
+        packArgs.Push("Ptr")
+        packArgs.Push(&argv%i%)
+    }
+    argc := A_Args.Length() + 1
+    Pack(argv, packArgs*)
+
+    execResult := DllCall(PYTHON_DLL "\Py_Main", "Int", argc, "Ptr", &argv, "Cdecl Int")
+    if (execResult == 1) {
         ; TODO: Show Python syntax errors.
-        End("Something went wrong in Python")
+        End("The interpreter exited due to an exception.")
+    } else if (execResult == 2) {
+        End("The parameter list does not represent a valid Python command line.")
     }
 }
 
@@ -435,29 +383,6 @@ Py_XDecRef(pyObject) {
     if (pyObject != NULL) {
         Py_DecRef(pyObject)
     }
-}
-
-/**
-* Wrapper for SKAN's function (see below)
-*/
-getArgs() {
-    CmdLine := DllCall("GetCommandLine", "Str")
-    CmdLine := RegExReplace(CmdLine, " /ErrorStdOut", "")
-    Skip := (A_IsCompiled ? 1 : 2)
-    argv := Args(CmdLine, Skip)
-    return argv
-}
-
-/**
-* By SKAN,  http://goo.gl/JfMNpN,  CD:23/Aug/2014 | MD:24/Aug/2014
-*/
-Args(CmdLine := "", Skip := 0) {
-    pArgs := 0, nArgs := 0, A := []
-    pArgs := DllCall("Shell32\CommandLineToArgvW", "WStr", CmdLine, "PtrP", nArgs, "Ptr")
-    Loop % (nArgs)
-        if (A_Index > Skip)
-            A[A_Index - Skip] := StrGet(NumGet((A_Index - 1) * A_PtrSize + pArgs), "UTF-16")
-    return A, A[0] := nArgs - Skip, DllCall("LocalFree", "Ptr", pArgs)
 }
 
 Trigger(key, args*) {

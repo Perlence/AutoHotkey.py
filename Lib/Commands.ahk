@@ -7,15 +7,12 @@
 ; Whenever an API function deviates more than trivially from the AHK documentations,
 ; extensive comments are provided.
 
-/**
- * Implementation: Replacement.
- * Because the command-line parameters syntax (1, 2, 3, etc.) is nonsensical in JS,
- * an alternative has been provided through the "A_Args" variable
- * (inspired by AHK v2: http://lexikos.github.io/v2/docs/Variables.htm#CommandLine ).
- */
-_A_Args() {
-    return JS.Array(getArgs()*) ; variadic call
-}
+; /**
+;  * Implementation: Replacement.
+;  * Use Python's sys.argv instead.
+;  */
+; _A_Args() {
+; }
 
 _A_ScriptDir() {
     return %mainDir% 
