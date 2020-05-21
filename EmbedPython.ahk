@@ -12,6 +12,231 @@ global PYTHON_API_VERSION := 1013
 
 global CALLBACKS := {}
 
+global AHKError
+global AHKMethods
+global AHKModule
+global AHKModule_name
+
+OnExit, OnExitLabel
+
+Main()
+
+; END AUTO-EXECUTE SECTION
+return
+
+
+#Include <Commands>
+
+
+Main() {
+    py =
+(
+try:
+    import ctypes
+    import os
+    import sys
+    import _ahk
+
+    ctypes.windll.user32.MessageBoxW(0, f"Hello from Python.", "AHK", 1)
+    
+    os.environ["HELLO"] = "Привет"
+    hello = _ahk.call_cmd("EnvGet", "HELLO")
+    assert hello == os.environ["HELLO"]
+
+    temp = _ahk.call_cmd("EnvGet", "TEMP")
+    assert isinstance(temp, str), "EnvGet result must be a string"
+
+    rnd = _ahk.call_cmd("Random", "1", "10")
+    assert isinstance(rnd, int), "Random result must be an integer"
+
+    result = _ahk.call_cmd("MsgBox")
+    assert result == "", "MsgBox result must be an empty string"
+    _ahk.call_cmd("MsgBox", "Hello, мир!")
+    _ahk.call_cmd("MsgBox", "4", "", "Do you want to continue? (Press YES or NO)")
+
+    _ahk.call_cmd("Send", "#r")
+
+    import ahk
+
+    try:
+        ahk.hotkey('')
+    except ahk.Error:
+        pass
+    else:
+        assert False, "ahk.hotkey('') must raise an error"
+    
+    try:
+        ahk.hotkey('^t', func='not callable')
+    except ahk.Error:
+        pass
+    else:
+        assert False, "passing a non-callable to ahk.hotkey must raise an error"
+
+    @ahk.hotkey('AppsKey & t')
+    def show_msgbox():
+        _ahk.call_cmd("MsgBox", "Hello from hotkey.")
+    
+    _ahk.call_cmd("MsgBox", "Press AppsKey & t now.")
+
+    try:
+        _ahk.call_cmd("NoSuchCommand", "A")
+    except ahk.Error:
+        pass
+    else:
+        assert False, "call_cmd must raise an error when the command is unknown"
+    
+    _ahk.call_cmd("ExitApp")
+except:
+    import ctypes
+    import traceback
+    ctypes.windll.user32.MessageBoxW(0, traceback.format_exc(), "AHK", 1)
+)
+    py := EncodeString(py)
+
+    ; ATTACH_PARENT_PROCESS := -1
+    ; DllCall("AttachConsole", UInt, ATTACH_PARENT_PROCESS)
+    ; DllCall("AllocConsole")
+
+    ; stdout := FileOpen(DllCall("GetStdHandle", "Int", -11, "Ptr"), "h `n")
+    ; stdout.WriteLine("line 1")
+    ; stdout.__Handle
+
+    EnvGet, pythonPath, PYTHONPATH
+    if (pythonPath == "") {
+        EnvSet, PYTHONPATH, %A_ScriptDir%
+    } else {
+        EnvSet, PYTHONPATH, % pythonPath ";" A_ScriptDir
+    }
+
+    DllCall("LoadLibrary", "Str", PYTHON_DLL)
+    PackBuiltinModule()
+    DllCall(PYTHON_DLL "\PyImport_AppendInittab"
+        , "Ptr", &AHKModule_name
+        , "Ptr", RegisterCallback("PyInit_ahk", "C", 0)
+        , "Cdecl")
+    ; TODO: Pass CLI args to Python.
+    DllCall(PYTHON_DLL "\Py_Initialize", "Cdecl")
+    execResult := DllCall(PYTHON_DLL "\PyRun_SimpleString", "Ptr", &py, "Cdecl")
+    if (execResult != 0) {
+        ; TODO: Show Python syntax errors.
+        End("Something went wrong in Python")
+    }
+}
+
+PackBuiltinModule() {
+    PackBuiltinMethods()
+
+    ; typedef struct PyModuleDef{
+    ;   PyModuleDef_Base m_base;
+    ;   const char* m_name;
+    ;   const char* m_doc;
+    ;   Py_ssize_t m_size;
+    ;   PyMethodDef *m_methods;
+    ;   struct PyModuleDef_Slot* m_slots;
+    ;   traverseproc m_traverse;
+    ;   inquiry m_clear;
+    ;   freefunc m_free;
+    ; } PyModuleDef;
+
+    ; static PyModuleDef AHKModule = {
+    ;     PyModuleDef_HEAD_INIT, "ahk", 0, -1, AHKMethods,
+    ;     NULL, NULL, NULL, NULL
+    ; };
+
+    global AHKModule
+    VarSetCapacity(AHKModule, 104, 0)
+    offset := 0
+
+    global AHKModule_name := EncodeString("_ahk")
+    AHKModule_doc := NULL
+    AHKModule_size := -1
+    AHKModule_methods := &AHKMethods
+    AHKModule_slots := NULL
+    AHKModule_traverse := NULL
+    AHKModule_clear := NULL
+    AHKModule_free := NULL
+    NumPut(1, AHKModule, offset, "Int64"), offset := 40 ; PyModuleDef_HEAD_INIT
+    NumPut(&AHKModule_name, AHKModule, offset), offset += A_PtrSize
+    NumPut(AHKModule_doc, AHKModule, offset), offset += A_PtrSize
+    NumPut(AHKModule_size, AHKModule, offset, "Int64"), offset += 8
+    NumPut(AHKModule_methods, AHKModule, offset), offset += A_PtrSize
+    NumPut(AHKModule_slots, AHKModule, offset), offset += A_PtrSize
+    NumPut(AHKModule_traverse, AHKModule, offset), offset += A_PtrSize
+    NumPut(AHKModule_clear, AHKModule, offset), offset += A_PtrSize
+    NumPut(AHKModule_free, AHKModule, offset), offset += A_PtrSize
+}
+
+PackBuiltinMethods() {
+    ; static PyMethodDef AHKMethods[] = {
+    ;     {"call_cmd", AHKCallCmd, METH_VARARGS,
+    ;      "docstring blablabla"},
+    ;     {NULL, NULL, 0, NULL} // sentinel
+    ; };
+
+    global AHKMethods
+    PyMethodDef_size := A_PtrSize + A_PtrSize + 8 + A_PtrSize
+    VarSetCapacity(AHKMethods, PyMethodDef_size * 3, 0)
+    offset := 0
+
+    global AHKMethod_call_cmd_name := EncodeString("call_cmd")
+    AHKMethod_call_cmd_meth := RegisterCallback("AHKCallCmd", "C")
+    AHKMethod_call_cmd_flags := METH_VARARGS
+    global AHKMethod_call_cmd_doc := EncodeString("Execute the given AutoHotkey command.")
+    NumPut(&AHKMethod_call_cmd_name, AHKMethods, offset), offset += A_PtrSize
+    NumPut(AHKMethod_call_cmd_meth, AHKMethods, offset), offset += A_PtrSize
+    NumPut(AHKMethod_call_cmd_flags, AHKMethods, offset, "Int64"), offset += 8
+    NumPut(&AHKMethod_call_cmd_doc, AHKMethods, offset), offset += A_PtrSize
+
+    global AHKMethod_set_callback_name := EncodeString("set_callback")
+    AHKMethod_set_callback_meth := RegisterCallback("AHKSetCallback", "C")
+    AHKMethod_set_callback_flags := METH_VARARGS
+    global AHKMethod_set_callback_doc := EncodeString("Set callback to be called by an AutoHotkey event.")
+    NumPut(&AHKMethod_set_callback_name, AHKMethods, offset), offset += A_PtrSize
+    NumPut(AHKMethod_set_callback_meth, AHKMethods, offset), offset += A_PtrSize
+    NumPut(AHKMethod_set_callback_flags, AHKMethods, offset, "Int64"), offset += 8
+    NumPut(&AHKMethod_set_callback_doc, AHKMethods, offset), offset += A_PtrSize
+
+    NumPut(NULL, AHKMethods, offset), offset += A_PtrSize
+    NumPut(NULL, AHKMethods, offset), offset += A_PtrSize
+    NumPut(0, AHKMethods, offset, "Int64"), offset += 8
+    NumPut(NULL, AHKMethods, offset), offset += A_PtrSize
+}
+
+; static PyObject*
+PyInit_ahk() {
+    module := DllCall(PYTHON_DLL "\PyModule_Create2"
+        , "Ptr", &AHKModule
+        , "Int", PYTHON_API_VERSION
+        , "Cdecl Ptr")
+    if (module == NULL) {
+        return NULL
+    }
+
+    base := NULL
+    dict := NULL
+    AHKError := DllCall(PYTHON_DLL "\PyErr_NewException"
+        , "AStr", "ahk.Error"
+        , "Ptr", base
+        , "Ptr", dict
+        , "Cdecl Ptr")
+    Py_XIncRef(AHKError)
+
+    result := DllCall(PYTHON_DLL "\PyModule_AddObject"
+        , "Ptr", module
+        , "AStr", "Error"
+        , "Ptr", AHKError
+        , "Cdecl")
+    if (result < 0) {
+        ; Adding failed.
+        Py_XDecRef(AHKError)
+        ; Py_CLEAR(AHKError);
+        Py_DecRef(module)
+        return NULL
+    }
+
+    return module
+}
+
 AHKCallCmd(self, args) {
     ; const char *cmd;
     cmd := NULL
@@ -167,111 +392,6 @@ EncodeString(string) {
     return var
 }
 
-; static PyMethodDef AHKMethods[] = {
-;     {"call_cmd", AHKCallCmd, METH_VARARGS,
-;      "docstring blablabla"},
-;     {NULL, NULL, 0, NULL}
-; };
-
-PyMethodDef_size := A_PtrSize + A_PtrSize + 8 + A_PtrSize
-AHKMethod_call_cmd_name := EncodeString("call_cmd")
-AHKMethod_call_cmd_meth := RegisterCallback("AHKCallCmd", "C")
-AHKMethod_call_cmd_flags := METH_VARARGS
-AHKMethod_call_cmd_doc := EncodeString("Execute the given AutoHotkey command.")
-AHKMethod_set_callback_name := EncodeString("set_callback")
-AHKMethod_set_callback_meth := RegisterCallback("AHKSetCallback", "C")
-AHKMethod_set_callback_flags := METH_VARARGS
-AHKMethod_set_callback_doc := EncodeString("Set callback to be called by an AutoHotkey event.")
-VarSetCapacity(AHKMethods, PyMethodDef_size * 3, 0)
-offset := 0
-NumPut(&AHKMethod_call_cmd_name, AHKMethods, offset), offset += A_PtrSize
-NumPut(AHKMethod_call_cmd_meth, AHKMethods, offset), offset += A_PtrSize
-NumPut(AHKMethod_call_cmd_flags, AHKMethods, offset, "Int64"), offset += 8
-NumPut(&AHKMethod_call_cmd_doc, AHKMethods, offset), offset += A_PtrSize
-NumPut(&AHKMethod_set_callback_name, AHKMethods, offset), offset += A_PtrSize
-NumPut(AHKMethod_set_callback_meth, AHKMethods, offset), offset += A_PtrSize
-NumPut(AHKMethod_set_callback_flags, AHKMethods, offset, "Int64"), offset += 8
-NumPut(&AHKMethod_set_callback_doc, AHKMethods, offset), offset += A_PtrSize
-NumPut(NULL, AHKMethods, offset), offset += A_PtrSize
-NumPut(NULL, AHKMethods, offset), offset += A_PtrSize
-NumPut(0, AHKMethods, offset, "Int64"), offset += 8
-NumPut(NULL, AHKMethods, offset), offset += A_PtrSize
-
-; static PyModuleDef AHKModule = {
-;     PyModuleDef_HEAD_INIT, "ahk", 0, -1, AHKMethods,
-;     NULL, NULL, NULL, NULL
-; };
-
-; typedef struct PyModuleDef{
-;   PyModuleDef_Base m_base;
-;   const char* m_name;
-;   const char* m_doc;
-;   Py_ssize_t m_size;
-;   PyMethodDef *m_methods;
-;   struct PyModuleDef_Slot* m_slots;
-;   traverseproc m_traverse;
-;   inquiry m_clear;
-;   freefunc m_free;
-; } PyModuleDef;
-
-AHKModule_name := EncodeString("_ahk")
-AHKModule_doc := NULL
-AHKModule_size := -1
-AHKModule_methods := &AHKMethods
-AHKModule_slots := NULL
-AHKModule_traverse := NULL
-AHKModule_clear := NULL
-AHKModule_free := NULL
-global AHKModule
-VarSetCapacity(AHKModule, 104, 0)
-offset := 0
-NumPut(1, AHKModule, offset, "Int64"), offset := 40 ; PyModuleDef_HEAD_INIT
-NumPut(&AHKModule_name, AHKModule, offset), offset += A_PtrSize
-NumPut(AHKModule_doc, AHKModule, offset), offset += A_PtrSize
-NumPut(AHKModule_size, AHKModule, offset, "Int64"), offset += 8
-NumPut(AHKModule_methods, AHKModule, offset), offset += A_PtrSize
-NumPut(AHKModule_slots, AHKModule, offset), offset += A_PtrSize
-NumPut(AHKModule_traverse, AHKModule, offset), offset += A_PtrSize
-NumPut(AHKModule_clear, AHKModule, offset), offset += A_PtrSize
-NumPut(AHKModule_free, AHKModule, offset), offset += A_PtrSize
-
-global AHKError
-
-; static PyObject*
-PyInit_ahk() {
-    module := DllCall(PYTHON_DLL "\PyModule_Create2"
-        , "Ptr", &AHKModule
-        , "Int", PYTHON_API_VERSION
-        , "Cdecl Ptr")
-    if (module == NULL) {
-        return NULL
-    }
-
-    base := NULL
-    dict := NULL
-    AHKError := DllCall(PYTHON_DLL "\PyErr_NewException"
-        , "AStr", "ahk.Error"
-        , "Ptr", base
-        , "Ptr", dict
-        , "Cdecl Ptr")
-    Py_XIncRef(AHKError)
-
-    result := DllCall(PYTHON_DLL "\PyModule_AddObject"
-        , "Ptr", module
-        , "AStr", "Error"
-        , "Ptr", AHKError
-        , "Cdecl")
-    if (result < 0) {
-        ; Adding failed.
-        Py_XDecRef(AHKError)
-        ; Py_CLEAR(AHKError);
-        Py_DecRef(module)
-        return NULL
-    }
-
-    return module
-}
-
 Py_IncRef(pyObject) {
     DllCall(PYTHON_DLL "\Py_IncRef", "Ptr", pyObject, "Cdecl")
 }
@@ -291,94 +411,6 @@ Py_XDecRef(pyObject) {
         Py_DecRef(pyObject)
     }
 }
-
-py =
-(
-try:
-    import ctypes
-    import os
-    import sys
-    import _ahk
-
-    ctypes.windll.user32.MessageBoxW(0, f"Hello from Python.", "AHK", 1)
-    
-    os.environ["HELLO"] = "Привет"
-    hello = _ahk.call_cmd("EnvGet", "HELLO")
-    assert hello == os.environ["HELLO"]
-
-    temp = _ahk.call_cmd("EnvGet", "TEMP")
-    assert isinstance(temp, str), "EnvGet result must be a string"
-
-    rnd = _ahk.call_cmd("Random", "1", "10")
-    assert isinstance(rnd, int), "Random result must be an integer"
-
-    result = _ahk.call_cmd("MsgBox")
-    assert result == "", "MsgBox result must be an empty string"
-    _ahk.call_cmd("MsgBox", "Hello, мир!")
-    _ahk.call_cmd("MsgBox", "4", "", "Do you want to continue? (Press YES or NO)")
-
-    _ahk.call_cmd("Send", "#r")
-
-    import ahk
-
-    try:
-        ahk.hotkey('')
-    except ahk.Error:
-        pass
-    else:
-        assert False, "ahk.hotkey('') must raise an error"
-    
-    ahk.hotkey('^t', func='not callable')
-
-    @ahk.hotkey('AppsKey & t')
-    def show_msgbox():
-        _ahk.call_cmd("MsgBox", "Hello from hotkey.")
-    
-    _ahk.call_cmd("MsgBox", "Press AppsKey & t now.")
-
-    _ahk.call_cmd("NoSuchCommand", "A")
-except:
-    import ctypes
-    import traceback
-    ctypes.windll.user32.MessageBoxW(0, traceback.format_exc(), "AHK", 1)
-)
-py := EncodeString(py)
-
-OnExit, LabelOnExit
-
-; ATTACH_PARENT_PROCESS := -1
-; DllCall("AttachConsole", UInt, ATTACH_PARENT_PROCESS)
-; DllCall("AllocConsole")
-
-; stdout := FileOpen(DllCall("GetStdHandle", "Int", -11, "Ptr"), "h `n")
-; stdout.WriteLine("line 1")
-; stdout.__Handle
-
-
-EnvGet, pythonPath, PYTHONPATH
-if (pythonPath == "") {
-    EnvSet, PYTHONPATH, %A_ScriptDir%
-} else {
-    EnvSet, PYTHONPATH, %pythonPath%;%A_ScriptDir%
-}
-
-DllCall("LoadLibrary", "Str", PYTHON_DLL)
-DllCall(PYTHON_DLL "\PyImport_AppendInittab"
-    , "Ptr", &AHKModule_name
-    , "Ptr", RegisterCallback("PyInit_ahk", "C", 0)
-    , "Cdecl")
-; TODO: Pass CLI args to Python.
-DllCall(PYTHON_DLL "\Py_Initialize", "Cdecl")
-execResult := DllCall(PYTHON_DLL "\PyRun_SimpleString", "Ptr", &py, "Cdecl")
-if (execResult != 0) {
-    ; TODO: Show Python syntax errors.
-    End("Something went wrong in Python")
-}
-
-
-; END AUTO-EXECUTE SECTION
-return
-
 
 /**
 * Wrapper for SKAN's function (see below)
@@ -434,7 +466,7 @@ OnClipboardChange:
     return
 
 GuiClose:
-LabelOnExit:
+OnExitLabel:
     if (Trigger(A_ThisLabel) == 0) {
         return
     }
@@ -449,5 +481,3 @@ HotkeyLabel:
 OnMessageClosure(wParam, lParam, msg, hwnd) {
     Trigger("OnMessage " . msg, wParam, lParam, msg, hwnd)
 }
-
-#Include <Commands>
