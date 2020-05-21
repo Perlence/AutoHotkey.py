@@ -25,6 +25,7 @@ def hotkey(key_name, func=None, buffer=None, priority=0, max_threads=None,
     # TODO: Set the options.
     # TODO: Change options of the existing hotkeys.
     _ahk.call_cmd("Hotkey", key_name, "HotkeyLabel")
+    # TODO: Return a Hotkey object.
 
 
 def remap_key(origin_key, destination_key):

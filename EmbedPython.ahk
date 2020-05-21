@@ -38,7 +38,7 @@ try:
     import _ahk
 
     ctypes.windll.user32.MessageBoxW(0, f"Hello from Python.", "AHK", 1)
-    
+
     os.environ["HELLO"] = "Привет"
     hello = _ahk.call_cmd("EnvGet", "HELLO")
     assert hello == os.environ["HELLO"]
@@ -93,14 +93,6 @@ except:
 )
     py := EncodeString(py)
 
-    ; ATTACH_PARENT_PROCESS := -1
-    ; DllCall("AttachConsole", UInt, ATTACH_PARENT_PROCESS)
-    ; DllCall("AllocConsole")
-
-    ; stdout := FileOpen(DllCall("GetStdHandle", "Int", -11, "Ptr"), "h `n")
-    ; stdout.WriteLine("line 1")
-    ; stdout.__Handle
-
     EnvGet, pythonPath, PYTHONPATH
     if (pythonPath == "") {
         EnvSet, PYTHONPATH, %A_ScriptDir%
@@ -139,67 +131,100 @@ PackBuiltinModule() {
     ; } PyModuleDef;
 
     ; static PyModuleDef AHKModule = {
-    ;     PyModuleDef_HEAD_INIT, "ahk", 0, -1, AHKMethods,
+    ;     PyModuleDef_HEAD_INIT, "ahk", NULL, -1, AHKMethods,
     ;     NULL, NULL, NULL, NULL
     ; };
 
-    global AHKModule
-    VarSetCapacity(AHKModule, 104, 0)
-    offset := 0
-
     global AHKModule_name := EncodeString("_ahk")
-    AHKModule_doc := NULL
-    AHKModule_size := -1
-    AHKModule_methods := &AHKMethods
-    AHKModule_slots := NULL
-    AHKModule_traverse := NULL
-    AHKModule_clear := NULL
-    AHKModule_free := NULL
-    NumPut(1, AHKModule, offset, "Int64"), offset := 40 ; PyModuleDef_HEAD_INIT
-    NumPut(&AHKModule_name, AHKModule, offset), offset += A_PtrSize
-    NumPut(AHKModule_doc, AHKModule, offset), offset += A_PtrSize
-    NumPut(AHKModule_size, AHKModule, offset, "Int64"), offset += 8
-    NumPut(AHKModule_methods, AHKModule, offset), offset += A_PtrSize
-    NumPut(AHKModule_slots, AHKModule, offset), offset += A_PtrSize
-    NumPut(AHKModule_traverse, AHKModule, offset), offset += A_PtrSize
-    NumPut(AHKModule_clear, AHKModule, offset), offset += A_PtrSize
-    NumPut(AHKModule_free, AHKModule, offset), offset += A_PtrSize
+    global AHKModule
+    Pack(AHKModule
+        , "Int64", 1  ; ob_refcnt
+        , "Ptr", NULL ; ob_type
+        , "Ptr", NULL ; m_init
+        , "Int64", 0  ; m_index
+        , "Ptr", NULL ; m_copy
+        , "Ptr", &AHKModule_name
+        , "Ptr", NULL
+        , "Int64", -1
+        , "Ptr", &AHKMethods
+        , "Ptr", NULL
+        , "Ptr", NULL
+        , "Ptr", NULL
+        , "Ptr", NULL)
 }
 
 PackBuiltinMethods() {
+    ; struct PyMethodDef {
+    ;     const char  *ml_name;
+    ;     PyCFunction ml_meth;
+    ;     int         ml_flags;
+    ;     const char  *ml_doc;
+    ; };
+
     ; static PyMethodDef AHKMethods[] = {
     ;     {"call_cmd", AHKCallCmd, METH_VARARGS,
     ;      "docstring blablabla"},
     ;     {NULL, NULL, 0, NULL} // sentinel
     ; };
 
-    global AHKMethods
-    PyMethodDef_size := A_PtrSize + A_PtrSize + 8 + A_PtrSize
-    VarSetCapacity(AHKMethods, PyMethodDef_size * 3, 0)
-    offset := 0
-
     global AHKMethod_call_cmd_name := EncodeString("call_cmd")
-    AHKMethod_call_cmd_meth := RegisterCallback("AHKCallCmd", "C")
-    AHKMethod_call_cmd_flags := METH_VARARGS
     global AHKMethod_call_cmd_doc := EncodeString("Execute the given AutoHotkey command.")
-    NumPut(&AHKMethod_call_cmd_name, AHKMethods, offset), offset += A_PtrSize
-    NumPut(AHKMethod_call_cmd_meth, AHKMethods, offset), offset += A_PtrSize
-    NumPut(AHKMethod_call_cmd_flags, AHKMethods, offset, "Int64"), offset += 8
-    NumPut(&AHKMethod_call_cmd_doc, AHKMethods, offset), offset += A_PtrSize
 
     global AHKMethod_set_callback_name := EncodeString("set_callback")
-    AHKMethod_set_callback_meth := RegisterCallback("AHKSetCallback", "C")
-    AHKMethod_set_callback_flags := METH_VARARGS
     global AHKMethod_set_callback_doc := EncodeString("Set callback to be called by an AutoHotkey event.")
-    NumPut(&AHKMethod_set_callback_name, AHKMethods, offset), offset += A_PtrSize
-    NumPut(AHKMethod_set_callback_meth, AHKMethods, offset), offset += A_PtrSize
-    NumPut(AHKMethod_set_callback_flags, AHKMethods, offset, "Int64"), offset += 8
-    NumPut(&AHKMethod_set_callback_doc, AHKMethods, offset), offset += A_PtrSize
 
-    NumPut(NULL, AHKMethods, offset), offset += A_PtrSize
-    NumPut(NULL, AHKMethods, offset), offset += A_PtrSize
-    NumPut(0, AHKMethods, offset, "Int64"), offset += 8
-    NumPut(NULL, AHKMethods, offset), offset += A_PtrSize
+    global AHKMethods
+    Pack(AHKMethods
+        ; -- cmd_name
+        , "Ptr", &AHKMethod_call_cmd_name
+        , "Ptr", RegisterCallback("AHKCallCmd", "C")
+        , "Int64", METH_VARARGS
+        , "Ptr", &AHKMethod_call_cmd_doc
+        ; -- set_callback_name
+        , "Ptr", &AHKMethod_set_callback_name
+        , "Ptr", RegisterCallback("AHKSetCallback", "C")
+        , "Int64", METH_VARARGS
+        , "Ptr", &AHKMethod_set_callback_doc
+        ; -- sentinel
+        , "Ptr", NULL 
+        , "Ptr", NULL
+        , "Int64", 0
+        , "Ptr", NULL)
+}
+
+Pack(ByRef var, args*) {
+    static typeSizes := {Char: 1, UChar: 1
+        , Short: 2, UShort: 2
+        , Int: 4 , UInt: 4, Int64: 8
+        , Float: 4, Double: 8
+        , Ptr: A_PtrSize, UPtr: A_PtrSize}
+
+    cap := 0
+    typedValues := []
+    typedValue := {}
+    for index, param in args {
+        if (Mod(index, 2) == 1) {
+            ; Type string.
+            size := typeSizes[param]
+            if (not size) {
+                End("Invalid type " param)
+            }
+            cap += size
+            typedValue.Type := param
+            typedValue.Size := size
+        } else {
+            typedValue.Value := param
+            typedValues.Push(typedValue)
+            typedValue := {}
+        }
+    }
+
+    VarSetCapacity(var, cap, 0)
+    offset := 0
+    for index, tv in typedValues {
+        NumPut(tv.Value, var, offset, tv.Type)
+        offset += tv.Size
+    }
 }
 
 ; static PyObject*
