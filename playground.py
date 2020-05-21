@@ -4,6 +4,7 @@ import sys
 import _ahk
 
 ctypes.windll.user32.MessageBoxW(0, f"Hello from Python.", "AHK", 1)
+print("Hello from stdout.")
 
 # TODO: sys.stdout is not in utf-8.
 

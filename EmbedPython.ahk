@@ -4,7 +4,6 @@
 global NULL := 0
 global EMPTY_STRING := ""
 global EMPTY_STRING_INTERN := NULL
-global UTF8_ENCODING := "CP65001"
 ; TODO: Find Python DLL with py.exe or in VIRTUAL_ENV.
 global PYTHON_DLL := "c:\Users\Sviatoslav\AppData\Local\Programs\Python\Python38\python38.dll"
 global METH_VARARGS := 0x0001
@@ -247,13 +246,13 @@ AHKCallCmd(self, args) {
     }
 
     cmd := NumGet(cmd) ; Decode number from binary.
-    cmd := StrGet(cmd, UTF8_ENCODING) ; Read string from address `cmd`.
+    cmd := StrGet(cmd, "utf-8") ; Read string from address `cmd`.
 
     Loop, 11
     {
         if (arg%A_Index% != NULL) {
             arg%A_Index% := NumGet(arg%A_Index%)
-            arg%A_Index% := StrGet(arg%A_Index%, UTF8_ENCODING)
+            arg%A_Index% := StrGet(arg%A_Index%, "utf-8")
         }
     }
 
@@ -307,7 +306,7 @@ AHKSetCallback(self, args) {
         return NULL
     }
     name := NumGet(name)
-    name := StrGet(name, UTF8_ENCODING)
+    name := StrGet(name, "utf-8")
     funcPtr := NumGet(funcPtr)
 
     if (funcPtr == NULL or not DllCall(PYTHON_DLL "\PyCallable_Check", "Ptr", funcPtr, "Cdecl")) {
@@ -359,9 +358,9 @@ PyErr_SetString(exception, message) {
 
 EncodeString(string) {
     ; Convert a UTF-16 string to a UTF-8 one.
-    len := StrPut(string, UTF8_ENCODING)
+    len := StrPut(string, "utf-8")
     VarSetCapacity(var, len)
-    StrPut(string, &var, UTF8_ENCODING)
+    StrPut(string, &var, "utf-8")
     return var
 }
 
