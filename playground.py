@@ -1,7 +1,7 @@
 import ctypes
 import os
 import sys
-import _ahk
+import _ahk  # noqa
 
 ctypes.windll.user32.MessageBoxW(0, f"Hello from Python.", "AHK", 1)
 print("Hello from stdout.")
@@ -47,6 +47,12 @@ def show_msgbox():
 
 _ahk.call_cmd("MsgBox", "Press AppsKey & t now.")
 
+@ahk.hotkey('AppsKey & y')
+def show_bang():
+    1 / 0
+
+_ahk.call_cmd("MsgBox", "Press AppsKey & y to see an exception.")
+
 try:
     _ahk.call_cmd("NoSuchCommand", "A")
 except ahk.Error:
@@ -54,4 +60,5 @@ except ahk.Error:
 else:
     assert False, "call_cmd must raise an error when the command is unknown"
 
+_ahk.call_cmd("MsgBox", "Done!")
 _ahk.call_cmd("ExitApp")

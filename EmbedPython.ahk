@@ -212,7 +212,8 @@ PyInit_ahk() {
 AHKCallCmd(self, args) {
     ; const char *cmd;
     cmd := NULL
-    ; Maximum number of AHK command arguments seems to be 11
+    ; Maximum number of AHK command arguments seems to be 11.
+    ; const char *argN;
     arg1 := NULL
     arg2 := NULL
     arg3 := NULL
@@ -315,6 +316,7 @@ AHKSetCallback(self, args) {
     }
 
     Py_IncRef(funcPtr)
+    ; TODO: Check if callback is already set.
     CALLBACKS[name] := funcPtr
 
     return Py_BuildNone()
@@ -394,7 +396,7 @@ Trigger(key, args*) {
     if (result == "") {
         End("Call to '" key "' callback failed: " ErrorLevel)
     } else if (result == NULL) {
-        End("Call to '" key "' callback failed")
+        DllCall(PYTHON_DLL "\PyErr_Print", "Cdecl")
     }
 }
 
@@ -402,7 +404,7 @@ End(message) {
     ; TODO: Consider replacing some of End invocations with raising Python
     ; exceptions.
     message .= "`nThe application will now exit."
-    MsgBox % message
+    MsgBox, % message
     ExitApp
 }
 

@@ -1,3 +1,5 @@
+import sys
+import traceback
 from contextlib import contextmanager
 from functools import partial
 
@@ -8,6 +10,19 @@ import _ahk  # noqa
 
 
 Error = _ahk.Error
+
+
+def excepthook(type, value, tb):
+    tblines = traceback.format_exception(type, value, tb)
+    # TODO: Replace the invocation with Python-wrapped msg_box.
+    MB_ICONSTOP = 0x10
+    options = hex(MB_ICONSTOP)
+    title = ""
+    text = "".join(tblines)
+    _ahk.call_cmd("MsgBox", options, title, text)
+
+
+sys.excepthook = excepthook
 
 
 def hotkey(key_name, func=None, buffer=None, priority=0, max_threads=None,
