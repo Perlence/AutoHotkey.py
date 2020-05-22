@@ -3,7 +3,8 @@
 
 global NULL := 0
 global EMPTY_STRING := ""
-global EMPTY_STRING_INTERN := NULL
+global PY_EMPTY_STRING_INTERN := NULL
+global PY_NONE := NULL
 ; TODO: Find Python DLL with py.exe or in VIRTUAL_ENV.
 global PYTHON_DLL := "c:\Users\Sviatoslav\AppData\Local\Programs\Python\Python38\python38.dll"
 global METH_VARARGS := 0x0001
@@ -308,10 +309,10 @@ AHKToPython(value) {
         ; TODO: Wrap AHK function to be called from Python?
         End("Not implemented")
     } else if (value == "") {
-        if (EMPTY_STRING_INTERN == NULL) {
-            EMPTY_STRING_INTERN := DllCall(PYTHON_DLL "\PyUnicode_InternFromString", "Ptr", &EMPTY_STRING, "Cdecl Ptr")
+        if (PY_EMPTY_STRING_INTERN == NULL) {
+            PY_EMPTY_STRING_INTERN := DllCall(PYTHON_DLL "\PyUnicode_InternFromString", "Ptr", &EMPTY_STRING, "Cdecl Ptr")
         }
-        return EMPTY_STRING_INTERN
+        return PY_EMPTY_STRING_INTERN
     } else if (value+0 == value) {
         ; The value is a number.
         return DllCall(PYTHON_DLL "\PyLong_FromLong", "Int", value, "Cdecl Ptr")
@@ -323,12 +324,13 @@ AHKToPython(value) {
 }
 
 Py_BuildNone() {
-    ; TODO: Cache the pointer to None.
-    res := DllCall(PYTHON_DLL "\Py_BuildValue", "AStr", "", "Cdecl Ptr")
-    if (res == NULL) {
-        End("Cannot build None")
+    if (PY_NONE == NULL) {
+        PY_NONE := DllCall(PYTHON_DLL "\Py_BuildValue", "AStr", "", "Cdecl Ptr")
+        if (PY_NONE == NULL) {
+            End("Cannot build None")
+        }
     }
-    return res
+    return PY_NONE
 }
 
 PyErr_SetString(exception, message) {
