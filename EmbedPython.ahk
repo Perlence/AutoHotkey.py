@@ -7,7 +7,8 @@ global PY_EMPTY_STRING_INTERN := NULL
 global PY_NONE := NULL
 global LOAD_WITH_ALTERED_SEARCH_PATH := 0x8
 global ERROR_MOD_NOT_FOUND := 0x7e
-global PYTHON_DLL := ""
+global HPYTHON_DLL := NULL
+global PYTHON_DLL_PROCS := {}
 global METH_VARARGS := 0x0001
 global PYTHON_API_VERSION := 1013
 
@@ -26,8 +27,9 @@ Main()
 return
 
 
-#Include <StdoutToVar_CreateProcess>
-#Include <Commands>
+#Include, <StdoutToVar_CreateProcess>
+#Include, <PythonDll>
+#Include, <Commands>
 
 
 Main() {
@@ -40,11 +42,8 @@ Main() {
 
     LoadPython()
     PackBuiltinModule()
-    DllCall(PYTHON_DLL "\PyImport_AppendInittab"
-        , "Ptr", &AHKModule_name
-        , "Ptr", RegisterCallback("PyInit_ahk", "C", 0)
-        , "Cdecl")
-    DllCall(PYTHON_DLL "\Py_Initialize", "Cdecl")
+    PyImport_AppendInittab(&AHKModule_name, RegisterCallback("PyInit_ahk", "C", 0))
+    Py_Initialize()
 
     argv0 := "AutoHotkey.exe"
     packArgs := ["Ptr", &argv0]
@@ -56,52 +55,13 @@ Main() {
     argc := A_Args.Length() + 1
     Pack(argv, packArgs*)
 
-    execResult := DllCall(PYTHON_DLL "\Py_Main", "Int", argc, "Ptr", &argv, "Cdecl Int")
+    execResult := Py_Main(argc, &argv)
     if (execResult == 1) {
         ; TODO: Show Python syntax errors.
         End("The interpreter exited due to an exception.")
     } else if (execResult == 2) {
         End("The parameter list does not represent a valid Python command line.")
     }
-}
-
-LoadPython() {  
-    ; Try default search-order. This approach respects VIRTUAL_ENV as long as 
-    ; "VIRTUAL_ENV\Scripts" is in the PATH.
-    PYTHON_DLL := "python3.dll"
-    hmodule := LoadLibraryEx(PYTHON_DLL)
-    if (hmodule != NULL) {
-        return hmodule
-    }
-    if (A_LastError != ERROR_MOD_NOT_FOUND) {
-        End("Cannot load Python DLL: " A_LastError)
-    }
-    
-    ; Try py.exe.
-    cmd := "py.exe -3 -c ""import os, sys; print(os.path.dirname(sys.executable), end='')"""
-    pythonDir := StdoutToVar_CreateProcess(cmd)
-    exists := FileExist(pythonDir)
-    if (pythonDir != "" and FileExist(pythonDir) == "D") {
-        PYTHON_DLL := pythonDir "\python3.dll"
-        hmodule := LoadLibraryEx(PYTHON_DLL, LOAD_WITH_ALTERED_SEARCH_PATH)
-        if (hmodule != NULL) {
-            return hmodule
-        }
-    }
-    if (A_LastError != ERROR_MOD_NOT_FOUND) {
-        End("Cannot load Python DLL: " A_LastError)
-    }
-
-    End("Cannot find Python DLL.")
-}
-
-LoadLibraryEx(libFileName, flags:=0) {
-    file := NULL
-    return DllCall("LoadLibraryEx"
-        , "Str", libFileName
-        , "Ptr", file
-        , "Int", flags
-        , "Ptr")
 }
 
 PackBuiltinModule() {
@@ -218,28 +178,17 @@ Pack(ByRef var, args*) {
 
 ; static PyObject*
 PyInit_ahk() {
-    module := DllCall(PYTHON_DLL "\PyModule_Create2"
-        , "Ptr", &AHKModule
-        , "Int", PYTHON_API_VERSION
-        , "Cdecl Ptr")
+    module := PyModule_Create2(&AHKModule, PYTHON_API_VERSION)
     if (module == NULL) {
         return NULL
     }
 
     base := NULL
     dict := NULL
-    AHKError := DllCall(PYTHON_DLL "\PyErr_NewException"
-        , "AStr", "ahk.Error"
-        , "Ptr", base
-        , "Ptr", dict
-        , "Cdecl Ptr")
+    AHKError := PyErr_NewException("ahk.Error", base, dict)
     Py_XIncRef(AHKError)
 
-    result := DllCall(PYTHON_DLL "\PyModule_AddObject"
-        , "Ptr", module
-        , "AStr", "Error"
-        , "Ptr", AHKError
-        , "Cdecl")
+    result := PyModule_AddObject(module, "Error", AHKError)
     if (result < 0) {
         ; Adding failed.
         Py_XDecRef(AHKError)
@@ -268,27 +217,12 @@ AHKCallCmd(self, args) {
     arg10 := NULL
     arg11 := NULL
 
-    ; TODO: GetProcAddress of the frequently used functions.
-    if (not DllCall(PYTHON_DLL "\PyArg_ParseTuple"
-            , "Ptr", args
-            , "AStr", "s|sssssssssss:call_cmd"
-            , "Ptr", &cmd
-            , "Ptr", &arg1
-            , "Ptr", &arg2
-            , "Ptr", &arg3
-            , "Ptr", &arg4
-            , "Ptr", &arg5
-            , "Ptr", &arg6
-            , "Ptr", &arg7
-            , "Ptr", &arg8
-            , "Ptr", &arg9
-            , "Ptr", &arg10
-            , "Ptr", &arg11
-            , "Cdecl")) {
+    if (not PyArg_ParseTuple(args, "s|sssssssssss:call_cmd", &cmd, &arg1, &arg2
+            , &arg3, &arg4, &arg5, &arg6, &arg7, &arg8, &arg9, &arg10, &arg11)) {
         return NULL
     }
 
-    cmd := NumGet(cmd) ; Decode the number from binary.
+    cmd := NumGet(cmd)
     cmd := StrGet(cmd, "utf-8") ; Read the string from address `cmd`.
 
     args := []
@@ -318,19 +252,14 @@ AHKSetCallback(self, args) {
     name := NULL
     ; const PyObject *func
     funcPtr := NULL
-    if (not DllCall(PYTHON_DLL "\PyArg_ParseTuple"
-            , "Ptr", args
-            , "AStr", "sO:set_callback"
-            , "Ptr", &name
-            , "Ptr", &funcPtr
-            , "Cdecl")) {
+    if (not PyArg_ParseTuple(args, "sO:set_callback", &name, &funcPtr)) {
         return NULL
     }
     name := NumGet(name)
     name := StrGet(name, "utf-8")
     funcPtr := NumGet(funcPtr)
 
-    if (funcPtr == NULL or not DllCall(PYTHON_DLL "\PyCallable_Check", "Ptr", funcPtr, "Cdecl")) {
+    if (funcPtr == NULL or not PyCallable_Check(funcPtr)) {
         PyErr_SetString(AHKError, "callback function '" name "' is not callable")
         return NULL
     }
@@ -351,32 +280,16 @@ AHKToPython(value) {
         End("Not implemented")
     } else if (value == "") {
         if (PY_EMPTY_STRING_INTERN == NULL) {
-            PY_EMPTY_STRING_INTERN := DllCall(PYTHON_DLL "\PyUnicode_InternFromString", "Ptr", &EMPTY_STRING, "Cdecl Ptr")
+            PY_EMPTY_STRING_INTERN := PyUnicode_InternFromString(&EMPTY_STRING)
         }
         return PY_EMPTY_STRING_INTERN
     } else if (value+0 == value) {
         ; The value is a number.
-        return DllCall(PYTHON_DLL "\PyLong_FromLong", "Int", value, "Cdecl Ptr")
+        return PyLong_FromLong(value)
     } else {
         ; The value is a string.
-        encoded := EncodeString(value)
-        return DllCall(PYTHON_DLL "\PyUnicode_FromString", "Ptr", &encoded, "Cdecl Ptr")
+        return PyUnicode_FromString(value)
     }
-}
-
-Py_BuildNone() {
-    if (PY_NONE == NULL) {
-        PY_NONE := DllCall(PYTHON_DLL "\Py_BuildValue", "AStr", "", "Cdecl Ptr")
-        if (PY_NONE == NULL) {
-            End("Cannot build None")
-        }
-    }
-    return PY_NONE
-}
-
-PyErr_SetString(exception, message) {
-    encoded := EncodeString(message)
-    DllCall(PYTHON_DLL "\PyErr_SetString", "Ptr", AHKError, "Ptr", &encoded)
 }
 
 EncodeString(string) {
@@ -387,37 +300,17 @@ EncodeString(string) {
     return var
 }
 
-Py_IncRef(pyObject) {
-    DllCall(PYTHON_DLL "\Py_IncRef", "Ptr", pyObject, "Cdecl")
-}
-
-Py_XIncRef(pyObject) {
-    if (pyObject != NULL) {
-        Py_IncRef(pyObject)
-    }
-}
-
-Py_DecRef(pyObject) {
-    DllCall(PYTHON_DLL "\Py_DecRef", "Ptr", pyObject, "Cdecl")
-}
-
-Py_XDecRef(pyObject) {
-    if (pyObject != NULL) {
-        Py_DecRef(pyObject)
-    }
-}
-
 Trigger(key, args*) {
     funcObjPtr := CALLBACKS[key]
     if (not funcObjPtr) {
         return
     }
     argsPtr := NULL
-    result := DllCall(PYTHON_DLL "\PyObject_CallObject", "Ptr", funcObjPtr, "Ptr", argsPtr, "Cdecl Ptr")
+    result := PyObject_CallObject(funcObjPtr, argsPtr)
     if (result == "") {
         End("Call to '" key "' callback failed: " ErrorLevel)
     } else if (result == NULL) {
-        DllCall(PYTHON_DLL "\PyErr_Print", "Cdecl")
+        PyErr_Print()
     }
 }
 
@@ -442,7 +335,7 @@ OnExitLabel:
     if (Trigger(A_ThisLabel) == 0) {
         return
     }
-    DllCall(PYTHON_DLL "\Py_Finalize", "Cdecl")
+    Py_Finalize()
     ExitApp
     return
 
