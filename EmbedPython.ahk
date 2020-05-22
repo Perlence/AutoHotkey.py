@@ -246,15 +246,18 @@ AHKCallCmd(self, args) {
         return NULL
     }
 
-    cmd := NumGet(cmd) ; Decode number from binary.
-    cmd := StrGet(cmd, "utf-8") ; Read string from address `cmd`.
+    cmd := NumGet(cmd) ; Decode the number from binary.
+    cmd := StrGet(cmd, "utf-8") ; Read the string from address `cmd`.
 
+    args := []
     Loop, 11
     {
-        if (arg%A_Index% != NULL) {
-            arg%A_Index% := NumGet(arg%A_Index%)
-            arg%A_Index% := StrGet(arg%A_Index%, "utf-8")
+        if (arg%A_Index% == NULL) {
+            break
         }
+        arg%A_Index% := NumGet(arg%A_Index%)
+        arg%A_Index% := StrGet(arg%A_Index%, "utf-8")
+        args.Push(arg%A_Index%)
     }
 
     if (not Func("_" cmd)) {
@@ -263,32 +266,7 @@ AHKCallCmd(self, args) {
     }
 
     ; TODO: Command may raise an exception. Catch and raise it in Python.
-    ; TODO: This arg ladder is duplicated in Commands.ahk. Remove it here.
-    if (arg1 == NULL) {
-        result := _%cmd%()
-    } else if (arg2 == NULL) {
-        result := _%cmd%(arg1)
-    } else if (arg3 == NULL) {
-        result := _%cmd%(arg1, arg2)
-    } else if (arg4 == NULL) {
-        result := _%cmd%(arg1, arg2, arg3)
-    } else if (arg5 == NULL) {
-        result := _%cmd%(arg1, arg2, arg3, arg4)
-    } else if (arg6 == NULL) {
-        result := _%cmd%(arg1, arg2, arg3, arg4, arg5)
-    } else if (arg7 == NULL) {
-        result := _%cmd%(arg1, arg2, arg3, arg4, arg5, arg6)
-    } else if (arg8 == NULL) {
-        result := _%cmd%(arg1, arg2, arg3, arg4, arg5, arg6, arg7)
-    } else if (arg9 == NULL) {
-        result := _%cmd%(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
-    } else if (arg10 == NULL) {
-        result := _%cmd%(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
-    } else if (arg11 == NULL) {
-        result := _%cmd%(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
-    } else {
-        result := _%cmd%(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
-    }
+    result := _%cmd%(args*)
 
     return AHKToPython(result)
 }

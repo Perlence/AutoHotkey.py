@@ -329,13 +329,16 @@ _GuiControlGet(Subcommand="",ControlID="",Param4="") {
  * The migrated function uses closures instead of labels.
  * TODO: Add support for AltTab.
  */
-_Hotkey(Param1, Param2="__Undefined", Param3="__Undefined") {
-    if (Param2 == "__Undefined") {
-        Hotkey, %Param1%
-    } else if (Param3 == "__Undefined") {
-        Hotkey, %Param1%, %Param2%
-    } else {
-        Hotkey, %Param1%, %Param2%, %Param3%
+_Hotkey(Param1, Params*) {
+    if (Params.Length() == 0) {
+        Hotkey, %Param1% ; If, close context.
+    } else if (Params.Length() == 1) {
+        p2 := Params[1]
+        Hotkey, %Param1%, %p2%
+    } else if (Params.Length() >= 2) {
+        p2 := Params[1]
+        p3 := Params[2]
+        Hotkey, %Param1%, %p2%, %p3%
     }
 }
 
@@ -492,13 +495,18 @@ _MouseMove(X,Y,Speed="",R="") {
  * the commas separating the parameters are interperted as string.
  * Also, the case for no-parameters had to be intercepted.
  */
-_MsgBox(Param1="__Undefined", Title="__Undefined", Text="", Timeout="") {
-    if (Param1 == "__Undefined") {
+_MsgBox(Params*) {
+    if (Params.Length() == 0) {
         MsgBox
-    } else if (Title == "__Undefined") {
-        MsgBox, %Param1%
+    } else if (Params.Length() == 1) {
+        text := Params[1]
+        MsgBox, %text%
     } else {
-        MsgBox % Param1,%Title%,%Text%,%Timeout%
+        options := Params[1]
+        title := Params[2]
+        text := Params[3]
+        timeout := Params[4]
+        MsgBox % options,%title%,%text%,%timeout%
     }
 }
 
