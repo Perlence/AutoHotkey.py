@@ -5,8 +5,9 @@ global NULL := 0
 global EMPTY_STRING := ""
 global PY_EMPTY_STRING_INTERN := NULL
 global PY_NONE := NULL
-; TODO: Find Python DLL with py.exe or in VIRTUAL_ENV.
-global PYTHON_DLL := "c:\Users\Sviatoslav\AppData\Local\Programs\Python\Python38\python38.dll"
+global LOAD_WITH_ALTERED_SEARCH_PATH := 0x8
+global ERROR_MOD_NOT_FOUND := 0x7e
+global PYTHON_DLL := ""
 global METH_VARARGS := 0x0001
 global PYTHON_API_VERSION := 1013
 
@@ -25,6 +26,7 @@ Main()
 return
 
 
+#Include <StdoutToVar_CreateProcess>
 #Include <Commands>
 
 
@@ -36,7 +38,7 @@ Main() {
         EnvSet, PYTHONPATH, % pythonPath ";" A_ScriptDir
     }
 
-    DllCall("LoadLibrary", "Str", PYTHON_DLL)
+    LoadPython()
     PackBuiltinModule()
     DllCall(PYTHON_DLL "\PyImport_AppendInittab"
         , "Ptr", &AHKModule_name
@@ -61,6 +63,45 @@ Main() {
     } else if (execResult == 2) {
         End("The parameter list does not represent a valid Python command line.")
     }
+}
+
+LoadPython() {  
+    ; Try default search-order. This approach respects VIRTUAL_ENV as long as 
+    ; "VIRTUAL_ENV\Scripts" is in the PATH.
+    PYTHON_DLL := "python3.dll"
+    hmodule := LoadLibraryEx(PYTHON_DLL)
+    if (hmodule != NULL) {
+        return hmodule
+    }
+    if (A_LastError != ERROR_MOD_NOT_FOUND) {
+        End("Cannot load Python DLL: " A_LastError)
+    }
+    
+    ; Try py.exe.
+    cmd := "py.exe -3 -c ""import os, sys; print(os.path.dirname(sys.executable), end='')"""
+    pythonDir := StdoutToVar_CreateProcess(cmd)
+    exists := FileExist(pythonDir)
+    if (pythonDir != "" and FileExist(pythonDir) == "D") {
+        PYTHON_DLL := pythonDir "\python3.dll"
+        hmodule := LoadLibraryEx(PYTHON_DLL, LOAD_WITH_ALTERED_SEARCH_PATH)
+        if (hmodule != NULL) {
+            return hmodule
+        }
+    }
+    if (A_LastError != ERROR_MOD_NOT_FOUND) {
+        End("Cannot load Python DLL: " A_LastError)
+    }
+
+    End("Cannot find Python DLL.")
+}
+
+LoadLibraryEx(libFileName, flags:=0) {
+    file := NULL
+    return DllCall("LoadLibraryEx"
+        , "Str", libFileName
+        , "Ptr", file
+        , "Int", flags
+        , "Ptr")
 }
 
 PackBuiltinModule() {

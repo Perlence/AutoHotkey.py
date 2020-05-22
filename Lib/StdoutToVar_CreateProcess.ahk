@@ -18,7 +18,9 @@
 ; ..............: Nov. 02, 2016 - Fixed blocking behavior due to ReadFile thanks to PeekNamedPipe.
 ; ----------------------------------------------------------------------------------------------------------------------
 StdoutToVar_CreateProcess(sCmd, sEncoding:="CP0", sDir:="", ByRef nExitCode:=0) {
-    DllCall( "CreatePipe",           PtrP,hStdOutRd, PtrP,hStdOutWr, Ptr,0, UInt,0 )
+    hStdOutRd := 0
+    hStdOutWr := 0
+    DllCall( "CreatePipe",           PtrP, hStdOutRd, PtrP, hStdOutWr, Ptr,0, UInt,0 )
     DllCall( "SetHandleInformation", Ptr,hStdOutWr, UInt,1, UInt,1                 )
 
             VarSetCapacity( pi, (A_PtrSize == 4) ? 16 : 24,  0 )
@@ -35,8 +37,10 @@ StdoutToVar_CreateProcess(sCmd, sEncoding:="CP0", sDir:="", ByRef nExitCode:=0) 
       , DllCall( "CloseHandle", Ptr,hStdOutRd )
 
     DllCall( "CloseHandle", Ptr,hStdOutWr ) ; The write pipe must be closed before reading the stdout.
+    sOutput := ""
     While ( 1 )
     { ; Before reading, we check if the pipe has been written to, so we avoid freezings.
+        nTot := 0
         If ( !DllCall( "PeekNamedPipe", Ptr,hStdOutRd, Ptr,0, UInt,0, Ptr,0, UIntP,nTot, Ptr,0 ) )
             Break
         If ( !nTot )
@@ -45,6 +49,7 @@ StdoutToVar_CreateProcess(sCmd, sEncoding:="CP0", sDir:="", ByRef nExitCode:=0) 
             Continue
         } ; Pipe buffer is not empty, so we can read it.
         VarSetCapacity(sTemp, nTot+1)
+        nSize := 0
         DllCall( "ReadFile", Ptr,hStdOutRd, Ptr,&sTemp, UInt,nTot, PtrP,nSize, Ptr,0 )
         sOutput .= StrGet(&sTemp, nSize, sEncoding)
     }
