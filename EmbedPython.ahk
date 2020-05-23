@@ -273,6 +273,7 @@ AHKCall(self, args) {
 }
 
 _AHKCall(self, args) {
+    ; TODO: Unify call_cmd and call.
     pyFunc := PyTuple_GetItem(args, 0)
     if (pyFunc == NULL) {
         ; TODO: The error should be a TypeError.

@@ -1,7 +1,9 @@
 import ctypes
 import os
 import sys
+
 import _ahk  # noqa
+import ahk
 
 ctypes.windll.user32.MessageBoxW(0, f"Hello from Python.", "AHK", 1)
 print("Hello from stdout.")
@@ -18,10 +20,10 @@ assert isinstance(temp, str), "EnvGet result must be a string"
 rnd = _ahk.call_cmd("Random", "1", "10")
 assert isinstance(rnd, int), "Random result must be an integer"
 
-result = _ahk.call_cmd("MsgBox")
+result = ahk.message_box()
 assert result == "", "MsgBox result must be an empty string"
-_ahk.call_cmd("MsgBox", "Hello, мир!")
-_ahk.call_cmd("MsgBox", "4", "", "Do you want to continue? (Press YES or NO)")
+ahk.message_box("Hello, мир!")
+ahk.message_box("Do you want to continue? (Press YES or NO)", options=4)
 
 _ahk.call_cmd("Send", "#r")
 
@@ -57,15 +59,15 @@ else:
 
 @ahk.hotkey("AppsKey & t")
 def show_msgbox():
-    _ahk.call_cmd("MsgBox", "Hello from hotkey.")
+    ahk.message_box("Hello from hotkey.")
 
-_ahk.call_cmd("MsgBox", "Press AppsKey & t now.")
+ahk.message_box("Press AppsKey & t now.")
 
 @ahk.hotkey("AppsKey & y")
 def show_bang():
     1 / 0
 
-_ahk.call_cmd("MsgBox", "Press AppsKey & y to see an exception.")
+ahk.message_box("Press AppsKey & y to see an exception.")
 
 try:
     _ahk.call_cmd("NoSuchCommand", "A")
@@ -75,9 +77,9 @@ else:
     assert False, "_ahk.call_cmd() must raise an error when the command is unknown"
 
 if ahk.get_key_state("LShift"):
-    _ahk.call_cmd("MsgBox", "LShift is pressed")
+    ahk.message_box("LShift is pressed")
 else:
-    _ahk.call_cmd("MsgBox", "LShift is not pressed")
+    ahk.message_box("LShift is not pressed")
 
-_ahk.call_cmd("MsgBox", "Done!")
+ahk.message_box("Done!")
 _ahk.call_cmd("ExitApp")

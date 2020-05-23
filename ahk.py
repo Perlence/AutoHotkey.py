@@ -14,15 +14,25 @@ Error = _ahk.Error
 
 def excepthook(type, value, tb):
     tblines = traceback.format_exception(type, value, tb)
-    # TODO: Replace the invocation with Python-wrapped msg_box.
-    MB_ICONSTOP = 0x10
-    options = hex(MB_ICONSTOP)
-    title = ""
-    text = "".join(tblines)
-    _ahk.call_cmd("MsgBox", options, title, text)
+    # TODO: Add more MB_* constants to the module?
+    MB_ICONERROR = 0x10
+    message_box("".join(tblines), options=MB_ICONERROR)
 
 
 sys.excepthook = excepthook
+
+
+def message_box(text=None, title="", options=0, timeout=None):
+    if text is None:
+        # Show "Press OK to continue."
+        return _ahk.call_cmd("MsgBox")
+
+    args = [options, title, text]
+    if timeout is not None:
+        args.append(timeout)
+    args = map(str, args)
+    return _ahk.call_cmd("MsgBox", *args)
+    # TODO: Return result of IfMsgBox?
 
 
 def hotkey(key_name, func=None, buffer=None, priority=0, max_threads=None,
