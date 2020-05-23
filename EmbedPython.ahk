@@ -33,6 +33,7 @@ return
 
 
 Main() {
+    ; Add A_ScriptDir to PYTHONPATH so that ahk.py could be imported.
     EnvGet, pythonPath, PYTHONPATH
     if (pythonPath == "") {
         EnvSet, PYTHONPATH, %A_ScriptDir%
@@ -53,6 +54,9 @@ Main() {
         packArgs.Push(&argv%i%)
     }
     argc := A_Args.Length() + 1
+    argc := 2
+    argv1 := "playground.py"
+    packArgs := ["Ptr", &argv0, "Ptr", &argv1]
     Pack(argv, packArgs*)
 
     execResult := Py_Main(argc, &argv)
@@ -119,21 +123,32 @@ PackBuiltinMethods() {
     global AHKMethod_call_cmd_name := EncodeString("call_cmd")
     global AHKMethod_call_cmd_doc := EncodeString("Execute the given AutoHotkey command.")
 
+    global AHKMethod_call_name := EncodeString("call")
+    global AHKMethod_call_doc := EncodeString("Execute the given AutoHotkey function.")
+
     global AHKMethod_set_callback_name := EncodeString("set_callback")
     global AHKMethod_set_callback_doc := EncodeString("Set callback to be called by an AutoHotkey event.")
 
     global AHKMethods
     Pack(AHKMethods
-        ; -- cmd_name
+        ; -- cmd_call
         , "Ptr", &AHKMethod_call_cmd_name
         , "Ptr", RegisterCallback("AHKCallCmd", "C")
         , "Int64", METH_VARARGS
         , "Ptr", &AHKMethod_call_cmd_doc
+
+        ; -- call
+        , "Ptr", &AHKMethod_call_name
+        , "Ptr", RegisterCallback("AHKCall", "C")
+        , "Int64", METH_VARARGS
+        , "Ptr", &AHKMethod_call_doc
+
         ; -- set_callback_name
         , "Ptr", &AHKMethod_set_callback_name
         , "Ptr", RegisterCallback("AHKSetCallback", "C")
         , "Int64", METH_VARARGS
         , "Ptr", &AHKMethod_set_callback_doc
+
         ; -- sentinel
         , "Ptr", NULL 
         , "Ptr", NULL
@@ -241,8 +256,57 @@ AHKCallCmd(self, args) {
         return NULL
     }
 
-    ; TODO: Command may raise an exception. Catch and raise it in Python.
-    result := _%cmd%(args*)
+    try {
+        result := _%cmd%(args*)
+    } catch e {
+        PyErr_SetString(AHKError, e.Message)
+        return NULL
+    }
+
+    return AHKToPython(result)
+}
+
+AHKCall(self, args) {
+    ; AHK debugger doesn't see local variables in a C callback function. Call a
+    ; regular AHK function.
+    return _AHKCall(self, args)
+}
+
+_AHKCall(self, args) {
+    pyFunc := PyTuple_GetItem(args, 0)
+    if (pyFunc == NULL) {
+        ; TODO: The error should be a TypeError.
+        PyErr_SetString(AHKError, "_ahk.call() missing 1 required positional argument: 'func'")
+        return NULL
+    }
+
+    func := PythonToAHK(pyFunc)
+    if (not Func(func)) {
+        PyErr_SetString(AHKError, "unknown function " func)
+        return NULL
+    }
+
+    ; Parse the arguments.
+    ahkArgs := []
+    i := 1
+    size := PyTuple_Size(args)
+    while (i < size) {
+        arg := PyTuple_GetItem(args, i)
+        try {
+            ahkArgs.Push(PythonToAHK(arg))
+        } catch e {
+            PyErr_SetString(AHKError, e.Message)
+            return NULL
+        }
+        i += 1
+    }
+
+    try {
+        result := %func%(ahkArgs*)
+    } catch e {
+        PyErr_SetString(AHKError, e.Message)
+        return NULL
+    }
 
     return AHKToPython(result)
 }
@@ -289,6 +353,19 @@ AHKToPython(value) {
     } else {
         ; The value is a string.
         return PyUnicode_FromString(value)
+    }
+}
+
+PythonToAHK(pyObject) {
+    ; int PyObject_IsInstance(PyObject *inst, PyObject *cls)
+    ; int PyObject_TypeCheck(PyObject *o, PyTypeObject *type)
+    if (PyLong_Check(pyObject)) {
+        ; TODO: Return number
+    } else if (PyUnicode_Check(pyObject)) {
+        return PyUnicode_AsWideCharString(pyObject)
+    } else {
+        ; TODO: Print repr.
+        throw Exception("cannot convert Python object to an AHK value.")
     }
 }
 

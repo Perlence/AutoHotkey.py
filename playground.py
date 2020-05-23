@@ -25,29 +25,43 @@ _ahk.call_cmd("MsgBox", "4", "", "Do you want to continue? (Press YES or NO)")
 
 _ahk.call_cmd("Send", "#r")
 
+try:
+    _ahk.call()
+except _ahk.Error:
+    pass
+else:
+    assert False, "_ahk.call() without arguments must raise an error"
+
+try:
+    _ahk.call("NoSuchFunction")
+except _ahk.Error:
+    pass
+else:
+    assert False, "_ahk.call() to a non-existent function must raise an error"
+
 import ahk
 
 try:
-    ahk.hotkey('')
+    ahk.hotkey("")
 except ahk.Error:
     pass
 else:
-    assert False, "ahk.hotkey('') must raise an error"
+    assert False, "ahk.hotkey("") must raise an error"
 
 try:
-    ahk.hotkey('^t', func='not callable')
+    ahk.hotkey("^t", func="not callable")
 except ahk.Error:
     pass
 else:
     assert False, "passing a non-callable to ahk.hotkey must raise an error"
 
-@ahk.hotkey('AppsKey & t')
+@ahk.hotkey("AppsKey & t")
 def show_msgbox():
     _ahk.call_cmd("MsgBox", "Hello from hotkey.")
 
 _ahk.call_cmd("MsgBox", "Press AppsKey & t now.")
 
-@ahk.hotkey('AppsKey & y')
+@ahk.hotkey("AppsKey & y")
 def show_bang():
     1 / 0
 
@@ -58,7 +72,12 @@ try:
 except ahk.Error:
     pass
 else:
-    assert False, "call_cmd must raise an error when the command is unknown"
+    assert False, "_ahk.call_cmd() must raise an error when the command is unknown"
+
+if ahk.get_key_state("LShift"):
+    _ahk.call_cmd("MsgBox", "LShift is pressed")
+else:
+    _ahk.call_cmd("MsgBox", "LShift is not pressed")
 
 _ahk.call_cmd("MsgBox", "Done!")
 _ahk.call_cmd("ExitApp")

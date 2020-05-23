@@ -57,3 +57,8 @@ def hotkey_context():
 def send(keys):
     # TODO: Consider adding `mode` keyword?
     _ahk.call_cmd("Send", keys)
+
+
+def get_key_state(key_name, mode=None):
+    # return _ahk.call("GetKeyState", key_name, mode)
+    return _ahk.call("GetKeyState", key_name)

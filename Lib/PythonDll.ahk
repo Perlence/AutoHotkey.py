@@ -156,6 +156,64 @@ PyObject_CallObject(pyObject, args) {
     return PythonDllCall("PyObject_CallObject", "Ptr", pyObject, "Ptr", args, "Cdecl Ptr")
 }
 
+PyTuple_GetItem(p, pos) {
+    ; PyObject* PyTuple_GetItem(PyObject *p, Py_ssize_t pos)
+    return PythonDllCall("PyTuple_GetItem", "Ptr", p, "Int", pos)
+}
+
+PyTuple_Size(p) {
+    ; Py_ssize_t PyTuple_Size(PyObject *p)
+    return PythonDllCall("PyTuple_Size", "Ptr", p, "Cdecl Int")
+}
+
+PyUnicode_AsWideCharString(unicode, size:=0) {
+    ; wchar_t* PyUnicode_AsWideCharString(PyObject *unicode, Py_ssize_t *size)
+    sizePtr := NULL
+    if (size > 0) {
+        sizePtr := &size
+    }
+    wchars := PythonDllCall("PyUnicode_AsWideCharString", "Ptr", unicode, "Ptr", sizePtr, "Cdecl Ptr")
+    if (wchars == NULL) {
+        throw Exception("cannot convert Python unicode to AHK string.")
+    }
+    size := NumGet(size)
+    return StrGet(wchars, size)
+}
+
+PyUnicode_Check(o) {
+    ; int PyUnicode_Check(PyObject *o) \
+    ;         PyType_FastSubclass(Py_TYPE(op), Py_TPFLAGS_UNICODE_SUBCLASS)
+    ; #define PyType_FastSubclass(t,f)  PyType_HasFeature(t,f)
+    ; #define PyType_HasFeature(t,f)  ((PyType_GetFlags(t) & (f)) != 0)
+    ; #define Py_TYPE(ob)             (_PyObject_CAST(ob)->ob_type)
+    ; #define _PyObject_CAST(op) ((PyObject*)(op))
+    ; #define Py_TPFLAGS_UNICODE_SUBCLASS     (1UL << 28)
+
+    Py_TPFLAGS_UNICODE_SUBCLASS := 1 << 28
+    ; obRefcnt := NumGet(o, "Int64")
+    obType := NumGet(o+8, "UPtr")
+    flags := PythonDllCall("PyType_GetFlags", "Ptr", obType, "Cdecl UInt")
+    return flags & Py_TPFLAGS_UNICODE_SUBCLASS != 0
+}
+
+PyLong_Check(o) {
+    ; Copied from PyUnicode_Check with little changes.
+
+    ; #define PyLong_Check(op) \
+    ;         PyType_FastSubclass(Py_TYPE(op), Py_TPFLAGS_LONG_SUBCLASS)
+    ; #define PyType_FastSubclass(t,f)  PyType_HasFeature(t,f)
+    ; #define PyType_HasFeature(t,f)  ((PyType_GetFlags(t) & (f)) != 0)
+    ; #define Py_TYPE(ob)             (_PyObject_CAST(ob)->ob_type)
+    ; #define _PyObject_CAST(op) ((PyObject*)(op))
+    ; #define Py_TPFLAGS_LONG_SUBCLASS     (1UL << 28)
+
+    Py_TPFLAGS_LONG_SUBCLASS := 1 << 24
+    ; obRefcnt := NumGet(o, "Int64")
+    obType := NumGet(o+8, "UPtr")
+    flags := PythonDllCall("PyType_GetFlags", "Ptr", obType, "Cdecl UInt")
+    return flags & Py_TPFLAGS_LONG_SUBCLASS != 0
+}
+
 PyUnicode_InternFromString(string) {
     return PythonDllCall("PyUnicode_InternFromString", "Ptr", string, "Cdecl Ptr")
 }
