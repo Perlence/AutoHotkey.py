@@ -46,6 +46,8 @@ Main() {
     PyImport_AppendInittab(&AHKModule_name, RegisterCallback("PyInit_ahk", "C", 0))
     Py_Initialize()
 
+    PY_NONE := Py_BuildValue("")
+
     argv0 := "AutoHotkey.exe"
     packArgs := ["Ptr", &argv0]
     for i, arg in A_Args {
@@ -238,6 +240,10 @@ _AHKCall(self, args) {
     size := PyTuple_Size(args)
     while (i < size) {
         arg := PyTuple_GetItem(args, i)
+        if (arg == PY_NONE) {
+            ; Ignore all arguments after None.
+            break
+        }
         try {
             ahkArgs.Push(PythonToAHK(arg))
         } catch e {
@@ -278,7 +284,8 @@ AHKSetCallback(self, args) {
     ; TODO: Check if callback is already set.
     CALLBACKS[name] := funcPtr
 
-    return Py_BuildNone()
+    Py_IncRef(PY_NONE)
+    return PY_NONE
 }
 
 AHKToPython(value) {

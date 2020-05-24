@@ -61,16 +61,6 @@ Py_BuildValue(format) {
     return PythonDllCall("Py_BuildValue", "AStr", format, "Cdecl Ptr")
 }
 
-Py_BuildNone() {
-    if (PY_NONE == NULL) {
-        PY_NONE := PythonDllCall("Py_BuildValue", "AStr", "", "Cdecl Ptr")
-        if (PY_NONE == NULL) {
-            End("Cannot build None")
-        }
-    }
-    return PY_NONE
-}
-
 Py_IncRef(pyObject) {
     PythonDllCall("Py_IncRef", "Ptr", pyObject, "Cdecl")
 }

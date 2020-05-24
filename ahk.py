@@ -70,5 +70,4 @@ def send(keys):
 
 
 def get_key_state(key_name, mode=None):
-    # return _ahk.call("GetKeyState", key_name, mode)
-    return _ahk.call("GetKeyState", key_name)
+    return _ahk.call("GetKeyState", key_name, mode)
