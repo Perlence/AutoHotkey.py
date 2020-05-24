@@ -11,13 +11,13 @@ print("Hello from stdout.")
 # TODO: sys.stdout is not in utf-8.
 
 os.environ["HELLO"] = "Привет"
-hello = _ahk.call_cmd("EnvGet", "HELLO")
+hello = _ahk.call("EnvGet", "HELLO")
 assert hello == os.environ["HELLO"]
 
-temp = _ahk.call_cmd("EnvGet", "TEMP")
+temp = _ahk.call("EnvGet", "TEMP")
 assert isinstance(temp, str), "EnvGet result must be a string"
 
-rnd = _ahk.call_cmd("Random", "1", "10")
+rnd = _ahk.call("Random", "1", "10")
 assert isinstance(rnd, int), "Random result must be an integer"
 
 result = ahk.message_box()
@@ -25,7 +25,7 @@ assert result == "", "MsgBox result must be an empty string"
 ahk.message_box("Hello, мир!")
 ahk.message_box("Do you want to continue? (Press YES or NO)", options=4)
 
-_ahk.call_cmd("Send", "#r")
+_ahk.call("Send", "#r")
 
 try:
     _ahk.call()
@@ -70,11 +70,11 @@ def show_bang():
 ahk.message_box("Press AppsKey & y to see an exception.")
 
 try:
-    _ahk.call_cmd("NoSuchCommand", "A")
+    _ahk.call("NoSuchCommand", "A")
 except ahk.Error:
     pass
 else:
-    assert False, "_ahk.call_cmd() must raise an error when the command is unknown"
+    assert False, "_ahk.call() must raise an error when the command is unknown"
 
 if ahk.get_key_state("LShift"):
     ahk.message_box("LShift is pressed")
@@ -82,4 +82,4 @@ else:
     ahk.message_box("LShift is not pressed")
 
 ahk.message_box("Done!")
-_ahk.call_cmd("ExitApp")
+_ahk.call("ExitApp")

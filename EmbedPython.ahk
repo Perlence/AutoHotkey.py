@@ -115,13 +115,10 @@ PackBuiltinMethods() {
     ; };
 
     ; static PyMethodDef AHKMethods[] = {
-    ;     {"call_cmd", AHKCallCmd, METH_VARARGS,
+    ;     {"call", AHKCall, METH_VARARGS,
     ;      "docstring blablabla"},
     ;     {NULL, NULL, 0, NULL} // sentinel
     ; };
-
-    global AHKMethod_call_cmd_name := EncodeString("call_cmd")
-    global AHKMethod_call_cmd_doc := EncodeString("Execute the given AutoHotkey command.")
 
     global AHKMethod_call_name := EncodeString("call")
     global AHKMethod_call_doc := EncodeString("Execute the given AutoHotkey function.")
@@ -131,12 +128,6 @@ PackBuiltinMethods() {
 
     global AHKMethods
     Pack(AHKMethods
-        ; -- cmd_call
-        , "Ptr", &AHKMethod_call_cmd_name
-        , "Ptr", RegisterCallback("AHKCallCmd", "C")
-        , "Int64", METH_VARARGS
-        , "Ptr", &AHKMethod_call_cmd_doc
-
         ; -- call
         , "Ptr", &AHKMethod_call_name
         , "Ptr", RegisterCallback("AHKCall", "C")
@@ -215,57 +206,6 @@ PyInit_ahk() {
     return module
 }
 
-AHKCallCmd(self, args) {
-    ; const char *cmd;
-    cmd := NULL
-    ; Maximum number of AHK command arguments seems to be 11.
-    ; const char *argN;
-    arg1 := NULL
-    arg2 := NULL
-    arg3 := NULL
-    arg4 := NULL
-    arg5 := NULL
-    arg6 := NULL
-    arg7 := NULL
-    arg8 := NULL
-    arg9 := NULL
-    arg10 := NULL
-    arg11 := NULL
-
-    if (not PyArg_ParseTuple(args, "s|sssssssssss:call_cmd", &cmd, &arg1, &arg2
-            , &arg3, &arg4, &arg5, &arg6, &arg7, &arg8, &arg9, &arg10, &arg11)) {
-        return NULL
-    }
-
-    cmd := NumGet(cmd)
-    cmd := StrGet(cmd, "utf-8") ; Read the string from address `cmd`.
-
-    args := []
-    Loop, 11
-    {
-        if (arg%A_Index% == NULL) {
-            break
-        }
-        arg%A_Index% := NumGet(arg%A_Index%)
-        arg%A_Index% := StrGet(arg%A_Index%, "utf-8")
-        args.Push(arg%A_Index%)
-    }
-
-    if (not Func("_" cmd)) {
-        PyErr_SetString(AHKError, "unknown command " cmd)
-        return NULL
-    }
-
-    try {
-        result := _%cmd%(args*)
-    } catch e {
-        PyErr_SetString(AHKError, e.Message)
-        return NULL
-    }
-
-    return AHKToPython(result)
-}
-
 AHKCall(self, args) {
     ; AHK debugger doesn't see local variables in a C callback function. Call a
     ; regular AHK function.
@@ -273,7 +213,6 @@ AHKCall(self, args) {
 }
 
 _AHKCall(self, args) {
-    ; TODO: Unify call_cmd and call.
     pyFunc := PyTuple_GetItem(args, 0)
     if (pyFunc == NULL) {
         ; TODO: The error should be a TypeError.
@@ -282,7 +221,13 @@ _AHKCall(self, args) {
     }
 
     func := PythonToAHK(pyFunc)
-    if (not Func(func)) {
+
+    funcRef := Func(func)
+    if (not funcRef) {
+        ; Try custom command wrapper.
+        funcRef := Func("_" func)
+    }
+    if (not funcRef) {
         PyErr_SetString(AHKError, "unknown function " func)
         return NULL
     }
@@ -303,7 +248,7 @@ _AHKCall(self, args) {
     }
 
     try {
-        result := %func%(ahkArgs*)
+        result := %funcRef%(ahkArgs*)
     } catch e {
         PyErr_SetString(AHKError, e.Message)
         return NULL

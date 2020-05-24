@@ -166,13 +166,10 @@ PyTuple_Size(p) {
     return PythonDllCall("PyTuple_Size", "Ptr", p, "Cdecl Int")
 }
 
-PyUnicode_AsWideCharString(unicode, size:=0) {
+PyUnicode_AsWideCharString(unicode) {
     ; wchar_t* PyUnicode_AsWideCharString(PyObject *unicode, Py_ssize_t *size)
-    sizePtr := NULL
-    if (size > 0) {
-        sizePtr := &size
-    }
-    wchars := PythonDllCall("PyUnicode_AsWideCharString", "Ptr", unicode, "Ptr", sizePtr, "Cdecl Ptr")
+    size := 0
+    wchars := PythonDllCall("PyUnicode_AsWideCharString", "Ptr", unicode, "Ptr", &size, "Cdecl Ptr")
     if (wchars == NULL) {
         throw Exception("cannot convert Python unicode to AHK string.")
     }

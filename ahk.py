@@ -25,13 +25,13 @@ sys.excepthook = excepthook
 def message_box(text=None, title="", options=0, timeout=None):
     if text is None:
         # Show "Press OK to continue."
-        return _ahk.call_cmd("MsgBox")
+        return _ahk.call("MsgBox")
 
     args = [options, title, text]
     if timeout is not None:
         args.append(timeout)
     args = map(str, args)
-    return _ahk.call_cmd("MsgBox", *args)
+    return _ahk.call("MsgBox", *args)
     # TODO: Return result of IfMsgBox?
 
 
@@ -49,7 +49,7 @@ def hotkey(key_name, func=None, buffer=None, priority=0, max_threads=None,
     _ahk.set_callback(f"Hotkey {key_name}", func)
     # TODO: Set the options.
     # TODO: Change options of the existing hotkeys.
-    _ahk.call_cmd("Hotkey", key_name, "HotkeyLabel")
+    _ahk.call("Hotkey", key_name, "HotkeyLabel")
     # TODO: Return a Hotkey object.
 
 
@@ -66,7 +66,7 @@ def hotkey_context():
 
 def send(keys):
     # TODO: Consider adding `mode` keyword?
-    _ahk.call_cmd("Send", keys)
+    _ahk.call("Send", keys)
 
 
 def get_key_state(key_name, mode=None):
