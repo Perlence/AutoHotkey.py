@@ -1,6 +1,7 @@
 LoadPython() {  
-    ; Try default search-order. This approach respects VIRTUAL_ENV as long as 
-    ; "VIRTUAL_ENV\Scripts" is in the PATH.
+    ; Try default search-order. This approach works with virtualenv since
+    ; activating one adds "VIRTUAL_ENV\Scripts" to the PATH.
+    ; TODO: Add support for venv.
     python_dll := "python3.dll"
     HPYTHON_DLL := LoadLibraryEx(python_dll)
     if (HPYTHON_DLL != NULL) {

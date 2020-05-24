@@ -45,6 +45,11 @@ Main() {
         EnvSet, PYTHONPATH, % pythonPath ";" A_ScriptDir
     }
 
+    EnvGet, venv, VIRTUAL_ENV
+    if (venv != "") {
+        EnvSet, PYTHONHOME, %venv%
+    }
+
     LoadPython()
     PackBuiltinModule()
     PyImport_AppendInittab(&AHKModule_name, RegisterCallback("PyInit_ahk", "C", 0))
@@ -61,6 +66,8 @@ Main() {
     }
     argc := A_Args.Length() + 1
     Pack(argv, packArgs*)
+
+    ; TODO: Set excepthook before importing the ahk module.
 
     execResult := Py_Main(argc, &argv)
     if (execResult == 1) {
