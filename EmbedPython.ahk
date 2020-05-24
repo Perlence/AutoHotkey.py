@@ -76,6 +76,7 @@ Main() {
     } else if (execResult == 2) {
         End("The parameter list does not represent a valid Python command line.")
     }
+    ; TODO: Handle sys.exit().
 }
 
 PackBuiltinModule() {
