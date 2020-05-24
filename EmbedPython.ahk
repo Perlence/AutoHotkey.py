@@ -317,8 +317,7 @@ AHKToPython(value) {
 }
 
 PythonToAHK(pyObject) {
-    ; int PyObject_IsInstance(PyObject *inst, PyObject *cls)
-    ; int PyObject_TypeCheck(PyObject *o, PyTypeObject *type)
+    ; TODO: Convert dicts to objects and lists to arrays.
     if (PyUnicode_Check(pyObject)) {
         return PyUnicode_AsWideCharString(pyObject)
     } else if (PyLong_Check(pyObject)) {
@@ -326,8 +325,13 @@ PythonToAHK(pyObject) {
     } else if (PyFloat_Check(pyObject)) {
         return PyFloat_AsDouble(pyObject)
     } else {
-        ; TODO: Print repr.
-        throw Exception("cannot convert Python object to an AHK value")
+        pyRepr := PyObject_Repr(pyObject)
+        if (PyUnicode_Check(pyRepr)) {
+            repr := PyUnicode_AsWideCharString(pyRepr)
+            throw Exception("cannot convert '" repr "' to an AHK value")
+        } else {
+            throw Exception("cannot convert Python object to an AHK value")
+        }
     }
 }
 

@@ -39,6 +39,13 @@ else:
 val = _ahk.call("Min", 0.5)
 assert val == 0.5, f"Result must be 0.5, got {val}"
 
+try:
+    _ahk.call("Min", object())
+except ahk.Error as err:
+    assert "cannot convert '<object object" in str(err)
+else:
+    assert False, "must not convert object() instance"
+
 result = ahk.message_box()
 assert result == "", "MsgBox result must be an empty string"
 ahk.message_box("Hello, мир!")
@@ -48,14 +55,14 @@ _ahk.call("Send", "#r")
 
 try:
     _ahk.call()
-except _ahk.Error:
+except ahk.Error:
     pass
 else:
     assert False, "_ahk.call() without arguments must raise an error"
 
 try:
     _ahk.call("NoSuchFunction")
-except _ahk.Error:
+except ahk.Error:
     pass
 else:
     assert False, "_ahk.call() to a non-existent function must raise an error"

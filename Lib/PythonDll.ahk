@@ -186,6 +186,11 @@ PyObject_CallObject(pyObject, args) {
     return PythonDllCall("PyObject_CallObject", "Ptr", pyObject, "Ptr", args, "Cdecl Ptr")
 }
 
+PyObject_Repr(o) {
+    ; PyObject* PyObject_Repr(PyObject *o)
+    return PythonDllCall("PyObject_Repr", "Ptr", o, "Cdecl Ptr")
+}
+
 PyObject_TypeCheck(ob, tp) {
     obType := Py_TYPE(ob)
     return obType == tp or PyType_IsSubtype(obType, tp)
