@@ -5,7 +5,7 @@ import sys
 import _ahk  # noqa
 import ahk
 
-ctypes.windll.user32.MessageBoxW(0, f"Hello from Python.", "AHK", 1)
+ctypes.windll.user32.MessageBoxW(0, f"Hello from Python.", "AHK", 0)
 print("Hello from stdout.")
 
 # TODO: sys.stdout is not in utf-8.
@@ -17,8 +17,11 @@ assert hello == os.environ["HELLO"]
 temp = _ahk.call("EnvGet", "TEMP")
 assert isinstance(temp, str), "EnvGet result must be a string"
 
-rnd = _ahk.call("Random", "1", "10")
+rnd = _ahk.call("Random", 42, "42")
 assert isinstance(rnd, int), "Random result must be an integer"
+assert rnd == 42, "Result must be 42"
+
+assert _ahk.call("Random", 1, True) == 1, "Result must be 1"
 
 result = ahk.message_box()
 assert result == "", "MsgBox result must be an empty string"

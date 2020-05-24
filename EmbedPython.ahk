@@ -305,13 +305,13 @@ AHKToPython(value) {
 PythonToAHK(pyObject) {
     ; int PyObject_IsInstance(PyObject *inst, PyObject *cls)
     ; int PyObject_TypeCheck(PyObject *o, PyTypeObject *type)
-    if (PyLong_Check(pyObject)) {
-        ; TODO: Return number
-    } else if (PyUnicode_Check(pyObject)) {
+    if (PyUnicode_Check(pyObject)) {
         return PyUnicode_AsWideCharString(pyObject)
+    } else if (PyLong_Check(pyObject)) {
+        return PyLong_AsLong(pyObject)
     } else {
         ; TODO: Print repr.
-        throw Exception("cannot convert Python object to an AHK value.")
+        throw Exception("cannot convert Python object to an AHK value")
     }
 }
 
