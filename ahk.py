@@ -27,11 +27,7 @@ def message_box(text=None, title="", options=0, timeout=None):
         # Show "Press OK to continue."
         return _ahk.call("MsgBox")
 
-    args = [options, title, text]
-    if timeout is not None:
-        args.append(timeout)
-    args = map(str, args)
-    return _ahk.call("MsgBox", *args)
+    return _ahk.call("MsgBox", options, title, text, timeout)
     # TODO: Return result of IfMsgBox?
 
 
