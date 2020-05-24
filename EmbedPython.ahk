@@ -9,8 +9,12 @@ global LOAD_WITH_ALTERED_SEARCH_PATH := 0x8
 global ERROR_MOD_NOT_FOUND := 0x7e
 global HPYTHON_DLL := NULL
 global PYTHON_DLL_PROCS := {}
+
+; Python constants
 global METH_VARARGS := 0x0001
 global PYTHON_API_VERSION := 1013
+global Py_TPFLAGS_LONG_SUBCLASS := 1 << 24
+global Py_TPFLAGS_UNICODE_SUBCLASS := 1 << 28
 
 global CALLBACKS := {}
 
@@ -302,10 +306,11 @@ AHKToPython(value) {
             PY_EMPTY_STRING_INTERN := PyUnicode_InternFromString(&EMPTY_STRING)
         }
         return PY_EMPTY_STRING_INTERN
-    } else if (value+0 == value) {
-        ; The value is a number.
+    } else if value is integer
         return PyLong_FromLongLong(value)
-    } else {
+    else if value is float
+        return PyFloat_FromDouble(value)
+    else {
         ; The value is a string.
         return PyUnicode_FromString(value)
     }
@@ -318,6 +323,8 @@ PythonToAHK(pyObject) {
         return PyUnicode_AsWideCharString(pyObject)
     } else if (PyLong_Check(pyObject)) {
         return PyLong_AsLongLong(pyObject)
+    } else if (PyFloat_Check(pyObject)) {
+        return PyFloat_AsDouble(pyObject)
     } else {
         ; TODO: Print repr.
         throw Exception("cannot convert Python object to an AHK value")

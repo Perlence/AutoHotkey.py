@@ -36,6 +36,9 @@ except OverflowError:
 else:
     assert False, "Passing 9223372036854775808 must throw an OverflowError"
 
+val = _ahk.call("Min", 0.5)
+assert val == 0.5, f"Result must be 0.5, got {val}"
+
 result = ahk.message_box()
 assert result == "", "MsgBox result must be an empty string"
 ahk.message_box("Hello, мир!")
