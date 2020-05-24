@@ -56,9 +56,6 @@ Main() {
         packArgs.Push(&argv%i%)
     }
     argc := A_Args.Length() + 1
-    argc := 2
-    argv1 := "playground.py"
-    packArgs := ["Ptr", &argv0, "Ptr", &argv1]
     Pack(argv, packArgs*)
 
     execResult := Py_Main(argc, &argv)
@@ -245,11 +242,16 @@ _AHKCall(self, args) {
             break
         }
         try {
-            ahkArgs.Push(PythonToAHK(arg))
+            ahkArg := PythonToAHK(arg)
         } catch e {
             PyErr_SetString(AHKError, e.Message)
             return NULL
         }
+        if (PyErr_Occurred()) {
+            ; Python couldn't convert the value, e.g. OverflowError.
+            return NULL
+        }
+        ahkArgs.Push(ahkArg)
         i += 1
     }
 
@@ -302,7 +304,7 @@ AHKToPython(value) {
         return PY_EMPTY_STRING_INTERN
     } else if (value+0 == value) {
         ; The value is a number.
-        return PyLong_FromLong(value)
+        return PyLong_FromLongLong(value)
     } else {
         ; The value is a string.
         return PyUnicode_FromString(value)
@@ -315,7 +317,7 @@ PythonToAHK(pyObject) {
     if (PyUnicode_Check(pyObject)) {
         return PyUnicode_AsWideCharString(pyObject)
     } else if (PyLong_Check(pyObject)) {
-        return PyLong_AsLong(pyObject)
+        return PyLong_AsLongLong(pyObject)
     } else {
         ; TODO: Print repr.
         throw Exception("cannot convert Python object to an AHK value")

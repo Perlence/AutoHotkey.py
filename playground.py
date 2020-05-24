@@ -19,9 +19,22 @@ assert isinstance(temp, str), "EnvGet result must be a string"
 
 rnd = _ahk.call("Random", 42, "42")
 assert isinstance(rnd, int), "Random result must be an integer"
-assert rnd == 42, "Result must be 42"
+assert rnd == 42, f"Result must be 42, got {rnd}"
 
 assert _ahk.call("Random", 1, True) == 1, "Result must be 1"
+
+val = _ahk.call("Max", 9223372036854775807)
+assert val == 9223372036854775807, f"Result must be 9223372036854775807, got {val}"
+
+val = _ahk.call("Min", -9223372036854775806)
+assert val == -9223372036854775806, f"Result must be -9223372036854775806, got {val}"
+
+try:
+    val = _ahk.call("Max", 9223372036854775808)
+except OverflowError:
+    pass
+else:
+    assert False, "Passing 9223372036854775808 must throw an OverflowError"
 
 result = ahk.message_box()
 assert result == "", "MsgBox result must be an empty string"

@@ -121,6 +121,11 @@ PyCallable_Check(pyObject) {
     return PythonDllCall("PyCallable_Check", "Ptr", pyObject, "Cdecl")
 }
 
+PyErr_Occurred() {
+    ; PyObject* PyErr_Occurred()
+    return PythonDllCall("PyErr_Occurred", "Cdecl Ptr")
+}
+
 PyErr_NewException(name, base, dict) {
     return PythonDllCall("PyErr_NewException"
         , "AStr", name
@@ -138,9 +143,9 @@ PyErr_Print() {
     PythonDllCall("PyErr_Print", "Cdecl")
 }
 
-PyLong_AsLong(obj) {
-    ; PyLong_AsLong(PyObject *obj)
-    return PythonDllCall("PyLong_AsLong", "Ptr", obj, "Cdecl Int")
+PyLong_AsLongLong(obj) {
+    ; long long PyLong_AsLongLong(PyObject *obj)
+    return PythonDllCall("PyLong_AsLongLong", "Ptr", obj, "Cdecl Int64")
 }
 
 PyLong_Check(o) {
@@ -161,8 +166,8 @@ PyLong_Check(o) {
     return flags & Py_TPFLAGS_LONG_SUBCLASS != 0
 }
 
-PyLong_FromLong(value) {
-    return PythonDllCall("PyLong_FromLong", "Int", value, "Cdecl Ptr")
+PyLong_FromLongLong(value) {
+    return PythonDllCall("PyLong_FromLongLong", "Int64", value, "Cdecl Ptr")
 }
 
 PyObject_CallObject(pyObject, args) {
