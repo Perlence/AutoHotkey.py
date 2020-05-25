@@ -59,7 +59,13 @@ def get_key_state(key_name, mode=None):
 
 def _main():
     sys.excepthook = _excepthook
+    try:
+        _run_from_args()
+    except SystemExit as ex:
+        _ahk.call("ExitApp", _handle_system_exit(ex))
 
+
+def _run_from_args():
     import runpy
     from argparse import ArgumentParser
 
@@ -83,4 +89,26 @@ def _excepthook(type, value, tb):
     tblines = traceback.format_exception(type, value, tb)
     # TODO: Add more MB_* constants to the module?
     MB_ICONERROR = 0x10
-    message_box(joined="".join(tblines), options=MB_ICONERROR)
+    message_box("".join(tblines), options=MB_ICONERROR)
+
+
+def _handle_system_exit(value):
+    if value is None:
+        return 0
+
+    if isinstance(value, BaseException):
+        try:
+            code = value.code
+        except AttributeError:
+            pass
+        else:
+            value = code
+            if value is None:
+                return 0
+
+    if isinstance(value, int):
+        return value
+
+    if sys.stderr is not None:
+        print(value, file=sys.stderr, flush=True)
+    return 1

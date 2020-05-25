@@ -84,12 +84,7 @@ Main() {
 
     result := PyObject_CallObject(mainFunc, NULL)
     if (result == NULL) {
-        exitCode := 0
-        if (HandleSystemExit(exitCode)) {
-            ExitApp, %exitCode%
-        } else {
-            PyErr_Print()
-        }
+        PyErr_Print()
         return
     }
 }
@@ -356,47 +351,6 @@ PythonToAHK(pyObject) {
             throw Exception("cannot convert Python object to an AHK value")
         }
     }
-}
-
-HandleSystemExit(ByRef exitcode) {
-    PyExc_SystemExit := CachedProcAddress("PyExc_SystemExit", "PtrP")
-    if (!PyErr_ExceptionMatches(PyExc_SystemExit)) {
-        return False
-    }
-
-    exception := NULL
-    value := NULL
-    tb := NULL
-    PyErr_Fetch(exception, value, tb)
-
-    exitcode := 0
-    if (value == NULL or value == PY_NONE) {
-        goto done
-    }
-
-    if (PyExceptionInstance_Check(value)) {
-        code := PyObject_GetAttrString(value, "code")
-        if (code) {
-            Py_DecRef(value)
-            value := code
-            if (value == PY_NONE) {
-                goto done
-            }
-        }
-    }
-
-    if (PyLong_Check(value)) {
-        exitcode := PyLong_AsLongLong(value)
-    } else {
-        ; sys.exit("smth")
-        ; TODO: Print error string.
-        exitcode := 1
-    }
-
-done:
-    PyErr_Restore(exception, value, tb)
-    PyErr_Clear()
-    return True
 }
 
 EncodeString(string) {
