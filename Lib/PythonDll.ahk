@@ -121,6 +121,11 @@ PyImport_AppendInittab(name, initfunc) {
         , "Cdecl Int")
 }
 
+PyImport_ImportModule(name) {
+    ; PyObject* PyImport_ImportModule(const char *name)
+    return PythonDllCall("PyImport_ImportModule", "AStr", name, "Cdecl Ptr")
+}
+
 PyModule_Create2(module, api_version) {
     return PythonDllCall("PyModule_Create2"
         , "Ptr", module

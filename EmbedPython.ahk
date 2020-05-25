@@ -57,6 +57,13 @@ Main() {
 
     PY_NONE := Py_BuildValue("")
 
+    ; Import the higher-level ahk module to bootstrap the excepthook.
+    ; TODO: Add test for excepthook.
+    highAhk := PyImport_ImportModule("ahk")
+    if (highAhk == NULL) {
+        End("Cannot load ahk module.")
+    }
+
     argv0 := "AutoHotkey.exe"
     packArgs := ["Ptr", &argv0]
     for i, arg in A_Args {
@@ -67,11 +74,8 @@ Main() {
     argc := A_Args.Length() + 1
     Pack(argv, packArgs*)
 
-    ; TODO: Set excepthook before importing the ahk module.
-
     execResult := Py_Main(argc, &argv)
     if (execResult == 1) {
-        ; TODO: Show Python syntax errors.
         End("The interpreter exited due to an exception.")
     } else if (execResult == 2) {
         End("The parameter list does not represent a valid Python command line.")

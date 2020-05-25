@@ -12,14 +12,14 @@ import _ahk  # noqa
 Error = _ahk.Error
 
 
-def excepthook(type, value, tb):
+def _excepthook(type, value, tb):
     tblines = traceback.format_exception(type, value, tb)
     # TODO: Add more MB_* constants to the module?
     MB_ICONERROR = 0x10
     message_box("".join(tblines), options=MB_ICONERROR)
 
 
-sys.excepthook = excepthook
+sys.excepthook = _excepthook
 
 
 def message_box(text=None, title="", options=0, timeout=None):
