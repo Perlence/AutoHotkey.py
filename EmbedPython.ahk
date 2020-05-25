@@ -52,7 +52,7 @@ Main() {
 
     LoadPython()
     PackBuiltinModule()
-    PyImport_AppendInittab(&AHKModule_name, RegisterCallback("PyInit_ahk", "C", 0))
+    PyImport_AppendInittab(&AHKModule_name, Func("PyInit_ahk"))
     Py_Initialize()
 
     PY_NONE := Py_BuildValue("")

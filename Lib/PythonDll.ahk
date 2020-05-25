@@ -95,7 +95,9 @@ Py_TYPE(ob) {
 }
 
 Py_Finalize() {
-    PythonDllCall("Py_Finalize", "Cdecl")
+    if (HPYTHON_DLL) {
+        PythonDllCall("Py_Finalize", "Cdecl")
+    }
 }
 
 PyFloat_AsDouble(pyfloat) {
@@ -115,7 +117,7 @@ PyFloat_Check(o) {
 PyImport_AppendInittab(name, initfunc) {
     return PythonDllCall("PyImport_AppendInittab"
         , "Ptr", name
-        , "Ptr", initfunc
+        , "Ptr", RegisterCallback(initfunc, "C", 0)
         , "Cdecl Int")
 }
 
