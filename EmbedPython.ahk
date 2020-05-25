@@ -58,14 +58,7 @@ Main() {
 
     PY_NONE := Py_BuildValue("")
 
-    ; Import the higher-level ahk module to bootstrap the excepthook.
-    ; TODO: Add test for excepthook.
-    hiAhk := PyImport_ImportModule("ahk")
-    if (hiAhk == NULL) {
-        End("Cannot load ahk module.")
-    }
-
-    argv0 := "AutoHotkey.exe"
+    argv0 := "EmbedPython.ahk"
     packArgs := ["Ptr", &argv0]
     for i, arg in A_Args {
         argv%i% := arg
@@ -74,12 +67,18 @@ Main() {
     }
     argc := A_Args.Length() + 1
     Pack(argv, packArgs*)
-
     PySys_SetArgv(argc, &argv)
+
+    ; Import the higher-level ahk module to bootstrap the excepthook.
+    ; TODO: Add test for excepthook.
+    hiAhk := PyImport_ImportModule("ahk")
+    if (hiAhk == NULL) {
+        End("Cannot load ahk module.")
+    }
+    
     mainFunc := PyObject_GetAttrString(hiAhk, "_main")
     if (mainFunc == NULL) {
-        PyErr_Print()
-        return
+        End("Cannot find the main function.")
     }
 
     result := PyObject_CallObject(mainFunc, NULL)

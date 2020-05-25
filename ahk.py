@@ -63,6 +63,8 @@ def _main():
         _run_from_args()
     except SystemExit as ex:
         _ahk.call("ExitApp", _handle_system_exit(ex))
+    # TODO: Drop first 4 frames from SyntaxError traceback and first 5 frames
+    # from other errors.
 
 
 def _run_from_args():
@@ -81,6 +83,7 @@ def _run_from_args():
         runpy.run_path(args.SCRIPT, run_name="__main__")
     else:
         # TODO: Implement interactive mode.
+        # TODO: Show usage in a message box.
         parser.print_usage()
         sys.exit()
 
@@ -93,6 +96,7 @@ def _excepthook(type, value, tb):
 
 
 def _handle_system_exit(value):
+    # Reference implementation: pythonrun.c/_Py_HandleSystemExit
     if value is None:
         return 0
 
