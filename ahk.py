@@ -7,19 +7,7 @@ import _ahk  # noqa
 
 
 # TODO: Write an __all__.
-
-
 Error = _ahk.Error
-
-
-def _excepthook(type, value, tb):
-    tblines = traceback.format_exception(type, value, tb)
-    # TODO: Add more MB_* constants to the module?
-    MB_ICONERROR = 0x10
-    message_box("".join(tblines), options=MB_ICONERROR)
-
-
-sys.excepthook = _excepthook
 
 
 def message_box(text=None, title="", options=0, timeout=None):
@@ -67,3 +55,32 @@ def send(keys):
 
 def get_key_state(key_name, mode=None):
     return _ahk.call("GetKeyState", key_name, mode)
+
+
+def _main():
+    sys.excepthook = _excepthook
+
+    import runpy
+    from argparse import ArgumentParser
+
+    parser = ArgumentParser()
+    parser.add_argument("SCRIPT", nargs="?")
+    parser.add_argument("-m", "--module")
+    args, rest = parser.parse_known_args()
+    if args.module:
+        sys.argv = [args.module, *rest]
+        runpy.run_module(args.module, run_name="__main__", alter_sys=True)
+    elif args.SCRIPT:
+        sys.argv = [args.SCRIPT, *rest]
+        runpy.run_path(args.SCRIPT, run_name="__main__")
+    else:
+        # TODO: Implement interactive mode.
+        parser.print_usage()
+        sys.exit()
+
+
+def _excepthook(type, value, tb):
+    tblines = traceback.format_exception(type, value, tb)
+    # TODO: Add more MB_* constants to the module?
+    MB_ICONERROR = 0x10
+    message_box(joined="".join(tblines), options=MB_ICONERROR)

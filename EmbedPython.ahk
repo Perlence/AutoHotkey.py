@@ -15,6 +15,7 @@ global METH_VARARGS := 0x0001
 global PYTHON_API_VERSION := 1013
 global Py_TPFLAGS_LONG_SUBCLASS := 1 << 24
 global Py_TPFLAGS_UNICODE_SUBCLASS := 1 << 28
+global Py_TPFLAGS_BASE_EXC_SUBCLASS := 1 << 30
 
 global CALLBACKS := {}
 
@@ -23,7 +24,7 @@ global AHKMethods
 global AHKModule
 global AHKModule_name
 
-OnExit, OnExitLabel
+OnExit("OnExitFunc")
 
 Main()
 
@@ -59,8 +60,8 @@ Main() {
 
     ; Import the higher-level ahk module to bootstrap the excepthook.
     ; TODO: Add test for excepthook.
-    highAhk := PyImport_ImportModule("ahk")
-    if (highAhk == NULL) {
+    hiAhk := PyImport_ImportModule("ahk")
+    if (hiAhk == NULL) {
         End("Cannot load ahk module.")
     }
 
@@ -74,13 +75,23 @@ Main() {
     argc := A_Args.Length() + 1
     Pack(argv, packArgs*)
 
-    execResult := Py_Main(argc, &argv)
-    if (execResult == 1) {
-        End("The interpreter exited due to an exception.")
-    } else if (execResult == 2) {
-        End("The parameter list does not represent a valid Python command line.")
+    PySys_SetArgv(argc, &argv)
+    mainFunc := PyObject_GetAttrString(hiAhk, "_main")
+    if (mainFunc == NULL) {
+        PyErr_Print()
+        return
     }
-    ; TODO: Handle sys.exit().
+
+    result := PyObject_CallObject(mainFunc, NULL)
+    if (result == NULL) {
+        exitCode := 0
+        if (HandleSystemExit(exitCode)) {
+            ExitApp, %exitCode%
+        } else {
+            PyErr_Print()
+        }
+        return
+    }
 }
 
 PackBuiltinModule() {
@@ -347,6 +358,47 @@ PythonToAHK(pyObject) {
     }
 }
 
+HandleSystemExit(ByRef exitcode) {
+    PyExc_SystemExit := CachedProcAddress("PyExc_SystemExit", "PtrP")
+    if (!PyErr_ExceptionMatches(PyExc_SystemExit)) {
+        return False
+    }
+
+    exception := NULL
+    value := NULL
+    tb := NULL
+    PyErr_Fetch(exception, value, tb)
+
+    exitcode := 0
+    if (value == NULL or value == PY_NONE) {
+        goto done
+    }
+
+    if (PyExceptionInstance_Check(value)) {
+        code := PyObject_GetAttrString(value, "code")
+        if (code) {
+            Py_DecRef(value)
+            value := code
+            if (value == PY_NONE) {
+                goto done
+            }
+        }
+    }
+
+    if (PyLong_Check(value)) {
+        exitcode := PyLong_AsLongLong(value)
+    } else {
+        ; sys.exit("smth")
+        ; TODO: Print error string.
+        exitcode := 1
+    }
+
+done:
+    PyErr_Restore(exception, value, tb)
+    PyErr_Clear()
+    return True
+}
+
 EncodeString(string) {
     ; Convert a UTF-16 string to a UTF-8 one.
     len := StrPut(string, "utf-8")
@@ -386,13 +438,18 @@ OnClipboardChange:
     return
 
 GuiClose:
-OnExitLabel:
-    if (Trigger(A_ThisLabel) == 0) {
+    OnExitFunc("Close", 0, A_ThisLabel)
+    return
+
+OnExitFunc(reason, code, caller:="OnExit") {
+    if (Trigger(caller) == 0) {
         return
     }
-    Py_Finalize()
-    ExitApp
-    return
+    if (Py_FinalizeEx() < 0) {
+        code := 120
+    }
+    ExitApp, %code%
+}
 
 HotkeyLabel:
     Trigger("Hotkey " . A_ThisHotkey)

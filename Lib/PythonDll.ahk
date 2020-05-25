@@ -42,10 +42,10 @@ PythonDllCall(function, args*) {
     return DllCall(CachedProcAddress(function), args*)
 }
 
-CachedProcAddress(symbol) {
+CachedProcAddress(symbol, returnType:="Ptr") {
     proc := PYTHON_DLL_PROCS[symbol]
     if (not proc) {
-        proc := DllCall("GetProcAddress", "Ptr", HPYTHON_DLL, "AStr", symbol, "Ptr")
+        proc := DllCall("GetProcAddress", "Ptr", HPYTHON_DLL, "AStr", symbol, returnType)
         if (not proc) {
             End("Cannot get the address of " symbol " symbol. Error " A_LastError)
         }
@@ -56,10 +56,6 @@ CachedProcAddress(symbol) {
 
 Py_Initialize() {
     PythonDllCall("Py_Initialize", "Cdecl")
-}
-
-Py_Main(argc, argv) {
-    return PythonDllCall("Py_Main", "Int", argc, "Ptr", argv, "Cdecl Int")
 }
 
 Py_BuildValue(format) {
@@ -94,9 +90,9 @@ Py_TYPE(ob) {
     return NumGet(ob+8, "UPtr")
 }
 
-Py_Finalize() {
+Py_FinalizeEx() {
     if (HPYTHON_DLL) {
-        PythonDllCall("Py_Finalize", "Cdecl")
+        return PythonDllCall("Py_FinalizeEx", "Cdecl Int")
     }
 }
 
@@ -155,9 +151,22 @@ PyCallable_Check(pyObject) {
     return PythonDllCall("PyCallable_Check", "Ptr", pyObject, "Cdecl")
 }
 
-PyErr_Occurred() {
-    ; PyObject* PyErr_Occurred()
-    return PythonDllCall("PyErr_Occurred", "Cdecl Ptr")
+PyErr_Clear() {
+    PythonDllCall("PyErr_Clear", "Cdecl")
+}
+
+PyErr_ExceptionMatches(exc) {
+    ; int PyErr_ExceptionMatches(PyObject *exc)
+    return PythonDllCall("PyErr_ExceptionMatches", "Ptr", exc, "Cdecl Int")
+}
+
+PyErr_Fetch(ByRef ptype, ByRef pvalue, ByRef ptraceback) {
+    ; PyErr_Fetch(PyObject **ptype, PyObject **pvalue, PyObject **ptraceback)
+    PythonDllCall("PyErr_Fetch", "Ptr", &ptype, "Ptr", &pvalue, "Ptr", &ptraceback, "Cdecl")
+    ptype := NumGet(ptype)
+    pvalue := NumGet(pvalue)
+    ptraceback := NumGet(ptraceback)
+    x := 0
 }
 
 PyErr_NewException(name, base, dict) {
@@ -168,13 +177,26 @@ PyErr_NewException(name, base, dict) {
         , "Cdecl Ptr")
 }
 
+PyErr_Occurred() {
+    ; PyObject* PyErr_Occurred()
+    return PythonDllCall("PyErr_Occurred", "Cdecl Ptr")
+}
+
+PyErr_Print() {
+    PythonDllCall("PyErr_Print", "Cdecl")
+}
+
+PyErr_Restore(ptype, pvalue, ptraceback) {
+    PythonDllCall("PyErr_Restore", "Ptr", ptype, "Ptr", pvalue, "Ptr", ptraceback, "Cdecl")
+}
+
 PyErr_SetString(exception, message) {
     encoded := EncodeString(message)
     PythonDllCall("PyErr_SetString", "Ptr", exception, "Ptr", &encoded, "Cdecl")
 }
 
-PyErr_Print() {
-    PythonDllCall("PyErr_Print", "Cdecl")
+PyExceptionInstance_Check(o) {
+    return PyType_FastSubclass(Py_TYPE(o), Py_TPFLAGS_BASE_EXC_SUBCLASS)
 }
 
 PyLong_AsLongLong(obj) {
@@ -188,6 +210,10 @@ PyLong_Check(o) {
 
 PyLong_FromLongLong(value) {
     return PythonDllCall("PyLong_FromLongLong", "Int64", value, "Cdecl Ptr")
+}
+
+PyObject_GetAttrString(obj, attr) {
+    return PythonDllCall("PyObject_GetAttrString", "Ptr", obj, "AStr", attr, "Cdecl Ptr")
 }
 
 PyObject_CallObject(pyObject, args) {
@@ -207,6 +233,10 @@ PyObject_TypeCheck(ob, tp) {
 PyTuple_GetItem(p, pos) {
     ; PyObject* PyTuple_GetItem(PyObject *p, Py_ssize_t pos)
     return PythonDllCall("PyTuple_GetItem", "Ptr", p, "Int", pos, "Cdecl Ptr")
+}
+
+PySys_SetArgv(argc, argv) {
+    PythonDllCall("PySys_SetArgv", "Int", argc, "Ptr", argv, "Cdecl")
 }
 
 PyTuple_Size(p) {
