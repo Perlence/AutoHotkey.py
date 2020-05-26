@@ -68,7 +68,7 @@ Main() {
     if (hiAhk == NULL) {
         End("Cannot load ahk module.")
     }
-    
+
     mainFunc := PyObject_GetAttrString(hiAhk, "_main")
     if (mainFunc == NULL) {
         End("Cannot find the main function.")
@@ -154,7 +154,7 @@ PackBuiltinMethods() {
         , "Ptr", &AHKMethod_set_callback_doc
 
         ; -- sentinel
-        , "Ptr", NULL 
+        , "Ptr", NULL
         , "Ptr", NULL
         , "Int64", 0
         , "Ptr", NULL)

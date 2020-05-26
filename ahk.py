@@ -23,7 +23,7 @@ def hotkey(key_name, func=None, buffer=None, priority=0, max_threads=None,
            input_level=None):
     if key_name == "":
         raise Error("invalid key name")
-    
+
     if func is None:
         # Return the decorator.
         return partial(hotkey, key_name, buffer=buffer, priority=priority,

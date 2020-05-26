@@ -15,11 +15,11 @@
 ; }
 
 _A_ScriptDir() {
-    return %mainDir% 
+    return %mainDir%
 }
 
 _A_ScriptFullPath() {
-    return %mainPath% 
+    return %mainPath%
 }
 
 _A_ScriptName() {
@@ -376,7 +376,7 @@ _InputBox(Title="",Prompt="",HIDE="",Width="",Height="",X="",Y="",FontBlank="",T
 }
 
 _KeyHistory() {
-    KeyHistory 
+    KeyHistory
 }
 
 _KeyWait(KeyName,Options="") {
@@ -384,7 +384,7 @@ _KeyWait(KeyName,Options="") {
 }
 
 _ListHotkeys() {
-    ListHotkeys 
+    ListHotkeys
 }
 
 /**
@@ -623,11 +623,11 @@ _RegExMatch(Haystack, NeedleRegEx, StartingPosition=1, Advanced=0) {
             }
         }
         RegExMatch(Haystack, NeedleRegEx, Match, StartingPosition)
-        
+
         Pos := JS.Array()
         Len := JS.Array()
         Value := JS.Array()
-        Name := JS.Array()        
+        Name := JS.Array()
         a := ["Pos",Pos, "Len",Len, "Value",Value, "Name",Name, "Count",Match.Count(), "Mark",Match.Mark()]
         n := Match.Count() + 1
         Loop, %n%
@@ -672,7 +672,7 @@ _RegWrite(ValueType,RootKey,SubKey,ValueName="",Value="") {
 }
 
 _Reload() {
-    Reload 
+    Reload
 }
 
 /**
@@ -856,7 +856,7 @@ _SplashImage(Param1,Options="",SubText="",MainText="",WinTitle="",FontName="") {
 }
 
 _SplashTextOff() {
-    SplashTextOff 
+    SplashTextOff
 }
 
 _SplashTextOn(Width="",Height="",Title="",Text="") {
@@ -1039,7 +1039,7 @@ _WinGet(Cmd="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
     } else {
         return OutputVar+0
     }
-    
+
 }
 
 /**
@@ -1103,11 +1103,11 @@ _WinMinimize(WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
 }
 
 _WinMinimizeAll() {
-    WinMinimizeAll 
+    WinMinimizeAll
 }
 
 _WinMinimizeAllUndo() {
-    WinMinimizeAllUndo 
+    WinMinimizeAllUndo
 }
 
 _WinMove(Param1,Param2,X="",Y="",Width="",Height="",ExcludeTitle="",ExcludeText="") {

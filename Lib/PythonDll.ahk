@@ -1,4 +1,4 @@
-LoadPython() {  
+LoadPython() {
     ; Try default search-order. This approach works with virtualenv since
     ; activating one adds "VIRTUAL_ENV\Scripts" to the PATH.
     ; TODO: Add support for venv.
@@ -10,7 +10,7 @@ LoadPython() {
     if (A_LastError != ERROR_MOD_NOT_FOUND) {
         End("Cannot load Python DLL: " A_LastError)
     }
-    
+
     ; Try py.exe.
     cmd := "py.exe -3 -c ""import os, sys; print(os.path.dirname(sys.executable), end='')"""
     pythonDir := StdoutToVar_CreateProcess(cmd)
