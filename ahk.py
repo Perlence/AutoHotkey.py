@@ -75,21 +75,48 @@ def _run_from_args():
     parser = ArgumentParser()
     parser.add_argument("SCRIPT", nargs="?")
     parser.add_argument("-m", "--module")
-    args, rest = parser.parse_known_args()
-    if args.module:
-        sys.argv = [args.module, *rest]
-        runpy.run_module(args.module, run_name="__main__", alter_sys=True)
-    # elif args.SCRIPT == '-':
-    #     # TODO: Implement reading code from stdin.
-    elif args.SCRIPT:
-        sys.argv = [args.SCRIPT, *rest]
-        sys.path.insert(0, os.path.abspath(os.path.dirname(args.SCRIPT)))
-        runpy.run_path(args.SCRIPT, run_name="__main__")
+    args = _parse_args()
+    if args is None:
+        parser.print_usage(sys.stderr)
+        sys.exit(2)
+
+    module, script, rest = args
+    if module:
+        sys.argv = [module, *rest]
+        runpy.run_module(module, run_name="__main__", alter_sys=True)
+    elif script == '-':
+        code = sys.stdin.read()
+        del sys.argv[0]
+        globals()["__name__"] = "__main__"
+        exec(code)
+    elif script:
+        sys.argv = [script, *rest]
+        sys.path.insert(0, os.path.abspath(os.path.dirname(script)))
+        runpy.run_path(script, run_name="__main__")
     else:
         # TODO: Implement interactive mode.
         # TODO: Show usage in a message box.
         parser.print_usage()
         sys.exit()
+
+
+def _parse_args():
+    if len(sys.argv) < 2:
+        return
+
+    module = None
+    script = None
+    rest = []
+    if sys.argv[1] == '-m':
+        if len(sys.argv) < 3:
+            return
+        module = sys.argv[2]
+        rest = sys.argv[3:]
+    else:
+        script = sys.argv[1]
+        rest = sys.argv[2:]
+
+    return module, script, rest
 
 
 def _excepthook(type, value, tb):
