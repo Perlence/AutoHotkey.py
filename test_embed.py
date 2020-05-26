@@ -82,7 +82,7 @@ def test_tracebacks(tmpdir):
         Traceback (most recent call last):
           File "<string>", line 1, in <module>
         ZeroDivisionError: division by zero
-        \n""")
+        """)
 
     script = tmpdir / "script.py"
     script.write("1/0")
@@ -92,7 +92,7 @@ def test_tracebacks(tmpdir):
           File "{script!s}", line 1, in <module>
             1/0
         ZeroDivisionError: division by zero
-        \n""")
+        """)
 
     script.write("1/0")
     res = run_embed_python(["-q", "script.py"], cwd=tmpdir)
@@ -101,7 +101,7 @@ def test_tracebacks(tmpdir):
           File "script.py", line 1, in <module>
             1/0
         ZeroDivisionError: division by zero
-        \n""")
+        """)
 
     script.write("import")
     res = run_embed_python(["-q", str(script)])
@@ -111,7 +111,7 @@ def test_tracebacks(tmpdir):
             import
                  ^
         SyntaxError: invalid syntax
-        \n""")
+        """)
 
     res = run_from_input("import", quiet=True)
     assert res.stderr == dedent(f"""\
@@ -120,7 +120,7 @@ def test_tracebacks(tmpdir):
             import
                  ^
         SyntaxError: invalid syntax
-        \n""")
+        """)
 
     beep = tmpdir / "beep.py"
     beep.write('import boop')
@@ -135,7 +135,7 @@ def test_tracebacks(tmpdir):
             import
                  ^
         SyntaxError: invalid syntax
-        \n""")
+        """)
 
 
 def run_embed_python(args, **kwargs):
