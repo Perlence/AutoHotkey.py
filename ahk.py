@@ -68,6 +68,7 @@ def _main():
 
 
 def _run_from_args():
+    import os
     import runpy
     from argparse import ArgumentParser
 
@@ -78,8 +79,11 @@ def _run_from_args():
     if args.module:
         sys.argv = [args.module, *rest]
         runpy.run_module(args.module, run_name="__main__", alter_sys=True)
+    # elif args.SCRIPT == '-':
+    #     # TODO: Implement reading code from stdin.
     elif args.SCRIPT:
         sys.argv = [args.SCRIPT, *rest]
+        sys.path.insert(0, os.path.abspath(os.path.dirname(args.SCRIPT)))
         runpy.run_path(args.SCRIPT, run_name="__main__")
     else:
         # TODO: Implement interactive mode.
