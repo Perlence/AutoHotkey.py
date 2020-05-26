@@ -11,11 +11,21 @@ EMBED_PYTHON = os.path.abspath("EmbedPython.ahk")
 
 def test_stdin():
     code = "import sys; print(__name__, sys.argv)"
-    res = run_embed_python(['-'], input=code)
+    res = run_embed_python(["-"], input=code)
     assert res.stdout == "__main__ ['-']\n"
 
     res = run_embed_python(['-', 'script.py', '2', '3'], input=code)
     assert res.stdout == "__main__ ['-', 'script.py', '2', '3']\n"
+
+    res = run_from_input("""\
+        try:
+            rest
+        except NameError:
+            pass
+        else:
+            print("'rest' is in scope")
+        """)
+    assert res.stdout == ""
 
 
 def test_script(tmpdir):
@@ -57,7 +67,7 @@ def test_system_exit():
 
     res = run_from_input("import sys; sys.exit('bye')")
     assert res.returncode == 1
-    assert res.stderr == 'bye\n'
+    assert res.stderr == "bye\n"
 
     res = run_from_input("raise SystemExit")
     assert res.returncode == 0
@@ -137,7 +147,7 @@ def run_embed_python(args, **kwargs):
 
 
 def run_from_input(code, *, quiet=False):
-    args = ['-']
+    args = ["-"]
     if quiet:
-        args.insert(0, '-q')
-    return run_embed_python(args, input=code)
+        args.insert(0, "-q")
+    return run_embed_python(args, input=dedent(code))

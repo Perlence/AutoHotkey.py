@@ -100,13 +100,13 @@ def _run_from_args():
         # TODO: Handle exception in the module.
         sys.argv = [module, *rest]
         runpy.run_module(module, run_name="__main__", alter_sys=True)
-    elif file == '-':
-        file = '<string>'
+    elif file == "-":
+        file = "<string>"
         code = sys.stdin.read()
         del sys.argv[0]
-        globals()["__name__"] = "__main__"
+        globs = {"__name__": "__main__"}
         with _handle_exception(file):
-            exec(code)
+            exec(code, globs)
     elif file:
         sys.argv = [file, *rest]
         sys.path.insert(0, os.path.abspath(os.path.dirname(file)))
@@ -133,18 +133,18 @@ def _parse_args():
     file = None
     rest = []
 
-    if args[0] in ('-h', '--help'):
+    if args[0] in ("-h", "--help"):
         help = True
         return help, quiet, module, file, rest
 
-    if args[0] in ('-q', '--quiet'):
+    if args[0] in ("-q", "--quiet"):
         quiet = True
         del args[0]
 
     if len(args) < 1:
         return
 
-    if args[0] == '-m':
+    if args[0] == "-m":
         if len(args) < 2:
             return
         module, *rest = args[1:]
