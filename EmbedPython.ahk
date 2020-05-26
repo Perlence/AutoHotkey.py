@@ -137,9 +137,6 @@ PackBuiltinMethods() {
     global AHKMethod_call_name := EncodeString("call")
     global AHKMethod_call_doc := EncodeString("Execute the given AutoHotkey function.")
 
-    global AHKMethod_set_callback_name := EncodeString("set_callback")
-    global AHKMethod_set_callback_doc := EncodeString("Set callback to be called by an AutoHotkey event.")
-
     global AHKMethods
     Pack(AHKMethods
         ; -- call
@@ -147,12 +144,6 @@ PackBuiltinMethods() {
         , "Ptr", RegisterCallback("AHKCall", "C")
         , "Int64", METH_VARARGS
         , "Ptr", &AHKMethod_call_doc
-
-        ; -- set_callback_name
-        , "Ptr", &AHKMethod_set_callback_name
-        , "Ptr", RegisterCallback("AHKSetCallback", "C")
-        , "Int64", METH_VARARGS
-        , "Ptr", &AHKMethod_set_callback_doc
 
         ; -- sentinel
         , "Ptr", NULL
@@ -280,31 +271,6 @@ _AHKCall(self, args) {
     return AHKToPython(result)
 }
 
-AHKSetCallback(self, args) {
-    ; const char *name
-    name := NULL
-    ; const PyObject *func
-    funcPtr := NULL
-    if (not PyArg_ParseTuple(args, "sO:set_callback", &name, &funcPtr)) {
-        return NULL
-    }
-    name := NumGet(name)
-    name := StrGet(name, "utf-8")
-    funcPtr := NumGet(funcPtr)
-
-    if (funcPtr == NULL or not PyCallable_Check(funcPtr)) {
-        PyErr_SetString(AHKError, "callback function '" name "' is not callable")
-        return NULL
-    }
-
-    Py_IncRef(funcPtr)
-    ; TODO: Check if callback is already set.
-    CALLBACKS[name] := funcPtr
-
-    Py_IncRef(PY_NONE)
-    return PY_NONE
-}
-
 AHKToPython(value) {
     if (IsObject(value)) {
         ; TODO: Convert AHK object to Python dict.
@@ -398,8 +364,8 @@ GuiClose:
     OnExitFunc("Close", 0, A_ThisLabel)
     return
 
-OnExitFunc(reason, code, caller:="OnExit") {
-    if (Trigger(caller) == 0) {
+OnExitFunc(reason, code, label:="OnExit") {
+    if (Trigger(label) == 0) {
         return
     }
     if (Py_FinalizeEx() < 0) {
@@ -407,10 +373,6 @@ OnExitFunc(reason, code, caller:="OnExit") {
     }
     ExitApp, %code%
 }
-
-HotkeyLabel:
-    Trigger("Hotkey " . A_ThisHotkey)
-    return
 
 OnMessageClosure(wParam, lParam, msg, hwnd) {
     Trigger("OnMessage " . msg, wParam, lParam, msg, hwnd)
