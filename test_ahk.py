@@ -1,19 +1,14 @@
-import ctypes
 import os
 import sys
-import subprocess
-from textwrap import dedent
 
 import pytest
 
 import _ahk  # noqa
 import ahk
+from conftest import run_from_input
 
 
 # TODO: sys.stdout is not in utf-8.
-
-AHK = "C:\\Program Files\\AutoHotkey\\AutoHotkey.exe"
-EMBED_PYTHON = os.path.abspath("EmbedPython.ahk")
 
 
 def test_call():
@@ -117,16 +112,3 @@ def test_timer():
         """)
     assert res.stdout == "Ding!\n"
     assert res.returncode == 0
-
-
-def run_embed_python(args, **kwargs):
-    args = [AHK, EMBED_PYTHON, *args]
-    return subprocess.run(args, text=True, capture_output=True, **kwargs)
-
-
-def run_from_input(code, *, quiet=False):
-    # TODO: Share the function with test_embed
-    args = ["-"]
-    if quiet:
-        args.insert(0, "-Q")
-    return run_embed_python(args, input=dedent(code))
