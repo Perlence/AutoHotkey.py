@@ -29,9 +29,8 @@ def test_stdin():
 
 
 def test_script(tmpdir):
-    code = "import sys; print(__name__, sys.argv)"
     script = tmpdir / "script.py"
-    script.write(code)
+    script.write("import sys; print(__name__, sys.argv)")
     res = run_embed_python([str(script)])
     assert res.stdout == f"__main__ [{repr(str(script))}]\n"
 
@@ -46,11 +45,9 @@ def test_script(tmpdir):
     )
 
 
-@pytest.mark.skip(reason="must search for modules starting from the working directory")
 def test_module(tmpdir):
-    code = "import sys; print(__name__, sys.argv)"
     script = tmpdir / "script.py"
-    script.write(code)
+    script.write("import sys; print(__name__, sys.argv)")
     res = run_embed_python(["-m", "script", "ahk.py", "1", "2"], cwd=tmpdir)
     assert res.stdout == f"__main__ [{repr(str(script))}, 'ahk.py', '1', '2']\n"
 

@@ -15,7 +15,7 @@ def message_box(text=None, title="", options=0, timeout=None):
         # Show "Press OK to continue."
         return _ahk.call("MsgBox")
 
-    return _ahk.call("MsgBox", options, title, text, timeout)
+    return _ahk.call("MsgBox", options, title, str(text), timeout)
     # TODO: Return result of IfMsgBox?
 
 
@@ -99,6 +99,9 @@ def _run_from_args():
     if module:
         # TODO: Handle exception in the module.
         sys.argv = [module, *rest]
+        cwd = os.path.abspath(os.getcwd())
+        if cwd not in sys.path:
+            sys.path.insert(0, cwd)
         runpy.run_module(module, run_name="__main__", alter_sys=True)
     elif file == "-":
         file = "<string>"
@@ -109,7 +112,9 @@ def _run_from_args():
             exec(code, globs)
     elif file:
         sys.argv = [file, *rest]
-        sys.path.insert(0, os.path.abspath(os.path.dirname(file)))
+        script_dir = os.path.abspath(os.path.dirname(file))
+        if script_dir not in sys.path:
+            sys.path.insert(0, script_dir)
         with _handle_exception(file):
             runpy.run_path(file, run_name="__main__")
     else:
