@@ -264,7 +264,7 @@ def _excepthook(type, value, tb):
 
 def _print_exception(text):
     if sys.stderr is not None:
-        print(text, end="\n", file=sys.stderr, flush=True)
+        print(text, end="", file=sys.stderr, flush=True)
     if not _quiet:
         # TODO: Add more MB_* constants to the module?
         MB_ICONERROR = 0x10
