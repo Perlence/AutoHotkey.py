@@ -38,14 +38,6 @@ return
 
 
 Main() {
-    ; Add A_ScriptDir to PYTHONPATH so that ahk.py could be imported.
-    EnvGet, pythonPath, PYTHONPATH
-    if (pythonPath == "") {
-        EnvSet, PYTHONPATH, %A_ScriptDir%
-    } else {
-        EnvSet, PYTHONPATH, % pythonPath ";" A_ScriptDir
-    }
-
     EnvGet, venv, VIRTUAL_ENV
     if (venv != "") {
         EnvSet, PYTHONHOME, %venv%
@@ -58,9 +50,10 @@ Main() {
 
     PY_NONE := Py_BuildValue("")
 
-    argv0 := "EmbedPython.ahk"
+    argv0 := A_ScriptFullPath
     packArgs := ["Ptr", &argv0]
     for i, arg in A_Args {
+        ; TODO: Try Object.GetAddress.
         argv%i% := arg
         packArgs.Push("Ptr")
         packArgs.Push(&argv%i%)
