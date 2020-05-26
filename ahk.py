@@ -53,6 +53,53 @@ def send(keys):
     _ahk.call("Send", keys)
 
 
+def send_mode(mode):
+    _ahk.call("SendMode", mode)
+
+
+def set_batch_lines(interval=None, lines=None):
+    if interval is not None:
+        _ahk.call("SetBatchLines", f"{interval}ms")
+        return
+    if lines is not None:
+        _ahk.call("SetBatchLines", f"{lines}")
+        return
+    raise ValueError("either 'interval' or 'lines' are required")
+
+
+def detect_hidden_windows(value):
+    value = "On" if value else "Off"
+    _ahk.call("DetectHiddenWindows", value)
+
+
+def set_title_match_mode(mode=None, speed=None):
+    if mode is not None:
+        match_modes = {
+            "startswith": "1",
+            "contains": "2",
+            "exact": "3",
+            "1": "1",
+            "2": "2",
+            "3": "3",
+            "regex": "regex",
+        }
+        ahk_mode = match_modes.get(str(mode).lower())
+        if ahk_mode is None:
+            raise ValueError(f"unknown match mode {mode!r}")
+        _ahk.call("SetTitleMatchMode", ahk_mode)
+
+    if speed is not None:
+        speeds = ["fast", "slow"]
+        if speed.lower() not in speeds:
+            raise ValueError(f"unknown speed {speed!r}")
+        _ahk.call("SetTitleMatchMode", speed)
+
+
+def win_exist(win_title, win_text="", exclude_title="", exclude_text=""):
+    # TODO: Check that empty strings work in this case.
+    return _ahk.call(win_title, win_text, exclude_title, exclude_text)
+
+
 def get_key_state(key_name, mode=None):
     return _ahk.call("GetKeyState", key_name, mode)
 
