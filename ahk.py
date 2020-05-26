@@ -100,6 +100,39 @@ def win_exist(win_title, win_text="", exclude_title="", exclude_text=""):
     return _ahk.call(win_title, win_text, exclude_title, exclude_text)
 
 
+def set_timer(func=None, period=0.25, countdown=None, priority=0):
+    if func is None:
+        # Return the decorator.
+        return partial(set_timer, period=period, countdown=countdown, priority=priority)
+
+    if countdown is not None:
+        if countdown < 0:
+            raise ValueError("countdown must be positive")
+        period = -countdown
+    period = int(period*1000)
+
+    _ahk.call("SetTimer", func, period, priority)
+
+    return Timer(func)
+
+
+class Timer:
+    def __init__(self, func):
+        self._func = func
+
+    def enable(self):
+        _ahk.call("SetTimer", self._func, "On")
+
+    def disable(self):
+        _ahk.call("SetTimer", self._func, "Off")
+
+    def delete(self):
+        _ahk.call("SetTimer", self._func, "Delete")
+
+    def set_priority(self, priority):
+        _ahk.call("SetTimer", self._func, "", priority)
+
+
 def get_key_state(key_name, mode=None):
     return _ahk.call("GetKeyState", key_name, mode)
 

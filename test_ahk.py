@@ -1,13 +1,19 @@
 import ctypes
 import os
 import sys
+import subprocess
+from textwrap import dedent
 
 import pytest
 
 import _ahk  # noqa
 import ahk
 
+
 # TODO: sys.stdout is not in utf-8.
+
+AHK = "C:\\Program Files\\AutoHotkey\\AutoHotkey.exe"
+EMBED_PYTHON = os.path.abspath("EmbedPython.ahk")
 
 
 def test_call():
@@ -47,11 +53,13 @@ def test_call():
     with pytest.raises(ahk.Error, match="cannot convert '<object object"):
         _ahk.call("Min", object())
 
+
 def test_message_box():
     result = ahk.message_box()
     assert result == "", "MsgBox result must be an empty string"
     ahk.message_box("Hello, мир!")
     ahk.message_box("Do you want to continue? (Press YES or NO)", options=4)
+
 
 def test_hotkey():
     with pytest.raises(ahk.Error):
@@ -73,9 +81,52 @@ def test_hotkey():
 
     ahk.message_box("Press AppsKey & y to see an exception.")
 
+
 def test_get_key_state():
     ahk.message_box("Press LShift.")
     if ahk.get_key_state("LShift"):
         ahk.message_box("LShift is pressed")
     else:
         ahk.message_box("LShift is not pressed")
+
+
+def test_timer():
+    res = run_from_input("""\
+        import sys, ahk
+        ahk.hotkey("F12", lambda: None)  # Make the script persistent
+        @ahk.set_timer(countdown=0.1)
+        def dong():
+            print("Dong!")
+            ahk._ahk.call("ExitApp")
+        print("Ding!")
+        """)
+    assert res.stdout == "Ding!\nDong!\n"
+    assert res.returncode == 0
+
+    res = run_from_input("""\
+        import sys, ahk
+        ahk.hotkey("F12", lambda: None)  # Make the script persistent
+        @ahk.set_timer(period=0.1)
+        def ding():
+            print("Ding!")
+            ding.disable()
+
+        @ahk.set_timer(countdown=0.5)
+        def exit():
+            ahk._ahk.call("ExitApp")
+        """)
+    assert res.stdout == "Ding!\n"
+    assert res.returncode == 0
+
+
+def run_embed_python(args, **kwargs):
+    args = [AHK, EMBED_PYTHON, *args]
+    return subprocess.run(args, text=True, capture_output=True, **kwargs)
+
+
+def run_from_input(code, *, quiet=False):
+    # TODO: Share the function with test_embed
+    args = ["-"]
+    if quiet:
+        args.insert(0, "-Q")
+    return run_embed_python(args, input=dedent(code))

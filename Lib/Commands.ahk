@@ -785,6 +785,10 @@ _SetStoreCapslockMode(OnOrOff) {
     SetStoreCapslockMode %OnOrOff%
 }
 
+_SetTimer(Closure, PeriodOnOffDelete:="", Priority:="") {
+    SetTimer %Closure%,%PeriodOnOffDelete%,%Priority%
+}
+
 _SetTitleMatchMode(Flag) {
     SetTitleMatchMode %Flag%
 }

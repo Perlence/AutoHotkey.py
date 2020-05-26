@@ -18,6 +18,7 @@ global Py_TPFLAGS_UNICODE_SUBCLASS := 1 << 28
 global Py_TPFLAGS_BASE_EXC_SUBCLASS := 1 << 30
 
 global CALLBACKS := {}
+global BOUND_TRIGGERS := {}
 
 global AHKError
 global AHKMethods
@@ -334,6 +335,15 @@ PythonToAHK(pyObject) {
         return PyLong_AsLongLong(pyObject)
     } else if (PyFloat_Check(pyObject)) {
         return PyFloat_AsDouble(pyObject)
+    } else if (PyCallable_Check(pyObject)) {
+        Py_IncRef(pyObject)
+        CALLBACKS[pyObject] := pyObject
+        boundFunc := BOUND_TRIGGERS[pyObject]
+        if (not boundFunc) {
+            boundFunc := Func("Trigger").Bind(pyObject)
+            BOUND_TRIGGERS[pyObject] := boundFunc
+        }
+        return boundFunc
     } else {
         pyRepr := PyObject_Repr(pyObject)
         if (PyUnicode_Check(pyRepr)) {
@@ -360,6 +370,7 @@ Trigger(key, args*) {
     }
     argsPtr := NULL
     result := PyObject_CallObject(funcObjPtr, argsPtr)
+    ; TODO: Exit gracefully on sys.exit()
     if (result == "") {
         End("Call to '" key "' callback failed: " ErrorLevel)
     } else if (result == NULL) {
