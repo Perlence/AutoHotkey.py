@@ -76,7 +76,7 @@ def test_tracebacks(tmpdir):
     res = run_from_input("1/0", quiet=True)
     assert res.stderr == dedent("""\
         Traceback (most recent call last):
-          File "<string>", line 1, in <module>
+          File "<stdin>", line 1, in <module>
         ZeroDivisionError: division by zero
         """)
 
@@ -90,7 +90,6 @@ def test_tracebacks(tmpdir):
         ZeroDivisionError: division by zero
         """)
 
-    script.write("1/0")
     res = run_embed_python(["-q", "script.py"], cwd=tmpdir)
     assert res.stderr == dedent(f"""\
         Traceback (most recent call last):
@@ -99,20 +98,18 @@ def test_tracebacks(tmpdir):
         ZeroDivisionError: division by zero
         """)
 
-    script.write("import")
-    res = run_embed_python(["-q", str(script)])
+    res = run_from_input("import", quiet=True)
     assert res.stderr == dedent(f"""\
-        Traceback (most recent call last):
-          File "{script}", line 1
+          File "<stdin>", line 1
             import
                  ^
         SyntaxError: invalid syntax
         """)
 
-    res = run_from_input("import", quiet=True)
+    script.write("import")
+    res = run_embed_python(["-q", str(script)])
     assert res.stderr == dedent(f"""\
-        Traceback (most recent call last):
-          File "<string>", line 1
+          File "{script}", line 1
             import
                  ^
         SyntaxError: invalid syntax
@@ -132,3 +129,11 @@ def test_tracebacks(tmpdir):
                  ^
         SyntaxError: invalid syntax
         """)
+
+    res = run_embed_python(["-q", "nonexistent.py"])
+    assert res.stderr == "Can't open file: [Errno 2] No such file or directory: 'nonexistent.py'\n"
+    assert res.returncode == 2
+
+    res = run_embed_python(["-q", "-m", "nonexistent"])
+    assert res.stderr == "No module named nonexistent\n"
+    assert res.returncode == 2
