@@ -85,7 +85,7 @@ def test_tracebacks(tmpdir):
     res = run_embed_python(["-q", str(script)])
     assert res.stderr == dedent(f"""\
         Traceback (most recent call last):
-          File "{script!s}", line 1, in <module>
+          File "{script}", line 1, in <module>
             1/0
         ZeroDivisionError: division by zero
         """)
@@ -103,7 +103,7 @@ def test_tracebacks(tmpdir):
     res = run_embed_python(["-q", str(script)])
     assert res.stderr == dedent(f"""\
         Traceback (most recent call last):
-          File "{script!s}", line 1
+          File "{script}", line 1
             import
                  ^
         SyntaxError: invalid syntax
@@ -125,9 +125,9 @@ def test_tracebacks(tmpdir):
     res = run_embed_python(["-q", str(beep)])
     assert res.stderr == dedent(f"""\
         Traceback (most recent call last):
-          File "{beep!s}", line 1, in <module>
+          File "{beep}", line 1, in <module>
             import boop
-          File "{boop!s}", line 1
+          File "{boop}", line 1
             import
                  ^
         SyntaxError: invalid syntax
