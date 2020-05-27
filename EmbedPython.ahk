@@ -65,12 +65,12 @@ Main() {
 
     ; Import the higher-level ahk module to bootstrap the excepthook.
     ; TODO: Add test for excepthook.
-    hiAhk := PyImport_ImportModule("ahk")
-    if (hiAhk == NULL) {
+    mainModule := PyImport_ImportModule("ahk.main")
+    if (mainModule == NULL) {
         End("Cannot load ahk module.")
     }
 
-    mainFunc := PyObject_GetAttrString(hiAhk, "_main")
+    mainFunc := PyObject_GetAttrString(mainModule, "main")
     if (mainFunc == NULL) {
         End("Cannot find the main function.")
     }

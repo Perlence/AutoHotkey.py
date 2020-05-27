@@ -87,19 +87,19 @@ def test_get_key_state():
 
 def test_timer():
     res = run_from_input("""\
-        import sys, ahk
+        import sys, ahk, _ahk
         ahk.hotkey("F12", lambda: None)  # Make the script persistent
         @ahk.set_timer(countdown=0.1)
         def dong():
             print("Dong!")
-            ahk._ahk.call("ExitApp")
+            _ahk.call("ExitApp")
         print("Ding!")
         """)
     assert res.stdout == "Ding!\nDong!\n"
     assert res.returncode == 0
 
     res = run_from_input("""\
-        import sys, ahk
+        import sys, ahk, _ahk
         ahk.hotkey("F12", lambda: None)  # Make the script persistent
         @ahk.set_timer(period=0.1)
         def ding():
@@ -108,7 +108,7 @@ def test_timer():
 
         @ahk.set_timer(countdown=0.5)
         def exit():
-            ahk._ahk.call("ExitApp")
+            _ahk.call("ExitApp")
         """)
     assert res.stdout == "Ding!\n"
     assert res.returncode == 0
