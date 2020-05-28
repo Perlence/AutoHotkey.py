@@ -8,7 +8,7 @@ from pkgutil import read_code
 
 import _ahk  # noqa
 
-from . import api
+from . import gui
 
 
 quiet = False
@@ -204,4 +204,4 @@ def show_error(text, end="\n"):
     if not quiet:
         # TODO: Add more MB_* constants to the module?
         MB_ICONERROR = 0x10
-        api.message_box(text, options=MB_ICONERROR)
+        gui.message_box(text, options=MB_ICONERROR)
