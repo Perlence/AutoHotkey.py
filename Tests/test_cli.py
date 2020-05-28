@@ -9,9 +9,11 @@ def test_stdin():
     code = "import sys; print(__name__, sys.argv)"
     res = run_embed_python(["-"], input=code)
     assert res.stdout == "__main__ ['-']\n"
+    assert res.returncode == 0
 
     res = run_embed_python(['-', 'script.py', '2', '3'], input=code)
     assert res.stdout == "__main__ ['-', 'script.py', '2', '3']\n"
+    assert res.returncode == 0
 
     res = run_from_input("""\
         try:
@@ -22,6 +24,7 @@ def test_stdin():
             print("'rest' is in scope")
         """)
     assert res.stdout == ""
+    assert res.returncode == 0
 
 
 def test_script(tmpdir):
@@ -29,6 +32,7 @@ def test_script(tmpdir):
     script.write("import sys; print(__name__, sys.argv)")
     res = run_embed_python([str(script)])
     assert res.stdout == f"__main__ [{repr(str(script))}]\n"
+    assert res.returncode == 0
 
     beep = tmpdir / "beep.py"
     beep.write("import sys; print(sys.argv); import boop")
@@ -39,6 +43,7 @@ def test_script(tmpdir):
         "module 'beep' must be able to load the module 'boop' because they are "
         "in the same directory"
     )
+    assert res.returncode == 0
 
 
 def test_module(tmpdir):
@@ -46,6 +51,7 @@ def test_module(tmpdir):
     script.write("import sys; print(__name__, sys.argv)")
     res = run_embed_python(["-m", "script", "ahk.py", "1", "2"], cwd=tmpdir)
     assert res.stdout == f"__main__ [{repr(str(script))}, 'ahk.py', '1', '2']\n"
+    assert res.returncode == 0
 
 
 def test_system_exit():
@@ -58,7 +64,7 @@ def test_system_exit():
     res = run_from_input("import sys; sys.exit(2)")
     assert res.returncode == 2
 
-    res = run_from_input("import sys; sys.exit('bye')")
+    res = run_from_input("import sys; sys.exit('bye')", quiet=True)
     assert res.returncode == 1
     assert res.stderr == "bye\n"
 
@@ -79,6 +85,7 @@ def test_tracebacks(tmpdir):
           File "<stdin>", line 1, in <module>
         ZeroDivisionError: division by zero
         """)
+    assert res.returncode == 1
 
     script = tmpdir / "script.py"
     script.write("1/0")
@@ -89,6 +96,7 @@ def test_tracebacks(tmpdir):
             1/0
         ZeroDivisionError: division by zero
         """)
+    assert res.returncode == 1
 
     res = run_embed_python(["-q", "script.py"], cwd=tmpdir)
     assert res.stderr == dedent(f"""\
@@ -97,6 +105,7 @@ def test_tracebacks(tmpdir):
             1/0
         ZeroDivisionError: division by zero
         """)
+    assert res.returncode == 1
 
     res = run_from_input("import", quiet=True)
     assert res.stderr == dedent(f"""\
@@ -105,6 +114,7 @@ def test_tracebacks(tmpdir):
                  ^
         SyntaxError: invalid syntax
         """)
+    assert res.returncode == 1
 
     script.write("import")
     res = run_embed_python(["-q", str(script)])
@@ -114,6 +124,7 @@ def test_tracebacks(tmpdir):
                  ^
         SyntaxError: invalid syntax
         """)
+    assert res.returncode == 1
 
     beep = tmpdir / "beep.py"
     beep.write('import boop')
@@ -129,11 +140,11 @@ def test_tracebacks(tmpdir):
                  ^
         SyntaxError: invalid syntax
         """)
+    assert res.returncode == 1
 
     res = run_embed_python(["-q", "nonexistent.py"])
     assert res.stderr == "Can't open file: [Errno 2] No such file or directory: 'nonexistent.py'\n"
     assert res.returncode == 2
 
     res = run_embed_python(["-q", "-m", "nonexistent"])
-    assert res.stderr == "No module named nonexistent\n"
-    assert res.returncode == 2
+    assert res.returncode == 1

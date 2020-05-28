@@ -36,7 +36,7 @@ def handle_system_exit(value):
     if isinstance(value, int):
         return value
 
-    display_error(value)
+    show_error(value)
     return 1
 
 
@@ -132,7 +132,7 @@ def run_path(filename):
             with io.open_code(filename) as f:
                 code = compile(f.read(), filename, "exec")
     except FileNotFoundError as err:
-        display_error(f"Can't open file: {err}")
+        show_error(f"Can't open file: {err}")
         sys.exit(2)
     except (OverflowError, SyntaxError, ValueError):
         show_syntax_error(filename)
@@ -157,18 +157,17 @@ def run_code(code):
         raise
     except:
         show_traceback()
+        sys.exit(1)
 
 
 def run_module(mod_name):
     try:
         runpy.run_module(mod_name, run_name="__main__", alter_sys=True)
-    except ImportError as err:
-        display_error(f"{err}")
-        sys.exit(2)
     except SystemExit:
         raise
     except:
         show_traceback()
+        sys.exit(1)
 
 
 def show_syntax_error(filename=None):
@@ -184,6 +183,7 @@ def show_syntax_error(filename=None):
             # Stuff in the right filename
             value = SyntaxError(msg, (filename, lineno, offset, line))
     sys.excepthook(type, value, tb.tb_next)
+    sys.exit(1)
 
 
 def show_traceback():
@@ -195,10 +195,10 @@ def show_traceback():
 
 
 def excepthook(type, value, tb):
-    display_error("".join(traceback.format_exception(type, value, tb)), end="")
+    show_error("".join(traceback.format_exception(type, value, tb)), end="")
 
 
-def display_error(text, end="\n"):
+def show_error(text, end="\n"):
     if sys.stderr is not None:
         print(text, end=end, file=sys.stderr, flush=True)
     if not quiet:
