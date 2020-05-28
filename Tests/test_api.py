@@ -11,7 +11,7 @@ from conftest import run_from_input
 
 
 def test_call():
-    with pytest.raises(ahk.Error):
+    with pytest.raises(TypeError):
         # Calling _ahk.call() without arguments must raise an error.
         _ahk.call()
 

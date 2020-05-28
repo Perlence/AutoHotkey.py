@@ -218,8 +218,8 @@ AHKCall(self, args) {
 _AHKCall(self, args) {
     pyFunc := PyTuple_GetItem(args, 0)
     if (pyFunc == NULL) {
-        ; TODO: The error should be a TypeError.
-        PyErr_SetString(AHKError, "_ahk.call() missing 1 required positional argument: 'func'")
+        TypeError := CachedProcAddress("PyExc_TypeError", "PtrP")
+        PyErr_SetString(TypeError, "_ahk.call() missing 1 required positional argument: 'func'")
         return NULL
     }
 
