@@ -1,7 +1,5 @@
 from textwrap import dedent
 
-import pytest
-
 from conftest import run_embed_python, run_from_input
 
 
@@ -99,7 +97,7 @@ def test_tracebacks(tmpdir):
     assert res.returncode == 1
 
     res = run_embed_python(["-q", "script.py"], cwd=tmpdir)
-    assert res.stderr == dedent(f"""\
+    assert res.stderr == dedent("""\
         Traceback (most recent call last):
           File "script.py", line 1, in <module>
             1/0
@@ -108,7 +106,7 @@ def test_tracebacks(tmpdir):
     assert res.returncode == 1
 
     res = run_from_input("import", quiet=True)
-    assert res.stderr == dedent(f"""\
+    assert res.stderr == dedent("""\
           File "<stdin>", line 1
             import
                  ^

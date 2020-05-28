@@ -46,7 +46,7 @@ def run_from_args():
                         help="supress message boxes with errors")
     program = parser.add_mutually_exclusive_group()
     program.add_argument("-m", "--module",
-                        help="run library module as a script")
+                         help="run library module as a script")
     program.add_argument("FILE", nargs="?",
                          help="program read from script file")
     parser.add_argument("ARGS", nargs="*",
@@ -155,7 +155,7 @@ def run_code(code):
         exec(code, globs)
     except SystemExit:
         raise
-    except:
+    except:  # noqa
         show_traceback()
         sys.exit(1)
 
@@ -165,7 +165,7 @@ def run_module(mod_name):
         runpy.run_module(mod_name, run_name="__main__", alter_sys=True)
     except SystemExit:
         raise
-    except:
+    except:  # noqa
         show_traceback()
         sys.exit(1)
 
