@@ -17,22 +17,23 @@ quiet = False
 
 def main():
     sys.excepthook = excepthook
-    try:
-        run_from_args()
-    except SystemExit as exc:
-        _ahk.call("ExitApp", handle_system_exit(exc))
+    run_from_args()
 
 
 def handle_system_exit(value):
     # Reference implementation: pythonrun.c/_Py_HandleSystemExit
-    try:
-        code = value.code
-    except AttributeError:
-        pass
-    else:
-        value = code
-        if value is None:
-            return 0
+    if value is None:
+        return 0
+
+    if isinstance(value, BaseException):
+        try:
+            code = value.code
+        except AttributeError:
+            pass
+        else:
+            value = code
+            if value is None:
+                return 0
 
     if isinstance(value, int):
         return value

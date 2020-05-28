@@ -3,8 +3,7 @@
 
 global NULL := 0
 global EMPTY_STRING := ""
-global PY_EMPTY_STRING_INTERN := NULL
-global PY_NONE := NULL
+
 global LOAD_WITH_ALTERED_SEARCH_PATH := 0x8
 global ERROR_MOD_NOT_FOUND := 0x7e
 global HPYTHON_DLL := NULL
@@ -20,10 +19,15 @@ global Py_TPFLAGS_BASE_EXC_SUBCLASS := 1 << 30
 global CALLBACKS := {}
 global BOUND_TRIGGERS := {}
 
-global AHKError
 global AHKMethods
 global AHKModule
 global AHKModule_name
+
+; Live Python objects
+global Py_None := NULL
+global Py_EmptyString := NULL
+global Py_AHKError := NULL
+global Py_HandleSystemExit := NULL
 
 OnExit("OnExitFunc")
 
@@ -49,7 +53,7 @@ Main() {
     PyImport_AppendInittab(&AHKModule_name, Func("PyInit_ahk"))
     Py_Initialize()
 
-    PY_NONE := Py_BuildValue("")
+    Py_None := Py_BuildValue("")
 
     argv0 := A_ScriptFullPath
     packArgs := ["Ptr", &argv0]
@@ -66,21 +70,23 @@ Main() {
     if (mainModule == NULL) {
         End("Cannot load ahk module.")
     }
-
     mainFunc := PyObject_GetAttrString(mainModule, "main")
     if (mainFunc == NULL) {
-        End("Cannot find the main function.")
+        End("Module 'main' has no attribute 'main'.")
     }
-
-    AHKError := PyObject_GetAttrString(mainModule, "Error")
-    if (mainFunc == NULL) {
-        End("Cannot find AHKError.")
+    Py_AHKError := PyObject_GetAttrString(mainModule, "Error")
+    if (Py_AHKError == NULL) {
+        End("Module 'main' has no attribute 'Error'.")
+    }
+    Py_HandleSystemExit := PyObject_GetAttrString(mainModule, "handle_system_exit")
+    if (Py_HandleSystemExit == NULL) {
+        End("Module 'main' has no attribute 'handle_system_exit'.")
     }
 
     result := PyObject_CallObject(mainFunc, NULL)
+    ; TODO: Handle SIGTERM gracefully.
     if (result == NULL) {
-        PyErr_Print()
-        return
+        PrintErrorOrExit()
     }
 }
 
@@ -215,7 +221,7 @@ _AHKCall(self, args) {
         funcRef := Func("_" func)
     }
     if (not funcRef) {
-        PyErr_SetString(AHKError, "unknown function " func)
+        PyErr_SetString(Py_AHKError, "unknown function " func)
         return NULL
     }
 
@@ -225,7 +231,7 @@ _AHKCall(self, args) {
     size := PyTuple_Size(args)
     while (i < size) {
         arg := PyTuple_GetItem(args, i)
-        if (arg == PY_NONE) {
+        if (arg == Py_None) {
             ; Ignore all arguments after None.
             break
         }
@@ -260,10 +266,10 @@ AHKToPython(value) {
         PyErr_SetString(NotImplementedError, "cannot convert AHK object to Python value")
         return NULL
     } else if (value == "") {
-        if (PY_EMPTY_STRING_INTERN == NULL) {
-            PY_EMPTY_STRING_INTERN := PyUnicode_InternFromString(&EMPTY_STRING)
+        if (Py_EmptyString == NULL) {
+            Py_EmptyString := PyUnicode_InternFromString(&EMPTY_STRING)
         }
-        return PY_EMPTY_STRING_INTERN
+        return Py_EmptyString
     } else if value is integer
         return PyLong_FromLongLong(value)
     else if value is float
@@ -309,7 +315,7 @@ PyErr_SetAHKError(err) {
         , AHKToPython(err.Extra)
         , AHKToPython(err.File)
         , AHKToPython(err.Line))
-    return PyErr_SetObject(AHKError, tup)
+    return PyErr_SetObject(Py_AHKError, tup)
 }
 
 EncodeString(string) {
@@ -331,8 +337,37 @@ Trigger(key, args*) {
     if (result == "") {
         End("Call to '" key "' callback failed: " ErrorLevel)
     } else if (result == NULL) {
-        PyErr_Print()
+        PrintErrorOrExit()
     }
+}
+
+PrintErrorOrExit() {
+    PyExc_SystemExit := CachedProcAddress("PyExc_SystemExit", "PtrP")
+    if (!PyErr_ExceptionMatches(PyExc_SystemExit)) {
+        PyErr_Print()
+        return
+    }
+
+    type := NULL
+    value := NULL
+    tb := NULL
+    PyErr_Fetch(type, value, tb)
+
+    args := PyTuple_Pack(1, value)
+    if (args == NULL) {
+        PyErr_Print()
+        return
+    }
+
+    pyExitCode := PyObject_CallObject(Py_HandleSystemExit, args)
+    if (pyExitCode == NULL) {
+        ; Something happened during handle_system_exit.
+        PyErr_Print()
+        return
+    }
+
+    exitCode := PythonToAHK(pyExitCode)
+    ExitApp, %exitCode%
 }
 
 End(message) {

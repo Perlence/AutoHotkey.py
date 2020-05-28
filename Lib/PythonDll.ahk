@@ -166,7 +166,6 @@ PyErr_Fetch(ByRef ptype, ByRef pvalue, ByRef ptraceback) {
     ptype := NumGet(ptype)
     pvalue := NumGet(pvalue)
     ptraceback := NumGet(ptraceback)
-    x := 0
 }
 
 PyErr_NewException(name, base, dict) {

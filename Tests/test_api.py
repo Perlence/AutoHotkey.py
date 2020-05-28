@@ -91,7 +91,7 @@ def test_timer():
         @ahk.set_timer(countdown=0.1)
         def dong():
             print("Dong!")
-            _ahk.call("ExitApp")
+            sys.exit()
         print("Ding!")
         """)
     assert res.stdout == "Ding!\nDong!\n"
@@ -107,7 +107,7 @@ def test_timer():
 
         @ahk.set_timer(countdown=0.5)
         def exit():
-            _ahk.call("ExitApp")
+            sys.exit()
         """)
     assert res.stdout == "Ding!\n"
     assert res.returncode == 0
