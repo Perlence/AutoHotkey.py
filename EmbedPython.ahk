@@ -62,7 +62,6 @@ Main() {
     PySys_SetArgv(argc, &argv)
 
     ; Import the higher-level ahk module to bootstrap the excepthook.
-    ; TODO: Add test for excepthook.
     mainModule := PyImport_ImportModule("ahk.main")
     if (mainModule == NULL) {
         End("Cannot load ahk module.")
@@ -71,6 +70,11 @@ Main() {
     mainFunc := PyObject_GetAttrString(mainModule, "main")
     if (mainFunc == NULL) {
         End("Cannot find the main function.")
+    }
+
+    AHKError := PyObject_GetAttrString(mainModule, "Error")
+    if (mainFunc == NULL) {
+        End("Cannot find AHKError.")
     }
 
     result := PyObject_CallObject(mainFunc, NULL)
@@ -185,28 +189,8 @@ Pack(ByRef var, args*) {
     }
 }
 
-; static PyObject*
 PyInit_ahk() {
-    module := PyModule_Create2(&AHKModule, PYTHON_API_VERSION)
-    if (module == NULL) {
-        return NULL
-    }
-
-    base := NULL
-    dict := NULL
-    AHKError := PyErr_NewException("ahk.Error", base, dict)
-    Py_XIncRef(AHKError)
-
-    result := PyModule_AddObject(module, "Error", AHKError)
-    if (result < 0) {
-        ; Adding failed.
-        Py_XDecRef(AHKError)
-        ; Py_CLEAR(AHKError);
-        Py_DecRef(module)
-        return NULL
-    }
-
-    return module
+    return PyModule_Create2(&AHKModule, PYTHON_API_VERSION)
 }
 
 AHKCall(self, args) {
@@ -248,7 +232,7 @@ _AHKCall(self, args) {
         try {
             ahkArg := PythonToAHK(arg)
         } catch e {
-            PyErr_SetString(AHKError, e.Message)
+            PyErr_SetAHKError(e)
             return NULL
         }
         if (PyErr_Occurred()) {
@@ -262,7 +246,7 @@ _AHKCall(self, args) {
     try {
         result := %funcRef%(ahkArgs*)
     } catch e {
-        PyErr_SetString(AHKError, e.Message)
+        PyErr_SetAHKError(e)
         return NULL
     }
 
@@ -272,10 +256,9 @@ _AHKCall(self, args) {
 AHKToPython(value) {
     if (IsObject(value)) {
         ; TODO: Convert AHK object to Python dict.
-        End("Not implemented")
-    } else if (IsFunc(value)) {
-        ; TODO: Wrap AHK function to be called from Python?
-        End("Not implemented")
+        NotImplementedError := CachedProcAddress("PyExc_NotImplementedError", "PtrP")
+        PyErr_SetString(NotImplementedError, "cannot convert AHK object to Python value")
+        return NULL
     } else if (value == "") {
         if (PY_EMPTY_STRING_INTERN == NULL) {
             PY_EMPTY_STRING_INTERN := PyUnicode_InternFromString(&EMPTY_STRING)
@@ -317,6 +300,16 @@ PythonToAHK(pyObject) {
             throw Exception("cannot convert Python object to an AHK value")
         }
     }
+}
+
+PyErr_SetAHKError(err) {
+    tup := PyTuple_Pack(5
+        , AHKToPython(err.Message)
+        , AHKToPython(err.What)
+        , AHKToPython(err.Extra)
+        , AHKToPython(err.File)
+        , AHKToPython(err.Line))
+    return PyErr_SetObject(AHKError, tup)
 }
 
 EncodeString(string) {

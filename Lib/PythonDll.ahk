@@ -190,9 +190,15 @@ PyErr_Restore(ptype, pvalue, ptraceback) {
     PythonDllCall("PyErr_Restore", "Ptr", ptype, "Ptr", pvalue, "Ptr", ptraceback, "Cdecl")
 }
 
-PyErr_SetString(exception, message) {
+PyErr_SetObject(type, value) {
+    ; void PyErr_SetObject(PyObject *type, PyObject *value)
+    PythonDllCall("PyErr_SetObject", "Ptr", type, "Ptr", value, "Cdecl")
+}
+
+PyErr_SetString(type, message) {
+    ; void PyErr_SetString(PyObject *type, const char *message)
     encoded := EncodeString(message)
-    PythonDllCall("PyErr_SetString", "Ptr", exception, "Ptr", &encoded, "Cdecl")
+    PythonDllCall("PyErr_SetString", "Ptr", type, "Ptr", &encoded, "Cdecl")
 }
 
 PyExceptionInstance_Check(o) {
@@ -237,6 +243,17 @@ PyTuple_GetItem(p, pos) {
 
 PySys_SetArgv(argc, argv) {
     PythonDllCall("PySys_SetArgv", "Int", argc, "Ptr", argv, "Cdecl")
+}
+
+PyTuple_Pack(n, objects*) {
+    ; PyObject* PyTuple_Pack(Py_ssize_t n, ...)
+    dllArgs := []
+    for _, obj in objects {
+        dllArgs.Push("Ptr")
+        dllArgs.Push(obj)
+    }
+    dllArgs.Push("Cdecl Ptr")
+    return PythonDllCall("PyTuple_Pack", "Int", n, dllArgs*)
 }
 
 PyTuple_Size(p) {

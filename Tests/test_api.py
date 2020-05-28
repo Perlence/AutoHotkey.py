@@ -11,12 +11,10 @@ from conftest import run_from_input
 
 
 def test_call():
-    with pytest.raises(TypeError):
-        # Calling _ahk.call() without arguments must raise an error.
+    with pytest.raises(TypeError, match="missing 1 required"):
         _ahk.call()
 
-    with pytest.raises(ahk.Error):
-        # _ahk.call() to a non-existent function must raise an error.
+    with pytest.raises(ahk.Error, match="unknown function"):
         _ahk.call("NoSuchFunction")
 
     os.environ["HELLO"] = "Привет"
@@ -38,7 +36,7 @@ def test_call():
     val = _ahk.call("Min", -9223372036854775806)
     assert val == -9223372036854775806, f"Result must be -9223372036854775806, got {val}"
 
-    with pytest.raises(OverflowError):
+    with pytest.raises(OverflowError, match="too big to convert"):
         val = _ahk.call("Max", 9223372036854775808)
 
     val = _ahk.call("Min", 0.5)
@@ -46,6 +44,9 @@ def test_call():
 
     with pytest.raises(ahk.Error, match="cannot convert '<object object"):
         _ahk.call("Min", object())
+
+    with pytest.raises(NotImplementedError, match="cannot convert AHK object"):
+        _ahk.call("Func", "Main")
 
 
 def test_message_box():
@@ -56,11 +57,10 @@ def test_message_box():
 
 
 def test_hotkey():
-    with pytest.raises(ahk.Error):
+    with pytest.raises(ahk.Error, match="invalid key name"):
         ahk.hotkey("")
 
-    with pytest.raises(ahk.Error):
-        # Passing a non-callable to ahk.hotkey must raise an error.
+    with pytest.raises(TypeError, match="must be callable"):
         ahk.hotkey("^t", func="not callable")
 
     @ahk.hotkey("AppsKey & t")

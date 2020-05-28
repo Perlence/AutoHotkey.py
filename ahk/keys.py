@@ -3,6 +3,8 @@ from functools import partial
 
 import _ahk  # noqa
 
+from .exceptions import Error
+
 __all__ = [
     "get_key_state", "hotkey", "hotkey_context", "remap_key", "send",
     "send_mode",
@@ -16,12 +18,15 @@ def get_key_state(key_name, mode=None):
 def hotkey(key_name, func=None, buffer=None, priority=0, max_threads=None,
            input_level=None):
     if key_name == "":
-        raise _ahk.Error("invalid key name")
+        raise Error("invalid key name")
 
     if func is None:
         # Return the decorator.
         return partial(hotkey, key_name, buffer=buffer, priority=priority,
                        max_threads=max_threads, input_level=input_level)
+
+    if not callable(func):
+        raise TypeError(f"object {func!r} must be callable")
 
     # TODO: Handle case when func == "AltTab" or other substitutes.
     # TODO: Set the options.

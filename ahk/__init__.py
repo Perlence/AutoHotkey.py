@@ -1,5 +1,4 @@
-from _ahk import Error  # noqa
-
+from .exceptions import *  # noqa
 from .flow import *  # noqa
 from .gui import *  # noqa
 from .keys import *  # noqa

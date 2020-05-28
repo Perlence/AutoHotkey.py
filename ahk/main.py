@@ -9,6 +9,7 @@ from pkgutil import read_code
 import _ahk  # noqa
 
 from . import gui
+from .exceptions import Error  # noqa
 
 
 quiet = False
