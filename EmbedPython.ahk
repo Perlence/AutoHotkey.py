@@ -54,10 +54,8 @@ Main() {
     argv0 := A_ScriptFullPath
     packArgs := ["Ptr", &argv0]
     for i, arg in A_Args {
-        ; TODO: Try Object.GetAddress.
-        argv%i% := arg
         packArgs.Push("Ptr")
-        packArgs.Push(&argv%i%)
+        packArgs.Push(A_Args.GetAddress(i))
     }
     argc := A_Args.Length() + 1
     Pack(argv, packArgs*)
