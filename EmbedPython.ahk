@@ -333,7 +333,6 @@ Trigger(key, args*) {
     }
     argsPtr := NULL
     result := PyObject_CallObject(funcObjPtr, argsPtr)
-    ; TODO: Exit gracefully on sys.exit()
     if (result == "") {
         End("Call to '" key "' callback failed: " ErrorLevel)
     } else if (result == NULL) {

@@ -1,10 +1,10 @@
 import os
+import time
 
 import pytest
 
 import _ahk  # noqa
 import ahk
-from conftest import run_from_input
 
 
 # TODO: sys.stdout is not in utf-8.
@@ -56,24 +56,46 @@ def test_message_box():
     ahk.message_box("Do you want to continue? (Press YES or NO)", options=4)
 
 
-def test_hotkey():
+def test_hotkey(child_ahk):
     with pytest.raises(ahk.Error, match="invalid key name"):
         ahk.hotkey("")
 
     with pytest.raises(TypeError, match="must be callable"):
         ahk.hotkey("^t", func="not callable")
 
-    @ahk.hotkey("AppsKey & t")
-    def show_msgbox():
-        ahk.message_box("Hello from hotkey.")
+    child_ahk.popen_code("""\
+        import sys, ahk
 
-    ahk.message_box("Press AppsKey & t now.")
+        @ahk.hotkey("^t")
+        def show_msgbox():
+            print("ok01")
+            ahk.message_box("Hello from hotkey.")
 
-    @ahk.hotkey("AppsKey & y")
-    def show_bang():
-        1 / 0
+        @ahk.hotkey("^y")
+        def show_bang():
+            print("ok02")
+            1 / 0
 
-    ahk.message_box("Press AppsKey & y to see an exception.")
+        print("ok00")
+        """)
+
+    child_ahk.wait()
+
+    assert ahk.win_active("EmbedPython.ahk", "Hello from hotkey") == 0
+    ahk.send("^t")
+    child_ahk.wait()
+    time.sleep(.01)
+    assert ahk.win_active("EmbedPython.ahk", "Hello from hotkey") != 0
+    ahk.send("{Space}")
+
+    assert ahk.win_active("EmbedPython.ahk", "ZeroDivisionError") == 0
+    ahk.send("^y")
+    child_ahk.wait()
+    assert ahk.win_active("EmbedPython.ahk", "ZeroDivisionError") != 0
+    ahk.send("{Space}")
+
+    child_ahk.close()
+    assert "ZeroDivisionError:" in child_ahk.proc.stderr.read()
 
 
 def test_get_key_state():
@@ -84,22 +106,27 @@ def test_get_key_state():
         ahk.message_box("LShift is not pressed")
 
 
-def test_timer():
-    res = run_from_input("""\
-        import sys, ahk, _ahk
-        ahk.hotkey("F12", lambda: None)  # Make the script persistent
+def test_timer(child_ahk):
+    res = child_ahk.run_code("""\
+        import sys, ahk
+
+        ahk.hotkey("^t", lambda: None)  # Make the script persistent
+
         @ahk.set_timer(countdown=0.1)
         def dong():
             print("Dong!")
             sys.exit()
+
         print("Ding!")
         """)
     assert res.stdout == "Ding!\nDong!\n"
     assert res.returncode == 0
 
-    res = run_from_input("""\
-        import sys, ahk, _ahk
-        ahk.hotkey("F12", lambda: None)  # Make the script persistent
+    res = child_ahk.run_code("""\
+        import sys, ahk
+
+        ahk.hotkey("^t", lambda: None)  # Make the script persistent
+
         @ahk.set_timer(period=0.1)
         def ding():
             print("Ding!")

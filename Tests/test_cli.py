@@ -1,19 +1,17 @@
 from textwrap import dedent
 
-from conftest import run_embed_python, run_from_input
 
-
-def test_stdin():
+def test_stdin(child_ahk):
     code = "import sys; print(__name__, sys.argv)"
-    res = run_embed_python(["-"], input=code)
+    res = child_ahk.run(["-"], input=code)
     assert res.stdout == "__main__ ['-']\n"
     assert res.returncode == 0
 
-    res = run_embed_python(['-', 'script.py', '2', '3'], input=code)
+    res = child_ahk.run(['-', 'script.py', '2', '3'], input=code)
     assert res.stdout == "__main__ ['-', 'script.py', '2', '3']\n"
     assert res.returncode == 0
 
-    res = run_from_input("""\
+    res = child_ahk.run_code("""\
         try:
             rest
         except NameError:
@@ -25,10 +23,10 @@ def test_stdin():
     assert res.returncode == 0
 
 
-def test_script(tmpdir):
+def test_script(tmpdir, child_ahk):
     script = tmpdir / "script.py"
     script.write("import sys; print(__name__, sys.argv)")
-    res = run_embed_python([str(script)])
+    res = child_ahk.run([str(script)])
     assert res.stdout == f"__main__ [{repr(str(script))}]\n"
     assert res.returncode == 0
 
@@ -36,7 +34,7 @@ def test_script(tmpdir):
     beep.write("import sys; print(sys.argv); import boop")
     boop = tmpdir / "boop.py"
     boop.write("print('boop')")
-    res = run_embed_python([str(beep)])
+    res = child_ahk.run([str(beep)])
     assert res.stdout == f"[{repr(str(beep))}]\nboop\n", (
         "module 'beep' must be able to load the module 'boop' because they are "
         "in the same directory"
@@ -44,40 +42,40 @@ def test_script(tmpdir):
     assert res.returncode == 0
 
 
-def test_module(tmpdir):
+def test_module(tmpdir, child_ahk):
     script = tmpdir / "script.py"
     script.write("import sys; print(__name__, sys.argv)")
-    res = run_embed_python(["-m", "script", "ahk.py", "1", "2"], cwd=tmpdir)
+    res = child_ahk.run(["-m", "script", "ahk.py", "1", "2"], cwd=tmpdir)
     assert res.stdout == f"__main__ [{repr(str(script))}, 'ahk.py', '1', '2']\n"
     assert res.returncode == 0
 
 
-def test_system_exit():
-    res = run_from_input("import sys; sys.exit()")
+def test_system_exit(child_ahk):
+    res = child_ahk.run_code("import sys; sys.exit()")
     assert res.returncode == 0
 
-    res = run_from_input("import sys; sys.exit(1)")
+    res = child_ahk.run_code("import sys; sys.exit(1)")
     assert res.returncode == 1
 
-    res = run_from_input("import sys; sys.exit(2)")
+    res = child_ahk.run_code("import sys; sys.exit(2)")
     assert res.returncode == 2
 
-    res = run_from_input("import sys; sys.exit('bye')", quiet=True)
+    res = child_ahk.run_code("import sys; sys.exit('bye')", quiet=True)
     assert res.returncode == 1
     assert res.stderr == "bye\n"
 
-    res = run_from_input("raise SystemExit")
+    res = child_ahk.run_code("raise SystemExit")
     assert res.returncode == 0
 
-    res = run_from_input("raise SystemExit(None)")
+    res = child_ahk.run_code("raise SystemExit(None)")
     assert res.returncode == 0
 
-    res = run_from_input("raise SystemExit(1)")
+    res = child_ahk.run_code("raise SystemExit(1)")
     assert res.returncode == 1
 
 
-def test_tracebacks(tmpdir):
-    res = run_from_input("1/0", quiet=True)
+def test_tracebacks(tmpdir, child_ahk):
+    res = child_ahk.run_code("1/0", quiet=True)
     assert res.stderr == dedent("""\
         Traceback (most recent call last):
           File "<stdin>", line 1, in <module>
@@ -87,7 +85,7 @@ def test_tracebacks(tmpdir):
 
     script = tmpdir / "script.py"
     script.write("1/0")
-    res = run_embed_python(["-q", str(script)])
+    res = child_ahk.run(["-q", str(script)])
     assert res.stderr == dedent(f"""\
         Traceback (most recent call last):
           File "{script}", line 1, in <module>
@@ -96,7 +94,7 @@ def test_tracebacks(tmpdir):
         """)
     assert res.returncode == 1
 
-    res = run_embed_python(["-q", "script.py"], cwd=tmpdir)
+    res = child_ahk.run(["-q", "script.py"], cwd=tmpdir)
     assert res.stderr == dedent("""\
         Traceback (most recent call last):
           File "script.py", line 1, in <module>
@@ -105,7 +103,7 @@ def test_tracebacks(tmpdir):
         """)
     assert res.returncode == 1
 
-    res = run_from_input("import", quiet=True)
+    res = child_ahk.run_code("import", quiet=True)
     assert res.stderr == dedent("""\
           File "<stdin>", line 1
             import
@@ -115,7 +113,7 @@ def test_tracebacks(tmpdir):
     assert res.returncode == 1
 
     script.write("import")
-    res = run_embed_python(["-q", str(script)])
+    res = child_ahk.run(["-q", str(script)])
     assert res.stderr == dedent(f"""\
           File "{script}", line 1
             import
@@ -128,7 +126,7 @@ def test_tracebacks(tmpdir):
     beep.write('import boop')
     boop = tmpdir / "boop.py"
     boop.write("import")
-    res = run_embed_python(["-q", str(beep)])
+    res = child_ahk.run(["-q", str(beep)])
     assert res.stderr == dedent(f"""\
         Traceback (most recent call last):
           File "{beep}", line 1, in <module>
@@ -140,9 +138,9 @@ def test_tracebacks(tmpdir):
         """)
     assert res.returncode == 1
 
-    res = run_embed_python(["-q", "nonexistent.py"])
+    res = child_ahk.run(["-q", "nonexistent.py"])
     assert res.stderr == "Can't open file: [Errno 2] No such file or directory: 'nonexistent.py'\n"
     assert res.returncode == 2
 
-    res = run_embed_python(["-q", "-m", "nonexistent"])
+    res = child_ahk.run(["-q", "-m", "nonexistent"])
     assert res.returncode == 1

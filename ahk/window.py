@@ -1,7 +1,7 @@
 import _ahk  # noqa
 
 __all__ = [
-    "detect_hidden_windows", "set_title_match_mode", "win_exist",
+    "detect_hidden_windows", "set_title_match_mode", "win_active", "win_exist",
 ]
 
 
@@ -33,6 +33,12 @@ def set_title_match_mode(mode=None, speed=None):
         _ahk.call("SetTitleMatchMode", speed)
 
 
+def win_active(win_title, win_text="", exclude_title="", exclude_text=""):
+    # TODO: There must be a better API.
+    # TODO: Check that empty strings work in this case.
+    return _ahk.call("WinActive", win_title, win_text, exclude_title, exclude_text)
+
+
 def win_exist(win_title, win_text="", exclude_title="", exclude_text=""):
     # TODO: Check that empty strings work in this case.
-    return _ahk.call(win_title, win_text, exclude_title, exclude_text)
+    return _ahk.call("WinExist", win_title, win_text, exclude_title, exclude_text)
