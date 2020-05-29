@@ -65,6 +65,9 @@ def test_hotkey(child_ahk):
 
     child_ahk.popen_code("""\
         import ahk
+        import sys
+
+        ahk.hotkey("^+x", sys.exit)
 
         @ahk.hotkey("^t")
         def show_msgbox():
@@ -91,9 +94,11 @@ def test_hotkey(child_ahk):
     assert ahk.win_active("EmbedPython.ahk", "ZeroDivisionError") == 0
     ahk.send("^y")
     child_ahk.wait()
+    time.sleep(.01)
     assert ahk.win_active("EmbedPython.ahk", "ZeroDivisionError") != 0
     ahk.send("{Space}")
 
+    ahk.send("^+x")
     child_ahk.close()
     assert "ZeroDivisionError:" in child_ahk.proc.stderr.read()
 

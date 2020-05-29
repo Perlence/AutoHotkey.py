@@ -59,5 +59,9 @@ class ChildAHK:
         self.wait_counter += 1
 
     def close(self):
-        if self.proc is not None:
+        if self.proc is None:
+            return
+        try:
+            self.proc.wait(timeout=1)
+        except subprocess.TimeoutExpired:
             self.proc.terminate()
