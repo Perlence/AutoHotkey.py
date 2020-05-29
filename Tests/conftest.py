@@ -26,7 +26,6 @@ def child_ahk():
 class ChildAHK:
     def __init__(self):
         self.proc = None
-        self.wait_counter = 0
 
     def run(self, args, **kwargs):
         args = [AHK, EMBED_PYTHON, *args]
@@ -53,10 +52,9 @@ class ChildAHK:
         self.proc.stdin.write(dedent(code))
         self.proc.stdin.close()
 
-    def wait(self):
+    def wait(self, counter):
         line = self.proc.stdout.readline()
-        assert line == f"ok{self.wait_counter:02}\n"
-        self.wait_counter += 1
+        assert line == f"ok{counter:02}\n"
 
     def close(self):
         if self.proc is None:

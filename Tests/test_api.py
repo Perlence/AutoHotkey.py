@@ -90,18 +90,18 @@ def test_hotkey(child_ahk):
         print("ok00")
         """)
 
-    child_ahk.wait()
+    child_ahk.wait(0)
 
     assert ahk.win_active("EmbedPython.ahk", "Hello from hotkey") == 0
     ahk.send("^t")
-    child_ahk.wait()
+    child_ahk.wait(1)
     time.sleep(.01)
     assert ahk.win_active("EmbedPython.ahk", "Hello from hotkey") != 0
     ahk.send("{Space}")
 
     assert ahk.win_active("EmbedPython.ahk", "ZeroDivisionError") == 0
     ahk.send("^y")
-    child_ahk.wait()
+    child_ahk.wait(2)
     time.sleep(.01)
     assert ahk.win_active("EmbedPython.ahk", "ZeroDivisionError") != 0
     ahk.send("{Space}")
@@ -131,13 +131,13 @@ def test_key_wait(child_ahk):
         sys.exit()
         """)
 
-    child_ahk.wait()
+    child_ahk.wait(0)
     ahk.send("{RShift Down}")
-    child_ahk.wait()
+    child_ahk.wait(1)
     ahk.send("{RShift Up}")
-    child_ahk.wait()
+    child_ahk.wait(2)
 
-    child_ahk.wait()
+    child_ahk.wait(3)
 
 
 def test_timer(child_ahk):
