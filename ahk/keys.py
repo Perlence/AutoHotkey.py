@@ -6,8 +6,8 @@ import _ahk  # noqa
 from .exceptions import Error
 
 __all__ = [
-    "get_key_state", "hotkey", "hotkey_context", "remap_key", "send",
-    "send_mode",
+    "get_key_state", "hotkey", "hotkey_context", "remap_key",
+    "key_wait_pressed", "key_wait_released", "send", "send_mode",
 ]
 
 
@@ -39,6 +39,27 @@ def hotkey(key_name, func=None, buffer=None, priority=0, max_threads=None,
 def hotkey_context():
     # TODO: Implement `Hotkey, If` commands.
     raise NotImplementedError()
+
+
+def key_wait_pressed(key_name, logical_state=False, timeout=None) -> bool:
+    return _key_wait(key_name, down=True, logical_state=logical_state, timeout=timeout)
+
+
+def key_wait_released(key_name, logical_state=False, timeout=None) -> bool:
+    return _key_wait(key_name, down=False, logical_state=logical_state, timeout=timeout)
+
+
+def _key_wait(key_name, down=False, logical_state=False, timeout=None) -> bool:
+    options = []
+    if down:
+        options.append("D")
+    if logical_state:
+        options.append("L")
+    if timeout is not None:
+        options.append(f"T{timeout}")
+    result = _ahk.call("KeyWait", str(key_name), "".join(options))
+    # Return False if KeyWait timed out, True otherwise.
+    return not result
 
 
 def remap_key(origin_key, destination_key):

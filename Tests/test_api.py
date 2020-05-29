@@ -56,6 +56,14 @@ def test_message_box():
     ahk.message_box("Do you want to continue? (Press YES or NO)", options=4)
 
 
+def test_get_key_state():
+    ahk.message_box("Press LShift.")
+    if ahk.get_key_state("LShift"):
+        ahk.message_box("LShift is pressed")
+    else:
+        ahk.message_box("LShift is not pressed")
+
+
 def test_hotkey(child_ahk):
     with pytest.raises(ahk.Error, match="invalid key name"):
         ahk.hotkey("")
@@ -103,12 +111,33 @@ def test_hotkey(child_ahk):
     assert "ZeroDivisionError:" in child_ahk.proc.stderr.read()
 
 
-def test_get_key_state():
-    ahk.message_box("Press LShift.")
-    if ahk.get_key_state("LShift"):
-        ahk.message_box("LShift is pressed")
-    else:
-        ahk.message_box("LShift is not pressed")
+def test_key_wait(child_ahk):
+    child_ahk.popen_code("""\
+        import ahk
+        import sys
+
+        print("ok00")
+        result = ahk.key_wait_pressed("RShift")
+        assert result is True, "result must be True"
+        print("ok01")
+        result = ahk.key_wait_released("RShift")
+        assert result is True, "result must be True"
+        print("ok02")
+
+        result = ahk.key_wait_pressed("RShift", timeout=.1)
+        assert result is False, "result must be False"
+        print("ok03")
+
+        sys.exit()
+        """)
+
+    child_ahk.wait()
+    ahk.send("{RShift Down}")
+    child_ahk.wait()
+    ahk.send("{RShift Up}")
+    child_ahk.wait()
+
+    child_ahk.wait()
 
 
 def test_timer(child_ahk):

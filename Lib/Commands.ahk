@@ -381,6 +381,7 @@ _KeyHistory() {
 
 _KeyWait(KeyName,Options="") {
     KeyWait %KeyName%,%Options%
+    return ErrorLevel
 }
 
 _ListHotkeys() {
