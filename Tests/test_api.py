@@ -107,6 +107,13 @@ def test_get_key_state():
 
 
 def test_timer(child_ahk):
+    timer = ahk.set_timer(lambda: None, countdown=1)
+    with pytest.raises(AttributeError, match="can't set attribute"):
+        timer.func = None
+
+    timer.delete()
+    del timer
+
     res = child_ahk.run_code("""\
         import sys, ahk
 

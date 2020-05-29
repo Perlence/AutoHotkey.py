@@ -1,3 +1,4 @@
+from typing import NamedTuple
 from functools import partial
 
 import _ahk  # noqa
@@ -33,18 +34,18 @@ def set_timer(func=None, period=0.25, countdown=None, priority=0):
     return Timer(func)
 
 
-class Timer:
-    def __init__(self, func):
-        self._func = func
+class Timer(NamedTuple):
+    func: callable
 
     def enable(self):
-        _ahk.call("SetTimer", self._func, "On")
+        _ahk.call("SetTimer", self.func, "On")
 
     def disable(self):
-        _ahk.call("SetTimer", self._func, "Off")
+        _ahk.call("SetTimer", self.func, "Off")
 
     def delete(self):
-        _ahk.call("SetTimer", self._func, "Delete")
+        # TODO: Remove self.func from CALLBACKS and BOUND_TRIGGERS.
+        _ahk.call("SetTimer", self.func, "Delete")
 
     def set_priority(self, priority):
-        _ahk.call("SetTimer", self._func, "", priority)
+        _ahk.call("SetTimer", self.func, "", priority)
