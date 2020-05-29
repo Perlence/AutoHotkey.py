@@ -64,7 +64,7 @@ def test_hotkey(child_ahk):
         ahk.hotkey("^t", func="not callable")
 
     child_ahk.popen_code("""\
-        import sys, ahk
+        import ahk
 
         @ahk.hotkey("^t")
         def show_msgbox():

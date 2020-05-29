@@ -70,24 +70,34 @@ Main() {
     if (mainModule == NULL) {
         End("Cannot load ahk module.")
     }
-    mainFunc := PyObject_GetAttrString(mainModule, "main")
-    if (mainFunc == NULL) {
-        End("Module 'main' has no attribute 'main'.")
-    }
+
     Py_AHKError := PyObject_GetAttrString(mainModule, "Error")
     if (Py_AHKError == NULL) {
+        Py_DecRef(mainModule)
         End("Module 'main' has no attribute 'Error'.")
     }
+
     Py_HandleSystemExit := PyObject_GetAttrString(mainModule, "handle_system_exit")
     if (Py_HandleSystemExit == NULL) {
+        Py_DecRef(mainModule)
         End("Module 'main' has no attribute 'handle_system_exit'.")
     }
 
+    mainFunc := PyObject_GetAttrString(mainModule, "main")
+    if (mainFunc == NULL) {
+        Py_DecRef(mainModule)
+        End("Module 'main' has no attribute 'main'.")
+    }
+
+    Py_DecRef(mainModule)
+
     result := PyObject_CallObject(mainFunc, NULL)
+    Py_DecRef(mainFunc)
     ; TODO: Handle SIGTERM gracefully.
     if (result == NULL) {
         PrintErrorOrExit()
     }
+    Py_DecRef(result)
 }
 
 PackBuiltinModule() {
@@ -280,7 +290,7 @@ AHKToPython(value) {
     }
 }
 
-PythonToAHK(pyObject) {
+PythonToAHK(pyObject, borrowed:=True) {
     ; TODO: Convert dicts to objects and lists to arrays.
     if (PyUnicode_Check(pyObject)) {
         return PyUnicode_AsWideCharString(pyObject)
@@ -289,7 +299,9 @@ PythonToAHK(pyObject) {
     } else if (PyFloat_Check(pyObject)) {
         return PyFloat_AsDouble(pyObject)
     } else if (PyCallable_Check(pyObject)) {
-        Py_IncRef(pyObject)
+        if (borrowed) {
+            Py_IncRef(pyObject)
+        }
         CALLBACKS[pyObject] := pyObject
         boundFunc := BOUND_TRIGGERS[pyObject]
         if (not boundFunc) {
@@ -301,8 +313,10 @@ PythonToAHK(pyObject) {
         pyRepr := PyObject_Repr(pyObject)
         if (PyUnicode_Check(pyRepr)) {
             repr := PyUnicode_AsWideCharString(pyRepr)
+            Py_DecRef(pyRepr)
             throw Exception("cannot convert '" repr "' to an AHK value")
         } else {
+            Py_DecRef(pyRepr)
             throw Exception("cannot convert Python object to an AHK value")
         }
     }
@@ -315,7 +329,12 @@ PyErr_SetAHKError(err) {
         , AHKToPython(err.Extra)
         , AHKToPython(err.File)
         , AHKToPython(err.Line))
-    return PyErr_SetObject(Py_AHKError, tup)
+    if (tup == NULL) {
+        PyErr_SetString(Py_AHKError, err.Message)
+        return
+    }
+    PyErr_SetObject(Py_AHKError, tup)
+    Py_DecRef(tup)
 }
 
 EncodeString(string) {
@@ -338,6 +357,7 @@ Trigger(key, args*) {
     } else if (result == NULL) {
         PrintErrorOrExit()
     }
+    Py_DecRef(result)
 }
 
 PrintErrorOrExit() {
@@ -359,13 +379,15 @@ PrintErrorOrExit() {
     }
 
     pyExitCode := PyObject_CallObject(Py_HandleSystemExit, args)
+    Py_DecRef(args)
     if (pyExitCode == NULL) {
         ; Something happened during handle_system_exit.
         PyErr_Print()
         return
     }
 
-    exitCode := PythonToAHK(pyExitCode)
+    exitCode := PythonToAHK(pyExitCode, False)
+    Py_DecRef(pyExitCode)
     ExitApp, %exitCode%
 }
 
