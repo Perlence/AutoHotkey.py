@@ -2,13 +2,13 @@ from textwrap import dedent
 
 
 def test_stdin(child_ahk):
-    code = "import sys; print(__name__, sys.argv)"
+    code = "import sys; print(__name__, __file__, sys.argv)"
     res = child_ahk.run(["-"], input=code)
-    assert res.stdout == "__main__ ['-']\n"
+    assert res.stdout == "__main__ <stdin> ['-']\n"
     assert res.returncode == 0
 
     res = child_ahk.run(['-', 'script.py', '2', '3'], input=code)
-    assert res.stdout == "__main__ ['-', 'script.py', '2', '3']\n"
+    assert res.stdout == "__main__ <stdin> ['-', 'script.py', '2', '3']\n"
     assert res.returncode == 0
 
     res = child_ahk.run_code("""\
@@ -25,9 +25,9 @@ def test_stdin(child_ahk):
 
 def test_script(tmpdir, child_ahk):
     script = tmpdir / "script.py"
-    script.write("import sys; print(__name__, sys.argv)")
+    script.write("import sys; print(__name__, __file__, sys.argv)")
     res = child_ahk.run([str(script)])
-    assert res.stdout == f"__main__ [{repr(str(script))}]\n"
+    assert res.stdout == f"__main__ {str(script)} [{repr(str(script))}]\n"
     assert res.returncode == 0
 
     beep = tmpdir / "beep.py"
@@ -44,9 +44,9 @@ def test_script(tmpdir, child_ahk):
 
 def test_module(tmpdir, child_ahk):
     script = tmpdir / "script.py"
-    script.write("import sys; print(__name__, sys.argv)")
+    script.write("import sys; print(__name__, __file__, sys.argv)")
     res = child_ahk.run(["-m", "script", "ahk.py", "1", "2"], cwd=tmpdir)
-    assert res.stdout == f"__main__ [{repr(str(script))}, 'ahk.py', '1', '2']\n"
+    assert res.stdout == f"__main__ {str(script)} [{repr(str(script))}, 'ahk.py', '1', '2']\n"
     assert res.returncode == 0
 
 

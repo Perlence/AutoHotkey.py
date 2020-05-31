@@ -139,7 +139,7 @@ def run_path(filename):
     except (OverflowError, SyntaxError, ValueError):
         show_syntax_error(filename)
     else:
-        run_code(code)
+        run_code(code, filename)
 
 
 def run_source(source, filename="<stdin>"):
@@ -148,12 +148,16 @@ def run_source(source, filename="<stdin>"):
     except (OverflowError, SyntaxError, ValueError):
         show_syntax_error(filename)
     else:
-        run_code(code)
+        run_code(code, filename)
 
 
-def run_code(code):
+def run_code(code, filename):
     try:
-        globs = {"__name__": "__main__", "__doc__": None}
+        globs = {
+            "__name__": "__main__",
+            "__doc__": None,
+            "__file__": filename,
+        }
         exec(code, globs)
     except SystemExit:
         raise
