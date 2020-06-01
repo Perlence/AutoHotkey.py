@@ -71,21 +71,34 @@ def test_hotkey(child_ahk):
     with pytest.raises(TypeError, match="must be callable"):
         ahk.hotkey("^t", func="not callable")
 
+    hk = ahk.hotkey("F13", lambda: None)
+    assert hk.key_name == "F13"
+
     child_ahk.popen_code("""\
         import ahk
         import sys
 
-        ahk.hotkey("^+x", sys.exit)
+        ahk.hotkey("F24", sys.exit)
 
-        @ahk.hotkey("^t")
+        @ahk.hotkey("F14")
         def show_msgbox():
             print("ok01")
             ahk.message_box("Hello from hotkey.")
 
-        @ahk.hotkey("^y")
+        @ahk.hotkey("F15")
         def show_bang():
             print("ok02")
             1 / 0
+
+        @ahk.hotkey("F16")
+        def disable_ctrl_t():
+            show_msgbox.disable()
+            print("ok03")
+
+        @ahk.hotkey("F17")
+        def enable_ctrl_t():
+            show_msgbox.enable()
+            print("ok04")
 
         print("ok00")
         """)
@@ -93,20 +106,32 @@ def test_hotkey(child_ahk):
     child_ahk.wait(0)
 
     assert ahk.win_active("EmbedPython.ahk", "Hello from hotkey") == 0
-    ahk.send("^t")
+    ahk.send("{F14}")
     child_ahk.wait(1)
     time.sleep(.01)
     assert ahk.win_active("EmbedPython.ahk", "Hello from hotkey") != 0
     ahk.send("{Space}")
 
     assert ahk.win_active("EmbedPython.ahk", "ZeroDivisionError") == 0
-    ahk.send("^y")
+    ahk.send("{F15}")
     child_ahk.wait(2)
     time.sleep(.01)
     assert ahk.win_active("EmbedPython.ahk", "ZeroDivisionError") != 0
     ahk.send("{Space}")
 
-    ahk.send("^+x")
+    assert ahk.win_active("EmbedPython.ahk", "Hello from hotkey") == 0
+    ahk.send("{F16}")  # Disable {F14}
+    child_ahk.wait(3)
+    ahk.send("{F14}")
+    assert ahk.win_active("EmbedPython.ahk", "Hello from hotkey") == 0
+
+    assert ahk.win_active("EmbedPython.ahk", "Hello from hotkey") == 0
+    ahk.send("{F17}")  # Enable {F14}
+    child_ahk.wait(4)
+    ahk.send("{F14}")
+    assert ahk.win_active("EmbedPython.ahk", "Hello from hotkey") != 0
+
+    ahk.send("{F24}")
     child_ahk.close()
     assert "ZeroDivisionError:" in child_ahk.proc.stderr.read()
     assert child_ahk.proc.returncode == 0

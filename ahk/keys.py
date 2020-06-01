@@ -1,13 +1,14 @@
 from contextlib import contextmanager
 from functools import partial
+from typing import NamedTuple, Optional
 
 import _ahk  # noqa
 
 from .exceptions import Error
 
 __all__ = [
-    "get_key_state", "hotkey", "hotkey_context", "remap_key",
-    "key_wait_pressed", "key_wait_released", "send", "send_mode",
+    "Hotkey", "get_key_state", "hotkey", "hotkey_context", "remap_key",
+    "key_wait_pressed", "key_wait_released", "send", "send_mode", "send_level",
 ]
 
 
@@ -15,8 +16,13 @@ def get_key_state(key_name, mode=None):
     return _ahk.call("GetKeyState", key_name, mode)
 
 
-def hotkey(key_name, func=None, buffer=None, priority=0, max_threads=None,
-           input_level=None):
+def hotkey(key_name,
+           func=None,
+           buffer: Optional[bool] = None,
+           priority: Optional[int] = None,
+           max_threads: Optional[int] = None,
+           input_level: Optional[int] = None):
+
     if key_name == "":
         raise Error("invalid key name")
 
@@ -29,16 +35,49 @@ def hotkey(key_name, func=None, buffer=None, priority=0, max_threads=None,
         raise TypeError(f"object {func!r} must be callable")
 
     # TODO: Handle case when func == "AltTab" or other substitutes.
-    # TODO: Set the options.
-    # TODO: Change options of the existing hotkeys.
-    # TODO: Return a Hotkey object.
+    # TODO: Hotkey command may set ErrorLevel. Raise an exception.
+
+    hk = Hotkey(key_name)
     _ahk.call("Hotkey", key_name, func)
+    hk.set_options(buffer=buffer, priority=priority, max_threads=max_threads,
+                   input_level=input_level)
+    return hk
 
 
 @contextmanager
 def hotkey_context():
     # TODO: Implement `Hotkey, If` commands.
     raise NotImplementedError()
+
+
+class Hotkey(NamedTuple):
+    key_name: str
+
+    def enable(self):
+        _ahk.call("Hotkey", self.key_name, "On")
+
+    def disable(self):
+        _ahk.call("Hotkey", self.key_name, "Off")
+
+    def toggle(self):
+        _ahk.call("Hotkey", self.key_name, "Toggle")
+
+    def set_options(self, buffer=None, priority=None, max_threads=None,
+                    input_level=None):
+        options = []
+        if buffer is False:
+            options.append("B0")
+        elif buffer is True:
+            options.append("B")
+        if priority is not None:
+            options.append(f'P{priority}')
+        if max_threads is not None:
+            options.append(f"T{max_threads}")
+        if input_level is not None:
+            options.append(f"I{input_level}")
+        option_str = "".join(options)
+        if option_str:
+            _ahk.call("Hotkey", self.key_name, "", option_str)
 
 
 def key_wait_pressed(key_name, logical_state=False, timeout=None) -> bool:
