@@ -4,7 +4,7 @@ from functools import partial
 import _ahk  # noqa
 
 __all__ = [
-    "Timer", "set_batch_lines", "set_timer",
+    "Timer", "set_batch_lines", "set_timer", "sleep",
 ]
 
 
@@ -51,3 +51,12 @@ class Timer(NamedTuple):
 
     def set_priority(self, priority):
         _ahk.call("SetTimer", self.func, "", priority)
+
+
+def sleep(secs):
+    if secs < 0:
+        raise ValueError("sleep length must be non-negative")
+    elif secs == 0:
+        _ahk.call("Sleep", -1)
+    else:
+        _ahk.call("Sleep", int(secs * 1000))

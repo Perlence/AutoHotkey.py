@@ -168,6 +168,33 @@ def test_key_wait(child_ahk):
     assert child_ahk.proc.returncode == 0
 
 
+def test_sleep(child_ahk):
+    proc = child_ahk.run_code("""\
+        import ahk
+        timer = ahk.set_timer(lambda: print(1), countdown=0.1)
+        ahk.sleep(0.2)  # sleep longer than the countdown
+        print(2)
+        # sys.exit()
+        # ahk.message_box(2)
+        # 1/0
+        """)
+    assert proc.stdout == "1\n2\n"
+    assert proc.stderr == ""
+    assert proc.returncode == 0
+
+    proc = child_ahk.run_code("""\
+        import ahk
+        import threading
+        timer = ahk.set_timer(lambda: print(1), countdown=0.1)
+        threading.Timer(0.2, lambda: print(2)).start()
+        ahk.sleep(0.3)
+        print(3)
+        """)
+    assert proc.stdout == "1\n2\n3\n"
+    assert proc.stderr == ""
+    assert proc.returncode == 0
+
+
 def test_timer(child_ahk):
     timer = ahk.set_timer(lambda: None, countdown=1)
     with pytest.raises(AttributeError, match="can't set attribute"):

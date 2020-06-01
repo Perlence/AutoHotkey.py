@@ -50,6 +50,8 @@ Main() {
 
     LoadPython()
     PackBuiltinModule()
+
+    Critical, On
     PyImport_AppendInittab(&AHKModule_name, Func("PyInit_ahk"))
     Py_Initialize()
 
@@ -98,6 +100,7 @@ Main() {
         PrintErrorOrExit()
     }
     Py_DecRef(result)
+    Critical, Off
 }
 
 PackBuiltinModule() {
@@ -210,9 +213,20 @@ PyInit_ahk() {
 }
 
 AHKCall(self, args) {
+    wasCritical := A_IsCritical
+    Critical, On
+    gstate := PythonDllCall("PyGILState_Ensure", "Cdecl Int")
+
     ; AHK debugger doesn't see local variables in a C callback function. Call a
     ; regular AHK function.
-    return _AHKCall(self, args)
+    result := _AHKCall(self, args)
+
+    PythonDllCall("PyGILState_Release", "Int", gstate, "Cdecl")
+    if (wasCritical == 0) {
+        Critical, Off
+    }
+
+    return result
 }
 
 _AHKCall(self, args) {
@@ -259,11 +273,21 @@ _AHKCall(self, args) {
         i += 1
     }
 
+    if (func == "Sleep") {
+        ; Release the GIL and let AHK process its message queue.
+        save := PythonDllCall("PyEval_SaveThread", "Cdecl Ptr")
+        Critical, Off
+    }
     try {
         result := %funcRef%(ahkArgs*)
     } catch e {
         PyErr_SetAHKError(e)
         return NULL
+    } finally {
+        if (func == "Sleep") {
+            Critical, On
+            PythonDllCall("PyEval_RestoreThread", "Ptr", save, "Cdecl")
+        }
     }
 
     return AHKToPython(result)
@@ -350,6 +374,11 @@ Trigger(key, args*) {
     if (not funcObjPtr) {
         return
     }
+
+    wasCritical := A_IsCritical
+    Critical, On
+    gstate := PythonDllCall("PyGILState_Ensure", "Cdecl Int")
+
     argsPtr := NULL
     result := PyObject_CallObject(funcObjPtr, argsPtr)
     if (result == "") {
@@ -358,6 +387,11 @@ Trigger(key, args*) {
         PrintErrorOrExit()
     }
     Py_DecRef(result)
+
+    PythonDllCall("PyGILState_Release", "Int", gstate, "Cdecl")
+    if (wasCritical == 0) {
+        Critical, Off
+    }
 }
 
 PrintErrorOrExit() {
