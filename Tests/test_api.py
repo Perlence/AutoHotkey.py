@@ -109,6 +109,7 @@ def test_hotkey(child_ahk):
     ahk.send("^+x")
     child_ahk.close()
     assert "ZeroDivisionError:" in child_ahk.proc.stderr.read()
+    assert child_ahk.proc.returncode == 0
 
 
 def test_key_wait(child_ahk):
@@ -138,6 +139,8 @@ def test_key_wait(child_ahk):
     child_ahk.wait(2)
 
     child_ahk.wait(3)
+    child_ahk.close()
+    assert child_ahk.proc.returncode == 0
 
 
 def test_timer(child_ahk):
