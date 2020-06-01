@@ -148,7 +148,7 @@ def test_timer(child_ahk):
     with pytest.raises(AttributeError, match="can't set attribute"):
         timer.func = None
 
-    timer.delete()
+    timer.cancel()
     del timer
 
     res = child_ahk.run_code("""\
@@ -164,6 +164,7 @@ def test_timer(child_ahk):
         print("Ding!")
         """)
     assert res.stdout == "Ding!\nDong!\n"
+    assert res.stderr == ""
     assert res.returncode == 0
 
     res = child_ahk.run_code("""\
@@ -174,11 +175,12 @@ def test_timer(child_ahk):
         @ahk.set_timer(period=0.1)
         def ding():
             print("Ding!")
-            ding.disable()
+            ding.stop()
 
         @ahk.set_timer(countdown=0.5)
         def exit():
             sys.exit()
         """)
     assert res.stdout == "Ding!\n"
+    assert res.stderr == ""
     assert res.returncode == 0

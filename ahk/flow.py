@@ -19,6 +19,7 @@ def set_batch_lines(interval=None, lines=None):
 
 
 def set_timer(func=None, period=0.25, countdown=None, priority=0):
+    # TODO: Should this be threading.Timer?
     if func is None:
         # Return the decorator.
         return partial(set_timer, period=period, countdown=countdown, priority=priority)
@@ -31,19 +32,20 @@ def set_timer(func=None, period=0.25, countdown=None, priority=0):
 
     _ahk.call("SetTimer", func, period, priority)
 
+    # TODO: Remove func from CALLBACKS after its execution if *countdown* is set.
     return Timer(func)
 
 
 class Timer(NamedTuple):
     func: callable
 
-    def enable(self):
+    def start(self):
         _ahk.call("SetTimer", self.func, "On")
 
-    def disable(self):
+    def stop(self):
         _ahk.call("SetTimer", self.func, "Off")
 
-    def delete(self):
+    def cancel(self):
         # TODO: Remove self.func from CALLBACKS and BOUND_TRIGGERS.
         _ahk.call("SetTimer", self.func, "Delete")
 
