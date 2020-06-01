@@ -136,6 +136,29 @@ def test_hotkey(child_ahk):
     assert "ZeroDivisionError:" in child_ahk.proc.stderr.read()
     assert child_ahk.proc.returncode == 0
 
+    called = False
+
+    @ahk.hotkey("F15", input_level=10)
+    def f15():
+        nonlocal called
+        called = True
+
+    ahk.send("{F15}")
+    ahk.sleep(0)  # Let AHK process the hotkey.
+    assert not called
+
+    ahk.send_level(20)
+    ahk.send("{F15}")
+    ahk.sleep(0)
+    assert called
+
+    with pytest.raises(ValueError, match="level must be between 0 and 100"):
+        ahk.send_level(101)
+    with pytest.raises(ValueError, match="level must be between 0 and 100"):
+        ahk.send_level(-1)
+
+    ahk.send_level(0)
+
 
 def test_key_wait(child_ahk):
     child_ahk.popen_code("""\

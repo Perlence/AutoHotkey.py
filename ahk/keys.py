@@ -111,5 +111,11 @@ def send(keys):
     _ahk.call("Send", keys)
 
 
+def send_level(level: int):
+    if not 0 <= level <= 100:
+        raise ValueError("level must be between 0 and 100")
+    _ahk.call("SendLevel", int(level))
+
+
 def send_mode(mode):
     _ahk.call("SendMode", mode)

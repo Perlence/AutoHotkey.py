@@ -162,7 +162,10 @@ PackBuiltinMethods() {
     Pack(AHKMethods
         ; -- call
         , "Ptr", &AHKMethod_call_name
-        , "Ptr", RegisterCallback("AHKCall", "C")
+        ; Register a Fast callback -- don't run it in a new AHK thread. Python
+        ; code must be able to change AHK's "thread-local" parameters, e.g.
+        ; SendLevel.
+        , "Ptr", RegisterCallback("AHKCall", "C Fast", 2)
         , "Int64", METH_VARARGS
         , "Ptr", &AHKMethod_call_doc
 
