@@ -110,6 +110,16 @@ PyFloat_Check(o) {
     return PyObject_TypeCheck(o, PyFloat_Type)
 }
 
+PyGILState_Ensure() {
+    ; PyGILState_STATE PyGILState_Ensure()
+    return PythonDllCall("PyGILState_Ensure", "Cdecl Int")
+}
+
+PyGILState_Release(gstate) {
+    ; void PyGILState_Release(PyGILState_STATE)
+    PythonDllCall("PyGILState_Release", "Int", gstate, "Cdecl")
+}
+
 PyImport_AppendInittab(name, initfunc) {
     return PythonDllCall("PyImport_AppendInittab"
         , "Ptr", name
@@ -198,6 +208,16 @@ PyErr_SetString(type, message) {
     ; void PyErr_SetString(PyObject *type, const char *message)
     encoded := EncodeString(message)
     PythonDllCall("PyErr_SetString", "Ptr", type, "Ptr", &encoded, "Cdecl")
+}
+
+PyEval_RestoreThread(save) {
+    ; void PyEval_RestoreThread(PyThreadState *tstate)
+    PythonDllCall("PyEval_RestoreThread", "Ptr", save, "Cdecl")
+}
+
+PyEval_SaveThread() {
+    ; PyThreadState* PyEval_SaveThread()
+    return PythonDllCall("PyEval_SaveThread", "Cdecl Ptr")
 }
 
 PyExceptionInstance_Check(o) {
