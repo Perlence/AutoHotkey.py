@@ -5,6 +5,7 @@ def test_stdin(child_ahk):
     code = "import sys; print(__name__, __file__, sys.argv)"
     res = child_ahk.run(["-"], input=code)
     assert res.stdout == "__main__ <stdin> ['-']\n"
+    assert res.stderr == ""
     assert res.returncode == 0
 
     res = child_ahk.run(['-', 'script.py', '2', '3'], input=code)
@@ -20,6 +21,7 @@ def test_stdin(child_ahk):
             print("'rest' is in scope")
         """)
     assert res.stdout == ""
+    assert res.stderr == ""
     assert res.returncode == 0
 
 
@@ -28,6 +30,7 @@ def test_script(tmpdir, child_ahk):
     script.write("import sys; print(__name__, __file__, sys.argv)")
     res = child_ahk.run([str(script)])
     assert res.stdout == f"__main__ {str(script)} [{repr(str(script))}]\n"
+    assert res.stderr == ""
     assert res.returncode == 0
 
     beep = tmpdir / "beep.py"
@@ -39,6 +42,7 @@ def test_script(tmpdir, child_ahk):
         "module 'beep' must be able to load the module 'boop' because they are "
         "in the same directory"
     )
+    assert res.stderr == ""
     assert res.returncode == 0
 
 
@@ -47,6 +51,7 @@ def test_module(tmpdir, child_ahk):
     script.write("import sys; print(__name__, __file__, sys.argv)")
     res = child_ahk.run(["-m", "script", "ahk.py", "1", "2"], cwd=tmpdir)
     assert res.stdout == f"__main__ {str(script)} [{repr(str(script))}, 'ahk.py', '1', '2']\n"
+    assert res.stderr == ""
     assert res.returncode == 0
 
 
