@@ -55,6 +55,7 @@ CachedProcAddress(symbol, returnType:="Ptr") {
 }
 
 Py_Initialize() {
+    ; void Py_Initialize()
     PythonDllCall("Py_Initialize", "Cdecl")
 }
 
@@ -63,6 +64,7 @@ Py_BuildValue(format) {
 }
 
 Py_IncRef(pyObject) {
+    ; void Py_IncRef(PyObject *o)
     PythonDllCall("Py_IncRef", "Ptr", pyObject, "Cdecl")
 }
 
@@ -73,6 +75,7 @@ Py_XIncRef(pyObject) {
 }
 
 Py_DecRef(pyObject) {
+    ; void Py_DecRef(PyObject *o)
     PythonDllCall("Py_DecRef", "Ptr", pyObject, "Cdecl")
 }
 
@@ -158,7 +161,8 @@ PyArg_ParseTuple(args, format, dest*) {
 }
 
 PyCallable_Check(pyObject) {
-    return PythonDllCall("PyCallable_Check", "Ptr", pyObject, "Cdecl")
+    ; int PyCallable_Check(PyObject *o)
+    return PythonDllCall("PyCallable_Check", "Ptr", pyObject, "Cdecl Int")
 }
 
 PyErr_Clear() {
@@ -192,10 +196,12 @@ PyErr_Occurred() {
 }
 
 PyErr_Print() {
+    ; void PyErr_Print()
     PythonDllCall("PyErr_Print", "Cdecl")
 }
 
 PyErr_Restore(ptype, pvalue, ptraceback) {
+    ; void PyErr_Restore(PyObject *type, PyObject *value, PyObject *traceback)
     PythonDllCall("PyErr_Restore", "Ptr", ptype, "Ptr", pvalue, "Ptr", ptraceback, "Cdecl")
 }
 
@@ -261,6 +267,7 @@ PyTuple_GetItem(p, pos) {
 }
 
 PySys_SetArgv(argc, argv) {
+    ; void PySys_SetArgv(int argc, wchar_t **argv)
     PythonDllCall("PySys_SetArgv", "Int", argc, "Ptr", argv, "Cdecl")
 }
 
