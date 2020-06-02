@@ -219,6 +219,38 @@ def test_send_level(child_ahk):
     assert proc.stderr == ""
     assert proc.returncode == 0
 
+    # TODO: SendLevel and friends must be thread-local in Python.
+    proc = child_ahk.run_code("""\
+        import ahk
+        import _ahk
+        import threading
+
+        def beep():
+            print("beep", _ahk.call("A_SendLevel"), flush=True)
+            ahk.send_level(20)
+            print("beep", _ahk.call("A_SendLevel"), flush=True)
+
+        threading.Timer(0.1, beep).start()
+
+        def boop():
+            print("boop", _ahk.call("A_SendLevel"), flush=True)
+
+        threading.Timer(0.2, boop).start()
+
+        ahk.send_level(10)
+        print("main", _ahk.call("A_SendLevel"), flush=True)
+        ahk.sleep(0.3)
+        """)
+    with pytest.xfail():
+        assert proc.stdout == dedent("""\
+            main 10
+            beep 10
+            beep 20
+            boop 10
+            """)
+    assert proc.stderr == ""
+    assert proc.returncode == 0
+
 
 def test_sleep(child_ahk):
     proc = child_ahk.run_code("""\
