@@ -1,5 +1,6 @@
 import os
 import time
+from textwrap import dedent
 
 import pytest
 
@@ -136,29 +137,6 @@ def test_hotkey(child_ahk):
     assert "ZeroDivisionError:" in child_ahk.proc.stderr.read()
     assert child_ahk.proc.returncode == 0
 
-    called = False
-
-    @ahk.hotkey("F15", input_level=10)
-    def f15():
-        nonlocal called
-        called = True
-
-    ahk.send("{F15}")
-    ahk.sleep(0)  # Let AHK process the hotkey.
-    assert not called
-
-    ahk.send_level(20)
-    ahk.send("{F15}")
-    ahk.sleep(0)
-    assert called
-
-    with pytest.raises(ValueError, match="level must be between 0 and 100"):
-        ahk.send_level(101)
-    with pytest.raises(ValueError, match="level must be between 0 and 100"):
-        ahk.send_level(-1)
-
-    ahk.send_level(0)
-
 
 def test_key_wait(child_ahk):
     child_ahk.popen_code("""\
@@ -189,6 +167,57 @@ def test_key_wait(child_ahk):
     child_ahk.wait(3)
     child_ahk.close()
     assert child_ahk.proc.returncode == 0
+
+
+def test_send_level(child_ahk):
+    with pytest.raises(ValueError, match="level must be between 0 and 100"):
+        ahk.send_level(-1)
+    with pytest.raises(ValueError, match="level must be between 0 and 100"):
+        ahk.send_level(101)
+
+    called = False
+
+    @ahk.hotkey("F15", input_level=10)
+    def f15():
+        nonlocal called
+        called = True
+
+    ahk.send("{F15}")
+    ahk.sleep(0)  # Let AHK process the hotkey.
+    assert not called
+
+    ahk.send_level(20)
+    ahk.send("{F15}")
+    ahk.sleep(0)
+    assert called
+
+    ahk.send_level(0)
+
+    proc = child_ahk.run_code("""\
+        import ahk, _ahk
+
+        @ahk.set_timer(countdown=0.1)
+        def beep():
+            print("beep", _ahk.call("A_SendLevel"), flush=True)
+            ahk.send_level(20)
+            print("beep", _ahk.call("A_SendLevel"), flush=True)
+
+        @ahk.set_timer(countdown=0.2)
+        def boop():
+            print("boop", _ahk.call("A_SendLevel"), flush=True)
+
+        ahk.send_level(10)
+        print("main", _ahk.call("A_SendLevel"), flush=True)
+        ahk.sleep(0.3)
+        """)
+    assert proc.stdout == dedent("""\
+        main 10
+        beep 10
+        beep 20
+        boop 10
+        """)
+    assert proc.stderr == ""
+    assert proc.returncode == 0
 
 
 def test_sleep(child_ahk):

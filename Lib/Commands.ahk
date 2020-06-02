@@ -14,6 +14,10 @@
 ; _A_Args() {
 ; }
 
+_A_SendLevel() {
+    return %A_SendLevel%
+}
+
 _A_ScriptDir() {
     return %mainDir%
 }
