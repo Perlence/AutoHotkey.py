@@ -51,7 +51,6 @@ Main() {
     LoadPython()
     PackBuiltinModule()
 
-    Critical, On
     PyImport_AppendInittab(&AHKModule_name, Func("PyInit_ahk"))
     Py_Initialize()
 
@@ -100,7 +99,6 @@ Main() {
         PrintErrorOrExit()
     }
     Py_DecRef(result)
-    Critical, Off
 }
 
 PackBuiltinModule() {
@@ -216,8 +214,6 @@ PyInit_ahk() {
 }
 
 AHKCall(self, args) {
-    wasCritical := A_IsCritical
-    Critical, On
     gstate := PyGILState_Ensure()
 
     ; AHK debugger doesn't see local variables in a C callback function. Call a
@@ -225,9 +221,6 @@ AHKCall(self, args) {
     result := _AHKCall(self, args)
 
     PyGILState_Release(gstate)
-    if (wasCritical == 0) {
-        Critical, Off
-    }
 
     return result
 }
@@ -279,7 +272,6 @@ _AHKCall(self, args) {
     if (func == "Sleep") {
         ; Release the GIL and let AHK process its message queue.
         save := PyEval_SaveThread()
-        Critical, Off
     }
     try {
         result := %funcRef%(ahkArgs*)
@@ -288,7 +280,6 @@ _AHKCall(self, args) {
         return NULL
     } finally {
         if (func == "Sleep") {
-            Critical, On
             PyEval_RestoreThread(save)
         }
     }
@@ -378,8 +369,6 @@ Trigger(key, args*) {
         return
     }
 
-    wasCritical := A_IsCritical
-    Critical, On
     gstate := PyGILState_Ensure()
 
     argsPtr := NULL
@@ -392,9 +381,6 @@ Trigger(key, args*) {
     Py_DecRef(result)
 
     PyGILState_Release(gstate)
-    if (wasCritical == 0) {
-        Critical, Off
-    }
 }
 
 PrintErrorOrExit() {
