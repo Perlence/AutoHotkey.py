@@ -14,11 +14,11 @@ def test_stdin(child_ahk):
 
     res = child_ahk.run_code("""\
         try:
-            rest
+            argparse
         except NameError:
             pass
         else:
-            print("'rest' is in scope")
+            print("'argparse' is in scope")
         """)
     assert res.stdout == ""
     assert res.stderr == ""

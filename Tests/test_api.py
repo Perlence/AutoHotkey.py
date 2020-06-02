@@ -75,7 +75,7 @@ def test_hotkey(child_ahk):
     hk = ahk.hotkey("F13", lambda: None)
     assert hk.key_name == "F13"
 
-    child_ahk.popen_code("""\
+    def hotkeys():
         import ahk
         import sys
 
@@ -102,8 +102,8 @@ def test_hotkey(child_ahk):
             print("ok04")
 
         print("ok00")
-        """)
 
+    child_ahk.popen_code(hotkeys)
     child_ahk.wait(0)
 
     assert ahk.win_active("EmbedPython.ahk", "Hello from hotkey") == 0
@@ -139,7 +139,7 @@ def test_hotkey(child_ahk):
 
 
 def test_key_wait(child_ahk):
-    child_ahk.popen_code("""\
+    def code():
         import ahk
         import sys
 
@@ -156,7 +156,8 @@ def test_key_wait(child_ahk):
         print("ok03")
 
         sys.exit()
-        """)
+
+    child_ahk.popen_code(code)
 
     child_ahk.wait(0)
     ahk.send("{RShift Down}")
@@ -193,8 +194,9 @@ def test_send_level(child_ahk):
 
     ahk.send_level(0)
 
-    proc = child_ahk.run_code("""\
-        import ahk, _ahk
+    def code():
+        import ahk
+        import _ahk  # noqa
 
         @ahk.set_timer(countdown=0.1)
         def beep():
@@ -209,7 +211,8 @@ def test_send_level(child_ahk):
         ahk.send_level(10)
         print("main", _ahk.call("A_SendLevel"), flush=True)
         ahk.sleep(0.3)
-        """)
+
+    proc = child_ahk.run_code(code)
     assert proc.stdout == dedent("""\
         main 10
         beep 10
@@ -220,9 +223,9 @@ def test_send_level(child_ahk):
     assert proc.returncode == 0
 
     # TODO: SendLevel and friends must be thread-local in Python.
-    proc = child_ahk.run_code("""\
+    def threaded():
         import ahk
-        import _ahk
+        import _ahk  # noqa
         import threading
 
         def beep():
@@ -240,7 +243,8 @@ def test_send_level(child_ahk):
         ahk.send_level(10)
         print("main", _ahk.call("A_SendLevel"), flush=True)
         ahk.sleep(0.3)
-        """)
+
+    proc = child_ahk.run_code(threaded)
     with pytest.xfail():
         assert proc.stdout == dedent("""\
             main 10
@@ -253,27 +257,29 @@ def test_send_level(child_ahk):
 
 
 def test_sleep(child_ahk):
-    proc = child_ahk.run_code("""\
+    def code():
         import ahk
-        timer = ahk.set_timer(lambda: print(1), countdown=0.1)
+        ahk.set_timer(lambda: print(1), countdown=0.1)
         ahk.sleep(0.2)  # sleep longer than the countdown
         print(2)
         # sys.exit()
         # ahk.message_box(2)
         # 1/0
-        """)
+
+    proc = child_ahk.run_code(code)
     assert proc.stdout == "1\n2\n"
     assert proc.stderr == ""
     assert proc.returncode == 0
 
-    proc = child_ahk.run_code("""\
+    def code():
         import ahk
         import threading
-        timer = ahk.set_timer(lambda: print(1), countdown=0.1)
+        ahk.set_timer(lambda: print(1), countdown=0.1)
         threading.Timer(0.2, lambda: print(2)).start()
         ahk.sleep(0.3)
         print(3)
-        """)
+
+    proc = child_ahk.run_code(code)
     assert proc.stdout == "1\n2\n3\n"
     assert proc.stderr == ""
     assert proc.returncode == 0
@@ -287,8 +293,9 @@ def test_timer(child_ahk):
     timer.cancel()
     del timer
 
-    res = child_ahk.run_code("""\
-        import sys, ahk
+    def code():
+        import ahk
+        import sys
 
         ahk.hotkey("^t", lambda: None)  # Make the script persistent
 
@@ -298,13 +305,15 @@ def test_timer(child_ahk):
             sys.exit()
 
         print("Ding!")
-        """)
+
+    res = child_ahk.run_code(code)
     assert res.stdout == "Ding!\nDong!\n"
     assert res.stderr == ""
     assert res.returncode == 0
 
-    res = child_ahk.run_code("""\
-        import sys, ahk
+    def code():
+        import ahk
+        import sys
 
         ahk.hotkey("^t", lambda: None)  # Make the script persistent
 
@@ -316,7 +325,8 @@ def test_timer(child_ahk):
         @ahk.set_timer(countdown=0.5)
         def exit():
             sys.exit()
-        """)
+
+    res = child_ahk.run_code(code)
     assert res.stdout == "Ding!\n"
     assert res.stderr == ""
     assert res.returncode == 0

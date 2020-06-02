@@ -1,3 +1,4 @@
+import inspect
 import os
 import subprocess
 from textwrap import dedent
@@ -35,7 +36,7 @@ class ChildAHK:
         args = ["-"]
         if quiet:
             args.insert(0, "-q")
-        return self.run(args, input=dedent(code), **kwargs)
+        return self.run(args, input=self._extract_code(code), **kwargs)
 
     def popen(self, args, **kwargs):
         args = [AHK, EMBED_PYTHON, *args]
@@ -49,8 +50,15 @@ class ChildAHK:
         if quiet:
             args.insert(0, "-q")
         self.popen(args, **kwargs)
-        self.proc.stdin.write(dedent(code))
+        self.proc.stdin.write(self._extract_code(code))
         self.proc.stdin.close()
+
+    def _extract_code(self, code):
+        if callable(code):
+            func_name = code.__name__
+            source = inspect.getsource(code)
+            return f"{dedent(source)}\n{func_name}()\n"
+        return dedent(code)
 
     def wait(self, counter):
         line = self.proc.stdout.readline()
