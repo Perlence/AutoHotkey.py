@@ -46,8 +46,8 @@ def test_call():
     with pytest.raises(ahk.Error, match="cannot convert '<object object"):
         _ahk.call("Min", object())
 
-    with pytest.raises(NotImplementedError, match="cannot convert AHK object"):
-        _ahk.call("Func", "Main")
+    assert _ahk.call("Array", 1, 2, 3) == {1: 1, 2: 2, 3: 3}
+    assert _ahk.call("Object", "a", 1, "b", 2, "c", 3) == {"a": 1, "b": 2, "c": 3}
 
 
 def test_message_box():

@@ -93,6 +93,16 @@ Py_TYPE(ob) {
     return NumGet(ob+8, "UPtr")
 }
 
+PyDict_New() {
+    ; PyObject* PyDict_New()
+    return PythonDllCall("PyDict_New", "Cdecl Ptr")
+}
+
+PyDict_SetItem(p, key, val) {
+    ; int PyDict_SetItem(PyObject *p, PyObject *key, PyObject *val)
+    return PythonDllCall("PyDict_SetItem", "Ptr", p, "Ptr", key, "Ptr", val, "Cdecl Int")
+}
+
 Py_FinalizeEx() {
     if (HPYTHON_DLL) {
         return PythonDllCall("Py_FinalizeEx", "Cdecl Int")

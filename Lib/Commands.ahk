@@ -1030,7 +1030,6 @@ _WinClose(WinTitle="",WinText="",SecondsToWait="",ExcludeTitle="",ExcludeText=""
  * Implementation: Minor change (returns Object).
  * "WinGet" is special because it may output an pseudo-array.
  * In JS, if Cmd=List, we return an Array of Numbers.
- * TODO: implement the List Cmd
  */
 _WinGet(Cmd="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
     WinGet OutputVar,%Cmd%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
@@ -1042,13 +1041,12 @@ _WinGet(Cmd="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
         {
             a.Insert(OutputVar%A_Index% + 0)
         }
-        return JS.Array(a*) ; variadic call
+        return a
     } else if (STRING_COMMANDS.HasKey(Cmd)) {
         return OutputVar
     } else {
         return OutputVar+0
     }
-
 }
 
 /**

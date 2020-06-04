@@ -289,10 +289,17 @@ _AHKCall(self, args) {
 
 AHKToPython(value) {
     if (IsObject(value)) {
-        ; TODO: Convert AHK object to Python dict.
-        NotImplementedError := CachedProcAddress("PyExc_NotImplementedError", "PtrP")
-        PyErr_SetString(NotImplementedError, "cannot convert AHK object to Python value")
-        return NULL
+        ; TODO: Should this be a Python wrapper around "value" and not a copy?
+        result := PyDict_New()
+        for k, v in value {
+            pyKey := AHKToPython(k)
+            pyValue := AHKToPython(v)
+            set := PyDict_SetItem(result, pyKey, pyValue)
+            if (set < 0) {
+                return NULL
+            }
+        }
+        return result
     } else if (value == "") {
         if (Py_EmptyString == NULL) {
             Py_EmptyString := PyUnicode_InternFromString(&EMPTY_STRING)
