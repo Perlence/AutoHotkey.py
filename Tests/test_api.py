@@ -107,31 +107,32 @@ def test_hotkey(child_ahk):
     child_ahk.popen_code(hotkeys)
     child_ahk.wait(0)
 
-    assert ahk.win_active("EmbedPython.ahk", "Hello from hotkey") == 0
+    msg_boxes = ahk.windows.filter(title="EmbedPython.ahk", text="Hello from hotkey")
+    assert msg_boxes.active() is None
     ahk.send("{F14}")
     child_ahk.wait(1)
     time.sleep(.01)
-    assert ahk.win_active("EmbedPython.ahk", "Hello from hotkey") != 0
+    assert msg_boxes.active() is not None
     ahk.send("{Space}")
 
-    assert ahk.win_active("EmbedPython.ahk", "ZeroDivisionError") == 0
+    assert msg_boxes.filter(text="ZeroDivisionError").active() is None
     ahk.send("{F15}")
     child_ahk.wait(2)
     time.sleep(.01)
-    assert ahk.win_active("EmbedPython.ahk", "ZeroDivisionError") != 0
+    assert msg_boxes.filter(text="ZeroDivisionError").active() is not None
     ahk.send("{Space}")
 
-    assert ahk.win_active("EmbedPython.ahk", "Hello from hotkey") == 0
+    assert msg_boxes.active() is None
     ahk.send("{F16}")  # Disable {F14}
     child_ahk.wait(3)
     ahk.send("{F14}")
-    assert ahk.win_active("EmbedPython.ahk", "Hello from hotkey") == 0
+    assert msg_boxes.active() is None
 
-    assert ahk.win_active("EmbedPython.ahk", "Hello from hotkey") == 0
+    assert msg_boxes.active() is None
     ahk.send("{F17}")  # Enable {F14}
     child_ahk.wait(4)
     ahk.send("{F14}")
-    assert ahk.win_active("EmbedPython.ahk", "Hello from hotkey") != 0
+    assert msg_boxes.active() is not None
 
     ahk.send("{F24}")
     child_ahk.close()
@@ -331,3 +332,38 @@ def test_timer(child_ahk):
     assert res.stdout == "Ding!\n"
     assert res.stderr == ""
     assert res.returncode == 0
+
+
+def test_windows(child_ahk):
+    def windows():
+        import ahk
+        import sys
+
+        ahk.hotkey("F24", sys.exit)
+
+        @ahk.set_timer(countdown=0.1)
+        def win1():
+            ahk.message_box("win1", title="win1")
+
+        @ahk.set_timer(countdown=0.2)
+        def win2():
+            ahk.message_box("win2", title="win2")
+
+    child_ahk.popen_code(windows)
+
+    ahk_windows = ahk.windows.filter(exe="AutoHotkey.exe")
+    assert ahk_windows.wait() is True
+    assert len(ahk_windows) == 2
+    ahk_window_list = list(ahk_windows)
+    assert ahk_window_list != []
+    top = ahk_windows.first()
+    assert ahk_window_list[0] == top
+    assert ahk_window_list[-1] == ahk_windows.last()
+    assert repr(top) == f"Window(id={top.id})"
+
+    assert len(ahk_windows.filter(title="win2")) == 1
+    assert ahk_windows.filter(title="win2").first().title == "win2"
+    assert len(ahk_windows.exclude(title="win2")) == 1
+    assert ahk_windows.exclude(title="win2").first().title == "win1"
+
+    ahk.send("{F24}")
