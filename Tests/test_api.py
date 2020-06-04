@@ -1,5 +1,6 @@
 import os
 import time
+from dataclasses import FrozenInstanceError
 from textwrap import dedent
 
 import pytest
@@ -287,7 +288,7 @@ def test_sleep(child_ahk):
 
 def test_timer(child_ahk):
     timer = ahk.set_timer(lambda: None, countdown=1)
-    with pytest.raises(AttributeError, match="can't set attribute"):
+    with pytest.raises(FrozenInstanceError, match="cannot assign to field"):
         timer.func = None
 
     timer.cancel()

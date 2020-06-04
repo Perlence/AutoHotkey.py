@@ -1,4 +1,4 @@
-from typing import NamedTuple
+from dataclasses import dataclass
 from functools import partial
 
 import _ahk  # noqa
@@ -36,7 +36,8 @@ def set_timer(func=None, period=0.25, countdown=None, priority=0):
     return Timer(func)
 
 
-class Timer(NamedTuple):
+@dataclass(frozen=True)
+class Timer:
     func: callable
 
     def start(self):

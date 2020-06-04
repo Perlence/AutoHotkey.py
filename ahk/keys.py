@@ -1,6 +1,7 @@
 from contextlib import contextmanager
+from dataclasses import dataclass
 from functools import partial
-from typing import NamedTuple, Optional
+from typing import Optional
 
 import _ahk  # noqa
 
@@ -50,7 +51,8 @@ def hotkey_context():
     raise NotImplementedError()
 
 
-class Hotkey(NamedTuple):
+@dataclass
+class Hotkey:
     key_name: str
 
     def enable(self):
