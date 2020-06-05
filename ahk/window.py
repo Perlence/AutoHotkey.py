@@ -150,7 +150,7 @@ class Windows:
     def _query(self):
         win_title = []
         if self.title is not None:
-            win_title.append(self.title)
+            win_title.append(str(self.title))
         if self.class_name is not None:
             win_title.append(f"ahk_class {self.class_name}")
         if self.id is not None:
@@ -162,7 +162,7 @@ class Windows:
 
         exclude_title = []
         if self.exclude_title is not None:
-            exclude_title.append(self.exclude_title)
+            exclude_title.append(str(self.exclude_title))
         if self.exclude_class_name is not None:
             exclude_title.append(f"ahk_class {self.exclude_class_name}")
         if self.exclude_id is not None:
@@ -174,9 +174,9 @@ class Windows:
 
         return (
             " ".join(win_title),
-            self.text or "",
+            str(self.text) if self.text is not None else "",
             " ".join(exclude_title),
-            self.exclude_text or "",
+            str(self.exclude_text) if self.exclude_text is not None else "",
         )
 
 
