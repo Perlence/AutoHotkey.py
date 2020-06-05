@@ -35,36 +35,45 @@ def set_title_match_mode(mode=None, speed=None):
         _ahk.call("SetTitleMatchMode", speed)
 
 
+@dc.dataclass
 class Windows:
-    def __init__(self, query=None):
-        if query is None:
-            query = WindowQuery()
-        self._query = query
+    title: str = None
+    class_name: str = None
+    id: int = None
+    pid: int = None
+    exe: str = None
+    text: str = None
+    exclude_title: str = None
+    exclude_class_name: str = None
+    exclude_id: int = None
+    exclude_pid: int = None
+    exclude_exe: str = None
+    exclude_text: str = None
 
     def filter(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        return Windows(dc.replace(
-            self._query,
-            title=default(title, self._query.title),
-            class_name=default(class_name, self._query.class_name),
-            id=default(id, self._query.id),
-            pid=default(pid, self._query.pid),
-            exe=default(exe, self._query.exe),
-            text=default(text, self._query.text),
-        ))
+        return dc.replace(
+            self,
+            title=default(title, self.title),
+            class_name=default(class_name, self.class_name),
+            id=default(id, self.id),
+            pid=default(pid, self.pid),
+            exe=default(exe, self.exe),
+            text=default(text, self.text),
+        )
 
     def exclude(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        return Windows(dc.replace(
-            self._query,
-            exclude_title=default(title, self._query.exclude_title),
-            exclude_class_name=default(class_name, self._query.exclude_class_name),
-            exclude_id=default(id, self._query.exclude_id),
-            exclude_pid=default(pid, self._query.exclude_pid),
-            exclude_exe=default(exe, self._query.exclude_exe),
-            exclude_text=default(text, self._query.exclude_text),
-        ))
+        return dc.replace(
+            self,
+            exclude_title=default(title, self.exclude_title),
+            exclude_class_name=default(class_name, self.exclude_class_name),
+            exclude_id=default(id, self.exclude_id),
+            exclude_pid=default(pid, self.exclude_pid),
+            exclude_exe=default(exe, self.exclude_exe),
+            exclude_text=default(text, self.exclude_text),
+        )
 
     def first(self):
-        win_id = _ahk.call("WinExist", *self._query.pack())
+        win_id = _ahk.call("WinExist", *self._query())
         # TODO: Should this still return a null Window instance if window was not found?
         if win_id:
             return Window(win_id)
@@ -72,19 +81,19 @@ class Windows:
     top = first
 
     def last(self):
-        win_id = _ahk.call("WinGet", "IDLast", *self._query.pack())
+        win_id = _ahk.call("WinGet", "IDLast", *self._query())
         if win_id:
             return Window(win_id)
 
     bottom = last
 
     def active(self):
-        win_id = _ahk.call("WinActive", *self._query.pack())
+        win_id = _ahk.call("WinActive", *self._query())
         if win_id:
             return Window(win_id)
 
     def wait(self, timeout=None):
-        win_title, win_text, exclude_title, exclude_text = self._query.pack()
+        win_title, win_text, exclude_title, exclude_text = self._query()
         result = _ahk.call("WinWait", win_title, win_text, timeout or "", exclude_title, exclude_text)
         # Return False if timed out, True otherwise.
         return not result
@@ -120,7 +129,7 @@ class Windows:
         ...
 
     def __iter__(self):
-        win_ids = _ahk.call("WinGet", "List", *self._query.pack())
+        win_ids = _ahk.call("WinGet", "List", *self._query())
         for win_id in win_ids.values():
             yield Window(win_id)
 
@@ -128,25 +137,17 @@ class Windows:
         ...
 
     def __len__(self):
-        return _ahk.call("WinGet", "Count", *self._query.pack())
+        return _ahk.call("WinGet", "Count", *self._query())
 
+    def __repr__(self):
+        fields_str = [
+            f"{field_name}={value!r}"
+            for field_name, value in dc.asdict(self).items()
+            if value is not None
+        ]
+        return self.__class__.__qualname__ + f"({', '.join(fields_str)})"
 
-@dc.dataclass
-class WindowQuery:
-    title: str = None
-    class_name: str = None
-    id: int = None
-    pid: int = None
-    exe: str = None
-    text: str = None
-    exclude_title: str = None
-    exclude_class_name: str = None
-    exclude_id: int = None
-    exclude_pid: int = None
-    exclude_exe: str = None
-    exclude_text: str = None
-
-    def pack(self):
+    def _query(self):
         win_title = []
         if self.title is not None:
             win_title.append(self.title)

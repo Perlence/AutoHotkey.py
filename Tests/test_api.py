@@ -351,7 +351,9 @@ def test_windows(child_ahk):
 
     child_ahk.popen_code(windows)
 
+    assert repr(ahk.windows) == "Windows()"
     ahk_windows = ahk.windows.filter(exe="AutoHotkey.exe")
+    assert repr(ahk_windows) == "Windows(exe='AutoHotkey.exe')"
     assert ahk_windows.wait(1) is True
     assert len(ahk_windows) == 2
     ahk_window_list = list(ahk_windows)
