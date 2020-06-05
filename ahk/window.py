@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+import dataclasses as dc
 
 import _ahk  # noqa
 
@@ -36,48 +36,32 @@ def set_title_match_mode(mode=None, speed=None):
 
 
 class Windows:
-    def __init__(
-        self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None,
-        exclude_title=None, exclude_class_name=None, exclude_id=None, exclude_pid=None, exclude_exe=None,
-        exclude_text=None,
-    ):
-        self._query = WindowQuery(
-            title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text,
-            exclude_title=exclude_title, exclude_class_name=exclude_class_name, exclude_id=exclude_id,
-            exclude_pid=exclude_pid, exclude_exe=exclude_exe, exclude_text=exclude_text,
-        )
+    def __init__(self, query=None):
+        if query is None:
+            query = WindowQuery()
+        self._query = query
 
     def filter(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        return Windows(
+        return Windows(dc.replace(
+            self._query,
             title=default(title, self._query.title),
             class_name=default(class_name, self._query.class_name),
             id=default(id, self._query.id),
             pid=default(pid, self._query.pid),
             exe=default(exe, self._query.exe),
             text=default(text, self._query.text),
-            exclude_title=self._query.exclude_title,
-            exclude_class_name=self._query.exclude_class_name,
-            exclude_id=self._query.exclude_id,
-            exclude_pid=self._query.exclude_pid,
-            exclude_exe=self._query.exclude_exe,
-            exclude_text=self._query.exclude_text,
-        )
+        ))
 
     def exclude(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        return Windows(
-            title=self._query.title,
-            class_name=self._query.class_name,
-            id=self._query.id,
-            pid=self._query.pid,
-            exe=self._query.exe,
-            text=self._query.text,
+        return Windows(dc.replace(
+            self._query,
             exclude_title=default(title, self._query.exclude_title),
             exclude_class_name=default(class_name, self._query.exclude_class_name),
             exclude_id=default(id, self._query.exclude_id),
             exclude_pid=default(pid, self._query.exclude_pid),
             exclude_exe=default(exe, self._query.exclude_exe),
             exclude_text=default(text, self._query.exclude_text),
-        )
+        ))
 
     def first(self):
         win_id = _ahk.call("WinExist", *self._query.pack())
@@ -102,7 +86,7 @@ class Windows:
     def wait(self, timeout=None):
         win_title, win_text, exclude_title, exclude_text = self._query.pack()
         result = _ahk.call("WinWait", win_title, win_text, timeout or "", exclude_title, exclude_text)
-        # Return False if KeyWait timed out, True otherwise.
+        # Return False if timed out, True otherwise.
         return not result
 
     def wait_active(self):
@@ -147,7 +131,7 @@ class Windows:
         return _ahk.call("WinGet", "Count", *self._query.pack())
 
 
-@dataclass
+@dc.dataclass
 class WindowQuery:
     title: str = None
     class_name: str = None
@@ -198,7 +182,7 @@ class WindowQuery:
 windows = Windows()
 
 
-@dataclass
+@dc.dataclass
 class Window:
     id: int
 

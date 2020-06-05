@@ -352,7 +352,7 @@ def test_windows(child_ahk):
     child_ahk.popen_code(windows)
 
     ahk_windows = ahk.windows.filter(exe="AutoHotkey.exe")
-    assert ahk_windows.wait() is True
+    assert ahk_windows.wait(1) is True
     assert len(ahk_windows) == 2
     ahk_window_list = list(ahk_windows)
     assert ahk_window_list != []
