@@ -236,36 +236,38 @@ class Window:
 
     @property
     def text(self):
-        return self._call("WinGetText", self._id())
+        return self._call("WinGetText")
 
     @property
     def title(self):
-        return self._call("WinGetTitle", self._id())
+        return self._call("WinGetTitle")
 
     @property
     def minimized(self):
-        return self._call("WinGet", "MinMax", self._id()) == -1
+        return self._call("WinGet", subcmd="MinMax") == -1
 
     @property
     def maximized(self):
-        return self._call("WinGet", "MinMax", self._id()) == 1
+        return self._call("WinGet", subcmd="MinMax") == 1
 
     def close(self, timeout=None):
-        self._call("WinClose", self._id(), "", timeout)
+        self._call("WinClose", timeout)
         if timeout is not None:
             # Check if the window still exists.
             return windows.first(id=id) is None
 
-    def _call(self, cmd, *args):
+    def _call(self, cmd, *args, subcmd=None):
         # Call the command only if the window was found previously. This makes
         # optional chaining possible. For example,
         # `ahk.windows.first(class_name="Notepad").close()` doesn't error out
         # when there are no Notepad windows.
-        if self.id != 0:
-            return _ahk.call(cmd, *args)
+        if self.id == 0:
+            return
 
-    def _id(self):
-        return f"ahk_id {self.id}"
+        ahk_id = f"ahk_id {self.id}"
+        if subcmd is not None:
+            return _ahk.call(cmd, subcmd, ahk_id, "", *args)
+        return _ahk.call(cmd, ahk_id, "", *args)
 
 
 def default(a, b):
