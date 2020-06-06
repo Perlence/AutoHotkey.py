@@ -22,9 +22,16 @@ def test_windows(child_ahk):
     child_ahk.popen_code(windows)
 
     assert repr(ahk.windows) == "Windows()"
+
     msg_boxes = ahk.windows.filter(exe="AutoHotkey.exe")
     assert repr(msg_boxes) == "Windows(exe='AutoHotkey.exe')"
-    assert msg_boxes.wait(timeout=1) is True
+
+    wait_result = msg_boxes.wait(timeout=1)
+    assert wait_result is not None
+    assert isinstance(wait_result, ahk.Window)
+    assert msg_boxes.wait(title="win1", timeout=1).title == "win1"
+    assert msg_boxes.wait(title="win2", timeout=1).title == "win2"
+
     assert len(msg_boxes) == 2
     ahk_window_list = list(msg_boxes)
     assert ahk_window_list != []
@@ -46,7 +53,9 @@ def test_windows(child_ahk):
     msg_boxes.restore_all()
     assert all(not mb.minimized and not mb.maximized for mb in msg_boxes)
 
-    ahk.windows.close_all(exe="AutoHotkey.exe")
-    assert ahk.windows.first(exe="AutoHotkey.exe") is None
+    assert msg_boxes.wait_close(timeout=0.1) is False
+    msg_boxes.close_all()
+    assert msg_boxes.wait_close() is True
+    assert msg_boxes.first() is None
 
     ahk.send("{F24}")

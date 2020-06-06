@@ -1,10 +1,13 @@
 import dataclasses as dc
+import threading
 
 import _ahk  # noqa
 
 __all__ = [
     "Window", "Windows", "detect_hidden_windows", "set_title_match_mode", "windows",
 ]
+
+last_found_window_lock = threading.RLock()
 
 
 def detect_hidden_windows(value):
@@ -113,12 +116,22 @@ class Windows:
 
     def wait_close(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
         filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        return filtered._wait("WinWaitClose", timeout)
+        win_title, win_text, exclude_title, exclude_text = filtered._query()
+        # WinWaitClose doesn't set Last Found Window, return False if the wait
+        # was timed out.
+        timed_out = _ahk.call("WinWaitClose", win_title, win_text, timeout or "", exclude_title, exclude_text)
+        return not timed_out
 
     def _wait(self, cmd, timeout):
         win_title, win_text, exclude_title, exclude_text = self._query()
-        timed_out = _ahk.call(cmd, win_title, win_text, timeout or "", exclude_title, exclude_text)
-        return not timed_out
+        # Calling WinWait[Not]Active and WinWait sets an implicit Last Found
+        # Window that is local to the current AHK thread. Let's protect it from
+        # being overwritten by other Python threads.
+        with last_found_window_lock:
+            timed_out = _ahk.call(cmd, win_title, win_text, timeout or "", exclude_title, exclude_text)
+            if not timed_out:
+                # Return the Last Found Window.
+                return windows.first()
 
     def close_all(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
         filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)

@@ -69,7 +69,7 @@ def test_hotkey(child_ahk):
     ahk.send("{F16}")  # Disable {F14}
     child_ahk.wait(1)
     ahk.send("{F14}")
-    assert msg_boxes.wait(text="Hello from hotkey", timeout=0.5) is False
+    assert msg_boxes.wait(text="Hello from hotkey", timeout=0.5) is None
 
     ahk.send("{F17}")  # Enable {F14}
     child_ahk.wait(2)
