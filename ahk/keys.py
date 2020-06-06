@@ -98,9 +98,8 @@ def _key_wait(key_name, down=False, logical_state=False, timeout=None) -> bool:
         options.append("L")
     if timeout is not None:
         options.append(f"T{timeout}")
-    result = _ahk.call("KeyWait", str(key_name), "".join(options))
-    # Return False if KeyWait timed out, True otherwise.
-    return not result
+    timed_out = _ahk.call("KeyWait", str(key_name), "".join(options))
+    return not timed_out
 
 
 def remap_key(origin_key, destination_key):

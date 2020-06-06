@@ -1,6 +1,4 @@
-import os
 import time
-from dataclasses import FrozenInstanceError
 from textwrap import dedent
 
 import pytest
@@ -35,55 +33,48 @@ def test_hotkey(child_ahk):
 
         @ahk.hotkey("F14")
         def show_msgbox():
-            print("ok01")
             ahk.message_box("Hello from hotkey.")
 
         @ahk.hotkey("F15")
         def show_bang():
-            print("ok02")
             1 / 0
 
         @ahk.hotkey("F16")
         def disable_ctrl_t():
             show_msgbox.disable()
-            print("ok03")
+            print("ok01")
 
         @ahk.hotkey("F17")
         def enable_ctrl_t():
             show_msgbox.enable()
-            print("ok04")
+            print("ok02")
 
         print("ok00")
 
     child_ahk.popen_code(hotkeys)
     child_ahk.wait(0)
 
-    msg_boxes = ahk.windows.filter(title="EmbedPython.ahk", text="Hello from hotkey")
-    assert msg_boxes.active() is None
+    msg_boxes = ahk.windows.filter(title="EmbedPython.ahk")
+    assert msg_boxes.get_active(text="Hello from hotkey") is None
     ahk.send("{F14}")
-    child_ahk.wait(1)
-    time.sleep(.01)
-    assert msg_boxes.active() is not None
+    assert msg_boxes.wait(text="Hello from hotkey", timeout=0.5)
     ahk.send("{Space}")
 
-    assert msg_boxes.filter(text="ZeroDivisionError").active() is None
+    assert msg_boxes.get_active(text="ZeroDivisionError") is None
     ahk.send("{F15}")
-    child_ahk.wait(2)
-    time.sleep(.01)
-    assert msg_boxes.filter(text="ZeroDivisionError").active() is not None
+    assert msg_boxes.wait(text="ZeroDivisionError", timeout=0.5)
     ahk.send("{Space}")
 
-    assert msg_boxes.active() is None
+    assert msg_boxes.get_active() is None
     ahk.send("{F16}")  # Disable {F14}
-    child_ahk.wait(3)
+    child_ahk.wait(1)
     ahk.send("{F14}")
-    assert msg_boxes.active() is None
+    assert msg_boxes.wait(text="Hello from hotkey", timeout=0.5) is False
 
-    assert msg_boxes.active() is None
     ahk.send("{F17}")  # Enable {F14}
-    child_ahk.wait(4)
+    child_ahk.wait(2)
     ahk.send("{F14}")
-    assert msg_boxes.active() is not None
+    assert msg_boxes.wait(text="Hello from hotkey", timeout=0.5)
 
     ahk.send("{F24}")
     child_ahk.close()

@@ -1139,16 +1139,20 @@ _WinShow(WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
 
 _WinWait(WinTitle="",WinText="",Seconds="",ExcludeTitle="",ExcludeText="") {
     WinWait %WinTitle%,%WinText%,%Seconds%,%ExcludeTitle%,%ExcludeText%
+    return ErrorLevel
 }
 
 _WinWaitActive(WinTitle="",WinText="",Seconds="",ExcludeTitle="",ExcludeText="") {
     WinWaitActive %WinTitle%,%WinText%,%Seconds%,%ExcludeTitle%,%ExcludeText%
+    return ErrorLevel
 }
 
 _WinWaitClose(WinTitle="",WinText="",Seconds="",ExcludeTitle="",ExcludeText="") {
     WinWaitClose %WinTitle%,%WinText%,%Seconds%,%ExcludeTitle%,%ExcludeText%
+    return ErrorLevel
 }
 
 _WinWaitNotActive(WinTitle="",WinText="",Seconds="",ExcludeTitle="",ExcludeText="") {
     WinWaitNotActive %WinTitle%,%WinText%,%Seconds%,%ExcludeTitle%,%ExcludeText%
+    return ErrorLevel
 }

@@ -51,6 +51,8 @@ class Windows:
     exclude_text: str = None
 
     def filter(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
+        if title is None and class_name is None and id is None and pid is None and exe is None and text is None:
+            return self
         return dc.replace(
             self,
             title=default(title, self.title),
@@ -62,6 +64,8 @@ class Windows:
         )
 
     def exclude(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
+        if title is None and class_name is None and id is None and pid is None and exe is None and text is None:
+            return self
         return dc.replace(
             self,
             exclude_title=default(title, self.exclude_title),
@@ -72,80 +76,110 @@ class Windows:
             exclude_text=default(text, self.exclude_text),
         )
 
-    def first(self):
-        win_id = _ahk.call("WinExist", *self._query())
+    def first(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
+        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        win_id = _ahk.call("WinExist", *filtered._query())
         # TODO: Should this still return a null Window instance if window was not found?
         if win_id:
             return Window(win_id)
 
     top = first
 
-    def last(self):
-        win_id = _ahk.call("WinGet", "IDLast", *self._query())
+    def last(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
+        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        win_id = _ahk.call("WinGet", "IDLast", *filtered._query())
         if win_id:
             return Window(win_id)
 
     bottom = last
 
-    def active(self):
-        win_id = _ahk.call("WinActive", *self._query())
+    def get_active(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
+        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        win_id = _ahk.call("WinActive", *filtered._query())
         if win_id:
             return Window(win_id)
 
-    def wait(self, timeout=None):
+    def wait(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
+        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        return filtered._wait("WinWait", timeout)
+
+    def wait_active(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
+        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        return filtered._wait("WinWaitActive", timeout)
+
+    def wait_inactive(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
+        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        return filtered._wait("WinWaitNotActive", timeout)
+
+    def wait_close(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
+        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        return filtered._wait("WinWaitClose", timeout)
+
+    def _wait(self, cmd, timeout):
         win_title, win_text, exclude_title, exclude_text = self._query()
-        result = _ahk.call("WinWait", win_title, win_text, timeout or "", exclude_title, exclude_text)
-        # Return False if timed out, True otherwise.
-        return not result
+        timed_out = _ahk.call(cmd, win_title, win_text, timeout or "", exclude_title, exclude_text)
+        return not timed_out
 
-    def wait_active(self):
-        ...
+    def close_all(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
+        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        filtered._group_action("WinClose", timeout)
 
-    def wait_inactive(self):
-        ...
+    def hide_all(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
+        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        filtered._group_action("WinHide")
 
-    def wait_close(self):
-        ...
+    def kill_all(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
+        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        filtered._group_action("WinKill", timeout)
 
-    def close(self):
-        ...
+    def maximize_all(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
+        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        filtered._group_action("WinMaximize")
 
-    def hide(self):
-        ...
+    def minimize_all(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
+        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        filtered._group_action("WinMinimize")
 
-    def kill(self):
-        ...
+    # TODO: Implement WinMinimizeAllUndo.
 
-    def maximize(self):
-        ...
+    def restore_all(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
+        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        filtered._group_action("WinRestore")
 
-    def minimize(self):
-        ...
+    def show_all(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
+        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        filtered._group_action("WinShow")
 
-    def restore(self):
-        ...
+    def _group_action(self, cmd, timeout=None):
+        if self == Windows() and cmd == "WinMinimize":
+            # If the filter matches all the windows, minimize everything except
+            # the desktop window.
+            _ahk.call("WinMinimizeAll")
+            return
 
-    def show(self):
-        ...
+        query_hash = hash(dc.astuple(self))
+        query_hash_str = str(query_hash).replace("-", "m")  # AHK doesn't allow "-" in group names
+        win_title, win_text, exclude_title, exclude_text = self._query()
+        label = ""
+        _ahk.call("GroupAdd", query_hash_str, win_title, win_text, label, exclude_title, exclude_text)
+        _ahk.call(cmd, f"ahk_group {query_hash_str}", "", timeout)
 
     def __iter__(self):
+        """Return matching windows ordered from top to bottom."""
         win_ids = _ahk.call("WinGet", "List", *self._query())
         for win_id in win_ids.values():
             yield Window(win_id)
-
-    def __getitem__(self, item):
-        ...
 
     def __len__(self):
         return _ahk.call("WinGet", "Count", *self._query())
 
     def __repr__(self):
-        fields_str = [
+        field_strs = [
             f"{field_name}={value!r}"
             for field_name, value in dc.asdict(self).items()
             if value is not None
         ]
-        return self.__class__.__qualname__ + f"({', '.join(fields_str)})"
+        return self.__class__.__qualname__ + f"({', '.join(field_strs)})"
 
     def _query(self):
         win_title = []
@@ -188,8 +222,26 @@ class Window:
     id: int
 
     @property
+    def text(self):
+        return _ahk.call("WinGetText", self._ahk_id())
+
+    @property
     def title(self):
         return _ahk.call("WinGetTitle", self._ahk_id())
+
+    @property
+    def minimized(self):
+        return _ahk.call("WinGet", "MinMax", self._ahk_id()) == -1
+
+    @property
+    def maximized(self):
+        return _ahk.call("WinGet", "MinMax", self._ahk_id()) == 1
+
+    def close(self, timeout=None):
+        _ahk.call("WinClose", self._ahk_id(), "", timeout)
+        if timeout is not None:
+            # Check if the window still exists.
+            return windows.first(id=id) is None
 
     def _ahk_id(self):
         return f"ahk_id {self.id}"
