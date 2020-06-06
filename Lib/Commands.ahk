@@ -1076,7 +1076,7 @@ _WinGetClass(WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
  */
 _WinGetPos(WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
     WinGetPos X, Y, Width, Height, %WinTitle%, %WinText%, %ExcludeTitle%, %ExcludeText%
-    return JS.Object("Width",Width, "Height",Height, "X",X, "Y",Y)
+    return {Width: Width, Height: Height, X: X, Y: Y}
 }
 
 _WinGetText(WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {

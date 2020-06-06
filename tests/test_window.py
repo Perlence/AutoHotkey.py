@@ -53,6 +53,20 @@ def test_windows(child_ahk):
     msg_boxes.restore_all()
     assert all(not mb.minimized and not mb.maximized for mb in msg_boxes)
 
+    # Individual window
+    win1 = msg_boxes.first(title="win1")
+    assert win1
+    _, _, width, height = win1.rect
+    x, y = win1.position
+    win1.y += 100
+    assert win1.y == y + 100
+    win1.x = win1.y
+    assert win1.x == win1.y
+    win1.height += 100
+    assert win1.height == height + 100
+    win1.height = win1.width
+    assert win1.height == win1.width
+
     assert msg_boxes.wait_close(timeout=0.1) is False
     msg_boxes.close_all()
     assert msg_boxes.wait_close() is True

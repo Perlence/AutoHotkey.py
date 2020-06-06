@@ -218,9 +218,9 @@ class Windows:
 
         return (
             " ".join(win_title),
-            str(self.text) if self.text is not None else "",
+            default(str, self.text, ""),
             " ".join(exclude_title),
-            str(self.exclude_text) if self.exclude_text is not None else "",
+            default(str, self.exclude_text, ""),
         )
 
 
@@ -233,6 +233,69 @@ class Window:
 
     def __bool__(self):
         return self.id != 0
+
+    @property
+    def rect(self):
+        result = self._call("WinGetPos")
+        return result["X"], result["Y"], result["Width"], result["Height"]
+
+    @rect.setter
+    def rect(self, new_rect):
+        x, y, width, height = new_rect
+        self.move(x, y, width, height)
+
+    @property
+    def position(self):
+        x, y, _, _ = self.rect
+        return x, y
+
+    @position.setter
+    def position(self, new_position):
+        x, y = new_position
+        self.move(x, y)
+
+    @property
+    def x(self):
+        x, _, _, _ = self.rect
+        return x
+
+    @x.setter
+    def x(self, new_x):
+        self.move(x=new_x)
+
+    @property
+    def y(self):
+        _, y, _, _ = self.rect
+        return y
+
+    @y.setter
+    def y(self, new_y):
+        self.move(y=new_y)
+
+    @property
+    def width(self):
+        _, _, width, _ = self.rect
+        return width
+
+    @width.setter
+    def width(self, new_width):
+        self.move(width=new_width)
+
+    @property
+    def height(self):
+        _, _, _, height = self.rect
+        return height
+
+    @height.setter
+    def height(self, new_height):
+        self.move(height=new_height)
+
+    def move(self, x=None, y=None, width=None, height=None):
+        self._call("WinMove",
+                   default(int, x, ""),
+                   default(int, y, ""),
+                   default(int, width, ""),
+                   default(int, height, ""))
 
     @property
     def text(self):
@@ -270,7 +333,13 @@ class Window:
         return _ahk.call(cmd, ahk_id, "", *args)
 
 
-def default(a, b):
+def identity(a):
+    return a
+
+
+def default(a, b, func=identity):
+    if func is not identity:
+        func, a, b = a, b, func
     if a is not None:
-        return a
+        return func(a)
     return b
