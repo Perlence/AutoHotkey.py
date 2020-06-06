@@ -1034,7 +1034,6 @@ _WinClose(WinTitle="",WinText="",SecondsToWait="",ExcludeTitle="",ExcludeText=""
 _WinGet(Cmd="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
     WinGet OutputVar,%Cmd%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
     StringLower, Cmd, Cmd
-    static STRING_COMMANDS := {ProcessName:1, ProcessPath:1, ControlList:1, ControlListHwnd:1, Style:1, ExStyle:1}
     if (Cmd == "list") {
         a := []
         Loop, %OutputVar%
@@ -1042,11 +1041,8 @@ _WinGet(Cmd="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
             a.Insert(OutputVar%A_Index% + 0)
         }
         return a
-    } else if (STRING_COMMANDS.HasKey(Cmd)) {
-        return OutputVar
-    } else {
-        return OutputVar+0
     }
+    return OutputVar
 }
 
 /**

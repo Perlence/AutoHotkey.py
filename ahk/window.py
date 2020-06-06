@@ -298,6 +298,18 @@ class Window:
                    default(int, height, ""))
 
     @property
+    def active(self):
+        return self._call("WinActive") != 0
+
+    @property
+    def exists(self):
+        return self._call("WinExist") != 0
+
+    @property
+    def class_name(self):
+        return self._call("WinGetClass")
+
+    @property
     def text(self):
         return self._call("WinGetText")
 
@@ -305,13 +317,47 @@ class Window:
     def title(self):
         return self._call("WinGetTitle")
 
+    @title.setter
+    def title(self, new_title):
+        return self._call("WinSetTitle", str(new_title))
+
+    @property
+    def pid(self):
+        return self._get("PID")
+
+    @property
+    def process_name(self):
+        return self._get("ProcessName")
+
     @property
     def minimized(self):
-        return self._call("WinGet", subcmd="MinMax") == -1
+        return self._get("MinMax") == -1
 
     @property
     def maximized(self):
-        return self._call("WinGet", subcmd="MinMax") == 1
+        return self._get("MinMax") == 1
+
+    # TODO: Implement ControlList and ControlListHwnd
+
+    @property
+    def transparent(self):
+        result = self._get("Transparent")
+        if result == "":
+            return None
+        return result
+
+    @transparent.setter
+    def transparent(self, value):
+        if value is None:
+            value = "Off"
+        elif not 0 <= value <= 255:
+            raise ValueError("transparency value must be between 0 and 255")
+        else:
+            value = int(value)
+        self._set("Transparent", value)
+
+    def activate(self):
+        self._call("WinActivate")
 
     def close(self, timeout=None):
         self._call("WinClose", timeout)
@@ -319,18 +365,21 @@ class Window:
             # Check if the window still exists.
             return windows.first(id=id) is None
 
-    def _call(self, cmd, *args, subcmd=None):
+    def _call(self, cmd, *args):
         # Call the command only if the window was found previously. This makes
         # optional chaining possible. For example,
         # `ahk.windows.first(class_name="Notepad").close()` doesn't error out
         # when there are no Notepad windows.
-        if self.id == 0:
-            return
+        if self.id != 0:
+            return _ahk.call(cmd, f"ahk_id {self.id}", "", *args)
 
-        ahk_id = f"ahk_id {self.id}"
-        if subcmd is not None:
-            return _ahk.call(cmd, subcmd, ahk_id, "", *args)
-        return _ahk.call(cmd, ahk_id, "", *args)
+    def _get(self, subcmd):
+        if self.id != 0:
+            return _ahk.call("WinGet", subcmd, f"ahk_id {self.id}")
+
+    def _set(self, subcmd, value):
+        if self.id != 0:
+            return _ahk.call("WinSet", subcmd, value, f"ahk_id {self.id}")
 
 
 def identity(a):

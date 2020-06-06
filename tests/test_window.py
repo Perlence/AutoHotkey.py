@@ -56,6 +56,12 @@ def test_windows(child_ahk):
     # Individual window
     win1 = msg_boxes.first(title="win1")
     assert win1
+    assert win1.exists
+
+    win2 = msg_boxes.first(title="win2")
+    win1.activate()
+    assert not win2.active
+
     _, _, width, height = win1.rect
     x, y = win1.position
     win1.y += 100
@@ -66,6 +72,19 @@ def test_windows(child_ahk):
     assert win1.height == height + 100
     win1.height = win1.width
     assert win1.height == win1.width
+
+    assert win1.title == "win1"
+    win1.title = "win111"
+    assert win1.title == "win111"
+
+    assert win1.pid > 0
+
+    assert ahk.windows.first(class_name="totally no such window").transparent is None
+    assert win1.transparent is None
+    win1.transparent = 128
+    assert win1.transparent == 128
+    win1.transparent = None
+    assert win1.transparent is None
 
     assert msg_boxes.wait_close(timeout=0.1) is False
     msg_boxes.close_all()
