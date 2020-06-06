@@ -55,21 +55,21 @@ def test_hotkey(child_ahk):
     child_ahk.wait(0)
 
     msg_boxes = ahk.windows.filter(title="EmbedPython.ahk")
-    assert msg_boxes.get_active(text="Hello from hotkey") is None
+    assert not msg_boxes.get_active(text="Hello from hotkey")
     ahk.send("{F14}")
     assert msg_boxes.wait(text="Hello from hotkey", timeout=0.5)
     ahk.send("{Space}")
 
-    assert msg_boxes.get_active(text="ZeroDivisionError") is None
+    assert not msg_boxes.get_active(text="ZeroDivisionError")
     ahk.send("{F15}")
     assert msg_boxes.wait(text="ZeroDivisionError", timeout=0.5)
     ahk.send("{Space}")
 
-    assert msg_boxes.get_active() is None
+    assert not msg_boxes.get_active()
     ahk.send("{F16}")  # Disable {F14}
     child_ahk.wait(1)
     ahk.send("{F14}")
-    assert msg_boxes.wait(text="Hello from hotkey", timeout=0.5) is None
+    assert not msg_boxes.wait(text="Hello from hotkey", timeout=0.5)
 
     ahk.send("{F17}")  # Enable {F14}
     child_ahk.wait(2)

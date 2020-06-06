@@ -56,6 +56,6 @@ def test_windows(child_ahk):
     assert msg_boxes.wait_close(timeout=0.1) is False
     msg_boxes.close_all()
     assert msg_boxes.wait_close() is True
-    assert msg_boxes.first() is None
+    assert not msg_boxes.first()
 
     ahk.send("{F24}")

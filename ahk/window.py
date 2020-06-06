@@ -82,25 +82,21 @@ class Windows:
     def first(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
         win_id = _ahk.call("WinExist", *filtered._query())
-        # TODO: Should this still return a null Window instance if window was not found?
-        if win_id:
-            return Window(win_id)
+        return Window(win_id)
 
     top = first
 
     def last(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
         win_id = _ahk.call("WinGet", "IDLast", *filtered._query())
-        if win_id:
-            return Window(win_id)
+        return Window(win_id)
 
     bottom = last
 
     def get_active(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
         win_id = _ahk.call("WinActive", *filtered._query())
-        if win_id:
-            return Window(win_id)
+        return Window(win_id)
 
     def wait(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
         filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
@@ -129,9 +125,10 @@ class Windows:
         # being overwritten by other Python threads.
         with last_found_window_lock:
             timed_out = _ahk.call(cmd, win_title, win_text, timeout or "", exclude_title, exclude_text)
-            if not timed_out:
-                # Return the Last Found Window.
-                return windows.first()
+            if timed_out:
+                return Window(0)
+            # Return the Last Found Window.
+            return windows.first()
 
     def close_all(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
         filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
@@ -234,29 +231,40 @@ windows = Windows()
 class Window:
     id: int
 
+    def __bool__(self):
+        return self.id != 0
+
     @property
     def text(self):
-        return _ahk.call("WinGetText", self._ahk_id())
+        return self._call("WinGetText", self._id())
 
     @property
     def title(self):
-        return _ahk.call("WinGetTitle", self._ahk_id())
+        return self._call("WinGetTitle", self._id())
 
     @property
     def minimized(self):
-        return _ahk.call("WinGet", "MinMax", self._ahk_id()) == -1
+        return self._call("WinGet", "MinMax", self._id()) == -1
 
     @property
     def maximized(self):
-        return _ahk.call("WinGet", "MinMax", self._ahk_id()) == 1
+        return self._call("WinGet", "MinMax", self._id()) == 1
 
     def close(self, timeout=None):
-        _ahk.call("WinClose", self._ahk_id(), "", timeout)
+        self._call("WinClose", self._id(), "", timeout)
         if timeout is not None:
             # Check if the window still exists.
             return windows.first(id=id) is None
 
-    def _ahk_id(self):
+    def _call(self, cmd, *args):
+        # Call the command only if the window was found previously. This makes
+        # optional chaining possible. For example,
+        # `ahk.windows.first(class_name="Notepad").close()` doesn't error out
+        # when there are no Notepad windows.
+        if self.id != 0:
+            return _ahk.call(cmd, *args)
+
+    def _id(self):
         return f"ahk_id {self.id}"
 
 
