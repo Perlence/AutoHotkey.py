@@ -21,25 +21,25 @@ def test_call():
     assert hello == os.environ["HELLO"]
 
     temp = _ahk.call("EnvGet", "TEMP")
-    assert isinstance(temp, str), "EnvGet result must be a string"
+    assert isinstance(temp, str)
 
     rnd = _ahk.call("Random", 42, "42")
-    assert isinstance(rnd, int), "Random result must be an integer"
-    assert rnd == 42, f"Result must be 42, got {rnd}"
+    assert isinstance(rnd, int)
+    assert rnd == 42
 
-    assert _ahk.call("Random", 1, True) == 1, "Result must be 1"
+    assert _ahk.call("Random", 1, True) == 1
 
     val = _ahk.call("Max", 9223372036854775807)
-    assert val == 9223372036854775807, f"Result must be 9223372036854775807, got {val}"
+    assert val == 9223372036854775807
 
     val = _ahk.call("Min", -9223372036854775806)
-    assert val == -9223372036854775806, f"Result must be -9223372036854775806, got {val}"
+    assert val == -9223372036854775806
 
     with pytest.raises(OverflowError, match="too big to convert"):
         val = _ahk.call("Max", 9223372036854775808)
 
     val = _ahk.call("Min", 0.5)
-    assert val == 0.5, f"Result must be 0.5, got {val}"
+    assert val == 0.5
 
     with pytest.raises(ahk.Error, match="cannot convert '<object object"):
         _ahk.call("Min", object())
