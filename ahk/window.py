@@ -3,6 +3,8 @@ import threading
 
 import _ahk  # noqa
 
+from . import colors
+
 __all__ = [
     "Window", "Windows", "detect_hidden_windows", "set_title_match_mode", "windows",
 ]
@@ -349,12 +351,29 @@ class Window:
     @transparent.setter
     def transparent(self, value):
         if value is None:
-            value = "Off"
+            ahk_value = "Off"
         elif not 0 <= value <= 255:
             raise ValueError("transparency value must be between 0 and 255")
         else:
-            value = int(value)
-        self._set("Transparent", value)
+            ahk_value = int(value)
+        self._set("Transparent", ahk_value)
+
+    @property
+    def transparent_color(self):
+        result = self._get("TransColor")
+        if result == "":
+            return None
+        hex_color = hex(result)[2:]
+        return colors.to_tuple(hex_color)
+
+    @transparent_color.setter
+    def transparent_color(self, value):
+        if value is None:
+            ahk_value = "Off"
+        else:
+            r, g, b = value
+            ahk_value = colors.to_hex(r, g, b)
+        self._set("TransColor", ahk_value)
 
     def activate(self):
         self._call("WinActivate")
