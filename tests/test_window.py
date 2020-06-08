@@ -93,6 +93,19 @@ def test_windows(child_ahk):
     win1.transparent_color = None
     assert win1.transparent_color is None
 
+    win1.hide()
+    win1.show()
+    win1.maximize()
+    assert win1.maximized
+    win1.restore()
+    assert win1.restored
+    win1.minimize()
+    assert win1.minimized
+    win1.restore()
+    assert win1.restored
+    assert win1.wait_active() is True
+    assert win1.wait_close(timeout=0.1) is False
+
     assert msg_boxes.wait_close(timeout=0.1) is False
     msg_boxes.close_all()
     assert msg_boxes.wait_close() is True

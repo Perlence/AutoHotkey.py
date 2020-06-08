@@ -357,6 +357,10 @@ class Window:
         return self._get("MinMax") == -1
 
     @property
+    def restored(self):
+        return self._get("MinMax") == 0
+
+    @property
     def maximized(self):
         return self._get("MinMax") == 1
 
@@ -404,6 +408,39 @@ class Window:
         if timeout is not None:
             # Check if the window still exists.
             return windows.first(id=id) is None
+
+    def hide(self):
+        self._call("WinHide")
+
+    def kill(self, timeout=None):
+        self._call("WinKill", timeout)
+        if timeout is not None:
+            # Check if the window still exists.
+            return windows.first(id=id) is None
+
+    def maximize(self):
+        self._call("WinMaximize")
+
+    def minimize(self):
+        self._call("WinMinimize")
+
+    def restore(self):
+        self._call("WinRestore")
+
+    def show(self):
+        self._call("WinShow")
+
+    def wait_active(self, timeout=None):
+        timed_out = self._call("WinWaitActive", timeout)
+        return not timed_out
+
+    def wait_inactive(self, timeout=None):
+        timed_out = self._call("WinWaitNotActive", timeout)
+        return not timed_out
+
+    def wait_close(self, timeout=None):
+        timed_out = self._call("WinWaitClose", timeout)
+        return not timed_out
 
     def _call(self, cmd, *args):
         # Call the command only if the window was found previously. This makes
