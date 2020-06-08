@@ -1,4 +1,5 @@
 import subprocess
+from functools import partial
 
 import ahk
 
@@ -56,7 +57,6 @@ def test_windows(child_ahk):
     msg_boxes.restore_all()
     assert all(not mb.minimized and not mb.maximized for mb in msg_boxes)
 
-    # Individual window
     win1 = msg_boxes.first(title="win1")
     assert win1
     assert win1.exists
@@ -64,6 +64,28 @@ def test_windows(child_ahk):
     win2 = msg_boxes.first(title="win2")
     win1.activate()
     assert not win2.active
+
+    assert msg_boxes.wait_close(timeout=0.1) is False
+    msg_boxes.close_all()
+    assert msg_boxes.wait_close() is True
+    assert not msg_boxes.first()
+
+    ahk.send("{F24}")
+
+
+def test_window(child_ahk):
+    def window():
+        import ahk
+        import sys
+
+        ahk.hotkey("F24", sys.exit)
+        ahk.message_box("win1", title="win1")
+
+    child_ahk.popen_code(window)
+    ahk.set_win_delay(None)
+
+    win1 = ahk.windows.wait(title="win1", exe="AutoHotkey.exe")
+    assert win1
 
     _, _, width, height = win1.rect
     x, y = win1.position
@@ -108,11 +130,6 @@ def test_windows(child_ahk):
     assert win1.wait_active() is True
     assert win1.wait_close(timeout=0.1) is False
 
-    assert msg_boxes.wait_close(timeout=0.1) is False
-    msg_boxes.close_all()
-    assert msg_boxes.wait_close() is True
-    assert not msg_boxes.first()
-
     ahk.send("{F24}")
 
 
@@ -120,7 +137,14 @@ def test_status_bar():
     notepad_proc = subprocess.Popen(["notepad.exe"])
     notepad_win = ahk.windows.wait(pid=notepad_proc.pid)
     assert notepad_win
+
     assert "Ln 1, Col 1" in notepad_win.get_status_bar_text(2)
+
     notepad_win.send("q")
     assert "Ln 1, Col 2" in notepad_win.get_status_bar_text(2)
+
+    ahk.set_timer(partial(notepad_win.send, "q"), countdown=0.5)
+    assert notepad_win.wait_status_bar("  Ln 1, Col 3", part=2, timeout=1) is True
+    assert notepad_win.get_status_bar_text(2) == "  Ln 1, Col 3"
+
     notepad_proc.terminate()

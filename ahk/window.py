@@ -58,6 +58,8 @@ def set_win_delay(value):
     # TODO: Make this setting thread-local.
     if value is None:
         value = -1
+    else:
+        value *= 1000
     _ahk.call("SetWinDelay", value)
 
 
