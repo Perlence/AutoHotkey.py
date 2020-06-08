@@ -8,20 +8,30 @@ from . import colors
 __all__ = [
     "Window",
     "Windows",
+    "detect_hidden_text",
     "detect_hidden_windows",
     "set_title_match_mode",
+    "set_win_delay",
     "windows",
 ]
 
 last_found_window_lock = threading.RLock()
 
 
+def detect_hidden_text(value):
+    # TODO: Make this setting thread-local.
+    value = "On" if value else "Off"
+    _ahk.call("DetectHiddenText", value)
+
+
 def detect_hidden_windows(value):
+    # TODO: Make this setting thread-local.
     value = "On" if value else "Off"
     _ahk.call("DetectHiddenWindows", value)
 
 
 def set_title_match_mode(mode=None, speed=None):
+    # TODO: Make this setting thread-local.
     if mode is not None:
         match_modes = {
             "startswith": "1",
@@ -42,6 +52,13 @@ def set_title_match_mode(mode=None, speed=None):
         if speed.lower() not in speeds:
             raise ValueError(f"unknown speed {speed!r}")
         _ahk.call("SetTitleMatchMode", speed)
+
+
+def set_win_delay(value):
+    # TODO: Make this setting thread-local.
+    if value is None:
+        value = -1
+    _ahk.call("SetWinDelay", value)
 
 
 @dc.dataclass
@@ -127,8 +144,8 @@ class Windows:
     def _wait(self, cmd, timeout):
         win_title, win_text, exclude_title, exclude_text = self._query()
         # Calling WinWait[Not]Active and WinWait sets an implicit Last Found
-        # Window that is local to the current AHK thread. Let's protect it from
-        # being overwritten by other Python threads.
+        # Window that is local to the current AHK thread. Let's retrieve it
+        # while protecting it from being overwritten by other Python threads.
         with last_found_window_lock:
             timed_out = _ahk.call(cmd, win_title, win_text, timeout or "", exclude_title, exclude_text)
             if timed_out:

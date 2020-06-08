@@ -20,6 +20,7 @@ def test_windows(child_ahk):
         sys.exit()
 
     child_ahk.popen_code(windows)
+    ahk.set_win_delay(None)
 
     assert repr(ahk.windows) == "Windows()"
 
