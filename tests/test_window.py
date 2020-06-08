@@ -90,6 +90,7 @@ def test_window(child_ahk):
 
     child_ahk.popen_code(window)
     ahk.set_win_delay(None)
+    ahk.detect_hidden_windows(True)
 
     nonexistent_window = ahk.Window(99999)
     assert not nonexistent_window.exists
@@ -134,8 +135,12 @@ def test_window(child_ahk):
     win1.transparent_color = None
     assert win1.transparent_color is None
 
+    assert ahk.WindowStyle.VISIBLE in win1.style
     win1.hide()
+    assert ahk.WindowStyle.VISIBLE not in win1.style
     win1.show()
+    assert ahk.WindowStyle.VISIBLE in win1.style
+
     assert nonexistent_window.is_minimized is None
     assert nonexistent_window.is_maximized is None
     assert nonexistent_window.is_restored is None
@@ -164,6 +169,12 @@ def test_window(child_ahk):
     assert win1.always_on_top is True
     win1.always_on_top = False
     assert win1.always_on_top is False
+
+    assert isinstance(win1.style, ahk.WindowStyle)
+    assert ahk.WindowStyle.POPUPWINDOW in win1.style
+
+    assert isinstance(win1.ex_style, ahk.ExWindowStyle)
+    assert win1.ex_style > 0
 
     ahk.send("{F24}")
 

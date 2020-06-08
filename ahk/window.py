@@ -1,4 +1,5 @@
 import dataclasses as dc
+import enum
 import threading
 
 import _ahk  # noqa
@@ -6,8 +7,10 @@ import _ahk  # noqa
 from . import colors
 
 __all__ = [
+    "ExWindowStyle",
     "Window",
     "Windows",
+    "WindowStyle",
     "detect_hidden_text",
     "detect_hidden_windows",
     "set_title_match_mode",
@@ -380,9 +383,8 @@ class Window:
 
     @property
     def always_on_top(self):
-        ex_style = self._get("ExStyle")
-        WS_EX_TOPMOST = 0x00000008
-        return bool(ex_style & WS_EX_TOPMOST)
+        if self.ex_style is not None:
+            return ExWindowStyle.TOPMOST in self.ex_style
 
     @always_on_top.setter
     def always_on_top(self, value):
@@ -406,6 +408,26 @@ class Window:
 
     def redraw(self):
         self._set("Redraw")
+
+    @property
+    def style(self):
+        style = self._get("Style")
+        if style is not None:
+            return WindowStyle(style)
+
+    @style.setter
+    def style(self, value):
+        self._set("Style", int(value))
+
+    @property
+    def ex_style(self):
+        ex_style = self._get("ExStyle")
+        if ex_style is not None:
+            return ExWindowStyle(ex_style)
+
+    @ex_style.setter
+    def ex_style(self, value):
+        self._set("ExStyle", int(value))
 
     @property
     def opacity(self):
@@ -513,6 +535,66 @@ class Window:
 
     def _set(self, subcmd, value=""):
         return self._call("WinSet", pre_args=[subcmd, value])
+
+
+class WindowStyle(enum.IntFlag):
+    BORDER = 0x00800000
+    CAPTION = 0x00C00000
+    CHILD = 0x40000000
+    CHILDWINDOW = 0x40000000
+    CLIPCHILDREN = 0x02000000
+    CLIPSIBLINGS = 0x04000000
+    DISABLED = 0x08000000
+    DLGFRAME = 0x00400000
+    GROUP = 0x00020000
+    HSCROLL = 0x00100000
+    ICONIC = 0x20000000
+    MAXIMIZE = 0x01000000
+    MAXIMIZEBOX = 0x00010000
+    MINIMIZE = 0x20000000
+    MINIMIZEBOX = 0x00020000
+    OVERLAPPED = 0x00000000
+    SYSMENU = 0x00080000
+    THICKFRAME = 0x00040000
+    OVERLAPPEDWINDOW = (OVERLAPPED | CAPTION | SYSMENU | THICKFRAME | MINIMIZEBOX | MAXIMIZEBOX)
+    POPUP = 0x80000000
+    POPUPWINDOW = (POPUP | BORDER | SYSMENU)
+    SIZEBOX = 0x00040000
+    TABSTOP = 0x00010000
+    TILED = 0x00000000
+    TILEDWINDOW = (OVERLAPPED | CAPTION | SYSMENU | THICKFRAME | MINIMIZEBOX | MAXIMIZEBOX)
+    VISIBLE = 0x10000000
+    VSCROLL = 0x00200000
+
+
+class ExWindowStyle(enum.IntFlag):
+    ACCEPTFILES = 0x00000010
+    APPWINDOW = 0x00040000
+    CLIENTEDGE = 0x00000200
+    COMPOSITED = 0x02000000
+    CONTEXTHELP = 0x00000400
+    CONTROLPARENT = 0x00010000
+    DLGMODALFRAME = 0x00000001
+    LAYERED = 0x00080000
+    LAYOUTRTL = 0x00400000
+    LEFT = 0x00000000
+    LEFTSCROLLBAR = 0x00004000
+    LTRREADING = 0x00000000
+    MDICHILD = 0x00000040
+    NOACTIVATE = 0x08000000
+    NOINHERITLAYOUT = 0x00100000
+    NOPARENTNOTIFY = 0x00000004
+    NOREDIRECTIONBITMAP = 0x00200000
+    TOOLWINDOW = 0x00000080
+    TOPMOST = 0x00000008
+    WINDOWEDGE = 0x00000100
+    OVERLAPPEDWINDOW = (WINDOWEDGE | CLIENTEDGE)
+    PALETTEWINDOW = (WINDOWEDGE | TOOLWINDOW | TOPMOST)
+    RIGHT = 0x00001000
+    RIGHTSCROLLBAR = 0x00000000
+    RTLREADING = 0x00002000
+    STATICEDGE = 0x00020000
+    TRANSPARENT = 0x00000020
 
 
 def identity(a):
