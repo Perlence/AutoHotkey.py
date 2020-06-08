@@ -360,15 +360,21 @@ class Window:
 
     @property
     def is_minimized(self):
-        return self._get("MinMax") == -1
+        min_max = self._get("MinMax")
+        if min_max is not None:
+            return min_max == -1
 
     @property
     def is_restored(self):
-        return self._get("MinMax") == 0
+        min_max = self._get("MinMax")
+        if min_max is not None:
+            return min_max == 0
 
     @property
     def is_maximized(self):
-        return self._get("MinMax") == 1
+        min_max = self._get("MinMax")
+        if min_max is not None:
+            return min_max == 1
 
     # TODO: Implement ControlList and ControlListHwnd
 
@@ -403,10 +409,7 @@ class Window:
 
     @property
     def opacity(self):
-        result = self._get("Transparent")
-        if result == "":
-            return None
-        return result
+        return self._get("Transparent")
 
     @opacity.setter
     def opacity(self, value):
@@ -421,10 +424,9 @@ class Window:
     @property
     def transparent_color(self):
         result = self._get("TransColor")
-        if result == "":
-            return None
-        hex_color = hex(result)[2:]
-        return colors.to_tuple(hex_color)
+        if result is not None:
+            hex_color = hex(result)[2:]
+            return colors.to_tuple(hex_color)
 
     @transparent_color.setter
     def transparent_color(self, value):
@@ -501,12 +503,13 @@ class Window:
         # optional chaining possible. For example,
         # `ahk.windows.first(class_name="Notepad").close()` doesn't error out
         # when there are no Notepad windows.
-        if self.id == 0:
-            return
-        return _ahk.call(cmd, *pre_args, f"ahk_id {self.id}", "", *post_args)
+        if self.id != 0:
+            return _ahk.call(cmd, *pre_args, f"ahk_id {self.id}", "", *post_args)
 
     def _get(self, subcmd):
-        return self._call("WinGet", pre_args=[subcmd])
+        result = self._call("WinGet", pre_args=[subcmd])
+        if result != "":
+            return result
 
     def _set(self, subcmd, value=""):
         return self._call("WinSet", pre_args=[subcmd, value])

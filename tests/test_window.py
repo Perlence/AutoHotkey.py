@@ -91,6 +91,9 @@ def test_window(child_ahk):
     child_ahk.popen_code(window)
     ahk.set_win_delay(None)
 
+    nonexistent_window = ahk.Window(99999)
+    assert not nonexistent_window.exists
+
     win1 = ahk.windows.wait(title="win1", exe="AutoHotkey.exe")
     assert win1
 
@@ -110,12 +113,15 @@ def test_window(child_ahk):
     assert win1.title == "win111"
 
     assert win1.pid > 0
+    assert nonexistent_window.pid is None
 
     assert win1.process_name == "AutoHotkey.exe"
+    assert nonexistent_window.process_name is None
 
     assert win1.process_path == child_ahk.proc.args[0]
+    assert nonexistent_window.process_path is None
 
-    assert ahk.windows.first(class_name="totally no such window").opacity is None
+    assert nonexistent_window.opacity is None
     assert win1.opacity is None
     win1.opacity = 128
     assert win1.opacity == 128
@@ -130,6 +136,10 @@ def test_window(child_ahk):
 
     win1.hide()
     win1.show()
+    assert nonexistent_window.is_minimized is None
+    assert nonexistent_window.is_maximized is None
+    assert nonexistent_window.is_restored is None
+
     win1.maximize()
     assert win1.is_maximized
     win1.restore()
