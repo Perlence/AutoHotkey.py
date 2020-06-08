@@ -130,6 +130,16 @@ def test_window(child_ahk):
     assert win1.wait_active() is True
     assert win1.wait_close(timeout=0.1) is False
 
+    assert win1.always_on_top is False
+    win1.toggle_always_on_top()
+    assert win1.always_on_top is True
+    win1.always_on_top = False
+    assert win1.always_on_top is False
+    win1.always_on_top = True
+    assert win1.always_on_top is True
+    win1.always_on_top = False
+    assert win1.always_on_top is False
+
     ahk.send("{F24}")
 
 

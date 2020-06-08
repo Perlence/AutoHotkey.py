@@ -369,6 +369,20 @@ class Window:
     # TODO: Implement ControlList and ControlListHwnd
 
     @property
+    def always_on_top(self):
+        ex_style = self._get("ExStyle")
+        WS_EX_TOPMOST = 0x00000008
+        return bool(ex_style & WS_EX_TOPMOST)
+
+    @always_on_top.setter
+    def always_on_top(self, value):
+        value = "On" if value else "Off"
+        self._set("AlwaysOnTop", value)
+
+    def toggle_always_on_top(self):
+        self._set("AlwaysOnTop", "Toggle")
+
+    @property
     def opacity(self):
         result = self._get("Transparent")
         if result == "":
