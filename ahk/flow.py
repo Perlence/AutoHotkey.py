@@ -4,7 +4,10 @@ from functools import partial
 import _ahk  # noqa
 
 __all__ = [
-    "Timer", "set_batch_lines", "set_timer", "sleep",
+    "Timer",
+    "set_batch_lines",
+    "set_timer",
+    "sleep",
 ]
 
 

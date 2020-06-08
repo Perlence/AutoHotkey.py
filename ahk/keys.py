@@ -8,8 +8,16 @@ import _ahk  # noqa
 from .exceptions import Error
 
 __all__ = [
-    "Hotkey", "get_key_state", "hotkey", "hotkey_context", "remap_key",
-    "key_wait_pressed", "key_wait_released", "send", "send_mode", "send_level",
+    "Hotkey",
+    "get_key_state",
+    "hotkey_context",
+    "hotkey",
+    "key_wait_pressed",
+    "key_wait_released",
+    "remap_key",
+    "send_level",
+    "send_mode",
+    "send",
 ]
 
 

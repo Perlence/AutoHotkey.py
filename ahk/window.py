@@ -6,7 +6,11 @@ import _ahk  # noqa
 from . import colors
 
 __all__ = [
-    "Window", "Windows", "detect_hidden_windows", "set_title_match_mode", "windows",
+    "Window",
+    "Windows",
+    "detect_hidden_windows",
+    "set_title_match_mode",
+    "windows",
 ]
 
 last_found_window_lock = threading.RLock()
