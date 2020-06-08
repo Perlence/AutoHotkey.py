@@ -386,6 +386,12 @@ class Window:
     def toggle_always_on_top(self):
         self._set("AlwaysOnTop", "Toggle")
 
+    def to_bottom(self):
+        self._set("Bottom")
+
+    def to_top(self):
+        self._set("Top")
+
     @property
     def opacity(self):
         result = self._get("Transparent")
@@ -493,7 +499,7 @@ class Window:
     def _get(self, subcmd):
         return self._call("WinGet", pre_args=[subcmd])
 
-    def _set(self, subcmd, value):
+    def _set(self, subcmd, value=""):
         return self._call("WinSet", pre_args=[subcmd, value])
 
 

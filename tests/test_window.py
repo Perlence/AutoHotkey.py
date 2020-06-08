@@ -65,6 +65,13 @@ def test_windows(child_ahk):
     win1.activate()
     assert not win2.is_active
 
+    assert len(msg_boxes) == 2
+    msg_boxes.first() == win1
+    win1.to_bottom()
+    msg_boxes.last() == win1
+    win1.to_top()
+    msg_boxes.first() == win1
+
     assert msg_boxes.wait_close(timeout=0.1) is False
     msg_boxes.close_all()
     assert msg_boxes.wait_close() is True
