@@ -323,7 +323,7 @@ class Window:
                    default(int, height, ""))
 
     @property
-    def active(self):
+    def is_active(self):
         return self._call("WinActive") != 0
 
     @property
@@ -355,32 +355,32 @@ class Window:
         return self._get("ProcessName")
 
     @property
-    def minimized(self):
+    def is_minimized(self):
         return self._get("MinMax") == -1
 
     @property
-    def restored(self):
+    def is_restored(self):
         return self._get("MinMax") == 0
 
     @property
-    def maximized(self):
+    def is_maximized(self):
         return self._get("MinMax") == 1
 
     # TODO: Implement ControlList and ControlListHwnd
 
     @property
-    def transparent(self):
+    def opacity(self):
         result = self._get("Transparent")
         if result == "":
             return None
         return result
 
-    @transparent.setter
-    def transparent(self, value):
+    @opacity.setter
+    def opacity(self, value):
         if value is None:
             ahk_value = "Off"
         elif not 0 <= value <= 255:
-            raise ValueError("transparency value must be between 0 and 255")
+            raise ValueError("opacity value must be between 0 and 255")
         else:
             ahk_value = int(value)
         self._set("Transparent", ahk_value)

@@ -22,6 +22,7 @@ __all__ = [
 
 
 def get_key_state(key_name, mode=None):
+    # TODO: Better keyword arguments.
     return _ahk.call("GetKeyState", key_name, mode)
 
 

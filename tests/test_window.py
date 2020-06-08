@@ -49,13 +49,13 @@ def test_windows(child_ahk):
     assert len(msg_boxes.exclude(title="win2")) == 1
     assert msg_boxes.exclude(title="win2").first().title == "win1"
 
-    assert all(not mb.minimized and not mb.maximized for mb in msg_boxes)
+    assert all(mb.is_restored for mb in msg_boxes)
     msg_boxes.minimize_all()
-    assert all(mb.minimized for mb in msg_boxes)
+    assert all(mb.is_minimized for mb in msg_boxes)
     msg_boxes.maximize_all()
-    assert all(mb.maximized for mb in msg_boxes)
+    assert all(mb.is_maximized for mb in msg_boxes)
     msg_boxes.restore_all()
-    assert all(not mb.minimized and not mb.maximized for mb in msg_boxes)
+    assert all(mb.is_restored for mb in msg_boxes)
 
     win1 = msg_boxes.first(title="win1")
     assert win1
@@ -63,7 +63,7 @@ def test_windows(child_ahk):
 
     win2 = msg_boxes.first(title="win2")
     win1.activate()
-    assert not win2.active
+    assert not win2.is_active
 
     assert msg_boxes.wait_close(timeout=0.1) is False
     msg_boxes.close_all()
@@ -104,12 +104,12 @@ def test_window(child_ahk):
 
     assert win1.pid > 0
 
-    assert ahk.windows.first(class_name="totally no such window").transparent is None
-    assert win1.transparent is None
-    win1.transparent = 128
-    assert win1.transparent == 128
-    win1.transparent = None
-    assert win1.transparent is None
+    assert ahk.windows.first(class_name="totally no such window").opacity is None
+    assert win1.opacity is None
+    win1.opacity = 128
+    assert win1.opacity == 128
+    win1.opacity = None
+    assert win1.opacity is None
 
     assert win1.transparent_color is None
     win1.transparent_color = (255, 255, 255)
@@ -120,13 +120,13 @@ def test_window(child_ahk):
     win1.hide()
     win1.show()
     win1.maximize()
-    assert win1.maximized
+    assert win1.is_maximized
     win1.restore()
-    assert win1.restored
+    assert win1.is_restored
     win1.minimize()
-    assert win1.minimized
+    assert win1.is_minimized
     win1.restore()
-    assert win1.restored
+    assert win1.is_restored
     assert win1.wait_active() is True
     assert win1.wait_close(timeout=0.1) is False
 
@@ -141,6 +141,7 @@ def test_status_bar():
     assert "Ln 1, Col 1" in notepad_win.get_status_bar_text(2)
 
     notepad_win.send("q")
+    ahk.sleep(0)
     assert "Ln 1, Col 2" in notepad_win.get_status_bar_text(2)
 
     ahk.set_timer(partial(notepad_win.send, "q"), countdown=0.5)
