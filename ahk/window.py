@@ -392,6 +392,15 @@ class Window:
     def to_top(self):
         self._set("Top")
 
+    def disable(self):
+        self._set("Disable")
+
+    def enable(self):
+        self._set("Enable")
+
+    def redraw(self):
+        self._set("Redraw")
+
     @property
     def opacity(self):
         result = self._get("Transparent")

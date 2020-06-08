@@ -141,6 +141,10 @@ def test_window(child_ahk):
     assert win1.wait_active() is True
     assert win1.wait_close(timeout=0.1) is False
 
+    win1.disable()
+    win1.enable()
+    win1.redraw()
+
     assert win1.always_on_top is False
     win1.toggle_always_on_top()
     assert win1.always_on_top is True
