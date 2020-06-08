@@ -10,20 +10,65 @@ from .exceptions import Error
 __all__ = [
     "Hotkey",
     "get_key_state",
+    "get_physical_key_state",
     "hotkey_context",
     "hotkey",
+    "is_key_toggled",
     "key_wait_pressed",
     "key_wait_released",
     "remap_key",
     "send_level",
     "send_mode",
     "send",
+    "set_caps_lock_state",
+    "set_num_lock_state",
+    "set_scroll_lock_state",
 ]
 
 
-def get_key_state(key_name, mode=None):
-    # TODO: Better keyword arguments.
-    return _ahk.call("GetKeyState", key_name, mode)
+def get_key_state(key_name):
+    return _get_key_state(key_name)
+
+
+def get_physical_key_state(key_name):
+    return _get_key_state(key_name, "P")
+
+
+def is_key_toggled(key_name):
+    if key_name.lower() not in ("capslock", "numlock", "scrolllock", "insert", "ins"):
+        raise ValueError("key_name must be one of CapsLock, NumLock, ScrollLock, or Insert")
+    return _get_key_state(key_name, "T")
+
+
+def _get_key_state(key_name, mode=None):
+    result = _ahk.call("GetKeyState", key_name, mode)
+    if result == "":
+        raise ValueError("key_name is invalid or the state of the key could not be determined")
+    return bool(result)
+
+
+def set_caps_lock_state(state):
+    _set_key_state("SetCapsLockState", state)
+
+
+def set_num_lock_state(state):
+    _set_key_state("SetNumLockState", state)
+
+
+def set_scroll_lock_state(state):
+    _set_key_state("SetScrollLockState", state)
+
+
+def _set_key_state(cmd, state):
+    if isinstance(state, str) and state.lower() in ("always_on", "alwayson"):
+        state = "AlwaysOn"
+    elif isinstance(state, str) and state.lower() in ("always_off", "alwaysoff"):
+        state = "AlwaysOff"
+    elif state:
+        state = "On"
+    else:
+        state = "Off"
+    _ahk.call(cmd, state)
 
 
 def hotkey(key_name,

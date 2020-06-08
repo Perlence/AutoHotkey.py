@@ -1,4 +1,3 @@
-import time
 from textwrap import dedent
 
 import pytest
@@ -7,12 +6,28 @@ import _ahk  # noqa
 import ahk
 
 
-def test_get_key_state():
-    ahk.message_box("Press LShift.")
-    if ahk.get_key_state("LShift"):
-        ahk.message_box("LShift is pressed")
-    else:
-        ahk.message_box("LShift is not pressed")
+def test_get_key_state(child_ahk):
+    with pytest.raises(ValueError, match="key_name is invalid or the state of the key could not be determined"):
+        ahk.get_key_state("beep")
+
+    assert ahk.get_key_state("F13") is False
+    ahk.send("{F13 Down}")
+    assert ahk.get_key_state("F13") is True
+    ahk.send("{F13 Up}")
+    assert ahk.get_key_state("F13") is False
+
+
+def test_is_key_toggled():
+    with pytest.raises(ValueError, match="key_name must be one of"):
+        ahk.is_key_toggled("F13")
+
+    initial_state = ahk.is_key_toggled("CapsLock")
+    assert isinstance(initial_state, bool)
+    ahk.set_caps_lock_state(True)
+    assert ahk.is_key_toggled("CapsLock") is True
+    ahk.set_caps_lock_state(False)
+    assert ahk.is_key_toggled("CapsLock") is False
+    ahk.set_caps_lock_state(initial_state)
 
 
 def test_hotkey(child_ahk):
