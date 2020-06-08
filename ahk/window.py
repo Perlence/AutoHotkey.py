@@ -409,6 +409,13 @@ class Window:
     def redraw(self):
         self._set("Redraw")
 
+    def set_region(self, options):
+        # TODO: Implement better options.
+        self._set("Region", options)
+
+    def reset_region(self):
+        self._set("Region", "")
+
     @property
     def style(self):
         style = self._get("Style")
