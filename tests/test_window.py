@@ -168,11 +168,13 @@ def test_window(child_ahk):
     ahk.send("{F24}")
 
 
-def test_status_bar():
+def test_status_bar(request):
     notepad_proc = subprocess.Popen(["notepad.exe"])
+    request.addfinalizer(notepad_proc.terminate)
     notepad_win = ahk.windows.wait(pid=notepad_proc.pid)
     assert notepad_win
 
+    ahk.sleep(0.2)
     assert "Ln 1, Col 1" in notepad_win.get_status_bar_text(2)
 
     notepad_win.send("q")
