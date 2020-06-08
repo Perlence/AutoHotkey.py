@@ -104,6 +104,10 @@ def test_window(child_ahk):
 
     assert win1.pid > 0
 
+    assert win1.process_name == "AutoHotkey.exe"
+
+    assert win1.process_path == child_ahk.proc.args[0]
+
     assert ahk.windows.first(class_name="totally no such window").opacity is None
     assert win1.opacity is None
     win1.opacity = 128

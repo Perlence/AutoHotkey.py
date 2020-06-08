@@ -355,6 +355,10 @@ class Window:
         return self._get("ProcessName")
 
     @property
+    def process_path(self):
+        return self._get("ProcessPath")
+
+    @property
     def is_minimized(self):
         return self._get("MinMax") == -1
 
