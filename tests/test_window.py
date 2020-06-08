@@ -135,11 +135,11 @@ def test_window(child_ahk):
     win1.transparent_color = None
     assert win1.transparent_color is None
 
-    assert ahk.WindowStyle.VISIBLE in win1.style
+    assert win1.is_visible
     win1.hide()
-    assert ahk.WindowStyle.VISIBLE not in win1.style
+    assert win1.is_visible is False
     win1.show()
-    assert ahk.WindowStyle.VISIBLE in win1.style
+    assert win1.is_visible
 
     assert nonexistent_window.is_minimized is None
     assert nonexistent_window.is_maximized is None
@@ -156,8 +156,11 @@ def test_window(child_ahk):
     assert win1.wait_active() is True
     assert win1.wait_close(timeout=0.1) is False
 
+    assert win1.is_enabled
     win1.disable()
+    assert win1.is_enabled is False
     win1.enable()
+    assert win1.is_enabled
     win1.redraw()
 
     assert win1.always_on_top is False

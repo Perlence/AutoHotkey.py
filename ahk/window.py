@@ -406,6 +406,19 @@ class Window:
     def enable(self):
         self._set("Enable")
 
+    @property
+    def is_enabled(self):
+        style = self.style
+        if style is not None:
+            return WindowStyle.DISABLED not in style
+
+    @is_enabled.setter
+    def is_enabled(self, value):
+        if value:
+            self.enable()
+        else:
+            self.disable()
+
     def redraw(self):
         self._set("Redraw")
 
@@ -466,6 +479,25 @@ class Window:
             ahk_value = colors.to_hex(r, g, b)
         self._set("TransColor", ahk_value)
 
+    def hide(self):
+        self._call("WinHide")
+
+    def show(self):
+        self._call("WinShow")
+
+    @property
+    def is_visible(self):
+        style = self.style
+        if style is not None:
+            return WindowStyle.VISIBLE in style
+
+    @is_visible.setter
+    def is_visible(self, value):
+        if value:
+            self.show()
+        else:
+            self.hide()
+
     def activate(self):
         self._call("WinActivate")
 
@@ -490,9 +522,6 @@ class Window:
             # Check if the window still exists.
             return windows.first(id=id) is None
 
-    def hide(self):
-        self._call("WinHide")
-
     def kill(self, timeout=None):
         self._call("WinKill", timeout)
         if timeout is not None:
@@ -507,9 +536,6 @@ class Window:
 
     def restore(self):
         self._call("WinRestore")
-
-    def show(self):
-        self._call("WinShow")
 
     def wait_active(self, timeout=None):
         timed_out = self._call("WinWaitActive", timeout)
