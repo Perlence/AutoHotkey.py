@@ -1,3 +1,5 @@
+import subprocess
+
 import ahk
 
 
@@ -112,3 +114,13 @@ def test_windows(child_ahk):
     assert not msg_boxes.first()
 
     ahk.send("{F24}")
+
+
+def test_status_bar():
+    notepad_proc = subprocess.Popen(["notepad.exe"])
+    notepad_win = ahk.windows.wait(pid=notepad_proc.pid)
+    assert notepad_win
+    assert "Ln 1, Col 1" in notepad_win.get_status_bar_text(2)
+    notepad_win.send("q")
+    assert "Ln 1, Col 2" in notepad_win.get_status_bar_text(2)
+    notepad_proc.terminate()

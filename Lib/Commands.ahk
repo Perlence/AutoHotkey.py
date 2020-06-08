@@ -889,6 +889,7 @@ _StatusBarGetText(Part="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText="")
 
 _StatusBarWait(BarText="",Seconds="",Part#="",WinTitle="",WinText="",Interval="",ExcludeTitle="",ExcludeText="") {
     StatusBarWait %BarText%,%Seconds%,%Part#%,%WinTitle%,%WinText%,%Interval%,%ExcludeTitle%,%ExcludeText%
+    return ErrorLevel
 }
 
 _StringCaseSense(Flag) {

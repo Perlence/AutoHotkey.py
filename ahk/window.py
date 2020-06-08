@@ -403,6 +403,21 @@ class Window:
     def activate(self):
         self._call("WinActivate")
 
+    def get_status_bar_text(self, part=1):
+        return self._call("StatusBarGetText", pre_args=[int(part)])
+
+    def wait_status_bar(self, bar_text="", timeout=None, part=1, interval=0.05):
+        timed_out = self._call(
+            "StatusBarWait",
+            interval * 1000,
+            pre_args=[
+                bar_text,
+                default(timeout, ""),
+                part,
+            ],
+        )
+        return not timed_out
+
     def close(self, timeout=None):
         self._call("WinClose", timeout)
         if timeout is not None:
@@ -442,21 +457,24 @@ class Window:
         timed_out = self._call("WinWaitClose", timeout)
         return not timed_out
 
-    def _call(self, cmd, *args):
+    def send(self, keys):
+        control = ""
+        self._call("ControlSend", pre_args=[control, str(keys)])
+
+    def _call(self, cmd, *post_args, pre_args=()):
         # Call the command only if the window was found previously. This makes
         # optional chaining possible. For example,
         # `ahk.windows.first(class_name="Notepad").close()` doesn't error out
         # when there are no Notepad windows.
-        if self.id != 0:
-            return _ahk.call(cmd, f"ahk_id {self.id}", "", *args)
+        if self.id == 0:
+            return
+        return _ahk.call(cmd, *pre_args, f"ahk_id {self.id}", "", *post_args)
 
     def _get(self, subcmd):
-        if self.id != 0:
-            return _ahk.call("WinGet", subcmd, f"ahk_id {self.id}")
+        return self._call("WinGet", pre_args=[subcmd])
 
     def _set(self, subcmd, value):
-        if self.id != 0:
-            return _ahk.call("WinSet", subcmd, value, f"ahk_id {self.id}")
+        return self._call("WinSet", pre_args=[subcmd, value])
 
 
 def identity(a):
