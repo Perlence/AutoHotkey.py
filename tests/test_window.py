@@ -67,9 +67,9 @@ def test_windows(child_ahk):
 
     assert len(msg_boxes) == 2
     msg_boxes.first() == win1
-    win1.to_bottom()
+    win1.send_to_bottom()
     msg_boxes.last() == win1
-    win1.to_top()
+    win1.bring_to_top()
     msg_boxes.first() == win1
 
     assert msg_boxes.wait_close(timeout=0.1) is False

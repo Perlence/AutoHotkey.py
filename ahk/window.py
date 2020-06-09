@@ -426,10 +426,10 @@ class Window:
     def toggle_always_on_top(self):
         self._set("AlwaysOnTop", "Toggle")
 
-    def to_bottom(self):
+    def send_to_bottom(self):
         self._set("Bottom")
 
-    def to_top(self):
+    def bring_to_top(self):
         self._set("Top")
 
     def disable(self):
