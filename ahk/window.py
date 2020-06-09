@@ -412,8 +412,16 @@ class Window:
 
     @always_on_top.setter
     def always_on_top(self, value):
-        value = "On" if value else "Off"
-        self._set("AlwaysOnTop", value)
+        if value:
+            self.pin_to_top()
+        else:
+            self.unpin_from_top()
+
+    def pin_to_top(self):
+        self._set("AlwaysOnTop", "On")
+
+    def unpin_from_top(self):
+        self._set("AlwaysOnTop", "Off")
 
     def toggle_always_on_top(self):
         self._set("AlwaysOnTop", "Toggle")

@@ -170,7 +170,7 @@ def test_window(child_ahk):
     assert win1.always_on_top is False
     win1.always_on_top = True
     assert win1.always_on_top is True
-    win1.always_on_top = False
+    win1.unpin_from_top()
     assert win1.always_on_top is False
 
     assert isinstance(win1.style, ahk.WindowStyle)
