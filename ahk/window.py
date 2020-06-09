@@ -367,6 +367,18 @@ class Window:
         if min_max is not None:
             return min_max == -1
 
+    @is_minimized.setter
+    def is_minimized(self, value):
+        if value:
+            self.minimize()
+        else:
+            self.restore()
+
+    def toggle_minimized(self):
+        is_minimized = self.is_minimized
+        if is_minimized is not None:
+            self.is_minimized = not is_minimized
+
     @property
     def is_restored(self):
         min_max = self._get("MinMax")
@@ -378,6 +390,18 @@ class Window:
         min_max = self._get("MinMax")
         if min_max is not None:
             return min_max == 1
+
+    @is_maximized.setter
+    def is_maximized(self, value):
+        if value:
+            self.maximize()
+        else:
+            self.restore()
+
+    def toggle_maximized(self):
+        is_maximized = self.is_maximized
+        if is_maximized is not None:
+            self.is_maximized = not is_maximized
 
     # TODO: Implement ControlList and ControlListHwnd
 

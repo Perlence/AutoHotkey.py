@@ -151,7 +151,7 @@ def test_window(child_ahk):
     assert win1.is_restored
     win1.minimize()
     assert win1.is_minimized
-    win1.restore()
+    win1.toggle_minimized()
     assert win1.is_restored
     assert win1.wait_active() is True
     assert win1.wait_close(timeout=0.1) is False
