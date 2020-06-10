@@ -108,42 +108,42 @@ class Windows:
         )
 
     def exist(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        win_id = _ahk.call("WinExist", *filtered._query())
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        win_id = _ahk.call("WinExist", *self._query())
         return Window(win_id)
 
     first = exist
     top = exist
 
     def last(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        win_id = _ahk.call("WinGet", "IDLast", *filtered._query())
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        win_id = _ahk.call("WinGet", "IDLast", *self._query())
         return Window(win_id)
 
     bottom = last
 
     def get_active(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        win_id = _ahk.call("WinActive", *filtered._query())
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        win_id = _ahk.call("WinActive", *self._query())
         return Window(win_id)
 
     def wait(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        return filtered._wait("WinWait", timeout)
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        return self._wait("WinWait", timeout)
 
     def wait_active(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        return filtered._wait("WinWaitActive", timeout)
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        return self._wait("WinWaitActive", timeout)
 
     def wait_inactive(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        return filtered._wait("WinWaitNotActive", timeout)
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        return self._wait("WinWaitNotActive", timeout)
 
     def wait_close(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
         # WinWaitClose doesn't set Last Found Window, return False if the wait
         # was timed out.
-        timed_out = _ahk.call("WinWaitClose", *filtered._include(), timeout or "", *filtered._exclude())
+        timed_out = _ahk.call("WinWaitClose", *self._include(), timeout or "", *self._exclude())
         return not timed_out
 
     def _wait(self, cmd, timeout):
@@ -158,98 +158,98 @@ class Windows:
             return windows.first()
 
     def activate(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        _ahk.call("WinActivate", *filtered._query())
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        _ahk.call("WinActivate", *self._query())
 
     def close(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        _ahk.call("WinClose", *filtered._include(), timeout, *filtered._exclude())
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        _ahk.call("WinClose", *self._include(), timeout, *self._exclude())
 
     def hide(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        _ahk.call("WinHide", *filtered._query())
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        _ahk.call("WinHide", *self._query())
 
     def kill(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        _ahk.call("WinKill", *filtered._include(), timeout, *filtered._exclude())
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        _ahk.call("WinKill", *self._include(), timeout, *self._exclude())
 
     def maximize(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        _ahk.call("WinMaximize", *filtered._query())
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        _ahk.call("WinMaximize", *self._query())
 
     def minimize(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        _ahk.call("WinMinimize", *filtered._query())
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        _ahk.call("WinMinimize", *self._query())
 
     def restore(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        _ahk.call("WinRestore", *filtered._query())
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        _ahk.call("WinRestore", *self._query())
 
     def show(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        _ahk.call("WinShow", *filtered._query())
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        _ahk.call("WinShow", *self._query())
 
     def pin_to_top(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        _ahk.call("WinSet", "AlwaysOnTop", "On", *filtered._query())
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        _ahk.call("WinSet", "AlwaysOnTop", "On", *self._query())
 
     def unpin_from_top(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        _ahk.call("WinSet", "AlwaysOnTop", "Off", *filtered._query())
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        _ahk.call("WinSet", "AlwaysOnTop", "Off", *self._query())
 
     def toggle_always_on_top(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        _ahk.call("WinSet", "AlwaysOnTop", "Toggle", *filtered._query())
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        _ahk.call("WinSet", "AlwaysOnTop", "Toggle", *self._query())
 
     def bring_to_top(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        _ahk.call("WinSet", "Top", "", *filtered._query())
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        _ahk.call("WinSet", "Top", "", *self._query())
 
     def send_to_bottom(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        _ahk.call("WinSet", "Bottom", "", *filtered._query())
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        _ahk.call("WinSet", "Bottom", "", *self._query())
 
     def disable(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        _ahk.call("WinSet", "Disable", "", *filtered._query())
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        _ahk.call("WinSet", "Disable", "", *self._query())
 
     def enable(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        _ahk.call("WinSet", "Enable", "", *filtered._query())
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        _ahk.call("WinSet", "Enable", "", *self._query())
 
     def redraw(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        _ahk.call("WinSet", "Redraw", "", *filtered._query())
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        _ahk.call("WinSet", "Redraw", "", *self._query())
 
     def close_all(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        filtered._group_action("WinClose", timeout)
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        self._group_action("WinClose", timeout)
 
     def hide_all(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        filtered._group_action("WinHide")
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        self._group_action("WinHide")
 
     def kill_all(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        filtered._group_action("WinKill", timeout)
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        self._group_action("WinKill", timeout)
 
     def maximize_all(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        filtered._group_action("WinMaximize")
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        self._group_action("WinMaximize")
 
     def minimize_all(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        filtered._group_action("WinMinimize")
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        self._group_action("WinMinimize")
 
     # TODO: Implement WinMinimizeAllUndo.
 
     def restore_all(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        filtered._group_action("WinRestore")
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        self._group_action("WinRestore")
 
     def show_all(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        filtered._group_action("WinShow")
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        self._group_action("WinShow")
 
     def _group_action(self, cmd, timeout=None):
         if self == Windows() and cmd == "WinMinimize":
@@ -265,9 +265,9 @@ class Windows:
         _ahk.call(cmd, f"ahk_group {query_hash_str}", "", timeout)
 
     def send(self, keys, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
         control = ""
-        _ahk.call("ControlSend", control, str(keys), *filtered._query())
+        _ahk.call("ControlSend", control, str(keys), *self._query())
 
     def __iter__(self):
         """Return matching windows ordered from top to bottom."""
