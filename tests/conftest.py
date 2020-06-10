@@ -45,8 +45,8 @@ class ChildAHK:
             stderr=subprocess.PIPE, **kwargs)
         return self.proc
 
-    def popen_code(self, code, *, quiet=False, **kwargs):
-        args = ["-"]
+    def popen_code(self, code, *, args=(), quiet=False, **kwargs):
+        args = ["-", *args]
         if quiet:
             args.insert(0, "-q")
         self.popen(args, **kwargs)

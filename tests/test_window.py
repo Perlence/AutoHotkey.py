@@ -1,6 +1,8 @@
 import subprocess
 from functools import partial
 
+import pytest
+
 import ahk
 
 
@@ -230,46 +232,40 @@ def test_status_bar(request):
     notepad_proc.terminate()
 
 
-def test_active_window_context(child_ahk):
-    def code():
-        import ahk
-        import sys
-        ahk.hotkey("F24", sys.exit)
-        ahk.hotkey("F13", lambda: ahk.message_box("Beep"))
-        with ahk.windows.active_window_context(exe="AutoHotkey.exe", text="Beep"):
-            ahk.hotkey("F13", lambda: ahk.message_box("Boop"))
-        print("ok00")
-
-    child_ahk.popen_code(code)
-    child_ahk.wait(0)
-
-    beep_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Beep")
-    boop_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Boop")
-
-    ahk.send("{F13}")
-    assert beep_windows.wait(timeout=1)
-    assert not boop_windows.exist()
-
-    ahk.send("{F13}")
-    assert boop_windows.wait(timeout=1)
-    assert beep_windows.exist()
-
-    ahk.send("{F24}")
-
-
-def test_active_window_context_exclude(child_ahk):
+@pytest.mark.parametrize('active_ctx, exclude_ctx, ctx_code', [
+    pytest.param(
+        0, 0,
+        'ahk.windows.window_context(exe="AutoHotkey.exe", text="Beep")',
+        id="IfWinExist",
+    ),
+    pytest.param(
+        1, 0,
+        'ahk.windows.active_window_context(exe="AutoHotkey.exe", text="Beep")',
+        id="IfWinActive",
+    ),
+    pytest.param(
+        0, 1,
+        'ahk.windows.filter(exe="AutoHotkey.exe").exclude(text="Beep").window_context()',
+        id="IfWinExist exclude",
+    ),
+    pytest.param(
+        1, 1,
+        'ahk.windows.filter(exe="AutoHotkey.exe").exclude(text="Beep").active_window_context()',
+        id="IfWinActive exclude",
+    ),
+])
+def test_window_contexts(child_ahk, active_ctx, exclude_ctx, ctx_code):
     def code():
         import ahk
         import sys
         ahk.hotkey("F24", sys.exit)
         ahk.hotkey("F13", lambda: ahk.message_box("Beep"))
         ahk.hotkey("F14", lambda: ahk.message_box("Blarp"))
-        with ahk.windows.filter(exe="AutoHotkey.exe").exclude(text="Beep").active_window_context():
+        with eval(sys.argv[1]):
             ahk.hotkey("F13", lambda: ahk.message_box("Boop"))
-
         print("ok00")
 
-    child_ahk.popen_code(code)
+    child_ahk.popen_code(code, args=[ctx_code])
     child_ahk.wait(0)
 
     beep_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Beep")
@@ -280,11 +276,21 @@ def test_active_window_context_exclude(child_ahk):
     assert beep_windows.wait(timeout=1)
     assert not boop_windows.exist()
 
-    ahk.send("{F14}")
-    assert blarp_windows.wait(timeout=1)
+    if exclude_ctx:
+        ahk.send("{F14}")
+        assert blarp_windows.wait(timeout=1)
 
     ahk.send("{F13}")
     assert boop_windows.wait(timeout=1)
+    assert beep_windows.exist()
+
+    boop_windows.close_all(timeout=1)
+    ahk.windows.activate(class_name="Shell_TrayWnd")
+    ahk.send("{F13}")
+    if active_ctx:
+        assert not boop_windows.wait(timeout=0.5)
+    else:
+        assert boop_windows.wait(timeout=1)
     assert beep_windows.exist()
 
     ahk.send("{F24}")

@@ -266,18 +266,32 @@ class Windows:
         _ahk.call("GroupAdd", query_hash_str, *self._include(), label, *self._exclude())
         _ahk.call(cmd, f"ahk_group {query_hash_str}", "", timeout)
 
-    @contextmanager
+    def window_context(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        return self._hotkey_context("IfWinExist", self.exist)
+
+    def nonexistent_window_context(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        return self._hotkey_context("IfWinNotExist", lambda: not self.exist())
+
     def active_window_context(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        return self._hotkey_context("IfWinActive", self.get_active)
 
+    def inactive_window_context(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        return self._hotkey_context("IfWinNotActive", lambda: not self.get_active())
+
+    @contextmanager
+    def _hotkey_context(self, cmd, predicate):
         if self._exclude() != ("", ""):
-            # The Hotkey, IfWinActive command doesn't support excluding windows,
-            # let's implement it.
-            with keys.hotkey_context(self.get_active):
+            # The Hotkey, IfWin command doesn't support excluding windows, let's
+            # implement it.
+            with keys.hotkey_context(predicate):
                 yield
             return
 
-        _ahk.call("Hotkey", "IfWinActive", *self._include())
+        _ahk.call("Hotkey", cmd, *self._include())
         yield
         _ahk.call("Hotkey", "If")
 
