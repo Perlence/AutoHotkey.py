@@ -103,21 +103,26 @@ def test_hotkey_context(child_ahk):
         import ahk
         import sys
         ahk.hotkey("F24", sys.exit)
-        ctx = ahk.HotkeyContext(lambda: ahk.windows.get_active(class_name="Shell_TrayWnd"))
-        ctx.hotkey("F13", lambda: ahk.message_box("Beep"))
+        ahk.hotkey("F13", lambda: ahk.message_box("Beep"))
+        with ahk.hotkey_context(lambda: ahk.windows.get_active(class_name="Shell_TrayWnd")):
+            ahk.hotkey("F13", lambda: ahk.message_box("Boop"))
         print("ok00")
 
     child_ahk.popen_code(code)
     child_ahk.wait(0)
 
-    boop_window = ahk.windows.filter(exe="AutoHotkey.exe", text="Beep")
+    beep_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Beep")
+    boop_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Boop")
 
     ahk.send("{F13}")
-    assert not boop_window.wait(timeout=0.5)
+    assert beep_windows.wait(timeout=1)
+    assert not boop_windows.exist()
+    beep_windows.first().send("{Enter}")
 
     ahk.windows.activate(class_name="Shell_TrayWnd")
     ahk.send("{F13}")
-    assert boop_window.wait(timeout=1)
+    assert boop_windows.wait(timeout=1)
+    assert not beep_windows.exist()
 
     ahk.send("{F24}")
 

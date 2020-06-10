@@ -107,12 +107,13 @@ class Windows:
             exclude_text=default(text, self.exclude_text),
         )
 
-    def first(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
+    def exist(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
         win_id = _ahk.call("WinExist", *filtered._query())
         return Window(win_id)
 
-    top = first
+    first = exist
+    top = exist
 
     def last(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)

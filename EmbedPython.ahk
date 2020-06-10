@@ -317,7 +317,9 @@ AHKToPython(value) {
 
 PythonToAHK(pyObject, borrowed:=True) {
     ; TODO: Convert dicts to objects and lists to arrays.
-    if (PyUnicode_Check(pyObject)) {
+    if (pyObject == Py_None) {
+        return ""
+    } else if (PyUnicode_Check(pyObject)) {
         return PyUnicode_AsWideCharString(pyObject)
     } else if (PyLong_Check(pyObject)) {
         return PyLong_AsLongLong(pyObject)
@@ -378,16 +380,21 @@ Trigger(key, args*) {
 
     gstate := PyGILState_Ensure()
 
+    result := ""
     argsPtr := NULL
-    result := PyObject_CallObject(funcObjPtr, argsPtr)
-    if (result == "") {
+    pyResult := PyObject_CallObject(funcObjPtr, argsPtr)
+    if (pyResult == "") {
         End("Call to '" key "' callback failed: " ErrorLevel)
-    } else if (result == NULL) {
+    } else if (pyResult == NULL) {
         PrintErrorOrExit()
+    } else {
+        result := PythonToAHK(pyResult, False)
+        Py_DecRef(pyResult)
     }
-    Py_DecRef(result)
 
     PyGILState_Release(gstate)
+
+    return result
 }
 
 PrintErrorOrExit() {
