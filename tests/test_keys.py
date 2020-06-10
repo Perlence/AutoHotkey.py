@@ -127,6 +127,29 @@ def test_hotkey_context(child_ahk):
     ahk.send("{F24}")
 
 
+def test_failing_hotkey_context(child_ahk):
+    def code():
+        import ahk
+        with ahk.hotkey_context(lambda: ahk.windows.get_active(class_name="Shell_TrayWnd")):
+            ahk.hotkey("F13", lambda: ahk.message_box("Boop"))
+        print("ok00")
+
+    child_ahk.popen_code(code)
+    child_ahk.wait(0)
+
+    boop_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Boop")
+
+    ahk.send("{F13}")
+    assert not boop_windows.wait(timeout=0.1)
+
+    ahk.windows.activate(class_name="Shell_TrayWnd")
+    ahk.send("{F13}")
+    with pytest.xfail():
+        assert boop_windows.wait(timeout=1)
+
+    ahk.send("{F24}")
+
+
 def test_key_wait(child_ahk):
     def code():
         import ahk
