@@ -117,7 +117,7 @@ def test_hotkey_context(child_ahk):
     ahk.send("{F13}")
     assert beep_windows.wait(timeout=1)
     assert not boop_windows.exist()
-    beep_windows.first().send("{Enter}")
+    beep_windows.send("{Enter}")
 
     ahk.windows.activate(class_name="Shell_TrayWnd")
     ahk.send("{F13}")

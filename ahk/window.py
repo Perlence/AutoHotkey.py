@@ -269,6 +269,11 @@ class Windows:
         _ahk.call("GroupAdd", query_hash_str, win_title, win_text, label, exclude_title, exclude_text)
         _ahk.call(cmd, f"ahk_group {query_hash_str}", "", timeout)
 
+    def send(self, keys, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
+        filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+        control = ""
+        _ahk.call("ControlSend", control, str(keys), *filtered._query())
+
     def __iter__(self):
         """Return matching windows ordered from top to bottom."""
         win_ids = _ahk.call("WinGet", "List", *self._query())
