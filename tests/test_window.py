@@ -96,6 +96,9 @@ def test_windows(child_ahk):
     assert not win1.is_enabled
     msg_boxes.enable()
     assert win1.is_enabled
+    win1.activate()
+    msg_boxes.close()
+    assert win1.wait_close(timeout=1)
 
     assert msg_boxes.wait_close(timeout=0.1) is False
     msg_boxes.close_all()

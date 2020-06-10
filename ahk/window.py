@@ -141,19 +141,17 @@ class Windows:
 
     def wait_close(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
         filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        win_title, win_text, exclude_title, exclude_text = filtered._query()
         # WinWaitClose doesn't set Last Found Window, return False if the wait
         # was timed out.
-        timed_out = _ahk.call("WinWaitClose", win_title, win_text, timeout or "", exclude_title, exclude_text)
+        timed_out = _ahk.call("WinWaitClose", *filtered._include(), timeout or "", *filtered._exclude())
         return not timed_out
 
     def _wait(self, cmd, timeout):
-        win_title, win_text, exclude_title, exclude_text = self._query()
         # Calling WinWait[Not]Active and WinWait sets an implicit Last Found
         # Window that is local to the current AHK thread. Let's retrieve it
         # while protecting it from being overwritten by other Python threads.
         with last_found_window_lock:
-            timed_out = _ahk.call(cmd, win_title, win_text, timeout or "", exclude_title, exclude_text)
+            timed_out = _ahk.call(cmd, *self._include(), timeout or "", *self._exclude())
             if timed_out:
                 return Window(0)
             # Return the Last Found Window.
@@ -165,8 +163,7 @@ class Windows:
 
     def close(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
         filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        win_title, win_text, exclude_title, exclude_text = filtered._query()
-        self._call("WinClose", win_title, win_text, timeout, exclude_title, exclude_text)
+        _ahk.call("WinClose", *filtered._include(), timeout, *filtered._exclude())
 
     def hide(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
@@ -174,8 +171,7 @@ class Windows:
 
     def kill(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
         filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        win_title, win_text, exclude_title, exclude_text = filtered._query()
-        self._call("WinKill", win_title, win_text, timeout, exclude_title, exclude_text)
+        _ahk.call("WinKill", *filtered._include(), timeout, *filtered._exclude())
 
     def maximize(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         filtered = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
@@ -264,9 +260,8 @@ class Windows:
 
         query_hash = hash(dc.astuple(self))
         query_hash_str = str(query_hash).replace("-", "m")  # AHK doesn't allow "-" in group names
-        win_title, win_text, exclude_title, exclude_text = self._query()
         label = ""
-        _ahk.call("GroupAdd", query_hash_str, win_title, win_text, label, exclude_title, exclude_text)
+        _ahk.call("GroupAdd", query_hash_str, *self._include(), label, *self._exclude())
         _ahk.call(cmd, f"ahk_group {query_hash_str}", "", timeout)
 
     def send(self, keys, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
@@ -292,34 +287,41 @@ class Windows:
         return self.__class__.__qualname__ + f"({', '.join(field_strs)})"
 
     def _query(self):
-        win_title = []
-        if self.title is not None:
-            win_title.append(str(self.title))
-        if self.class_name is not None:
-            win_title.append(f"ahk_class {self.class_name}")
-        if self.id is not None:
-            win_title.append(f"ahk_id {self.id}")
-        if self.pid is not None:
-            win_title.append(f"ahk_pid {self.pid}")
-        if self.exe is not None:
-            win_title.append(f"ahk_exe {self.exe}")
+        return (*self._include(), *self._exclude())
 
-        exclude_title = []
-        if self.exclude_title is not None:
-            exclude_title.append(str(self.exclude_title))
-        if self.exclude_class_name is not None:
-            exclude_title.append(f"ahk_class {self.exclude_class_name}")
-        if self.exclude_id is not None:
-            exclude_title.append(f"ahk_id {self.exclude_id}")
-        if self.exclude_pid is not None:
-            exclude_title.append(f"ahk_pid {self.exclude_pid}")
-        if self.exclude_exe is not None:
-            exclude_title.append(f"ahk_exe {self.exclude_exe}")
+    def _include(self):
+        parts = []
+        if self.title is not None:
+            parts.append(str(self.title))
+        if self.class_name is not None:
+            parts.append(f"ahk_class {self.class_name}")
+        if self.id is not None:
+            parts.append(f"ahk_id {self.id}")
+        if self.pid is not None:
+            parts.append(f"ahk_pid {self.pid}")
+        if self.exe is not None:
+            parts.append(f"ahk_exe {self.exe}")
 
         return (
-            " ".join(win_title),
+            " ".join(parts),
             default(str, self.text, ""),
-            " ".join(exclude_title),
+        )
+
+    def _exclude(self):
+        parts = []
+        if self.exclude_title is not None:
+            parts.append(str(self.exclude_title))
+        if self.exclude_class_name is not None:
+            parts.append(f"ahk_class {self.exclude_class_name}")
+        if self.exclude_id is not None:
+            parts.append(f"ahk_id {self.exclude_id}")
+        if self.exclude_pid is not None:
+            parts.append(f"ahk_pid {self.exclude_pid}")
+        if self.exclude_exe is not None:
+            parts.append(f"ahk_exe {self.exclude_exe}")
+
+        return (
+            " ".join(parts),
             default(str, self.exclude_text, ""),
         )
 
@@ -336,7 +338,7 @@ class Window:
 
     @property
     def rect(self):
-        result = self._call("WinGetPos")
+        result = self._call("WinGetPos", *self._include())
         return result["X"], result["Y"], result["Width"], result["Height"]
 
     @rect.setter
@@ -392,6 +394,7 @@ class Window:
 
     def move(self, x=None, y=None, width=None, height=None):
         self._call("WinMove",
+                   *self._include(),
                    default(int, x, ""),
                    default(int, y, ""),
                    default(int, width, ""),
@@ -399,27 +402,27 @@ class Window:
 
     @property
     def is_active(self):
-        return self._call("WinActive") != 0
+        return self._call("WinActive", *self._include()) != 0
 
     @property
     def exists(self):
-        return self._call("WinExist") != 0
+        return self._call("WinExist", *self._include()) != 0
 
     @property
     def class_name(self):
-        return self._call("WinGetClass")
+        return self._call("WinGetClass", *self._include())
 
     @property
     def text(self):
-        return self._call("WinGetText")
+        return self._call("WinGetText", *self._include())
 
     @property
     def title(self):
-        return self._call("WinGetTitle")
+        return self._call("WinGetTitle", *self._include())
 
     @title.setter
     def title(self, new_title):
-        return self._call("WinSetTitle", str(new_title))
+        return self._call("WinSetTitle", *self._include(), str(new_title))
 
     @property
     def pid(self):
@@ -584,10 +587,10 @@ class Window:
         self._set("TransColor", ahk_value)
 
     def hide(self):
-        self._call("WinHide")
+        self._call("WinHide", *self._include())
 
     def show(self):
-        self._call("WinShow")
+        self._call("WinShow", *self._include())
 
     @property
     def is_visible(self):
@@ -603,75 +606,77 @@ class Window:
             self.hide()
 
     def activate(self):
-        self._call("WinActivate")
+        self._call("WinActivate", *self._include())
 
     def get_status_bar_text(self, part=1):
-        return self._call("StatusBarGetText", pre_args=[int(part)])
+        return self._call("StatusBarGetText", int(part), *self._include())
 
     def wait_status_bar(self, bar_text="", timeout=None, part=1, interval=0.05):
         timed_out = self._call(
             "StatusBarWait",
+            bar_text,
+            default(timeout, ""),
+            part,
+            *self._include(),
             interval * 1000,
-            pre_args=[
-                bar_text,
-                default(timeout, ""),
-                part,
-            ],
         )
         return not timed_out
 
     def close(self, timeout=None):
-        self._call("WinClose", timeout)
+        self._call("WinClose", *self._include(), timeout)
         if timeout is not None:
             # Check if the window still exists.
             return windows.first(id=id) is None
 
     def kill(self, timeout=None):
-        self._call("WinKill", timeout)
+        self._call("WinKill", *self._include(), timeout)
         if timeout is not None:
             # Check if the window still exists.
             return windows.first(id=id) is None
 
     def maximize(self):
-        self._call("WinMaximize")
+        self._call("WinMaximize", *self._include())
 
     def minimize(self):
-        self._call("WinMinimize")
+        self._call("WinMinimize", *self._include())
 
     def restore(self):
-        self._call("WinRestore")
+        self._call("WinRestore", *self._include())
 
     def wait_active(self, timeout=None):
-        timed_out = self._call("WinWaitActive", timeout)
+        timed_out = self._call("WinWaitActive", *self._include(), timeout)
         return not timed_out
 
     def wait_inactive(self, timeout=None):
-        timed_out = self._call("WinWaitNotActive", timeout)
+        timed_out = self._call("WinWaitNotActive", *self._include(), timeout)
         return not timed_out
 
     def wait_close(self, timeout=None):
-        timed_out = self._call("WinWaitClose", timeout)
+        timed_out = self._call("WinWaitClose", *self._include(), timeout)
         return not timed_out
 
     def send(self, keys):
         control = ""
-        self._call("ControlSend", pre_args=[control, str(keys)])
+        self._call("ControlSend", control, str(keys), *self._include())
 
-    def _call(self, cmd, *post_args, pre_args=()):
+    def _call(self, cmd, *args):
         # Call the command only if the window was found previously. This makes
         # optional chaining possible. For example,
         # `ahk.windows.first(class_name="Notepad").close()` doesn't error out
         # when there are no Notepad windows.
         if self.id != 0:
-            return _ahk.call(cmd, *pre_args, f"ahk_id {self.id}", "", *post_args)
+            return _ahk.call(cmd, *args)
 
     def _get(self, subcmd):
-        result = self._call("WinGet", pre_args=[subcmd])
+        result = self._call("WinGet", subcmd, *self._include())
         if result != "":
             return result
 
     def _set(self, subcmd, value=""):
-        return self._call("WinSet", pre_args=[subcmd, value])
+        return self._call("WinSet", subcmd, value, *self._include())
+
+    def _include(self):
+        return f"ahk_id {self.id}", ""
 
 
 class WindowStyle(enum.IntFlag):
