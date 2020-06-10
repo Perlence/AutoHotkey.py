@@ -39,6 +39,7 @@ def test_hotkey(child_ahk):
 
     hk = ahk.hotkey("F13", lambda: None)
     assert hk.key_name == "F13"
+    hk.disable()
 
     def hotkeys():
         import ahk
@@ -95,6 +96,30 @@ def test_hotkey(child_ahk):
     child_ahk.close()
     assert "ZeroDivisionError:" in child_ahk.proc.stderr.read()
     assert child_ahk.proc.returncode == 0
+
+
+def test_hotkey_context(child_ahk):
+    def code():
+        import ahk
+        import sys
+        ahk.hotkey("F24", sys.exit)
+        ctx = ahk.HotkeyContext(lambda: ahk.windows.get_active(class_name="Shell_TrayWnd"))
+        ctx.hotkey("F13", lambda: ahk.message_box("Beep"))
+        print("ok00")
+
+    child_ahk.popen_code(code)
+    child_ahk.wait(0)
+
+    boop_window = ahk.windows.filter(exe="AutoHotkey.exe", text="Beep")
+
+    ahk.send("{F13}")
+    assert not boop_window.wait(timeout=0.5)
+
+    ahk.windows.activate(class_name="Shell_TrayWnd")
+    ahk.send("{F13}")
+    assert boop_window.wait(timeout=1)
+
+    ahk.send("{F24}")
 
 
 def test_key_wait(child_ahk):

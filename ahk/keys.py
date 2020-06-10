@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 from dataclasses import dataclass
 from functools import partial
-from typing import Optional
+from typing import Callable, Optional
 
 import _ahk  # noqa
 
@@ -9,9 +9,9 @@ from .exceptions import Error
 
 __all__ = [
     "Hotkey",
+    "HotkeyContext",
     "get_key_state",
     "get_physical_key_state",
-    "hotkey_context",
     "hotkey",
     "is_key_toggled",
     "key_wait_pressed",
@@ -71,8 +71,10 @@ def _set_key_state(cmd, state):
     _ahk.call(cmd, state)
 
 
-def hotkey(key_name,
-           func=None,
+def hotkey(key_name: str,
+           func: Callable = None,
+           *,
+           predicate: Callable = None,
            buffer: Optional[bool] = None,
            priority: Optional[int] = None,
            max_threads: Optional[int] = None,
@@ -83,26 +85,47 @@ def hotkey(key_name,
 
     if func is None:
         # Return the decorator.
-        return partial(hotkey, key_name, buffer=buffer, priority=priority,
-                       max_threads=max_threads, input_level=input_level)
+        return partial(hotkey, key_name, predicate=predicate, buffer=buffer,
+                       priority=priority, max_threads=max_threads, input_level=input_level)
 
     if not callable(func):
         raise TypeError(f"object {func!r} must be callable")
+
+    if predicate and not callable(predicate):
+        raise TypeError(f"predicate {predicate!r} must be callable")
 
     # TODO: Handle case when func == "AltTab" or other substitutes.
     # TODO: Hotkey command may set ErrorLevel. Raise an exception.
 
     hk = Hotkey(key_name)
-    _ahk.call("Hotkey", key_name, func)
-    hk.set_options(buffer=buffer, priority=priority, max_threads=max_threads,
-                   input_level=input_level)
+
+    if predicate is not None:
+        def wrapper():
+            if predicate():
+                func()
+        _ahk.call("Hotkey", key_name, wrapper)
+    else:
+        _ahk.call("Hotkey", key_name, func)
+
+    hk.set_options(buffer=buffer, priority=priority, max_threads=max_threads, input_level=input_level)
     return hk
 
 
-@contextmanager
-def hotkey_context():
-    # TODO: Implement `Hotkey, If` commands.
-    raise NotImplementedError()
+@dataclass
+class HotkeyContext:
+    predicate: Callable
+    buffer: Optional[bool] = None
+    priority: Optional[int] = None
+    max_threads: Optional[int] = None
+    input_level: Optional[int] = None
+
+    def hotkey(self, key_name, func=None, **kwargs):
+        kwargs.setdefault("predicate", self.predicate)
+        kwargs.setdefault("buffer", self.buffer)
+        kwargs.setdefault("priority", self.priority)
+        kwargs.setdefault("max_threads", self.max_threads)
+        kwargs.setdefault("input_level", self.input_level)
+        return hotkey(key_name, func, **kwargs)
 
 
 @dataclass
