@@ -66,11 +66,36 @@ def test_windows(child_ahk):
     assert not win2.is_active
 
     assert len(msg_boxes) == 2
-    msg_boxes.first() == win1
-    win1.send_to_bottom()
-    msg_boxes.last() == win1
     win1.bring_to_top()
-    msg_boxes.first() == win1
+    assert msg_boxes.first() == win1
+    win1.send_to_bottom()
+    assert msg_boxes.last() == win1
+    win1.bring_to_top()
+    assert msg_boxes.first() == win1
+
+    msg_boxes.minimize()
+    assert win1.is_minimized
+    msg_boxes.activate()
+    assert win2.is_active
+    win1.restore()
+    msg_boxes.maximize()
+    assert win1.is_maximized
+    win1.restore()
+    ahk.detect_hidden_windows(True)
+    msg_boxes.hide()
+    assert not win1.is_visible
+    win1.show()
+    ahk.detect_hidden_windows(False)
+    msg_boxes.pin_to_top()
+    assert win1.always_on_top
+    msg_boxes.unpin_from_top()
+    assert not win1.always_on_top
+    msg_boxes.toggle_always_on_top()
+    assert win1.always_on_top
+    msg_boxes.disable()
+    assert not win1.is_enabled
+    msg_boxes.enable()
+    assert win1.is_enabled
 
     assert msg_boxes.wait_close(timeout=0.1) is False
     msg_boxes.close_all()
