@@ -1,10 +1,12 @@
 import dataclasses as dc
 import enum
 import threading
+from contextlib import contextmanager
 
 import _ahk  # noqa
 
 from . import colors
+from . import keys
 
 __all__ = [
     "ExWindowStyle",
@@ -263,6 +265,21 @@ class Windows:
         label = ""
         _ahk.call("GroupAdd", query_hash_str, *self._include(), label, *self._exclude())
         _ahk.call(cmd, f"ahk_group {query_hash_str}", "", timeout)
+
+    @contextmanager
+    def active_window_context(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
+        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
+
+        if self._exclude() != ("", ""):
+            # The Hotkey, IfWinActive command doesn't support excluding windows,
+            # let's implement it.
+            with keys.hotkey_context(self.get_active):
+                yield
+            return
+
+        _ahk.call("Hotkey", "IfWinActive", *self._include())
+        yield
+        _ahk.call("Hotkey", "If")
 
     def send(self, keys, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)

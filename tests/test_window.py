@@ -228,3 +228,63 @@ def test_status_bar(request):
     assert notepad_win.get_status_bar_text(2) == "  Ln 1, Col 3"
 
     notepad_proc.terminate()
+
+
+def test_active_window_context(child_ahk):
+    def code():
+        import ahk
+        import sys
+        ahk.hotkey("F24", sys.exit)
+        ahk.hotkey("F13", lambda: ahk.message_box("Beep"))
+        with ahk.windows.active_window_context(exe="AutoHotkey.exe", text="Beep"):
+            ahk.hotkey("F13", lambda: ahk.message_box("Boop"))
+        print("ok00")
+
+    child_ahk.popen_code(code)
+    child_ahk.wait(0)
+
+    beep_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Beep")
+    boop_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Boop")
+
+    ahk.send("{F13}")
+    assert beep_windows.wait(timeout=1)
+    assert not boop_windows.exist()
+
+    ahk.send("{F13}")
+    assert boop_windows.wait(timeout=1)
+    assert beep_windows.exist()
+
+    ahk.send("{F24}")
+
+
+def test_active_window_context_exclude(child_ahk):
+    def code():
+        import ahk
+        import sys
+        ahk.hotkey("F24", sys.exit)
+        ahk.hotkey("F13", lambda: ahk.message_box("Beep"))
+        ahk.hotkey("F14", lambda: ahk.message_box("Blarp"))
+        with ahk.windows.filter(exe="AutoHotkey.exe").exclude(text="Beep").active_window_context():
+            ahk.hotkey("F13", lambda: ahk.message_box("Boop"))
+
+        print("ok00")
+
+    child_ahk.popen_code(code)
+    child_ahk.wait(0)
+
+    beep_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Beep")
+    blarp_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Blarp")
+    boop_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Boop")
+
+    ahk.send("{F13}")
+    assert beep_windows.wait(timeout=1)
+    assert not boop_windows.exist()
+
+    ahk.send("{F14}")
+    assert blarp_windows.wait(timeout=1)
+
+    ahk.send("{F13}")
+    assert boop_windows.wait(timeout=1)
+    assert beep_windows.exist()
+
+    ahk.send("{F24}")
