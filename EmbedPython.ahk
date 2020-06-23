@@ -1,5 +1,6 @@
 #NoEnv
 #Warn, All, MsgBox
+SendMode, Input
 
 global NULL := 0
 global EMPTY_STRING := ""
