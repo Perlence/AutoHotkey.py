@@ -74,12 +74,12 @@ def test_hotkey(child_ahk):
     assert not msg_boxes.get_active(text="Hello from hotkey")
     ahk.send("{F14}")
     assert msg_boxes.wait(text="Hello from hotkey", timeout=0.5)
-    ahk.send("{Space}")
+    msg_boxes.send("{Space}")
 
     assert not msg_boxes.get_active(text="ZeroDivisionError")
     ahk.send("{F15}")
     assert msg_boxes.wait(text="ZeroDivisionError", timeout=0.5)
-    ahk.send("{Space}")
+    msg_boxes.send("{Space}")
 
     assert not msg_boxes.get_active()
     ahk.send("{F16}")  # Disable {F14}
