@@ -43,11 +43,6 @@ return
 
 
 Main() {
-    EnvGet, venv, VIRTUAL_ENV
-    if (venv != "") {
-        EnvSet, PYTHONHOME, %venv%
-    }
-
     LoadPython()
     PackBuiltinModule()
 

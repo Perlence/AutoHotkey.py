@@ -2,6 +2,7 @@ import argparse
 import io
 import os
 import runpy
+import site
 import sys
 import traceback
 from pkgutil import read_code
@@ -17,6 +18,9 @@ quiet = False
 
 def main():
     sys.excepthook = excepthook
+    venv = os.getenv("VIRTUAL_ENV")
+    if venv:
+        site.addsitedir(f"{venv}\\Lib\\site-packages")
     run_from_args()
 
 
