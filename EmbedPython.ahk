@@ -44,6 +44,9 @@ return
 
 
 Main() {
+    ; EnvSet command is not respected by C getenv, do it via ucrtbase.
+    DllCall("ucrtbase\_putenv_s", "AStr", "PYTHONUNBUFFERED", "AStr", "1", "Int")
+
     LoadPython()
     PackBuiltinModule()
 

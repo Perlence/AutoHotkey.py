@@ -12,16 +12,11 @@ EMBED_PYTHON = os.path.abspath("EmbedPython.ahk")
 
 @pytest.fixture()
 def child_ahk():
-    unbuffered = os.getenv("PYTHONUNBUFFERED")
-    if not unbuffered:
-        os.environ["PYTHONUNBUFFERED"] = "1"
     instance = ChildAHK()
     try:
         yield instance
     finally:
         instance.close()
-        if not unbuffered:
-            del os.environ["PYTHONUNBUFFERED"]
 
 
 class ChildAHK:
