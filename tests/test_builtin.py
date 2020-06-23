@@ -6,9 +6,6 @@ import _ahk  # noqa
 import ahk
 
 
-# TODO: sys.stdout is not in utf-8.
-
-
 def test_call():
     with pytest.raises(TypeError, match="missing 1 required"):
         _ahk.call()
@@ -16,7 +13,7 @@ def test_call():
     with pytest.raises(ahk.Error, match="unknown function"):
         _ahk.call("NoSuchFunction")
 
-    os.environ["HELLO"] = "Привет"
+    os.environ["HELLO"] = "Привет 世界"
     hello = _ahk.call("EnvGet", "HELLO")
     assert hello == os.environ["HELLO"]
 

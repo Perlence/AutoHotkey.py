@@ -6,6 +6,7 @@ def test_message_box(child_ahk):
         import ahk
         ahk.message_box()
         ahk.message_box("Hello, мир!")
+        ahk.message_box("Hello, 世界")
         ahk.message_box("Do you want to continue? (Press YES or NO)", options=4)
 
     child_ahk.popen_code(msg_boxes_code)
@@ -18,6 +19,10 @@ def test_message_box(child_ahk):
     msg_box.send("{Enter}")
 
     msg_box = msg_boxes.wait_active(text="Hello, мир!", timeout=1)
+    assert msg_box
+    msg_box.send("{Enter}")
+
+    msg_box = msg_boxes.wait_active(text="Hello, 世界", timeout=1)
     assert msg_box
     msg_box.send("{Enter}")
 

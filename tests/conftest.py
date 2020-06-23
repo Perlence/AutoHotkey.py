@@ -30,7 +30,7 @@ class ChildAHK:
 
     def run(self, args, **kwargs):
         args = [AHK, EMBED_PYTHON, *args]
-        return subprocess.run(args, text=True, capture_output=True, **kwargs)
+        return subprocess.run(args, text=True, capture_output=True, encoding="utf-8", **kwargs)
 
     def run_code(self, code, *, quiet=False, **kwargs):
         args = ["-"]
@@ -42,7 +42,7 @@ class ChildAHK:
         args = [AHK, EMBED_PYTHON, *args]
         self.proc = subprocess.Popen(
             args, text=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE, **kwargs)
+            stderr=subprocess.PIPE, encoding="utf-8", **kwargs)
         return self.proc
 
     def popen_code(self, code, *, args=(), quiet=False, **kwargs):

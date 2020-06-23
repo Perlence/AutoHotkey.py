@@ -18,9 +18,18 @@ quiet = False
 
 def main():
     sys.excepthook = excepthook
+
+    if sys.stdout:
+        sys.stdout.reconfigure(encoding="utf-8")
+    if sys.stderr:
+        sys.stderr.reconfigure(encoding="utf-8")
+    if sys.stdin:
+        sys.stdin.reconfigure(encoding="utf-8")
+
     venv = os.getenv("VIRTUAL_ENV")
     if venv:
         site.addsitedir(f"{venv}\\Lib\\site-packages")
+
     run_from_args()
 
 
