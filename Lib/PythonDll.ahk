@@ -276,6 +276,16 @@ PyTuple_GetItem(p, pos) {
     return PythonDllCall("PyTuple_GetItem", "Ptr", p, "Int", pos, "Cdecl Ptr")
 }
 
+PyTuple_New(len) {
+    ; PyObject* PyTuple_New(Py_ssize_t len)
+    return PythonDllCall("PyTuple_New", "Int", len, "Ptr")
+}
+
+PyTuple_SetItem(p, pos, o) {
+    ; int PyTuple_SetItem(PyObject *p, Py_ssize_t pos, PyObject *o)
+    return PythonDllCall("PyTuple_SetItem", "Ptr", p, "Int", pos, "Ptr", o, "Int")
+}
+
 PySys_SetArgv(argc, argv) {
     ; void PySys_SetArgv(int argc, wchar_t **argv)
     PythonDllCall("PySys_SetArgv", "Int", argc, "Ptr", argv, "Cdecl")

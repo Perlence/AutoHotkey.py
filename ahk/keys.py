@@ -1,3 +1,4 @@
+import inspect
 from contextlib import contextmanager
 from dataclasses import dataclass
 from functools import partial
@@ -101,8 +102,13 @@ def hotkey(key_name: str,
 
 @contextmanager
 def hotkey_context(predicate):
-    def wrapper():
-        return bool(predicate())
+    signature = inspect.signature(predicate)
+    if len(signature.parameters) == 0:
+        def wrapper(*args):
+            return bool(predicate())
+    else:
+        def wrapper(*args):
+            return bool(predicate(*args))
 
     # TODO: Add a threading lock.
     _ahk.call("Hotkey", "If", wrapper)

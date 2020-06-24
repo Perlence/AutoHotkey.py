@@ -268,7 +268,7 @@ class Windows:
 
     def window_context(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        return self._hotkey_context("IfWinExist", self.exist)
+        return self._hotkey_context("IfWinExist", lambda: self.exist())
 
     def nonexistent_window_context(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
@@ -276,7 +276,7 @@ class Windows:
 
     def active_window_context(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        return self._hotkey_context("IfWinActive", self.get_active)
+        return self._hotkey_context("IfWinActive", lambda: self.get_active())
 
     def inactive_window_context(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)

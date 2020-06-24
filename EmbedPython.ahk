@@ -18,7 +18,7 @@ global Py_TPFLAGS_UNICODE_SUBCLASS := 1 << 28
 global Py_TPFLAGS_BASE_EXC_SUBCLASS := 1 << 30
 
 global CALLBACKS := {}
-global BOUND_TRIGGERS := {}
+global WRAPPED_PYTHON_FUNCTIONS := {}
 
 global AHKMethods
 global AHKModule
@@ -244,28 +244,9 @@ _AHKCall(self, args) {
         return NULL
     }
 
-    ; Parse the arguments.
-    ahkArgs := []
-    i := 1
-    size := PyTuple_Size(args)
-    while (i < size) {
-        arg := PyTuple_GetItem(args, i)
-        if (arg == Py_None) {
-            ; Ignore all arguments after None.
-            break
-        }
-        try {
-            ahkArg := PythonToAHK(arg)
-        } catch e {
-            PyErr_SetAHKError(e)
-            return NULL
-        }
-        if (PyErr_Occurred()) {
-            ; Python couldn't convert the value, e.g. OverflowError.
-            return NULL
-        }
-        ahkArgs.Push(ahkArg)
-        i += 1
+    ahkArgs := PythonArgsToAHK(args)
+    if (ahkArgs == "") {
+        return NULL
     }
 
     if (func == "Sleep") {
@@ -284,6 +265,49 @@ _AHKCall(self, args) {
     }
 
     return AHKToPython(result)
+}
+
+PyCall(key, args*) {
+    pyFunc := CALLBACKS[key]
+    if (not pyFunc) {
+        return
+    }
+
+    gstate := PyGILState_Ensure()
+
+    pyArgs := AHKArgsToPython(args)
+    result := ""
+    pyResult := PyObject_CallObject(pyFunc, pyArgs)
+    Py_XDecRef(pyArgs)
+    if (pyResult == "") {
+        End("Call to '" key "' callback failed: " ErrorLevel)
+    } else if (pyResult == NULL) {
+        PrintErrorOrExit()
+    } else {
+        result := PythonToAHK(pyResult, False)
+        Py_DecRef(pyResult)
+    }
+
+    PyGILState_Release(gstate)
+
+    return result
+}
+
+AHKArgsToPython(ahkArgs) {
+    if (ahkArgs.Count() == 0) {
+        return NULL ; Not an error
+    }
+
+    pyArgs := PyTuple_New(ahkArgs.Count())
+    if (pyArgs == NULL) {
+        PyGILState_Release(gstate)
+        End("Couldn't create argument tuple")
+        return
+    }
+    for i, arg in ahkArgs {
+        PyTuple_SetItem(pyArgs, i-1, AHKToPython(arg))
+    }
+    return pyArgs
 }
 
 AHKToPython(value) {
@@ -314,6 +338,33 @@ AHKToPython(value) {
     }
 }
 
+PythonArgsToAHK(pyArgs) {
+    ; Parse the arguments.
+    ahkArgs := []
+    i := 1
+    size := PyTuple_Size(pyArgs)
+    while (i < size) {
+        arg := PyTuple_GetItem(pyArgs, i)
+        if (arg == Py_None) {
+            ; Ignore all arguments after None.
+            break
+        }
+        try {
+            ahkArg := PythonToAHK(arg)
+        } catch e {
+            PyErr_SetAHKError(e)
+            return
+        }
+        if (PyErr_Occurred()) {
+            ; Python couldn't convert the value, e.g. OverflowError.
+            return
+        }
+        ahkArgs.Push(ahkArg)
+        i += 1
+    }
+    return ahkArgs
+}
+
 PythonToAHK(pyObject, borrowed:=True) {
     ; TODO: Convert dicts to objects and lists to arrays.
     if (pyObject == Py_None) {
@@ -329,12 +380,12 @@ PythonToAHK(pyObject, borrowed:=True) {
             Py_IncRef(pyObject)
         }
         CALLBACKS[pyObject] := pyObject
-        boundFunc := BOUND_TRIGGERS[pyObject]
-        if (not boundFunc) {
-            boundFunc := Func("Trigger").Bind(pyObject)
-            BOUND_TRIGGERS[pyObject] := boundFunc
+        ahkFunc := WRAPPED_PYTHON_FUNCTIONS[pyObject]
+        if (not ahkFunc) {
+            ahkFunc := Func("PyCall").Bind(pyObject)
+            WRAPPED_PYTHON_FUNCTIONS[pyObject] := ahkFunc
         }
-        return boundFunc
+        return ahkFunc
     } else {
         pyRepr := PyObject_Repr(pyObject)
         if (PyUnicode_Check(pyRepr)) {
@@ -369,31 +420,6 @@ EncodeString(string) {
     VarSetCapacity(var, len)
     StrPut(string, &var, "utf-8")
     return var
-}
-
-Trigger(key, args*) {
-    funcObjPtr := CALLBACKS[key]
-    if (not funcObjPtr) {
-        return
-    }
-
-    gstate := PyGILState_Ensure()
-
-    result := ""
-    argsPtr := NULL
-    pyResult := PyObject_CallObject(funcObjPtr, argsPtr)
-    if (pyResult == "") {
-        End("Call to '" key "' callback failed: " ErrorLevel)
-    } else if (pyResult == NULL) {
-        PrintErrorOrExit()
-    } else {
-        result := PythonToAHK(pyResult, False)
-        Py_DecRef(pyResult)
-    }
-
-    PyGILState_Release(gstate)
-
-    return result
 }
 
 PrintErrorOrExit() {
@@ -440,7 +466,7 @@ GuiDropFiles:
 GuiEscape:
 GuiSize:
 OnClipboardChange:
-    Trigger(A_ThisLabel)
+    PyCall(A_ThisLabel)
     return
 
 GuiClose:
@@ -448,15 +474,11 @@ GuiClose:
     return
 
 OnExitFunc(reason, code, label:="OnExit") {
-    if (Trigger(label) == 0) {
+    if (PyCall(label) == 0) {
         return
     }
     if (Py_FinalizeEx() < 0) {
         code := 120
     }
     ExitApp, %code%
-}
-
-OnMessageClosure(wParam, lParam, msg, hwnd) {
-    Trigger("OnMessage " . msg, wParam, lParam, msg, hwnd)
 }
