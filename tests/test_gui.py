@@ -38,6 +38,11 @@ def test_message_box(child_ahk):
 
 
 def test_on_message(detect_hidden_windows):
+    not_win = ahk.Window(99999)
+    assert not not_win.exists
+    with pytest.raises(RuntimeError, match="there was a problem sending message"):
+        not_win.send_message(0x5555, 0, 99)
+
     args = ()
 
     @ahk.on_message(0x5555)
@@ -52,20 +57,24 @@ def test_on_message(detect_hidden_windows):
     assert result == 42
     assert args == (0, 99, 0x5555, win.id)
 
+    null_handler_called = False
+
     @ahk.on_message(0x5556)
     def null_handler(w_param, l_param, msg, hwnd):
+        nonlocal null_handler_called
+        null_handler_called = True
         return None
 
     result = win.send_message(0x5556, 0, 99)
     assert result == 0
+    assert null_handler_called
 
     result = win.post_message(0x5556, 0, 99)
     assert result is True
 
-    not_win = ahk.Window(99999)
-    assert not not_win.exists
-    with pytest.raises(RuntimeError, match="there was a problem sending message"):
-        not_win.send_message(0x5555, 0, 99)
+    handler.disable()
+    result = win.send_message(0x5555, 0, 99)
+    assert result == 0
 
 
 def test_on_message_timeout(child_ahk, detect_hidden_windows):
