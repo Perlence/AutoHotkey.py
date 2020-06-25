@@ -524,32 +524,6 @@ _OnExit(Closure="") {
     closures["OnExit"] := Closure
 }
 
-/**
- * Implementation: Minor change (target function becomes closure)
- * "OnMessage" is special because it uses function names.
- * In JS, the function name becomes a closure.
- */
-_OnMessage(MsgNumber, Closure="__Undefined", MaxThreads=1) {
-    key := "OnMessage " . MsgNumber
-    fn := closures[key]
-    if (Closure == "__Undefined") {
-        return fn
-    } else if (Closure == "") {
-        closures.Remove(key)
-        ; TODO: Presence of OnMessage makes the script persistent.
-        ; OnMessage(MsgNumber, "", MaxThreads)
-        return fn
-    } else {
-        closures[key] := Closure
-        ; OnMessage(MsgNumber, "OnMessageClosure", MaxThreads)
-        if (fn) {
-            return fn
-        } else {
-            return Closure
-        }
-    }
-}
-
 _OutputDebug(Text) {
     OutputDebug %Text%
 }
@@ -575,6 +549,7 @@ _PixelSearch(X1,Y1,X2,Y2,ColorID,Variation="",Flags="") {
 
 _PostMessage(Msg,wParam="",lParam="",Control="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
     PostMessage %Msg%,%wParam%,%lParam%,%Control%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
+    return ErrorLevel
 }
 
 _Process(Cmd,PIDorName,Param3="") {
@@ -732,6 +707,7 @@ _SendLevel(Level) {
 
 _SendMessage(Msg,wParam="",lParam="",Control="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText="",Timeout="") {
     SendMessage %Msg%,%wParam%,%lParam%,%Control%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%,%Timeout%
+    return ErrorLevel
 }
 
 _SendMode(Mode) {

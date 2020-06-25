@@ -225,14 +225,14 @@ AHKCall(self, args) {
 }
 
 _AHKCall(self, args) {
-    pyFunc := PyTuple_GetItem(args, 0)
-    if (pyFunc == NULL) {
+    pyFuncName := PyTuple_GetItem(args, 0)
+    if (pyFuncName == NULL) {
         TypeError := CachedProcAddress("PyExc_TypeError", "PtrP")
         PyErr_SetString(TypeError, "_ahk.call() missing 1 required positional argument: 'func'")
         return NULL
     }
 
-    func := PythonToAHK(pyFunc)
+    func := PythonToAHK(pyFuncName)
 
     funcRef := Func(func)
     if (not funcRef) {
@@ -251,6 +251,7 @@ _AHKCall(self, args) {
 
     if (func == "Sleep") {
         ; Release the GIL and let AHK process its message queue.
+        ; TODO: Release the GIL for other blocking functions, e.g. WinWait?
         save := PyEval_SaveThread()
     }
     try {

@@ -5,6 +5,8 @@ from textwrap import dedent
 
 import pytest
 
+import ahk
+
 
 AHK = "C:\\Program Files\\AutoHotkey\\AutoHotkey.exe"
 EMBED_PYTHON = os.path.abspath("EmbedPython.ahk")
@@ -47,6 +49,7 @@ class ChildAHK:
         self.popen(args, **kwargs)
         self.proc.stdin.write(self._extract_code(code))
         self.proc.stdin.close()
+        return self.proc
 
     def _extract_code(self, code):
         if callable(code):
@@ -66,3 +69,10 @@ class ChildAHK:
             self.proc.wait(timeout=1)
         except subprocess.TimeoutExpired:
             self.proc.terminate()
+
+
+@pytest.fixture()
+def detect_hidden_windows():
+    ahk.detect_hidden_windows(True)
+    yield
+    ahk.detect_hidden_windows(False)

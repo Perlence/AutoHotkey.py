@@ -110,7 +110,7 @@ def test_windows(child_ahk):
     ahk.send("{F24}")
 
 
-def test_window(child_ahk):
+def test_window(child_ahk, detect_hidden_windows):
     def window():
         import ahk
         import sys
@@ -118,9 +118,8 @@ def test_window(child_ahk):
         ahk.hotkey("F24", sys.exit)
         ahk.message_box("win1", title="win1")
 
-    child_ahk.popen_code(window)
+    proc = child_ahk.popen_code(window)
     ahk.set_win_delay(None)
-    ahk.detect_hidden_windows(True)
 
     nonexistent_window = ahk.Window(99999)
     assert not nonexistent_window.exists
@@ -149,7 +148,7 @@ def test_window(child_ahk):
     assert win1.process_name == "AutoHotkey.exe"
     assert nonexistent_window.process_name is None
 
-    assert win1.process_path == child_ahk.proc.args[0]
+    assert win1.process_path == proc.args[0]
     assert nonexistent_window.process_path is None
 
     assert nonexistent_window.opacity is None
@@ -232,6 +231,7 @@ def test_status_bar(request):
     notepad_proc.terminate()
 
 
+@pytest.mark.skip
 @pytest.mark.parametrize('active_ctx, exclude_ctx, ctx_code', [
     pytest.param(
         0, 0,

@@ -67,7 +67,7 @@ def test_hotkey(child_ahk):
 
         print("ok00")
 
-    child_ahk.popen_code(hotkeys)
+    proc = child_ahk.popen_code(hotkeys)
     child_ahk.wait(0)
 
     msg_boxes = ahk.windows.filter(title="EmbedPython.ahk")
@@ -94,8 +94,8 @@ def test_hotkey(child_ahk):
 
     ahk.send("{F24}")
     child_ahk.close()
-    assert "ZeroDivisionError:" in child_ahk.proc.stderr.read()
-    assert child_ahk.proc.returncode == 0
+    assert "ZeroDivisionError:" in proc.stderr.read()
+    assert proc.returncode == 0
 
 
 def test_hotkey_context(child_ahk):
@@ -167,7 +167,7 @@ def test_key_wait(child_ahk):
 
         sys.exit()
 
-    child_ahk.popen_code(code)
+    proc = child_ahk.popen_code(code)
 
     child_ahk.wait(0)
     ahk.send("{RShift Down}")
@@ -177,7 +177,7 @@ def test_key_wait(child_ahk):
 
     child_ahk.wait(3)
     child_ahk.close()
-    assert child_ahk.proc.returncode == 0
+    assert proc.returncode == 0
 
 
 def test_send_level(child_ahk):
@@ -232,6 +232,8 @@ def test_send_level(child_ahk):
     assert proc.stderr == ""
     assert proc.returncode == 0
 
+
+def test_send_level_threaded(child_ahk):
     # TODO: SendLevel and friends must be thread-local in Python.
     def threaded():
         import ahk

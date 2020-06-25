@@ -7,6 +7,7 @@ import _ahk  # noqa
 
 from . import colors
 from . import keys
+from .exceptions import Error
 
 __all__ = [
     "ExWindowStyle",
@@ -689,6 +690,23 @@ class Window:
     def send(self, keys):
         control = ""
         self._call("ControlSend", control, str(keys), *self._include())
+
+    def send_message(self, msg, w_param, l_param, timeout=5):
+        control = exclude_title = exclude_text = ""
+        try:
+            result = self._call(
+                "SendMessage", int(msg), int(w_param), int(l_param), control,
+                *self._include(), exclude_title, exclude_text,
+                int(timeout * 1000),
+            )
+        except Error:
+            raise RuntimeError("there was a problem sending message or response timed out") from None
+        return result
+
+    def post_message(self, msg, w_param, l_param):
+        control = ""
+        err = self._call("PostMessage", int(msg), int(w_param), int(l_param), control, *self._include())
+        return not err
 
     def _call(self, cmd, *args):
         # Call the command only if the window was found previously. This makes
