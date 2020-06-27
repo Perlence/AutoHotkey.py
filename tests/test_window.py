@@ -363,9 +363,8 @@ def test_exclude_active_window_context(child_ahk):
     ahk.send("{F13}")
     assert context_windows.wait(timeout=1)
 
-    context_windows.close_all()
-    general_windows.activate()
-    assert general_windows.wait_active(timeout=1)
+    assert context_windows.close_all(timeout=1)
+    assert general_windows.activate(timeout=1)
     assert non_general_windows.exist()
     assert not non_general_windows.get_active()
     ahk.send("{F13}")

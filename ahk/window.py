@@ -160,13 +160,13 @@ class Windows:
             # Return the Last Found Window.
             return windows.first()
 
-    def activate(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        # TODO: Add "wait" argument.
+    def activate(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
         _ahk.call("WinActivate", *self._query())
+        if timeout is not None:
+            return self.wait_active(timeout=timeout)
 
     def close(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
-        # TODO: Add "wait" argument.
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
         _ahk.call("WinClose", *self._include(), timeout, *self._exclude())
 
@@ -228,23 +228,23 @@ class Windows:
 
     def close_all(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        self._group_action("WinClose", timeout)
+        return self._group_action("WinClose", timeout)
 
     def hide_all(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        self._group_action("WinHide")
+        return self._group_action("WinHide")
 
     def kill_all(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        self._group_action("WinKill", timeout)
+        return self._group_action("WinKill", timeout)
 
     def maximize_all(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        self._group_action("WinMaximize")
+        return self._group_action("WinMaximize")
 
     def minimize_all(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        self._group_action("WinMinimize")
+        return self._group_action("WinMinimize")
 
     # TODO: Implement WinMinimizeAllUndo.
 
@@ -268,6 +268,8 @@ class Windows:
         label = ""
         _ahk.call("GroupAdd", query_hash_str, *self._include(), label, *self._exclude())
         _ahk.call(cmd, f"ahk_group {query_hash_str}", "", timeout)
+        if timeout is not None:
+            return not self.exist()
 
     def window_context(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
@@ -639,9 +641,10 @@ class Window:
         else:
             self.hide()
 
-    def activate(self):
-        # TODO: Add "wait" argument.
+    def activate(self, timeout=None):
         self._call("WinActivate", *self._include())
+        if timeout is not None:
+            return self.wait_active(timeout=timeout)
 
     def get_status_bar_text(self, part=1):
         return self._call("StatusBarGetText", int(part), *self._include())
@@ -658,18 +661,16 @@ class Window:
         return not timed_out
 
     def close(self, timeout=None):
-        # TODO: Add "wait" argument.
         self._call("WinClose", *self._include(), timeout)
         if timeout is not None:
-            # Check if the window still exists.
-            return windows.first(id=id) is None
+            # TODO: Test timeout.
+            return not self.exists
 
     def kill(self, timeout=None):
-        # TODO: Add "wait" argument.
         self._call("WinKill", *self._include(), timeout)
         if timeout is not None:
-            # Check if the window still exists.
-            return windows.first(id=id) is None
+            # TODO: Test timeout.
+            return not self.exists
 
     def maximize(self):
         self._call("WinMaximize", *self._include())
