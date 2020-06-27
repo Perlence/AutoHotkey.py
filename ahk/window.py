@@ -365,29 +365,12 @@ class Windows:
 windows = Windows()
 
 
-@dc.dataclass(unsafe_hash=True)
-class Window:
+@dc.dataclass(frozen=True)
+class _Window:
     id: int
-
-    def __init__(self, id: int):
-        # I'd like the Window class to be hashable, and making the dataclass
-        # frozen also makes it hashable. However, frozen dataclasses cannot have
-        # setter properties. So let's override the __setattr__ and __delattr__
-        # method to allow setters.
-        object.__setattr__(self, "id", id)
 
     def __bool__(self):
         return self.id != 0
-
-    def __setattr__(self, name, value):
-        if name == "id":
-            raise dc.FrozenInstanceError(f"cannot assign to field {name!r}")
-        super().__setattr__(name, value)
-
-    def __delattr__(self, name, value):
-        if name == "id":
-            raise dc.FrozenInstanceError(f"cannot delete field {name!r}")
-        super().__setattr__(name, value)
 
     @property
     def rect(self):
@@ -749,6 +732,13 @@ class Window:
 
     def _include(self):
         return f"ahk_id {self.id}", ""
+
+
+class Window(_Window):
+    # I'd like the Window class to be hashable, and making the dataclass frozen
+    # also makes it hashable. However, frozen dataclasses cannot have setter
+    # properties unless it's a subclass.
+    pass
 
 
 class WindowStyle(enum.IntFlag):

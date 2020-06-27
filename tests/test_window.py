@@ -1,6 +1,9 @@
 import subprocess
 import time
+from dataclasses import FrozenInstanceError
 from functools import partial
+
+import pytest
 
 import ahk
 
@@ -126,6 +129,8 @@ def test_window(child_ahk, detect_hidden_windows):
     win1 = ahk.windows.wait(title="win1", exe="AutoHotkey.exe")
     assert win1
     assert hash(win1) == hash(ahk.Window(win1.id))
+    with pytest.raises(FrozenInstanceError):
+        win1.id = 0
 
     _, _, width, height = win1.rect
     x, y = win1.position
