@@ -1,7 +1,6 @@
 import subprocess
+import time
 from functools import partial
-
-import pytest
 
 import ahk
 
@@ -231,66 +230,155 @@ def test_status_bar(request):
     notepad_proc.terminate()
 
 
-@pytest.mark.skip
-@pytest.mark.parametrize('active_ctx, exclude_ctx, ctx_code', [
-    pytest.param(
-        0, 0,
-        'ahk.windows.window_context(exe="AutoHotkey.exe", text="Beep")',
-        id="IfWinExist",
-    ),
-    pytest.param(
-        1, 0,
-        'ahk.windows.active_window_context(exe="AutoHotkey.exe", text="Beep")',
-        id="IfWinActive",
-    ),
-    pytest.param(
-        0, 1,
-        'ahk.windows.filter(exe="AutoHotkey.exe").exclude(text="Beep").window_context()',
-        id="IfWinExist exclude",
-    ),
-    pytest.param(
-        1, 1,
-        'ahk.windows.filter(exe="AutoHotkey.exe").exclude(text="Beep").active_window_context()',
-        id="IfWinActive exclude",
-    ),
-])
-def test_window_contexts(child_ahk, active_ctx, exclude_ctx, ctx_code):
+def test_window_context(child_ahk):
     def code():
         import ahk
         import sys
         ahk.hotkey("F24", sys.exit)
-        ahk.hotkey("F13", lambda: ahk.message_box("Beep"))
-        ahk.hotkey("F14", lambda: ahk.message_box("Blarp"))
-        with eval(sys.argv[1]):
-            ahk.hotkey("F13", lambda: ahk.message_box("Boop"))
+        ahk.hotkey("F13", lambda: ahk.message_box("General"))
+        with ahk.windows.window_context(exe="AutoHotkey.exe", text="General"):
+            ahk.hotkey("F13", lambda: ahk.message_box("Context-specific"))
         print("ok00")
 
-    child_ahk.popen_code(code, args=[ctx_code])
+    child_ahk.popen_code(code)
     child_ahk.wait(0)
+    ahk.set_win_delay(None)
 
-    beep_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Beep")
-    blarp_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Blarp")
-    boop_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Boop")
+    general_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="General")
+    context_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Context-specific")
 
+    assert not general_windows.exist()
     ahk.send("{F13}")
-    assert beep_windows.wait(timeout=1)
-    assert not boop_windows.exist()
+    assert general_windows.wait(timeout=1)
+    assert not context_windows.exist()
 
-    if exclude_ctx:
-        ahk.send("{F14}")
-        assert blarp_windows.wait(timeout=1)
-
+    assert general_windows.exist()
     ahk.send("{F13}")
-    assert boop_windows.wait(timeout=1)
-    assert beep_windows.exist()
-
-    boop_windows.close_all(timeout=1)
-    ahk.windows.activate(class_name="Shell_TrayWnd")
-    ahk.send("{F13}")
-    if active_ctx:
-        assert not boop_windows.wait(timeout=0.5)
-    else:
-        assert boop_windows.wait(timeout=1)
-    assert beep_windows.exist()
+    assert context_windows.wait(timeout=1)
 
     ahk.send("{F24}")
+
+
+def test_active_window_context(child_ahk):
+    def code():
+        import ahk
+        import sys
+        ahk.hotkey("F24", sys.exit)
+        ahk.hotkey("F13", lambda: ahk.message_box("General"), max_threads=2)
+        with ahk.windows.active_window_context(exe="AutoHotkey.exe", text="General"):
+            ahk.hotkey("F13", lambda: ahk.message_box("Context-specific"))
+        print("ok00")
+
+    child_ahk.popen_code(code)
+    child_ahk.wait(0)
+    ahk.set_win_delay(None)
+
+    general_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="General")
+    context_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Context-specific")
+
+    assert not general_windows.exist()
+    ahk.send("{F13}")
+    assert general_windows.wait(timeout=1)
+    assert not context_windows.exist()
+
+    assert general_windows.get_active()
+    ahk.send("{F13}")
+    assert context_windows.wait(timeout=1)
+    assert len(general_windows) == 1
+
+    assert general_windows.exist()
+    assert not general_windows.get_active()
+    ahk.send("{F13}")
+    assert_equals_eventually(general_windows.__len__, 2)
+
+    ahk.send("{F24}")
+
+
+def test_exclude_window_context(child_ahk):
+    def code():
+        import ahk
+        import sys
+        ahk.hotkey("F24", sys.exit)
+        ahk.hotkey("F13", lambda: ahk.message_box("General"), max_threads=2)
+        ahk.hotkey("F14", lambda: ahk.message_box("Extra"))
+        with ahk.windows.filter(exe="AutoHotkey.exe").exclude(text="General").window_context():
+            # If there are any AutoHotkey windows beside General.
+            ahk.hotkey("F13", lambda: ahk.message_box("Context-specific"))
+        print("ok00")
+
+    child_ahk.popen_code(code)
+    child_ahk.wait(0)
+    ahk.set_win_delay(None)
+
+    general_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="General")
+    non_general_windows = ahk.windows.filter(exe="AutoHotkey.exe").exclude(text="General")
+    extra_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Extra")
+    context_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Context-specific")
+
+    assert not non_general_windows.exist()
+    ahk.send("{F13}")
+    assert general_windows.wait(timeout=1)
+    assert not context_windows.exist()
+
+    ahk.send("{F14}")
+    assert extra_windows.wait(timeout=1)
+
+    assert non_general_windows.exist()
+    ahk.send("{F13}")
+    assert context_windows.wait(timeout=1)
+
+    ahk.send("{F24}")
+
+
+def test_exclude_active_window_context(child_ahk):
+    def code():
+        import ahk
+        import sys
+        ahk.hotkey("F24", sys.exit)
+        ahk.hotkey("F13", lambda: ahk.message_box("General"), max_threads=3)
+        ahk.hotkey("F14", lambda: ahk.message_box("Extra"))
+        with ahk.windows.filter(exe="AutoHotkey.exe").exclude(text="General").active_window_context():
+            # If there are any active AutoHotkey windows beside General.
+            ahk.hotkey("F13", lambda: ahk.message_box("Context-specific"))
+        print("ok00")
+
+    child_ahk.popen_code(code)
+    child_ahk.wait(0)
+    ahk.set_win_delay(None)
+
+    general_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="General")
+    non_general_windows = ahk.windows.filter(exe="AutoHotkey.exe").exclude(text="General")
+    extra_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Extra")
+    context_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Context-specific")
+
+    assert not non_general_windows.exist()
+    ahk.send("{F13}")
+    assert general_windows.wait(timeout=1)
+    assert not context_windows.exist()
+
+    ahk.send("{F14}")
+    assert extra_windows.wait(timeout=1)
+
+    assert non_general_windows.get_active()
+    ahk.send("{F13}")
+    assert context_windows.wait(timeout=1)
+
+    context_windows.close_all()
+    general_windows.activate()
+    assert general_windows.wait_active(timeout=1)
+    assert non_general_windows.exist()
+    assert not non_general_windows.get_active()
+    ahk.send("{F13}")
+    assert_equals_eventually(general_windows.__len__, 2)
+
+    ahk.send("{F24}")
+
+
+def assert_equals_eventually(func, expected, timeout=1):
+    stop = time.perf_counter() + timeout
+    while time.perf_counter() < stop:
+        actual = func()
+        if actual == expected:
+            return
+        ahk.sleep(0.01)
+    assert actual == expected

@@ -161,10 +161,12 @@ class Windows:
             return windows.first()
 
     def activate(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
+        # TODO: Add "wait" argument.
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
         _ahk.call("WinActivate", *self._query())
 
     def close(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
+        # TODO: Add "wait" argument.
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
         _ahk.call("WinClose", *self._include(), timeout, *self._exclude())
 
@@ -638,6 +640,7 @@ class Window:
             self.hide()
 
     def activate(self):
+        # TODO: Add "wait" argument.
         self._call("WinActivate", *self._include())
 
     def get_status_bar_text(self, part=1):
@@ -655,12 +658,14 @@ class Window:
         return not timed_out
 
     def close(self, timeout=None):
+        # TODO: Add "wait" argument.
         self._call("WinClose", *self._include(), timeout)
         if timeout is not None:
             # Check if the window still exists.
             return windows.first(id=id) is None
 
     def kill(self, timeout=None):
+        # TODO: Add "wait" argument.
         self._call("WinKill", *self._include(), timeout)
         if timeout is not None:
             # Check if the window still exists.
