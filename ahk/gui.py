@@ -41,3 +41,8 @@ class MessageHandler:
 
     def disable(self):
         _ahk.call("OnMessage", self.msg_number, self.func, 0)
+
+
+def tooltip():
+    # TODO: Implement tooltips.
+    raise NotImplementedError()

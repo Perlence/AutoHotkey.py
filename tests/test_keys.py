@@ -266,3 +266,63 @@ def test_send_level_threaded(child_ahk):
             """)
     assert proc.stderr == ""
     assert proc.returncode == 0
+
+
+def test_remap_key(child_ahk):
+    def hotkeys():
+        import ahk
+        import sys
+        ahk.hotkey("F24", sys.exit)
+
+        @ahk.hotkey("F14")
+        def trigger():
+            ahk.message_box("F14 pressed")
+
+        print("ok00")
+
+    child_ahk.popen_code(hotkeys)
+    child_ahk.wait(0)
+
+    remap = ahk.remap_key("F13", "F14")
+    ahk.send_level(10)
+    ahk.send("{F13}")
+    assert ahk.windows.wait(exe="AutoHotkey.exe", text="F14 pressed", timeout=1)
+
+    remap.disable()
+
+    ahk.send("{F24}")
+
+
+@pytest.mark.skip
+def test_weird_error():
+    import sys
+    ahk.hotkey("F12", sys.exit)
+
+    @ahk.hotkey("F13")
+    def _():
+        pass
+
+    ahk.send("{F13}")
+    # TODO: Fix this.
+    assert False
+
+    # Traceback (most recent call last):
+    # File "C:\Users\Sviatoslav\Workspace\EmbedPython.ahk\ahk\main.py", line 33, in main
+    #     run_from_args()
+    # File "C:\Users\Sviatoslav\Workspace\EmbedPython.ahk\ahk\main.py", line 87, in run_from_args
+    #     run_module(module)
+    # File "C:\Users\Sviatoslav\Workspace\EmbedPython.ahk\ahk\main.py", line 184, in run_module
+    #     runpy.run_module(mod_name, run_name="__main__", alter_sys=True)
+    # File "C:\Users\Sviatoslav\AppData\Local\Programs\Python\Python38\Lib\runpy.py", line 206, in run_module
+    #     return _run_module_code(code, init_globals, run_name, mod_spec)
+    # File "C:\Users\Sviatoslav\AppData\Local\Programs\Python\Python38\Lib\runpy.py", line 96, in _run_module_code
+    #     _run_code(code, mod_globals, init_globals,
+    # File "C:\Users\Sviatoslav\AppData\Local\Programs\Python\Python38\Lib\runpy.py", line 86, in _run_code
+    #     exec(code, run_globals)
+    # File "C:\Users\Sviatoslav\.virtualenvs\EmbedPython.ahk-pkJK0MGH\Lib\site-packages\pytest\__main__.py", line 7, in <module>
+    #     raise SystemExit(pytest.main())
+    # SystemExit: ExitCode.TESTS_FAILED
+    #
+    # The above exception was the direct cause of the following exception:
+    #
+    # SystemError: PyEval_EvalFrameEx returned a result with an error set

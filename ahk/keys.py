@@ -14,6 +14,7 @@ __all__ = [
     "get_physical_key_state",
     "hotkey",
     "hotkey_context",
+    "hotstring",
     "is_key_toggled",
     "key_wait_pressed",
     "key_wait_released",
@@ -116,7 +117,7 @@ def hotkey_context(predicate):
     _ahk.call("Hotkey", "If")
 
 
-@dataclass
+@dataclass(frozen=True)
 class Hotkey:
     key_name: str
 
@@ -147,6 +148,11 @@ class Hotkey:
             _ahk.call("Hotkey", self.key_name, "", option_str)
 
 
+def hotstring(string, replacement):
+    # TODO: Implement hotstrings.
+    raise NotImplementedError()
+
+
 def key_wait_pressed(key_name, logical_state=False, timeout=None) -> bool:
     return _key_wait(key_name, down=True, logical_state=logical_state, timeout=timeout)
 
@@ -168,8 +174,35 @@ def _key_wait(key_name, down=False, logical_state=False, timeout=None) -> bool:
 
 
 def remap_key(origin_key, destination_key):
-    # TODO: Implement key remapping, e.g. Esc::CapsLock.
-    raise NotImplementedError()
+    # TODO: Handle LCtrl as the origin key.
+    # TODO: Handle remapping keyboard key to a mouse button.
+    @hotkey(f"*{origin_key}")
+    def wildcard_origin():
+        send("{Blind}{%s DownR}" % destination_key)
+
+    @hotkey(f"*{origin_key} Up")
+    def wildcard_origin_up():
+        send("{Blind}{%s Up}" % destination_key)
+
+    return RemappedKey(wildcard_origin, wildcard_origin_up)
+
+
+@dataclass(frozen=True)
+class RemappedKey:
+    wildcard_origin: Hotkey
+    wildcard_origin_up: Hotkey
+
+    def enable(self):
+        self.wildcard_origin.enable()
+        self.wildcard_origin_up.enable()
+
+    def disable(self):
+        self.wildcard_origin.disable()
+        self.wildcard_origin_up.disable()
+
+    def toggle(self):
+        self.wildcard_origin.toggle()
+        self.wildcard_origin_up.toggle()
 
 
 def send(keys):

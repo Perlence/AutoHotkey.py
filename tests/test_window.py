@@ -382,3 +382,6 @@ def assert_equals_eventually(func, expected, timeout=1):
             return
         ahk.sleep(0.01)
     assert actual == expected
+
+
+# TODO: Write nonexistent/inactive window context tests.
