@@ -66,7 +66,7 @@ def test_windows(child_ahk):
     assert win1.exists
 
     win2 = msg_boxes.first(title="win2")
-    win1.activate()
+    assert win1.activate(timeout=1)
     assert not win2.is_active
 
     assert len(msg_boxes) == 2
@@ -79,7 +79,7 @@ def test_windows(child_ahk):
 
     msg_boxes.minimize()
     assert win1.is_minimized
-    msg_boxes.activate()
+    msg_boxes.activate(timeout=1)
     assert win2.is_active
     win1.restore()
     msg_boxes.maximize()
@@ -100,7 +100,7 @@ def test_windows(child_ahk):
     assert not win1.is_enabled
     msg_boxes.enable()
     assert win1.is_enabled
-    win1.activate()
+    win1.activate(timeout=1)
     msg_boxes.close()
     assert win1.wait_close(timeout=1)
 
