@@ -69,7 +69,7 @@ def set_win_delay(value):
     _ahk.call("SetWinDelay", value)
 
 
-@dc.dataclass
+@dc.dataclass(frozen=True)
 class Windows:
     title: str = None
     class_name: str = None
@@ -263,7 +263,7 @@ class Windows:
             _ahk.call("WinMinimizeAll")
             return
 
-        query_hash = hash(dc.astuple(self))
+        query_hash = hash(self)
         query_hash_str = str(query_hash).replace("-", "m")  # AHK doesn't allow "-" in group names
         label = ""
         _ahk.call("GroupAdd", query_hash_str, *self._include(), label, *self._exclude())
@@ -365,12 +365,29 @@ class Windows:
 windows = Windows()
 
 
-@dc.dataclass
+@dc.dataclass(unsafe_hash=True)
 class Window:
     id: int
 
+    def __init__(self, id: int):
+        # I'd like the Window class to be hashable, and making the dataclass
+        # frozen also makes it hashable. However, frozen dataclasses cannot have
+        # setter properties. So let's override the __setattr__ and __delattr__
+        # method to allow setters.
+        object.__setattr__(self, "id", id)
+
     def __bool__(self):
         return self.id != 0
+
+    def __setattr__(self, name, value):
+        if name == "id":
+            raise dc.FrozenInstanceError(f"cannot assign to field {name!r}")
+        super().__setattr__(name, value)
+
+    def __delattr__(self, name, value):
+        if name == "id":
+            raise dc.FrozenInstanceError(f"cannot delete field {name!r}")
+        super().__setattr__(name, value)
 
     @property
     def rect(self):

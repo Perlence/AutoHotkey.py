@@ -125,6 +125,7 @@ def test_window(child_ahk, detect_hidden_windows):
 
     win1 = ahk.windows.wait(title="win1", exe="AutoHotkey.exe")
     assert win1
+    assert hash(win1) == hash(ahk.Window(win1.id))
 
     _, _, width, height = win1.rect
     x, y = win1.position
