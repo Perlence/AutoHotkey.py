@@ -271,7 +271,12 @@ PyCall(key, args*) {
 
     gstate := PyGILState_Ensure()
 
-    pyArgs := AHKArgsToPython(args)
+    try {
+        pyArgs := AHKArgsToPython(args)
+    } catch e {
+        PyGILState_Release(gstate)
+        throw e
+    }
     result := ""
     pyResult := PyObject_CallObject(pyFunc, pyArgs)
     Py_XDecRef(pyArgs)
@@ -299,14 +304,12 @@ PyCall(key, args*) {
 
 AHKArgsToPython(ahkArgs) {
     if (ahkArgs.Count() == 0) {
-        return NULL ; Not an error
+        return NULL ; Not an error, just no args
     }
 
     pyArgs := PyTuple_New(ahkArgs.Count())
     if (pyArgs == NULL) {
-        PyGILState_Release(gstate)
-        End("Couldn't create argument tuple")
-        return
+        throw Exception("Couldn't create argument tuple to call Python function")
     }
     for i, arg in ahkArgs {
         PyTuple_SetItem(pyArgs, i-1, AHKToPython(arg))
@@ -459,8 +462,6 @@ PrintErrorOrExit() {
 }
 
 End(message) {
-    ; TODO: Consider replacing some of End invocations with raising Python
-    ; exceptions.
     message .= "`nThe application will now exit."
     MsgBox, % message
     ExitApp

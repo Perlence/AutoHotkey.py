@@ -47,7 +47,7 @@ CachedProcAddress(symbol, returnType:="Ptr") {
     if (not proc) {
         proc := DllCall("GetProcAddress", "Ptr", HPYTHON_DLL, "AStr", symbol, returnType)
         if (not proc) {
-            End("Cannot get the address of " symbol " symbol. Error " A_LastError)
+            throw Exception("Cannot get the address of " symbol " symbol. Error " A_LastError)
         }
         PYTHON_DLL_PROCS[symbol] := proc
     }
