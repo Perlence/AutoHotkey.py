@@ -276,7 +276,15 @@ PyCall(key, args*) {
     pyResult := PyObject_CallObject(pyFunc, pyArgs)
     Py_XDecRef(pyArgs)
     if (pyResult == "") {
-        End("Call to '" key "' callback failed: " ErrorLevel)
+        pyRepr := PyObject_Repr(pyFunc)
+        if (PyUnicode_Check(pyRepr)) {
+            repr := PyUnicode_AsWideCharString(pyRepr)
+            Py_DecRef(pyRepr)
+            throw Exception("Call to '" repr "' failed: " ErrorLevel)
+        } else {
+            Py_DecRef(pyRepr)
+            throw Exception("Call to a Python function failed: " ErrorLevel)
+        }
     } else if (pyResult == NULL) {
         PrintErrorOrExit()
     } else {
