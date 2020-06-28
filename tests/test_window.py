@@ -26,6 +26,8 @@ def test_windows(child_ahk):
         ahk.sleep(1)
         sys.exit()
 
+    assert ahk.windows.get_active()
+
     child_ahk.popen_code(windows)
     ahk.set_win_delay(None)
 

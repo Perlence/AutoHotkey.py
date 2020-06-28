@@ -127,7 +127,10 @@ class Windows:
 
     def get_active(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        win_id = _ahk.call("WinActive", *self._query())
+        query = self._query()
+        if query == ("", "", "", ""):
+            query = ("A", "", "", "")
+        win_id = _ahk.call("WinActive", *query)
         return Window(win_id)
 
     def wait(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
