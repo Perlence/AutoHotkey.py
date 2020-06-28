@@ -323,6 +323,7 @@ AHKToPython(value) {
         if (Py_EmptyString == NULL) {
             Py_EmptyString := PyUnicode_InternFromString(&EMPTY_STRING)
         }
+        Py_IncRef(Py_EmptyString)
         return Py_EmptyString
     } else if value is integer
         return PyLong_FromLongLong(value)
