@@ -249,21 +249,16 @@ _AHKCall(self, args) {
         return NULL
     }
 
-    if (func == "Sleep") {
-        ; Release the GIL and let AHK process its message queue.
-        ; TODO: Release the GIL for other blocking functions, e.g. WinWait?
-        save := PyEval_SaveThread()
-    }
+    ; Release the GIL and let AHK process its message queue.
+    save := PyEval_SaveThread()
     try {
         result := %funcRef%(ahkArgs*)
     } catch e {
+        PyEval_RestoreThread(save)
         PyErr_SetAHKError(e)
         return NULL
-    } finally {
-        if (func == "Sleep") {
-            PyEval_RestoreThread(save)
-        }
     }
+    PyEval_RestoreThread(save)
 
     return AHKToPython(result)
 }
