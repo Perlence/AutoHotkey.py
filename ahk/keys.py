@@ -28,6 +28,10 @@ __all__ = [
 ]
 
 
+def DEFAULT(value):
+    return None
+
+
 def get_key_state(key_name):
     return _get_key_state(key_name)
 
@@ -73,13 +77,15 @@ def _set_key_state(cmd, state):
     _ahk.call(cmd, state)
 
 
-def hotkey(key_name: str,
-           func: Callable = None,
-           *,
-           buffer: Optional[bool] = None,
-           priority: Optional[int] = None,
-           max_threads: Optional[int] = None,
-           input_level: Optional[int] = None):
+def hotkey(
+    key_name: str,
+    func: Callable = None,
+    *,
+    buffer: Optional[bool] = DEFAULT(False),
+    priority: Optional[int] = DEFAULT(0),
+    max_threads: Optional[int] = DEFAULT(1),
+    input_level: Optional[int] = DEFAULT(0),
+):
 
     if key_name == "":
         raise Error("invalid key name")
@@ -96,8 +102,7 @@ def hotkey(key_name: str,
     # TODO: Hotkey command may set ErrorLevel. Raise an exception.
 
     hk = Hotkey(key_name)
-    _ahk.call("Hotkey", key_name, func)
-    hk.set_options(buffer=buffer, priority=priority, max_threads=max_threads, input_level=input_level)
+    hk.update(func=func, buffer=buffer, priority=priority, max_threads=max_threads, input_level=input_level)
     return hk
 
 
@@ -130,19 +135,28 @@ class Hotkey:
     def toggle(self):
         _ahk.call("Hotkey", self.key_name, "Toggle")
 
-    def set_options(self, buffer=None, priority=None, max_threads=None,
-                    input_level=None):
+    def update(self, *, func=None, buffer=None, priority=None, max_threads=None, input_level=None):
         options = []
-        if buffer is False:
-            options.append("B0")
-        elif buffer is True:
+
+        if buffer:
             options.append("B")
+        elif buffer is not None:
+            options.append("B0")
+
         if priority is not None:
             options.append(f'P{priority}')
+
         if max_threads is not None:
             options.append(f"T{max_threads}")
+
         if input_level is not None:
             options.append(f"I{input_level}")
+
+        option_str = "".join(options)
+
+        # TODO: Test setting a new func.
+        # TODO: Remove the old func from CALLBACKS and decref it.
+        _ahk.call("Hotkey", self.key_name, func or "", option_str)
         option_str = "".join(options)
         if option_str:
             _ahk.call("Hotkey", self.key_name, "", option_str)

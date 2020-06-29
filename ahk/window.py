@@ -81,6 +81,9 @@ class Windows:
     exclude_text: str = None
 
     def filter(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
+        # TODO: Consider adding the "detect_hidden_windows" parameter.
+        # TODO: Consider adding the "detect_hidden_text" parameter.
+        # TODO: Consider adding the "title_match_mode" parameter.
         if title is None and class_name is None and id is None and pid is None and exe is None and text is None:
             return self
         return dc.replace(
