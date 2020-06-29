@@ -260,10 +260,16 @@ class Hotstring:
     ):
         options = []
 
-        if wait_for_end_char:
-            options.append("*0")
-        elif wait_for_end_char is not None:
+        if wait_for_end_char is False:
             options.append("*")
+        elif omit_end_char:
+            options.append("*0")
+            options.append("O")
+        else:
+            if wait_for_end_char:
+                options.append("*0")
+            if omit_end_char is False:
+                options.append("O0")
 
         if replace_inside_word:
             options.append("?")
@@ -284,11 +290,6 @@ class Hotstring:
 
         if key_delay is not None:
             options.append(f"K{key_delay}")
-
-        if omit_end_char:
-            options.append("O")
-        elif omit_end_char is not None:
-            options.append("O0")
 
         if priority is not None:
             options.append(f"P{priority}")
