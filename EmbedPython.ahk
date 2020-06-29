@@ -393,6 +393,7 @@ PythonToAHK(pyObject, borrowed:=True) {
             ahkFunc := Func("PyCall").Bind(pyObject)
             WRAPPED_PYTHON_FUNCTIONS[pyObject] := ahkFunc
         }
+        ; TODO: Pass A_ThisHotkey to hotkey callback.
         return ahkFunc
     } else {
         pyRepr := PyObject_Repr(pyObject)

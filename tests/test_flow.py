@@ -46,7 +46,7 @@ def test_timer(child_ahk):
         import ahk
         import sys
 
-        ahk.hotkey("^t", lambda: None)  # Make the script persistent
+        ahk.hotkey("F24", lambda: None)  # Make the script persistent
 
         @ahk.set_timer(countdown=0.1)
         def dong():
@@ -64,7 +64,7 @@ def test_timer(child_ahk):
         import ahk
         import sys
 
-        ahk.hotkey("^t", lambda: None)  # Make the script persistent
+        ahk.hotkey("F24", lambda: None)  # Make the script persistent
 
         @ahk.set_timer(period=0.1)
         def ding():
@@ -79,3 +79,33 @@ def test_timer(child_ahk):
     assert res.stdout == "Ding!\n"
     assert res.stderr == ""
     assert res.returncode == 0
+
+
+def test_suspend(child_ahk):
+    def code():
+        import ahk
+        import sys
+
+        ahk.hotkey("F13", lambda: print("ok01"))
+
+        @ahk.hotkey("F14")
+        def sus():
+            ahk.suspend()
+            print("ok02")
+
+        ahk.set_timer(sys.exit, countdown=0.5)
+        print("ok00")
+
+    proc = child_ahk.popen_code(code)
+    child_ahk.wait(0)
+
+    ahk.send("{F13}")
+    child_ahk.wait(1)
+
+    ahk.send("{F14}")
+    child_ahk.wait(2)
+
+    ahk.send("{F13}")
+
+    proc.wait()
+    assert proc.stdout.read() == ""

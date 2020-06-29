@@ -5,9 +5,12 @@ import _ahk  # noqa
 
 __all__ = [
     "Timer",
+    "resume",
     "set_batch_lines",
     "set_timer",
     "sleep",
+    "suspend",
+    "toggle_suspend",
 ]
 
 
@@ -50,7 +53,7 @@ class Timer:
         _ahk.call("SetTimer", self.func, "Off")
 
     def cancel(self):
-        # TODO: Remove self.func from CALLBACKS and BOUND_TRIGGERS.
+        # TODO: Remove self.func from CALLBACKS and WRAPPED_PYTHON_FUNCTIONS in AHK.
         _ahk.call("SetTimer", self.func, "Delete")
 
     def set_priority(self, priority):
@@ -64,3 +67,15 @@ def sleep(secs):
         _ahk.call("Sleep", -1)
     else:
         _ahk.call("Sleep", int(secs * 1000))
+
+
+def suspend():
+    _ahk.call("Suspend", "On")
+
+
+def resume():
+    _ahk.call("Suspend", "Off")
+
+
+def toggle_suspend():
+    _ahk.call("Suspend", "Toggle")
