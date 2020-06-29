@@ -78,10 +78,6 @@ class Windows:
     exe: str = None
     text: str = None
     exclude_title: str = None
-    exclude_class_name: str = None
-    exclude_id: int = None
-    exclude_pid: int = None
-    exclude_exe: str = None
     exclude_text: str = None
 
     def filter(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
@@ -97,16 +93,13 @@ class Windows:
             text=default(text, self.text),
         )
 
-    def exclude(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        if title is None and class_name is None and id is None and pid is None and exe is None and text is None:
+    def exclude(self, title=None, *, text=None):
+        # TODO: Implement class_name, id, pid, and exe exclusion in Python.
+        if title is None and text is None:
             return self
         return dc.replace(
             self,
             exclude_title=default(title, self.exclude_title),
-            exclude_class_name=default(class_name, self.exclude_class_name),
-            exclude_id=default(id, self.exclude_id),
-            exclude_pid=default(pid, self.exclude_pid),
-            exclude_exe=default(exe, self.exclude_exe),
             exclude_text=default(text, self.exclude_text),
         )
 
@@ -347,20 +340,8 @@ class Windows:
         )
 
     def _exclude(self):
-        parts = []
-        if self.exclude_title is not None:
-            parts.append(str(self.exclude_title))
-        if self.exclude_class_name is not None:
-            parts.append(f"ahk_class {self.exclude_class_name}")
-        if self.exclude_id is not None:
-            parts.append(f"ahk_id {self.exclude_id}")
-        if self.exclude_pid is not None:
-            parts.append(f"ahk_pid {self.exclude_pid}")
-        if self.exclude_exe is not None:
-            parts.append(f"ahk_exe {self.exclude_exe}")
-
         return (
-            " ".join(parts),
+            default(str, self.exclude_title, ""),
             default(str, self.exclude_text, ""),
         )
 
