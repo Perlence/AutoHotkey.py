@@ -10,6 +10,8 @@ from .exceptions import Error
 
 __all__ = [
     "Hotkey",
+    "Hotstring",
+    "SendMode",
     "get_key_state",
     "get_physical_key_state",
     "hotkey",
@@ -19,6 +21,7 @@ __all__ = [
     "key_wait_pressed",
     "key_wait_released",
     "remap_key",
+    "reset_hotstring",
     "send_level",
     "send_mode",
     "send",
@@ -30,6 +33,12 @@ __all__ = [
 
 def DEFAULT(value):
     return None
+
+
+class SendMode:
+    INPUT = "input"
+    PLAY = "play"
+    EVENT = "event"
 
 
 def get_key_state(key_name):
@@ -157,14 +166,161 @@ class Hotkey:
         # TODO: Test setting a new func.
         # TODO: Remove the old func from CALLBACKS and decref it.
         _ahk.call("Hotkey", self.key_name, func or "", option_str)
+
+
+def hotstring(
+    string,
+    replacement=None,
+    *,
+    wait_for_end_char=DEFAULT(True),
+    replace_inside_word=DEFAULT(False),
+    backspacing=DEFAULT(True),
+    case_sensitive=DEFAULT(False),
+    conform_to_case=DEFAULT(False),
+    key_delay=None,
+    omit_end_char=DEFAULT(False),
+    priority=DEFAULT(0),
+    raw=DEFAULT(False),
+    text=DEFAULT(False),
+    mode=DEFAULT(SendMode.INPUT),
+    reset_recognizer=DEFAULT(False),
+):
+    # TODO: Implement setting global options.
+    # TODO: Write tests.
+    if replacement is None:
+        # Return the decorator.
+        return partial(
+            hotstring,
+            string,
+            wait_for_end_char=wait_for_end_char,
+            replace_inside_word=replace_inside_word,
+            backspacing=backspacing,
+            case_sensitive=case_sensitive,
+            conform_to_case=conform_to_case,
+            key_delay=key_delay,
+            omit_end_char=omit_end_char,
+            priority=priority,
+            raw=raw,
+            text=text,
+            mode=mode,
+            reset_recognizer=reset_recognizer,
+        )
+
+    hs = Hotstring(string)
+    hs.update(
+        replacement=replacement,
+        wait_for_end_char=wait_for_end_char,
+        replace_inside_word=replace_inside_word,
+        backspacing=backspacing,
+        case_sensitive=case_sensitive,
+        conform_to_case=conform_to_case,
+        key_delay=key_delay,
+        omit_end_char=omit_end_char,
+        priority=priority,
+        raw=raw,
+        text=text,
+        mode=mode,
+        reset_recognizer=reset_recognizer,
+    )
+    return hs
+
+
+@dataclass(frozen=True)
+class Hotstring:
+    string: str
+
+    def set_replacement(self, replacement):
+        _ahk.call("Hotstring", str(self.string), replacement)
+
+    def disable(self):
+        _ahk.call("Hotstring", str(self.string), "", "Off")
+
+    def enable(self):
+        _ahk.call("Hotstring", str(self.string), "", "On")
+
+    def toggle(self):
+        _ahk.call("Hotstring", str(self.string), "", "Toggle")
+
+    def update(
+        self,
+        *,
+        replacement=None,
+        wait_for_end_char=None,
+        replace_inside_word=None,
+        backspacing=None,
+        case_sensitive=None,
+        conform_to_case=None,
+        key_delay=None,
+        omit_end_char=None,
+        priority=None,
+        raw=None,
+        text=None,
+        mode=None,
+        reset_recognizer=None,
+    ):
+        options = []
+
+        if wait_for_end_char:
+            options.append("*0")
+        elif wait_for_end_char is not None:
+            options.append("*")
+
+        if replace_inside_word:
+            options.append("?")
+        elif replace_inside_word is not None:
+            options.append("?0")
+
+        if backspacing:
+            options.append("B")
+        elif backspacing is not None:
+            options.append("B0")
+
+        if conform_to_case:
+            options.append("C1")
+        elif case_sensitive:
+            options.append("C")
+        elif case_sensitive is not None or conform_to_case is not None:
+            options.append("C0")
+
+        if key_delay is not None:
+            options.append(f"K{key_delay}")
+
+        if omit_end_char:
+            options.append("O")
+        elif omit_end_char is not None:
+            options.append("O0")
+
+        if priority is not None:
+            options.append(f"P{priority}")
+
+        if text:
+            options.append("T")
+        elif raw:
+            options.append("R")
+        elif raw is not None or text is not None:
+            options.append("R0")
+
+        if mode is not None:
+            mode = mode.lower()
+        if mode == SendMode.INPUT:
+            options.append("SI")
+        elif mode == SendMode.PLAY:
+            options.append("SP")
+        elif mode == SendMode.EVENT:
+            options.append("SE")
+
+        if reset_recognizer:
+            options.append("Z")
+        elif reset_recognizer is not None:
+            options.append("Z0")
+
         option_str = "".join(options)
-        if option_str:
-            _ahk.call("Hotkey", self.key_name, "", option_str)
+
+        _ahk.call("Hotstring", f":{option_str}:{self.string}", replacement or "")
 
 
-def hotstring(string, replacement):
-    # TODO: Implement hotstrings.
-    raise NotImplementedError()
+def reset_hotstring():
+    _ahk.call("Reset")
 
 
 def key_wait_pressed(key_name, logical_state=False, timeout=None) -> bool:
