@@ -65,6 +65,11 @@ def test_hotkey(child_ahk):
             show_msgbox.enable()
             print("ok02")
 
+        @ahk.hotkey("F18")
+        def change_f14():
+            show_msgbox.update(func=lambda: print("ok04"))
+            print("ok03")
+
         print("ok00")
 
     proc = child_ahk.popen_code(hotkeys)
@@ -91,6 +96,13 @@ def test_hotkey(child_ahk):
     child_ahk.wait(2)
     ahk.send("{F14}")
     assert msg_boxes.wait(text="Hello from hotkey", timeout=0.5)
+    msg_boxes.send("{Space}")
+
+    ahk.send("{F18}")  # Change the handler of {F14} to print "ok04"
+    child_ahk.wait(3)
+    ahk.send("{F14}")
+    assert not msg_boxes.wait(text="Hello from hotkey", timeout=0.5)
+    child_ahk.wait(4)
 
     ahk.send("{F24}")
     child_ahk.close()
