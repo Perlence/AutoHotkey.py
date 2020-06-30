@@ -295,9 +295,9 @@ class Windows:
                 yield
             return
 
-        _ahk.call("Hotkey", cmd, *self._include())
+        _ahk.call("HotkeyWinContext", cmd, *self._include())
         yield
-        _ahk.call("Hotkey", "If")
+        _ahk.call("HotkeyExitContext")
 
     def send(self, keys, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)

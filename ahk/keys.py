@@ -115,34 +115,18 @@ def hotkey(
     return hk
 
 
-@contextmanager
-def hotkey_context(predicate):
-    signature = inspect.signature(predicate)
-    if len(signature.parameters) == 0:
-        def wrapper(*args):
-            return bool(predicate())
-    else:
-        def wrapper(*args):
-            return bool(predicate(*args))
-
-    # TODO: Add a threading lock.
-    _ahk.call("Hotkey", "If", wrapper)
-    yield
-    _ahk.call("Hotkey", "If")
-
-
 @dataclass(frozen=True)
 class Hotkey:
     key_name: str
 
     def enable(self):
-        _ahk.call("Hotkey", self.key_name, "On")
+        _ahk.call("HotkeySpecial", self.key_name, "On")
 
     def disable(self):
-        _ahk.call("Hotkey", self.key_name, "Off")
+        _ahk.call("HotkeySpecial", self.key_name, "Off")
 
     def toggle(self):
-        _ahk.call("Hotkey", self.key_name, "Toggle")
+        _ahk.call("HotkeySpecial", self.key_name, "Toggle")
 
     def update(self, *, func=None, buffer=None, priority=None, max_threads=None, input_level=None):
         options = []
@@ -166,6 +150,22 @@ class Hotkey:
         # TODO: Test setting a new func.
         # TODO: Remove the old func from CALLBACKS and decref it.
         _ahk.call("Hotkey", self.key_name, func or "", option_str)
+
+
+@contextmanager
+def hotkey_context(predicate):
+    signature = inspect.signature(predicate)
+    if len(signature.parameters) == 0:
+        def wrapper(*args):
+            return bool(predicate())
+    else:
+        def wrapper(*args):
+            return bool(predicate(*args))
+
+    # TODO: Add a threading lock.
+    _ahk.call("HotkeyContext", wrapper)
+    yield
+    _ahk.call("HotkeyExitContext")
 
 
 def hotstring(

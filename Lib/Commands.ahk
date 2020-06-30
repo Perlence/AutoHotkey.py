@@ -327,23 +327,25 @@ _GuiControlGet(Subcommand="",ControlID="",Param4="") {
     return OutputVar
 }
 
-/**
- * Implementation: Minor change (target label becomes closure).
- * "Hotkey" is special because it uses labels.
- * The migrated function uses closures instead of labels.
- * TODO: Add support for AltTab.
- */
-_Hotkey(Param1, Params*) {
-    if (Params.Length() == 0) {
-        Hotkey, %Param1% ; If, close context.
-    } else if (Params.Length() == 1) {
-        p2 := Params[1]
-        Hotkey, %Param1%, %p2%
-    } else if (Params.Length() >= 2) {
-        p2 := Params[1]
-        p3 := Params[2]
-        Hotkey, %Param1%, %p2%, %p3%
-    }
+_Hotkey(KeyName, Func, Options) {
+    ; CALLBACKS["Hotkey" Param1] := Func
+    Hotkey, %KeyName%,%Func%,%Options%
+}
+
+_HotkeySpecial(KeyName, Options) {
+    Hotkey, %KeyName%,%Options%
+}
+
+_HotkeyContext(Predicate) {
+    Hotkey, If, %Predicate%
+}
+
+_HotkeyWinContext(Cmd, WinTitle="", WinText="") {
+    Hotkey, %Cmd%,%WinTitle%,%WinText%
+}
+
+_HotkeyExitContext() {
+    Hotkey, If
 }
 
 /**

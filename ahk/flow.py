@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from functools import partial
+from typing import Callable
 
 import _ahk  # noqa
 
@@ -44,7 +45,7 @@ def set_timer(func=None, period=0.25, countdown=None, priority=0):
 
 @dataclass(frozen=True)
 class Timer:
-    func: callable
+    func: Callable
 
     def start(self):
         _ahk.call("SetTimer", self.func, "On")
