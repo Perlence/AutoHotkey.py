@@ -7,22 +7,11 @@ import _ahk  # noqa
 __all__ = [
     "Timer",
     "resume",
-    "set_batch_lines",
     "set_timer",
     "sleep",
     "suspend",
     "toggle_suspend",
 ]
-
-
-def set_batch_lines(interval=None, lines=None):
-    if interval is not None:
-        _ahk.call("SetBatchLines", f"{interval}ms")
-        return
-    if lines is not None:
-        _ahk.call("SetBatchLines", f"{lines}")
-        return
-    raise ValueError("either 'interval' or 'lines' are required")
 
 
 def set_timer(func=None, period=0.25, countdown=None, priority=0):

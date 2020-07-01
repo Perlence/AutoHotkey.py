@@ -20,11 +20,11 @@ def test_call():
     temp = _ahk.call("EnvGet", "TEMP")
     assert isinstance(temp, str)
 
-    rnd = _ahk.call("Random", 42, "42")
+    rnd = _ahk.call("Min", 42, "42")
     assert isinstance(rnd, int)
     assert rnd == 42
 
-    assert _ahk.call("Random", 1, True) == 1
+    assert _ahk.call("Min", 1, True) == 1
 
     val = _ahk.call("Max", 9223372036854775807)
     assert val == 9223372036854775807

@@ -1,6 +1,7 @@
 #NoEnv
 #Warn, All, MsgBox
 SendMode, Input
+SetBatchLines, -1
 
 global NULL := 0
 global EMPTY_STRING := ""

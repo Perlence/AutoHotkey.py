@@ -1,34 +1,5 @@
-;########################################################################
-;############################   A P I   #################################
-;########################################################################
-; This section migrates AHK Commands, Functions and Variables that need special attention.
-; Keywords not present here are migrated directly (dynamically).
-; The bulk of API functions consists of dumb Command->Function conversions.
-; Whenever an API function deviates more than trivially from the AHK documentations,
-; extensive comments are provided.
-
-; /**
-;  * Implementation: Replacement.
-;  * Use Python's sys.argv instead.
-;  */
-; _A_Args() {
-; }
-
 _A_SendLevel() {
     return %A_SendLevel%
-}
-
-_A_ScriptDir() {
-    return %mainDir%
-}
-
-_A_ScriptFullPath() {
-    return %mainPath%
-}
-
-_A_ScriptName() {
-    SplitPath, mainPath, mainFilename
-    return %mainFilename%
 }
 
 _BlockInput(Mode) {
@@ -144,57 +115,8 @@ _EnvGet(EnvVarName) {
     return OutputVar
 }
 
-_EnvSet(EnvVar,Value) {
-    return OutputVar
-}
-
-_EnvUpdate() {
-    EnvUpdate
-}
-
-/**
- * Implementation: Identical.
- * "Clipboard" and "ErrorLevel" are the only built-in variables that allow write access.
- * Because "getBuiltInVar()" only handles getters, these 2 had to be customized.
- */
-_ErrorLevel(a*) { ; variadic parameters, to detect the role (getter or setter)
-    if (a.MaxIndex()) { ; setter
-        ErrorLevel := a[1]
-    } else { ; getter
-        return ErrorLevel
-    }
-}
-
-_ExitApp(ExitCode="") {
-    ExitApp %ExitCode%
-}
-
-_FileAppend(Text="",Filename="",Encoding="") {
-    FileAppend %Text%,%Filename%,%Encoding%
-}
-
-_FileCopy(SourcePattern,DestPattern,Flag="") {
-    FileCopy %SourcePattern%,%DestPattern%,%Flag%
-}
-
-_FileCopyDir(Source,Dest,Flag="") {
-    FileCopyDir %Source%,%Dest%,%Flag%
-}
-
-_FileCreateDir(DirName) {
-    FileCreateDir %DirName%
-}
-
 _FileCreateShortcut(Target,LinkFile,WorkingDir="",Args="",Description="",IconFile="",ShortcutKey="",IconNumber="",RunState="") {
     FileCreateShortcut %Target%,%LinkFile%,%WorkingDir%,%Args%,%Description%,%IconFile%,%ShortcutKey%,%IconNumber%,%RunState%
-}
-
-_FileDelete(FilePattern) {
-    FileDelete %FilePattern%
-}
-
-_FileEncoding(Encoding="") {
-    FileEncoding %Encoding%
 }
 
 _FileGetAttrib(Filename="") {
@@ -212,53 +134,8 @@ _FileGetShortcut(LinkFile, Target="", Dir="", Args="", Description="", Icon="", 
     return JS.Object("Target",Target, "Dir",Dir, "Args",Args, "Description",Description, "Icon",Icon, "IconNum",IconNum, "RunState",RunState)
 }
 
-_FileGetSize(Filename="",Units="") {
-    FileGetSize OutputVar,%Filename%,%Units%
-    return OutputVar+0
-}
-
-_FileGetTime(Filename="",WhichTime="") {
-    FileGetTime OutputVar,%Filename%,%WhichTime%
-    return OutputVar
-}
-
 _FileGetVersion(Filename="") {
     FileGetVersion OutputVar,%Filename%
-    return OutputVar
-}
-
-_FileMove(SourcePattern,DestPattern,Flag="") {
-    FileMove %SourcePattern%,%DestPattern%,%Flag%
-}
-
-_FileMoveDir(Source,Dest,Flag="") {
-    FileMoveDir %Source%,%Dest%,%Flag%
-}
-
-/**
- * Implementation: Minor change.
- * The implementation of "FileOpen" is in fact identical to the one in AHK (thanks to Coco).
- * The only difference is in the returned file object, whose "RawRead()" cannot output 2 variables.
- * In AHK, "RawRead()" has the definition "RawRead(ByRef VarOrAddress, bytes):<Number>".
- * In JS, "RawRead()" has the definition "RawRead(bytes, Advanced=0)", with two modes:
- * 		1) the default mode (Advanced=0) is to return the retrieved data. Note that this behavior
- *          differs from the one in AHK, where the return value represents the number of bytes
- *          that were read.
- *		2) the advanced mode (Advanced!=0) returns an object with 2 properties:
- *           Count: The number of bytes that were read.
- *           Data: The data retrieved from the file.
- */
-_FileOpen(fspec, flags, encoding:="CP0") {
-    return new FileObject(fspec, flags, encoding)
-}
-
-_FileRead(Filename) {
-    FileRead OutputVar,%Filename%
-    return OutputVar
-}
-
-_FileReadLine(Filename,LineNum) {
-    FileReadLine OutputVar,%Filename%,%LineNum%
     return OutputVar
 }
 
@@ -268,10 +145,6 @@ _FileRecycle(FilePattern) {
 
 _FileRecycleEmpty(DriveLetter="") {
     FileRecycleEmpty %DriveLetter%
-}
-
-_FileRemoveDir(DirName,Recurse="") {
-    FileRemoveDir %DirName%,%Recurse%
 }
 
 _FileSelectFile(Options="",RootDirOFilename="",Prompt="",Filter="") {
@@ -292,11 +165,6 @@ _FileSetTime(YYYYMMDDHH24MISS="",FilePattern="",WhichTime="",OperateOnFolders=""
     FileSetTime %YYYYMMDDHH24MISS%,%FilePattern%,%WhichTime%,%OperateOnFolders%,%Recurse%
 }
 
-_FormatTime(YYYYMMDDHH24MISS="",Format="") {
-    FormatTime OutputVar,%YYYYMMDDHH24MISS%,%Format%
-    return OutputVar
-}
-
 _GroupActivate(GroupName,R="") {
     GroupActivate %GroupName%,%R%
 }
@@ -313,9 +181,8 @@ _GroupDeactivate(GroupName,R="") {
     GroupDeactivate %GroupName%,%R%
 }
 
-
 ; _Gui(Subcommand,Param2="",Param3="",Param4="") {
-; 	Gui, %Subcommand%,%Param2%,%Param3%,%Param4%
+;     Gui %Subcommand%,%Param2%,%Param3%,%Param4%
 ; }
 
 _GuiControl(Subcommand,ControlID,Param3="") {
@@ -365,19 +232,6 @@ _ImageSearch(X1,Y1,X2,Y2,ImageFile) {
     return JS.Object("X",X, "Y",Y)
 }
 
-_IniDelete(Filename,Section,Key="") {
-    IniDelete %Filename%,%Section%,%Key%
-}
-
-_IniRead(Filename,Section="",Key="",Default="") {
-    IniRead OutputVar,%Filename%,%Section%,%Key%,%Default%
-    return OutputVar
-}
-
-_IniWrite(Value,Filename,Section,Key="") {
-    IniWrite %Value%,%Filename%,%Section%,%Key%
-}
-
 _Input(Options="",EndKeys="",MatchList="") {
     Input OutputVar,%Options%,%EndKeys%,%MatchList%
     return OutputVar
@@ -399,67 +253,6 @@ _KeyWait(KeyName,Options="") {
 
 _ListHotkeys() {
     ListHotkeys
-}
-
-/**
- * Implementation: Major change.
- * Because an AHK Loop intermingled with JS would be nonsensical, the migration solution was to
- * output the whole Loop results as an Array of Objects. Here's how the 5 types of Loop migrated:
- * 		1) [Normal-Loop](http://ahkscript.org/docs/commands/Loop.htm): N/A (not needed)
- * 		2) [File-Loop](http://ahkscript.org/docs/commands/LoopFile.htm):
- *			Syntax: Loop(FilePattern, [IncludeFolders, Recurse])
- *			Each Object has the same properties as the special variables available inside a File-Loop:
- *			Name,Ext,FullPath,LongPath,ShortPath,Dir,TimeModified,TimeCreated,TimeAccessed,Attrib,Size,SizeKB,SizeMB
- *		3) [Parse-Loop](http://ahkscript.org/docs/commands/LoopParse.htm): N/A (superseded by StrSplit)
- *		4) [Read-Loop](http://ahkscript.org/docs/commands/LoopReadFile.htm):
- *			Syntax: Loop("Read", InputFile)
- *			The output array contains each respective A_LoopReadLine as String.
- *			The OutputFile feature cannot be implemented.
- *		5) [Registry-Loop](http://ahkscript.org/docs/commands/LoopReg.htm):
- *			Syntax: Loop("HKLM|HKYU|...", [Key, IncludeSubkeys, Recurse])
- *			Each Object has the same properties as the special variables available inside a Registry-Loop:
- *			Name,Type,Key,SubKey,TimeModified
- */
-_Loop(Param1,Param2="",Param3="",Param4="") {
-    output := JS.Array()
-    if (RegExMatch(Param1, "i)^parse$")) {
-        end("The Parse-Loop has been superseded by StrSplit().")
-    } else if (RegExMatch(Param1, "i)^read$")) {
-        Loop, %Param1%, %Param2%
-        {
-            output.push(A_LoopReadLine)
-        }
-    } else {
-        global regNames
-        if (regNames.HasKey(Param1)) {
-            Loop, %Param1%, %Param2%, %Param3%, %Param4%
-            {
-                output.push(JS.Object("Name", A_LoopRegName
-                    ,"Type", A_LoopRegType
-                    ,"Key", A_LoopRegKey
-                    ,"SubKey", A_LoopRegSubKey
-                    ,"TimeModified", A_LoopRegTimeModified))
-            }
-        } else {
-            Loop, %Param1%, %Param2%, %Param3%
-            {
-                output.push(JS.Object("Name", A_LoopFileName
-                    ,"Ext", A_LoopFileExt
-                    ,"FullPath", A_LoopFileFullPath
-                    ,"LongPath", A_LoopFileLongPath
-                    ,"ShortPath", A_LoopFileShortPath
-                    ,"Dir", A_LoopFileDir
-                    ,"TimeModified", A_LoopFileTimeModified
-                    ,"TimeCreated", A_LoopFileTimeCreated
-                    ,"TimeAccessed", A_LoopFileTimeAccessed
-                    ,"Attrib", A_LoopFileAttrib
-                    ,"Size", A_LoopFileSize+0
-                    ,"SizeKB", A_LoopFileSizeKB+0
-                    ,"SizeMB", A_LoopFileSizeMB+0))
-            }
-        }
-    }
-    return output
 }
 
 /**
@@ -569,97 +362,6 @@ _Progress(ProgressParam1,SubText="",MainText="",WinTitle="",FontName="") {
     Progress %ProgressParam1%,%SubText%,%MainText%,%WinTitle%,%FontName%
 }
 
-/**
- * Implementation: Major change.
- * "Random" is special because it accepts two modes:
- * 		1) Normal mode (with Min & Max as parameters). This is the default mode.
- *		2) Re-seeding mode (with NewSeed as parameter)
- * For the JS migration, the NewSeed mode can be activated by providing a third parameter (NewSeed),
- * in which case the first two parameters are disregarded.
- */
-_Random(Min="",Max="",NewSeed="") {
-    If (NewSeed) {
-        Random,,%NewSeed%
-    } else {
-        Random OutputVar,%Min%,%Max%
-        return OutputVar+0
-    }
-}
-
-_RegDelete(RootKey,SubKey,ValueName="") {
-    RegDelete %RootKey%,%SubKey%,%ValueName%
-}
-
-/**
- * Implementation: Major change.
- * Because RegExMatch performs two roles, we cannot migrate it to JS 100% unchanged. The two roles are:
- *		1) returns found position
- *		2) fills a ByRef variable
- * Therefore, in order not lose the second functionality, we introduce an extra flag called "Advanced",
- * which clarifies what role the JS function should fulfill.
- * If "Advanced=0" (default), RegExMatch behaves as before, returning the found position.
- * Otherwise, it will return a Match object (http://ahkscript.org/docs/commands/RegExMatch.htm#MatchObject), no matter
- * what the matching mode is (default, P or O).
- */
-_RegExMatch(Haystack, NeedleRegEx, StartingPosition=1, Advanced=0) {
-    if (Advanced) {
-        RegExMatch(NeedleRegEx, "^\W+\)", flags)
-        if (!flags) {
-            NeedleRegEx := "O)" . NeedleRegEx
-        } else {
-            if (!InStr(flags, "O", true)) {
-                NeedleRegEx := "O" . NeedleRegEx
-            }
-        }
-        RegExMatch(Haystack, NeedleRegEx, Match, StartingPosition)
-
-        Pos := JS.Array()
-        Len := JS.Array()
-        Value := JS.Array()
-        Name := JS.Array()
-        a := ["Pos",Pos, "Len",Len, "Value",Value, "Name",Name, "Count",Match.Count(), "Mark",Match.Mark()]
-        n := Match.Count() + 1
-        Loop, %n%
-        {
-            index := A_Index - 1
-            Pos.push(Match.Pos(index))
-            Len.push(Match.Len(index))
-            Value.push(Match.Value(index))
-            Name.push(Match.Name(index))
-            a.Insert(index)
-            a.Insert(Match[index])
-        }
-        return JS.Object(a*)
-    } else {
-        return RegExMatch(Haystack, NeedleRegEx, "", StartingPosition)
-    }
-}
-
-/**
- * Implementation: Major change.
- * "RegExReplace" is special because it performs 2 roles:
- *		1) returns the replaced string. This mode is default (Advanced=0)
- *		2) fills the Count ByRef variable. This mode is triggered by non-empty values of Advanced. In this case,
- *		an Object will be returned, with 2 properties: Text, Count.
- */
-_RegExReplace(Haystack, NeedleRegEx, Replacement="", Limit=-1, StartingPosition=1, Advanced=0) {
-    Text := RegExReplace(Haystack, NeedleRegEx, Replacement, Count, Limit, StartingPosition)
-    if (Advanced) {
-        return JS.Object("Text",Text, "Count",Count)
-    } else {
-        return Text
-    }
-}
-
-_RegRead(RootKey,SubKey,ValueName="") {
-    RegRead OutputVar,%RootKey%,%SubKey%,%ValueName%
-    return OutputVar
-}
-
-_RegWrite(ValueType,RootKey,SubKey,ValueName="",Value="") {
-    RegWrite %ValueType%,%RootKey%,%SubKey%,%ValueName%,%Value%
-}
-
 _Reload() {
     Reload
 }
@@ -727,14 +429,6 @@ _SendPlay(Keys) {
     SendPlay %Keys%
 }
 
-_SendRaw(Keys) {
-    SendRaw %Keys%
-}
-
-_SetBatchLines(IntervalOrLineCount) {
-    SetBatchLines %IntervalOrLineCount%
-}
-
 _SetCapslockState(State="") {
     SetCapslockState %State%
 }
@@ -745,10 +439,6 @@ _SetControlDelay(Delay) {
 
 _SetDefaultMouseSpeed(Speed) {
     SetDefaultMouseSpeed %Speed%
-}
-
-_SetFormat(NumberType,Format) {
-    SetFormat %NumberType%,%Format%
 }
 
 _SetKeyDelay(Delay="",PressDuration="",Play="") {
@@ -787,27 +477,12 @@ _SetWinDelay(Delay) {
     SetWinDelay %Delay%
 }
 
-_SetWorkingDir(DirName) {
-    SetWorkingDir %DirName%
-}
-
 _Shutdown(Code) {
     Shutdown %Code%
 }
 
 _Sleep(DelayInMilliseconds) {
     Sleep %DelayInMilliseconds%
-}
-
-/**
- * Implementation: Major change.
- * "Sort" is special because it modifies a ByRef variable.
- * For JS, we made it a return value.
- * TODO: implement the "F MyFunction" flag.
- */
-_Sort(VarName,Options="") {
-    Sort VarName, %Options%
-    return VarName
 }
 
 _SoundBeep(Frequency="",Duration="") {
@@ -857,16 +532,6 @@ _SplashTextOn(Width="",Height="",Title="",Text="") {
     SplashTextOn %Width%,%Height%,%Title%,%Text%
 }
 
-/**
- * Implementation: Minor change (returns Object).
- * "SplitPath" is special because it outputs 5 variables.
- * In JS, we return an Object with 5 properties: FileName, Dir, Extension, NameNoExt, Drive
- */
-_SplitPath(InputVar) {
-    SplitPath InputVar, FileName, Dir, Extension, NameNoExt, Drive
-    return JS.Object("FileName",FileName, "Dir",Dir, "Extension",Extension, "NameNoExt",NameNoExt, "Drive",Drive)
-}
-
 _StatusBarGetText(Part="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
     StatusBarGetText OutputVar,%Part%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
     return OutputVar
@@ -875,60 +540,6 @@ _StatusBarGetText(Part="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText="")
 _StatusBarWait(BarText="",Seconds="",Part#="",WinTitle="",WinText="",Interval="",ExcludeTitle="",ExcludeText="") {
     StatusBarWait %BarText%,%Seconds%,%Part#%,%WinTitle%,%WinText%,%Interval%,%ExcludeTitle%,%ExcludeText%
     return ErrorLevel
-}
-
-_StringCaseSense(Flag) {
-    StringCaseSense %Flag%
-}
-
-_StringGetPos(InputVar,SearchText,LRFlag="",Offset="") {
-    StringGetPos OutputVar,InputVar, %SearchText%,%LRFlag%,%Offset%
-    return OutputVar+0
-}
-
-_StringLeft(InputVar,Count) {
-    StringLeft OutputVar,InputVar,%Count%
-    return OutputVar
-}
-
-_StringLen(InputVar) {
-    StringLen OutputVar,InputVar
-    return OutputVar
-}
-
-_StringLower(InputVar,T="") {
-    StringLower OutputVar,InputVar,%T%
-    return OutputVar
-}
-
-_StringMid(InputVar,StartChar,Count="",L="") {
-    StringMid OutputVar,InputVar,%StartChar%,%Count%,%L%
-    return OutputVar
-}
-
-_StringReplace(InputVar,SearchText,ReplaceText="",ReplaceAll="") {
-    StringReplace OutputVar,InputVar,%SearchText%,%ReplaceText%,%ReplaceAll%
-    return OutputVar
-}
-
-_StringRight(InputVar,Count) {
-    StringRight OutputVar,InputVar,%Count%
-    return OutputVar
-}
-
-_StringTrimLeft(InputVar,Count) {
-    StringTrimLeft OutputVar,InputVar,%Count%
-    return OutputVar
-}
-
-_StringTrimRight(InputVar,Count) {
-    StringTrimRight OutputVar,InputVar,%Count%
-    return OutputVar
-}
-
-_StringUpper(InputVar,T="") {
-    StringUpper OutputVar,InputVar,%T%
-    return OutputVar
 }
 
 _Suspend(Mode="") {
@@ -961,20 +572,6 @@ _ToolTip(Text="",X="",Y="",WhichToolTip="") {
     ToolTip %Text%,%X%,%Y%,%WhichToolTip%
 }
 
-/**
- * Implementation: Normalization.
- * "Transform" is special because it has multiple return types (Number or String).
- */
-_Transform(Cmd,Value1,Value2="") {
-    Transform OutputVar, %Cmd%, %Value1%, %Value2%
-    static STRING_COMMANDS := {Chr:1, HTML:1}
-    if (STRING_COMMANDS.HasKey(Cmd)) {
-        return OutputVar
-    } else {
-        return OutputVar+0
-    }
-}
-
 _TrayTip(Title="",Text="",Seconds="",Options="") {
     TrayTip %Title%,%Text%,%Seconds%,%Options%
 }
@@ -994,10 +591,6 @@ _TV_GetText(ItemID, Advanced=0) {
         TV_GetText(OutputVar, ItemID)
         return OutputVar
     }
-}
-
-_UrlDownloadToFile(URL,Filename) {
-    UrlDownloadToFile %URL%,%Filename%
 }
 
 _WinActivate(WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
@@ -1028,21 +621,6 @@ _WinGet(Cmd="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
         }
         return a
     }
-    return OutputVar
-}
-
-/**
- * Implementation: Minor change (returns Object).
- * "WinGetActiveStats" is special because it outputs 5 variables.
- * In JS, we return an Object with 5 properties: X, Y, Width, Height, Title.
- */
-_WinGetActiveStats() {
-    WinGetActiveStats Title,Width,Height,X,Y
-    return JS.Object("Title",Title, "Width",Width, "Height",Height, "X",X, "Y",Y)
-}
-
-_WinGetActiveTitle() {
-    WinGetActiveTitle OutputVar
     return OutputVar
 }
 
