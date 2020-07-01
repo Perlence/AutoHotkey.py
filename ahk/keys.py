@@ -117,6 +117,8 @@ def hotkey(
 
 @dataclass(frozen=True)
 class Hotkey:
+    # TODO: key_name is not enough to identify the Hotkey instance, because
+    # hotkeys may exist in a context.
     key_name: str
 
     def enable(self):
@@ -147,9 +149,11 @@ class Hotkey:
 
         option_str = "".join(options)
 
-        # TODO: Test setting a new func.
-        # TODO: Remove the old func from CALLBACKS and decref it.
-        _ahk.call("Hotkey", self.key_name, func or "", option_str)
+        # TODO: id(self) is not reliable. The Hotkey instance may be freed
+        # immediately after creation if it's not assigned to a var, and then the
+        # same memory address may be used for another Hotkey instance. Using
+        # context+key_name is a much better option.
+        _ahk.call("Hotkey", id(self), self.key_name, func or "", option_str)
 
 
 @contextmanager

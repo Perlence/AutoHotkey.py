@@ -255,12 +255,23 @@ _AHKCall(self, args) {
         result := %funcRef%(ahkArgs*)
     } catch e {
         PyEval_RestoreThread(save)
+        FreeWrappedFunctions()
         PyErr_SetAHKError(e)
         return NULL
     }
     PyEval_RestoreThread(save)
+    FreeWrappedFunctions()
 
     return AHKToPython(result)
+}
+
+FreeWrappedFunctions() {
+    for pyFunc, value in WRAPPED_PYTHON_FUNCTIONS {
+        if (value == "FREE") {
+            WRAPPED_PYTHON_FUNCTIONS.Delete(pyFunc)
+            Py_DecRef(pyFunc)
+        }
+    }
 }
 
 PyCall(pyFunc, args*) {
@@ -388,7 +399,7 @@ PythonToAHK(pyObject, borrowed:=True) {
         }
         ahkFunc := WRAPPED_PYTHON_FUNCTIONS[pyObject]
         if (not ahkFunc) {
-            ahkFunc := Func("PyCall").Bind(pyObject)
+            ahkFunc := new WrappedPythonFunction(pyObject)
             WRAPPED_PYTHON_FUNCTIONS[pyObject] := ahkFunc
         }
         ; TODO: Pass A_ThisHotkey to hotkey callback.
@@ -403,6 +414,16 @@ PythonToAHK(pyObject, borrowed:=True) {
             Py_DecRef(pyRepr)
             throw Exception("cannot convert Python object to an AHK value")
         }
+    }
+}
+
+class WrappedPythonFunction {
+    __New(pyFunc) {
+        this.pyFunc := pyFunc
+    }
+
+    __Call(method, args*) {
+        return PyCall(this.pyFunc, args*)
     }
 }
 

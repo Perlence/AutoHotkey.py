@@ -1,3 +1,4 @@
+import sys
 from textwrap import dedent
 
 import pytest
@@ -37,8 +38,20 @@ def test_hotkey(child_ahk):
     with pytest.raises(TypeError, match="must be callable"):
         ahk.hotkey("^t", func="not callable")
 
-    hk = ahk.hotkey("F13", lambda: None)
+    func1 = lambda: None  # noqa
+    func2 = lambda: None  # noqa
+    func1_refcount = sys.getrefcount(func1)
+    func2_refcount = sys.getrefcount(func2)
+
+    hk = ahk.hotkey("F13", func1)
     assert hk.key_name == "F13"
+    assert sys.getrefcount(func1) == func1_refcount + 1
+    assert sys.getrefcount(func2) == func2_refcount
+
+    hk.update(func=func2)
+    assert sys.getrefcount(func1) == func1_refcount
+    assert sys.getrefcount(func2) == func2_refcount + 1
+
     hk.disable()
 
     def hotkeys():
