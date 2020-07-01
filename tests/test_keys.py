@@ -31,13 +31,7 @@ def test_is_key_toggled():
     ahk.set_caps_lock_state(initial_state)
 
 
-def test_hotkey(child_ahk):
-    with pytest.raises(ahk.Error, match="invalid key name"):
-        ahk.hotkey("")
-
-    with pytest.raises(TypeError, match="must be callable"):
-        ahk.hotkey("^t", func="not callable")
-
+def test_hotkey_refcounts():
     func1 = lambda: None  # noqa
     func2 = lambda: None  # noqa
     func1_refcount = sys.getrefcount(func1)
@@ -52,6 +46,24 @@ def test_hotkey(child_ahk):
     assert sys.getrefcount(func1) == func1_refcount
     assert sys.getrefcount(func2) == func2_refcount + 1
 
+    hk.update(func=func1)
+    assert sys.getrefcount(func1) == func1_refcount + 1
+    assert sys.getrefcount(func2) == func2_refcount
+
+    hk.update(func=func1)
+    assert sys.getrefcount(func1) == func1_refcount + 1
+    assert sys.getrefcount(func2) == func2_refcount
+
+
+def test_hotkey(child_ahk):
+    with pytest.raises(ahk.Error, match="invalid key name"):
+        ahk.hotkey("")
+
+    with pytest.raises(TypeError, match="must be callable"):
+        ahk.hotkey("^t", func="not callable")
+
+    hk = ahk.hotkey("F13", lambda: None)
+    assert hk.key_name == "F13"
     hk.disable()
 
     def hotkeys():

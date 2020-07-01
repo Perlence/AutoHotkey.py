@@ -303,11 +303,11 @@ PythonToAHK(pyObject, borrowed:=True) {
     } else if (PyFloat_Check(pyObject)) {
         return PyFloat_AsDouble(pyObject)
     } else if (PyCallable_Check(pyObject)) {
-        if (borrowed) {
-            Py_IncRef(pyObject)
-        }
         ahkFunc := WRAPPED_PYTHON_FUNCTIONS[pyObject]
         if (not ahkFunc) {
+            if (borrowed) {
+                Py_IncRef(pyObject)
+            }
             ahkFunc := new WrappedPythonFunction(pyObject)
             WRAPPED_PYTHON_FUNCTIONS[pyObject] := ahkFunc
         }
