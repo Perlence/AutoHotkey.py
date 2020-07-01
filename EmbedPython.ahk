@@ -263,8 +263,7 @@ _AHKCall(self, args) {
     return AHKToPython(result)
 }
 
-PyCall(key, args*) {
-    pyFunc := CALLBACKS[key]
+PyCall(pyFunc, args*) {
     if (not pyFunc) {
         return
     }
@@ -387,7 +386,6 @@ PythonToAHK(pyObject, borrowed:=True) {
         if (borrowed) {
             Py_IncRef(pyObject)
         }
-        CALLBACKS[pyObject] := pyObject
         ahkFunc := WRAPPED_PYTHON_FUNCTIONS[pyObject]
         if (not ahkFunc) {
             ahkFunc := Func("PyCall").Bind(pyObject)
@@ -473,7 +471,7 @@ GuiDropFiles:
 GuiEscape:
 GuiSize:
 OnClipboardChange:
-    PyCall(A_ThisLabel)
+    PyCall(CALLBACKS[A_ThisLabel])
     return
 
 GuiClose:
@@ -481,7 +479,7 @@ GuiClose:
     return
 
 OnExitFunc(reason, code, label:="OnExit") {
-    if (PyCall(label) == 0) {
+    if (PyCall(CALLBACKS[label]) == 0) {
         return
     }
     if (Py_FinalizeEx() < 0) {
