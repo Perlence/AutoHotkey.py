@@ -215,13 +215,13 @@ PyInit_ahk() {
 
 AHKCall(self, args) {
     gstate := PyGILState_Ensure()
-
-    ; AHK debugger doesn't see local variables in a C callback function. Call a
-    ; regular AHK function.
-    result := _AHKCall(self, args)
-
-    PyGILState_Release(gstate)
-
+    try {
+        ; AHK debugger doesn't see local variables in a C callback function. Call a
+        ; regular AHK function.
+        result := _AHKCall(self, args)
+    } finally {
+        PyGILState_Release(gstate)
+    }
     return result
 }
 
@@ -397,34 +397,30 @@ PyCall(pyFunc, args*) {
     }
 
     gstate := PyGILState_Ensure()
-
     try {
         pyArgs := AHKArgsToPython(args)
-    } catch e {
-        PyGILState_Release(gstate)
-        throw e
-    }
-    result := ""
-    pyResult := PyObject_CallObject(pyFunc, pyArgs)
-    Py_XDecRef(pyArgs)
-    if (pyResult == "") {
-        pyRepr := PyObject_Repr(pyFunc)
-        if (PyUnicode_Check(pyRepr)) {
-            repr := PyUnicode_AsWideCharString(pyRepr)
-            Py_DecRef(pyRepr)
-            throw Exception("Call to '" repr "' failed: " ErrorLevel)
+        result := ""
+        pyResult := PyObject_CallObject(pyFunc, pyArgs)
+        Py_XDecRef(pyArgs)
+        if (pyResult == "") {
+            pyRepr := PyObject_Repr(pyFunc)
+            if (PyUnicode_Check(pyRepr)) {
+                repr := PyUnicode_AsWideCharString(pyRepr)
+                Py_DecRef(pyRepr)
+                throw Exception("Call to '" repr "' failed: " ErrorLevel)
+            } else {
+                Py_DecRef(pyRepr)
+                throw Exception("Call to a Python function failed: " ErrorLevel)
+            }
+        } else if (pyResult == NULL) {
+            PrintErrorOrExit()
         } else {
-            Py_DecRef(pyRepr)
-            throw Exception("Call to a Python function failed: " ErrorLevel)
+            result := PythonToAHK(pyResult, False)
+            Py_DecRef(pyResult)
         }
-    } else if (pyResult == NULL) {
-        PrintErrorOrExit()
-    } else {
-        result := PythonToAHK(pyResult, False)
-        Py_DecRef(pyResult)
+    } finally {
+        PyGILState_Release(gstate)
     }
-
-    PyGILState_Release(gstate)
 
     return result
 }
