@@ -1,3 +1,4 @@
+import subprocess
 import sys
 from textwrap import dedent
 
@@ -136,6 +137,26 @@ def test_hotkey(child_ahk):
     child_ahk.close()
     assert "ZeroDivisionError:" in proc.stderr.read()
     assert proc.returncode == 0
+
+
+def test_hotstring(request, child_ahk):
+    ahk.send_level(0)
+    ahk.hotstring("--", "—")
+
+    notepad_proc = subprocess.Popen(["notepad.exe"])
+    request.addfinalizer(notepad_proc.terminate)
+    notepad_win = ahk.windows.wait(pid=notepad_proc.pid)
+    edit = notepad_win.get_control("Edit1")
+
+    ahk.send_level(10)
+    ahk.send("--{Space}")
+    ahk.sleep(0)
+    assert edit.text == "— "
+
+    edit.text = ""
+    assert edit.text == ""
+
+    ahk.send("{F24}")
 
 
 def test_hotkey_context(child_ahk):

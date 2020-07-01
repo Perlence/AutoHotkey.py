@@ -9,6 +9,7 @@ from . import keys
 from .exceptions import Error
 
 __all__ = [
+    "Control",
     "ExWindowStyle",
     "Window",
     "WindowHotkeyContext",
@@ -349,11 +350,29 @@ windows = Windows()
 
 @dc.dataclass(frozen=True)
 class _Window:
+    # I'd like the Window and Control class to be hashable, and making the
+    # dataclass frozen also makes it hashable. However, frozen dataclasses
+    # cannot have setter properties unless it's a subclass.
+
     id: int
 
     def __bool__(self):
         return self.id != 0
 
+    def _call(self, cmd, *args):
+        # Call the command only if the window was found previously. This makes
+        # optional chaining possible. For example,
+        # `ahk.windows.first(class_name="Notepad").close()` doesn't error out
+        # when there are no Notepad windows.
+        if self.id != 0:
+            return _ahk.call(cmd, *args)
+
+    def _include(self):
+        win_text = ""
+        return f"ahk_id {self.id}", win_text
+
+
+class Window(_Window):
     @property
     def rect(self):
         result = self._call("WinGetPos", *self._include())
@@ -496,7 +515,21 @@ class _Window:
         if is_maximized is not None:
             self.is_maximized = not is_maximized
 
-    # TODO: Implement ControlList and ControlListHwnd
+    # TODO: Add control methods to Windows
+
+    def control_class_names(self):
+        return self._get("ControlList").splitlines()
+
+    def controls(self):
+        hwnds = self._get("ControlListHwnd").splitlines()
+        return [
+            Control(int(hwnd, base=16))
+            for hwnd in hwnds
+        ]
+
+    def get_control(self, class_name):
+        control_id = self._call("ControlGet", "Hwnd", "", class_name, *self._include())
+        return Control(control_id)
 
     @property
     def always_on_top(self):
@@ -696,14 +729,6 @@ class _Window:
         err = self._call("PostMessage", int(msg), int(w_param), int(l_param), control, *self._include())
         return not err
 
-    def _call(self, cmd, *args):
-        # Call the command only if the window was found previously. This makes
-        # optional chaining possible. For example,
-        # `ahk.windows.first(class_name="Notepad").close()` doesn't error out
-        # when there are no Notepad windows.
-        if self.id != 0:
-            return _ahk.call(cmd, *args)
-
     def _get(self, subcmd):
         result = self._call("WinGet", subcmd, *self._include())
         if result != "":
@@ -712,15 +737,20 @@ class _Window:
     def _set(self, subcmd, value=""):
         return self._call("WinSet", subcmd, value, *self._include())
 
-    def _include(self):
-        return f"ahk_id {self.id}", ""
 
+class Control(_Window):
+    @property
+    def text(self):
+        return self._call("ControlGetText", "", *self._include())
 
-class Window(_Window):
-    # I'd like the Window class to be hashable, and making the dataclass frozen
-    # also makes it hashable. However, frozen dataclasses cannot have setter
-    # properties unless it's a subclass.
-    pass
+    @text.setter
+    def text(self, value):
+        return self._call("ControlSetText", "", value, *self._include())
+
+    def _get(self, subcmd, value=""):
+        result = self._call("ControlGet", subcmd, value, "", *self._include())
+        if result != "":
+            return result
 
 
 @dc.dataclass(frozen=True)

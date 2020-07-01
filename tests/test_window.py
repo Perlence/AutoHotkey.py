@@ -209,6 +209,9 @@ def test_window(child_ahk, detect_hidden_windows):
     win1.unpin_from_top()
     assert win1.always_on_top is False
 
+    assert win1.control_class_names() == ["Button1", "Static1"]
+    assert win1.controls() == list(map(win1.get_control, win1.control_class_names()))
+
     assert isinstance(win1.style, ahk.WindowStyle)
     assert ahk.WindowStyle.POPUPWINDOW in win1.style
 
