@@ -265,97 +265,6 @@ _AHKCall(self, args) {
     return AHKToPython(result)
 }
 
-FreeWrappedFunctions() {
-    for pyFunc, value in WRAPPED_PYTHON_FUNCTIONS {
-        if (value == "FREE") {
-            WRAPPED_PYTHON_FUNCTIONS.Delete(pyFunc)
-            Py_DecRef(pyFunc)
-        }
-    }
-}
-
-PyCall(pyFunc, args*) {
-    if (not pyFunc) {
-        return
-    }
-
-    gstate := PyGILState_Ensure()
-
-    try {
-        pyArgs := AHKArgsToPython(args)
-    } catch e {
-        PyGILState_Release(gstate)
-        throw e
-    }
-    result := ""
-    pyResult := PyObject_CallObject(pyFunc, pyArgs)
-    Py_XDecRef(pyArgs)
-    if (pyResult == "") {
-        pyRepr := PyObject_Repr(pyFunc)
-        if (PyUnicode_Check(pyRepr)) {
-            repr := PyUnicode_AsWideCharString(pyRepr)
-            Py_DecRef(pyRepr)
-            throw Exception("Call to '" repr "' failed: " ErrorLevel)
-        } else {
-            Py_DecRef(pyRepr)
-            throw Exception("Call to a Python function failed: " ErrorLevel)
-        }
-    } else if (pyResult == NULL) {
-        PrintErrorOrExit()
-    } else {
-        result := PythonToAHK(pyResult, False)
-        Py_DecRef(pyResult)
-    }
-
-    PyGILState_Release(gstate)
-
-    return result
-}
-
-AHKArgsToPython(ahkArgs) {
-    if (ahkArgs.Count() == 0) {
-        return NULL ; Not an error, just no args
-    }
-
-    pyArgs := PyTuple_New(ahkArgs.Count())
-    if (pyArgs == NULL) {
-        throw Exception("Couldn't create argument tuple to call Python function")
-    }
-    for i, arg in ahkArgs {
-        PyTuple_SetItem(pyArgs, i-1, AHKToPython(arg))
-    }
-    return pyArgs
-}
-
-AHKToPython(value) {
-    if (IsObject(value)) {
-        ; TODO: Should this be a Python wrapper around "value" and not a copy?
-        result := PyDict_New()
-        for k, v in value {
-            pyKey := AHKToPython(k)
-            pyValue := AHKToPython(v)
-            set := PyDict_SetItem(result, pyKey, pyValue)
-            if (set < 0) {
-                return NULL
-            }
-        }
-        return result
-    } else if (value == "") {
-        if (Py_EmptyString == NULL) {
-            Py_EmptyString := PyUnicode_InternFromString(&EMPTY_STRING)
-        }
-        Py_IncRef(Py_EmptyString)
-        return Py_EmptyString
-    } else if value is integer
-        return PyLong_FromLongLong(value)
-    else if value is float
-        return PyFloat_FromDouble(value)
-    else {
-        ; The value is a string.
-        return PyUnicode_FromString(value)
-    }
-}
-
 PythonArgsToAHK(pyArgs) {
     ; Parse the arguments.
     ahkArgs := []
@@ -427,6 +336,44 @@ class WrappedPythonFunction {
     }
 }
 
+FreeWrappedFunctions() {
+    for pyFunc, value in WRAPPED_PYTHON_FUNCTIONS {
+        if (value == "FREE") {
+            WRAPPED_PYTHON_FUNCTIONS.Delete(pyFunc)
+            Py_DecRef(pyFunc)
+        }
+    }
+}
+
+AHKToPython(value) {
+    if (IsObject(value)) {
+        ; TODO: Should this be a Python wrapper around "value" and not a copy?
+        result := PyDict_New()
+        for k, v in value {
+            pyKey := AHKToPython(k)
+            pyValue := AHKToPython(v)
+            set := PyDict_SetItem(result, pyKey, pyValue)
+            if (set < 0) {
+                return NULL
+            }
+        }
+        return result
+    } else if (value == "") {
+        if (Py_EmptyString == NULL) {
+            Py_EmptyString := PyUnicode_InternFromString(&EMPTY_STRING)
+        }
+        Py_IncRef(Py_EmptyString)
+        return Py_EmptyString
+    } else if value is integer
+        return PyLong_FromLongLong(value)
+    else if value is float
+        return PyFloat_FromDouble(value)
+    else {
+        ; The value is a string.
+        return PyUnicode_FromString(value)
+    }
+}
+
 PyErr_SetAHKError(err) {
     tup := PyTuple_Pack(5
         , AHKToPython(err.Message)
@@ -440,6 +387,59 @@ PyErr_SetAHKError(err) {
     }
     PyErr_SetObject(Py_AHKError, tup)
     Py_DecRef(tup)
+}
+
+PyCall(pyFunc, args*) {
+    if (not pyFunc) {
+        return
+    }
+
+    gstate := PyGILState_Ensure()
+
+    try {
+        pyArgs := AHKArgsToPython(args)
+    } catch e {
+        PyGILState_Release(gstate)
+        throw e
+    }
+    result := ""
+    pyResult := PyObject_CallObject(pyFunc, pyArgs)
+    Py_XDecRef(pyArgs)
+    if (pyResult == "") {
+        pyRepr := PyObject_Repr(pyFunc)
+        if (PyUnicode_Check(pyRepr)) {
+            repr := PyUnicode_AsWideCharString(pyRepr)
+            Py_DecRef(pyRepr)
+            throw Exception("Call to '" repr "' failed: " ErrorLevel)
+        } else {
+            Py_DecRef(pyRepr)
+            throw Exception("Call to a Python function failed: " ErrorLevel)
+        }
+    } else if (pyResult == NULL) {
+        PrintErrorOrExit()
+    } else {
+        result := PythonToAHK(pyResult, False)
+        Py_DecRef(pyResult)
+    }
+
+    PyGILState_Release(gstate)
+
+    return result
+}
+
+AHKArgsToPython(ahkArgs) {
+    if (ahkArgs.Count() == 0) {
+        return NULL ; Not an error, just no args
+    }
+
+    pyArgs := PyTuple_New(ahkArgs.Count())
+    if (pyArgs == NULL) {
+        throw Exception("Couldn't create argument tuple to call Python function")
+    }
+    for i, arg in ahkArgs {
+        PyTuple_SetItem(pyArgs, i-1, AHKToPython(arg))
+    }
+    return pyArgs
 }
 
 EncodeString(string) {
