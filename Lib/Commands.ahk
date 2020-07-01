@@ -327,14 +327,14 @@ _GuiControlGet(Subcommand="",ControlID="",Param4="") {
     return OutputVar
 }
 
-_Hotkey(HotkeyID, KeyName, Func, Options) {
+_Hotkey(ContextID, KeyName, Func, Options) {
     StringLower, KeyName, KeyName
     if (Func) {
-        oldFunc := CALLBACKS["Hotkey" HotkeyID " " KeyName]
+        oldFunc := CALLBACKS["Hotkey" ContextID " " KeyName]
         if (oldFunc and oldFunc != "FREE" and Func["pyFunc"] != oldFunc["pyFunc"]) {
             WRAPPED_PYTHON_FUNCTIONS[oldFunc["pyFunc"]] := "FREE"
         }
-        CALLBACKS["Hotkey" HotkeyID " " KeyName] := Func
+        CALLBACKS["Hotkey" ContextID " " KeyName] := Func
     }
     Hotkey, %KeyName%,%Func%,%Options%
 }

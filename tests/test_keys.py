@@ -132,8 +132,8 @@ def test_hotkey_context(child_ahk):
         import sys
         ahk.hotkey("F24", sys.exit)
         ahk.hotkey("F13", lambda: ahk.message_box("Beep"))
-        with ahk.hotkey_context(lambda: ahk.windows.get_active(exe="AutoHotkey.exe", text="Beep")):
-            ahk.hotkey("F13", lambda: ahk.message_box("Boop"))
+        ctx = ahk.HotkeyContext(lambda: ahk.windows.get_active(exe="AutoHotkey.exe", text="Beep"))
+        ctx.hotkey("F13", lambda: ahk.message_box("Boop"))
         print("ok00")
 
     child_ahk.popen_code(code)
@@ -156,8 +156,8 @@ def test_hotkey_context(child_ahk):
 def test_failing_hotkey_context(child_ahk):
     def code():
         import ahk
-        with ahk.hotkey_context(lambda: ahk.windows.get_active(class_name="Shell_TrayWnd")):
-            ahk.hotkey("F13", lambda: ahk.message_box("Boop"))
+        ctx = ahk.HotkeyContext(lambda: ahk.windows.get_active(class_name="Shell_TrayWnd"))
+        ctx.hotkey("F13", lambda: ahk.message_box("Boop"))
         print("ok00")
 
     child_ahk.popen_code(code)

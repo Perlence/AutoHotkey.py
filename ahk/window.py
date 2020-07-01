@@ -1,7 +1,6 @@
 import dataclasses as dc
 import enum
 import threading
-from contextlib import contextmanager
 
 import _ahk  # noqa
 
@@ -12,6 +11,7 @@ from .exceptions import Error
 __all__ = [
     "ExWindowStyle",
     "Window",
+    "WindowHotkeyContext",
     "Windows",
     "WindowStyle",
     "detect_hidden_text",
@@ -286,18 +286,13 @@ class Windows:
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
         return self._hotkey_context("IfWinNotActive", lambda: not self.get_active())
 
-    @contextmanager
     def _hotkey_context(self, cmd, predicate):
         if self._exclude() != ("", ""):
             # The Hotkey, IfWin command doesn't support excluding windows, let's
             # implement it.
-            with keys.hotkey_context(predicate):
-                yield
-            return
+            return keys.HotkeyContext(predicate)
 
-        _ahk.call("HotkeyWinContext", cmd, *self._include())
-        yield
-        _ahk.call("HotkeyExitContext")
+        return WindowHotkeyContext(cmd, *self._include())
 
     def send(self, keys, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
@@ -726,6 +721,21 @@ class Window(_Window):
     # also makes it hashable. However, frozen dataclasses cannot have setter
     # properties unless it's a subclass.
     pass
+
+
+@dc.dataclass(frozen=True)
+class WindowHotkeyContext(keys.BaseHotkeyContext):
+    # TODO: Title and text have different modes that depend on global config.
+    # This makes win_title and win_text not enough to identify the context.
+    cmd: str
+    win_title: str
+    win_text: str
+
+    def _enter(self):
+        _ahk.call("HotkeyWinContext", self.cmd, self.win_title, self.win_text)
+
+    def _exit(self):
+        _ahk.call("HotkeyExitContext")
 
 
 class WindowStyle(enum.IntFlag):

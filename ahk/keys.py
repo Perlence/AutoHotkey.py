@@ -1,5 +1,4 @@
 import inspect
-from contextlib import contextmanager
 from dataclasses import dataclass
 from functools import partial
 from typing import Callable, Optional
@@ -10,12 +9,12 @@ from .exceptions import Error
 
 __all__ = [
     "Hotkey",
+    "HotkeyContext",
     "Hotstring",
     "SendMode",
     "get_key_state",
     "get_physical_key_state",
     "hotkey",
-    "hotkey_context",
     "hotstring",
     "is_key_toggled",
     "key_wait_pressed",
@@ -86,40 +85,131 @@ def _set_key_state(cmd, state):
     _ahk.call(cmd, state)
 
 
-def hotkey(
-    key_name: str,
-    func: Callable = None,
-    *,
-    buffer: Optional[bool] = DEFAULT(False),
-    priority: Optional[int] = DEFAULT(0),
-    max_threads: Optional[int] = DEFAULT(1),
-    input_level: Optional[int] = DEFAULT(0),
-):
+@dataclass(frozen=True)
+class BaseHotkeyContext:
+    def hotkey(
+        self,
+        key_name: str,
+        func: Callable = None,
+        *,
+        buffer: Optional[bool] = DEFAULT(False),
+        priority: Optional[int] = DEFAULT(0),
+        max_threads: Optional[int] = DEFAULT(1),
+        input_level: Optional[int] = DEFAULT(0),
+    ):
+        if key_name == "":
+            raise Error("invalid key name")
 
-    if key_name == "":
-        raise Error("invalid key name")
+        if func is None:
+            # Return the decorator.
+            return partial(self.hotkey, key_name, buffer=buffer, priority=priority,
+                           max_threads=max_threads, input_level=input_level)
 
-    if func is None:
-        # Return the decorator.
-        return partial(hotkey, key_name, buffer=buffer, priority=priority,
-                       max_threads=max_threads, input_level=input_level)
+        if not callable(func):
+            raise TypeError(f"object {func!r} must be callable")
 
-    if not callable(func):
-        raise TypeError(f"object {func!r} must be callable")
+        # TODO: Handle case when func == "AltTab" or other substitutes.
+        # TODO: Hotkey command may set ErrorLevel. Raise an exception.
 
-    # TODO: Handle case when func == "AltTab" or other substitutes.
-    # TODO: Hotkey command may set ErrorLevel. Raise an exception.
+        hk = Hotkey(key_name, context=self)
+        hk.update(func=func, buffer=buffer, priority=priority, max_threads=max_threads, input_level=input_level)
+        return hk
 
-    hk = Hotkey(key_name)
-    hk.update(func=func, buffer=buffer, priority=priority, max_threads=max_threads, input_level=input_level)
-    return hk
+    def hotstring(
+        self,
+        string,
+        replacement=None,
+        *,
+        wait_for_end_char=DEFAULT(True),
+        replace_inside_word=DEFAULT(False),
+        backspacing=DEFAULT(True),
+        case_sensitive=DEFAULT(False),
+        conform_to_case=DEFAULT(False),
+        key_delay=None,
+        omit_end_char=DEFAULT(False),
+        priority=DEFAULT(0),
+        raw=DEFAULT(False),
+        text=DEFAULT(False),
+        mode=DEFAULT(SendMode.INPUT),
+        reset_recognizer=DEFAULT(False),
+    ):
+        # TODO: Implement setting global options.
+        # TODO: Write tests.
+        if replacement is None:
+            # Return the decorator.
+            return partial(
+                self.hotstring,
+                string,
+                wait_for_end_char=wait_for_end_char,
+                replace_inside_word=replace_inside_word,
+                backspacing=backspacing,
+                case_sensitive=case_sensitive,
+                conform_to_case=conform_to_case,
+                key_delay=key_delay,
+                omit_end_char=omit_end_char,
+                priority=priority,
+                raw=raw,
+                text=text,
+                mode=mode,
+                reset_recognizer=reset_recognizer,
+            )
+
+        hs = Hotstring(string, context=self)
+        hs.update(
+            replacement=replacement,
+            wait_for_end_char=wait_for_end_char,
+            replace_inside_word=replace_inside_word,
+            backspacing=backspacing,
+            case_sensitive=case_sensitive,
+            conform_to_case=conform_to_case,
+            key_delay=key_delay,
+            omit_end_char=omit_end_char,
+            priority=priority,
+            raw=raw,
+            text=text,
+            mode=mode,
+            reset_recognizer=reset_recognizer,
+        )
+        return hs
+
+    def _enter(self):
+        pass
+
+    def _exit(self):
+        pass
+
+
+default_context = BaseHotkeyContext()
+hotkey = default_context.hotkey
+hotstring = default_context.hotstring
+
+
+@dataclass(frozen=True)
+class HotkeyContext(BaseHotkeyContext):
+    predicate: Callable
+
+    def __init__(self, predicate):
+        signature = inspect.signature(predicate)
+        if len(signature.parameters) == 0:
+            def wrapper(*args):
+                return bool(predicate())
+        else:
+            def wrapper(*args):
+                return bool(predicate(*args))
+
+        object.__setattr__(self, "predicate", wrapper)
+
+    def _enter(self):
+        _ahk.call("HotkeyContext", self.predicate)
+
+    def _exit(self):
+        _ahk.call("HotkeyExitContext")
 
 
 @dataclass(frozen=True)
 class Hotkey:
-    # TODO: key_name is not enough to identify the Hotkey instance, because
-    # hotkeys may exist in a context.
     key_name: str
+    context: BaseHotkeyContext
 
     def enable(self):
         _ahk.call("HotkeySpecial", self.key_name, "On")
@@ -149,92 +239,16 @@ class Hotkey:
 
         option_str = "".join(options)
 
-        # TODO: id(self) is not reliable. The Hotkey instance may be freed
-        # immediately after creation if it's not assigned to a var, and then the
-        # same memory address may be used for another Hotkey instance. Using
-        # context+key_name is a much better option.
-        _ahk.call("Hotkey", id(self), self.key_name, func or "", option_str)
-
-
-@contextmanager
-def hotkey_context(predicate):
-    signature = inspect.signature(predicate)
-    if len(signature.parameters) == 0:
-        def wrapper(*args):
-            return bool(predicate())
-    else:
-        def wrapper(*args):
-            return bool(predicate(*args))
-
-    # TODO: Add a threading lock.
-    _ahk.call("HotkeyContext", wrapper)
-    yield
-    _ahk.call("HotkeyExitContext")
-
-
-def hotstring(
-    string,
-    replacement=None,
-    *,
-    wait_for_end_char=DEFAULT(True),
-    replace_inside_word=DEFAULT(False),
-    backspacing=DEFAULT(True),
-    case_sensitive=DEFAULT(False),
-    conform_to_case=DEFAULT(False),
-    key_delay=None,
-    omit_end_char=DEFAULT(False),
-    priority=DEFAULT(0),
-    raw=DEFAULT(False),
-    text=DEFAULT(False),
-    mode=DEFAULT(SendMode.INPUT),
-    reset_recognizer=DEFAULT(False),
-):
-    # TODO: Implement setting global options.
-    # TODO: Write tests.
-    if replacement is None:
-        # Return the decorator.
-        return partial(
-            hotstring,
-            string,
-            wait_for_end_char=wait_for_end_char,
-            replace_inside_word=replace_inside_word,
-            backspacing=backspacing,
-            case_sensitive=case_sensitive,
-            conform_to_case=conform_to_case,
-            key_delay=key_delay,
-            omit_end_char=omit_end_char,
-            priority=priority,
-            raw=raw,
-            text=text,
-            mode=mode,
-            reset_recognizer=reset_recognizer,
-        )
-
-    hs = Hotstring(string)
-    hs.update(
-        replacement=replacement,
-        wait_for_end_char=wait_for_end_char,
-        replace_inside_word=replace_inside_word,
-        backspacing=backspacing,
-        case_sensitive=case_sensitive,
-        conform_to_case=conform_to_case,
-        key_delay=key_delay,
-        omit_end_char=omit_end_char,
-        priority=priority,
-        raw=raw,
-        text=text,
-        mode=mode,
-        reset_recognizer=reset_recognizer,
-    )
-    return hs
+        context_hash = hash(self.context)
+        self.context._enter()
+        _ahk.call("Hotkey", context_hash, self.key_name, func or "", option_str)
+        self.context._exit()
 
 
 @dataclass(frozen=True)
 class Hotstring:
     string: str
-
-    def set_replacement(self, replacement):
-        _ahk.call("Hotstring", str(self.string), replacement)
+    context: BaseHotkeyContext
 
     def disable(self):
         _ahk.call("Hotstring", str(self.string), "", "Off")
@@ -321,7 +335,10 @@ class Hotstring:
 
         option_str = "".join(options)
 
+        self.context._enter()
+        # TODO: Handle changing replacement func.
         _ahk.call("Hotstring", f":{option_str}:{self.string}", replacement or "")
+        self.context._exit()
 
 
 def reset_hotstring():

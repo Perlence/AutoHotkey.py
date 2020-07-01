@@ -244,8 +244,8 @@ def test_window_context(child_ahk):
         import sys
         ahk.hotkey("F24", sys.exit)
         ahk.hotkey("F13", lambda: ahk.message_box("General"))
-        with ahk.windows.window_context(exe="AutoHotkey.exe", text="General"):
-            ahk.hotkey("F13", lambda: ahk.message_box("Context-specific"))
+        ctx = ahk.windows.window_context(exe="AutoHotkey.exe", text="General")
+        ctx.hotkey("F13", lambda: ahk.message_box("Context-specific"))
         print("ok00")
 
     child_ahk.popen_code(code)
@@ -273,8 +273,8 @@ def test_active_window_context(child_ahk):
         import sys
         ahk.hotkey("F24", sys.exit)
         ahk.hotkey("F13", lambda: ahk.message_box("General"), max_threads=2)
-        with ahk.windows.active_window_context(exe="AutoHotkey.exe", text="General"):
-            ahk.hotkey("F13", lambda: ahk.message_box("Context-specific"))
+        ctx = ahk.windows.active_window_context(exe="AutoHotkey.exe", text="General")
+        ctx.hotkey("F13", lambda: ahk.message_box("Context-specific"))
         print("ok00")
 
     child_ahk.popen_code(code)
@@ -309,9 +309,9 @@ def test_exclude_window_context(child_ahk):
         ahk.hotkey("F24", sys.exit)
         ahk.hotkey("F13", lambda: ahk.message_box("General"), max_threads=2)
         ahk.hotkey("F14", lambda: ahk.message_box("Extra"))
-        with ahk.windows.filter(exe="AutoHotkey.exe").exclude(text="General").window_context():
-            # If there are any AutoHotkey windows beside General.
-            ahk.hotkey("F13", lambda: ahk.message_box("Context-specific"))
+        ctx = ahk.windows.filter(exe="AutoHotkey.exe").exclude(text="General").window_context()
+        # If there are any AutoHotkey windows beside General.
+        ctx.hotkey("F13", lambda: ahk.message_box("Context-specific"))
         print("ok00")
 
     child_ahk.popen_code(code)
@@ -345,9 +345,9 @@ def test_exclude_active_window_context(child_ahk):
         ahk.hotkey("F24", sys.exit)
         ahk.hotkey("F13", lambda: ahk.message_box("General"), max_threads=3)
         ahk.hotkey("F14", lambda: ahk.message_box("Extra"))
-        with ahk.windows.filter(exe="AutoHotkey.exe").exclude(text="General").active_window_context():
-            # If there are any active AutoHotkey windows beside General.
-            ahk.hotkey("F13", lambda: ahk.message_box("Context-specific"))
+        ctx = ahk.windows.filter(exe="AutoHotkey.exe").exclude(text="General").active_window_context()
+        # If there are any active AutoHotkey windows beside General.
+        ctx.hotkey("F13", lambda: ahk.message_box("Context-specific"))
         print("ok00")
 
     child_ahk.popen_code(code)
