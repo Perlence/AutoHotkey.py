@@ -1,3 +1,4 @@
+import subprocess
 from dataclasses import FrozenInstanceError
 
 import pytest
@@ -109,3 +110,30 @@ def test_suspend(child_ahk):
 
     proc.wait()
     assert proc.stdout.read() == ""
+
+
+def test_callback_after_error(child_ahk):
+    def code():
+        import ahk
+        import sys
+        ahk.hotkey("F24", sys.exit)
+
+        @ahk.hotkey("F13")
+        def _():
+            # This executes after SystemExit was raised, but have not been
+            # handled yet.
+            pass
+
+        ahk.send("{F13}")
+        for _ in range(1_000_000):
+            pass
+        raise SystemExit()
+
+    proc = child_ahk.popen_code(code)
+    try:
+        proc.wait(timeout=1)
+    except subprocess.TimeoutExpired:
+        ahk.send("{F24}")
+    assert proc.stdout.read() == ""
+    assert proc.stderr.read() == ""
+    assert proc.returncode == 0

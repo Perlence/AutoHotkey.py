@@ -398,6 +398,12 @@ PyCall(pyFunc, args*) {
 
     gstate := PyGILState_Ensure()
     try {
+        err := PyErr_Occurred()
+        if (err != NULL) {
+            ; An unhandled error has happened before callback was invoked by
+            ; AHK, do nothing.
+            return
+        }
         pyArgs := AHKArgsToPython(args)
         result := ""
         pyResult := PyObject_CallObject(pyFunc, pyArgs)

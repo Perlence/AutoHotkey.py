@@ -352,38 +352,3 @@ def test_remap_key(child_ahk):
     remap.disable()
 
     ahk.send("{F24}")
-
-
-@pytest.mark.skip
-def test_weird_error():
-    import sys
-    ahk.hotkey("F12", sys.exit)
-
-    @ahk.hotkey("F13")
-    def _():
-        pass
-
-    ahk.send("{F13}")
-    # TODO: Fix this.
-    assert False
-
-    # Traceback (most recent call last):
-    # File "C:\Users\Sviatoslav\Workspace\EmbedPython.ahk\ahk\main.py", line 33, in main
-    #     run_from_args()
-    # File "C:\Users\Sviatoslav\Workspace\EmbedPython.ahk\ahk\main.py", line 87, in run_from_args
-    #     run_module(module)
-    # File "C:\Users\Sviatoslav\Workspace\EmbedPython.ahk\ahk\main.py", line 184, in run_module
-    #     runpy.run_module(mod_name, run_name="__main__", alter_sys=True)
-    # File "C:\Users\Sviatoslav\AppData\Local\Programs\Python\Python38\Lib\runpy.py", line 206, in run_module
-    #     return _run_module_code(code, init_globals, run_name, mod_spec)
-    # File "C:\Users\Sviatoslav\AppData\Local\Programs\Python\Python38\Lib\runpy.py", line 96, in _run_module_code
-    #     _run_code(code, mod_globals, init_globals,
-    # File "C:\Users\Sviatoslav\AppData\Local\Programs\Python\Python38\Lib\runpy.py", line 86, in _run_code
-    #     exec(code, run_globals)
-    # File "C:\Users\Sviatoslav\.virtualenvs\EmbedPython.ahk-pkJK0MGH\Lib\site-packages\pytest\__main__.py", line 7, in <module>
-    #     raise SystemExit(pytest.main())
-    # SystemExit: ExitCode.TESTS_FAILED
-    #
-    # The above exception was the direct cause of the following exception:
-    #
-    # SystemError: PyEval_EvalFrameEx returned a result with an error set
