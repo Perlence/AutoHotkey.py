@@ -101,7 +101,7 @@ def test_hotkey(child_ahk):
     proc = child_ahk.popen_code(hotkeys)
     child_ahk.wait(0)
 
-    msg_boxes = ahk.windows.filter(title="EmbedPython.ahk")
+    msg_boxes = ahk.windows.filter(title="Python.ahk")
     assert not msg_boxes.get_active(text="Hello from hotkey")
     ahk.send("{F14}")
     assert msg_boxes.wait(text="Hello from hotkey", timeout=0.5)

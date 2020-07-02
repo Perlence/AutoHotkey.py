@@ -76,7 +76,7 @@ def toggle_suspend():
 
 def reload():
     _ahk.call("Menu", "Tray", "NoIcon")
-    args = list(map(_quote, [sys.executable, _ahk.embedpython] + sys.argv))
+    args = list(map(_quote, [sys.executable, _ahk.script_full_path] + sys.argv))
     os.execv(sys.executable, args)
 
 

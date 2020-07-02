@@ -150,11 +150,11 @@ def test_reload(child_ahk, tmpdir):
     script = tmpdir / "code.py"
     script.write(child_ahk._extract_code(code))
     child_ahk.popen([script])
-    assert ahk.windows.wait(title="EmbedPython.ahk", text="ok00", timeout=1)
+    assert ahk.windows.wait(title="Python.ahk", text="ok00", timeout=1)
 
     ahk.send("{F13}")
     # ahk.sleep(0)
-    assert ahk.windows.wait_close(title="EmbedPython.ahk", text="ok00", timeout=1)
-    assert ahk.windows.wait(title="EmbedPython.ahk", text="ok00", timeout=1)
+    assert ahk.windows.wait_close(title="Python.ahk", text="ok00", timeout=1)
+    assert ahk.windows.wait(title="Python.ahk", text="ok00", timeout=1)
 
     ahk.send("{F24}")

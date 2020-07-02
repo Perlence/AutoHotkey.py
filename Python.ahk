@@ -222,7 +222,7 @@ PyInit_ahk() {
     }
 
     pyScriptFullPath := AHKToPython(A_ScriptFullPath)
-    result := PyObject_SetAttrString(mod, "embedpython", pyScriptFullPath)
+    result := PyObject_SetAttrString(mod, "script_full_path", pyScriptFullPath)
     Py_DecRef(pyScriptFullPath)
     if (result < 0) {
         return NULL

@@ -9,7 +9,7 @@ import ahk
 
 
 AHK = "C:\\Program Files\\AutoHotkey\\AutoHotkey.exe"
-EMBED_PYTHON = os.path.abspath("EmbedPython.ahk")
+EMBED_PYTHON = os.path.abspath("Python.ahk")
 
 
 @pytest.fixture()
