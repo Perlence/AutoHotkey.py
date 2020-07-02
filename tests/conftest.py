@@ -76,3 +76,8 @@ def detect_hidden_windows():
     ahk.detect_hidden_windows(True)
     yield
     ahk.detect_hidden_windows(False)
+
+
+@pytest.fixture(params=range(20))
+def repeat(request):
+    return

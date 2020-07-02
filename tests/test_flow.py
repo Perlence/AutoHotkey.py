@@ -137,3 +137,24 @@ def test_callback_after_error(child_ahk):
     assert proc.stdout.read() == ""
     assert proc.stderr.read() == ""
     assert proc.returncode == 0
+
+
+def test_reload(child_ahk, tmpdir):
+    def code():
+        import ahk
+        import sys
+        ahk.hotkey('F24', sys.exit)
+        ahk.hotkey('F13', ahk.reload)
+        ahk.message_box("ok00")
+
+    script = tmpdir / "code.py"
+    script.write(child_ahk._extract_code(code))
+    child_ahk.popen([script])
+    assert ahk.windows.wait(title="EmbedPython.ahk", text="ok00", timeout=1)
+
+    ahk.send("{F13}")
+    # ahk.sleep(0)
+    assert ahk.windows.wait_close(title="EmbedPython.ahk", text="ok00", timeout=1)
+    assert ahk.windows.wait(title="EmbedPython.ahk", text="ok00", timeout=1)
+
+    ahk.send("{F24}")

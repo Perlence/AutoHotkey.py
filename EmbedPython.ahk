@@ -216,7 +216,19 @@ Pack(ByRef var, args*) {
 }
 
 PyInit_ahk() {
-    return PyModule_Create2(&AHKModule, PYTHON_API_VERSION)
+    mod := PyModule_Create2(&AHKModule, PYTHON_API_VERSION)
+    if (mod == NULL) {
+        return NULL
+    }
+
+    pyScriptFullPath := AHKToPython(A_ScriptFullPath)
+    result := PyObject_SetAttrString(mod, "embedpython", pyScriptFullPath)
+    Py_DecRef(pyScriptFullPath)
+    if (result < 0) {
+        return NULL
+    }
+
+    return mod
 }
 
 AHKCall(self, args) {

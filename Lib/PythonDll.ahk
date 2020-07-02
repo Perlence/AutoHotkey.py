@@ -254,6 +254,7 @@ PyLong_FromLongLong(value) {
 }
 
 PyObject_GetAttrString(obj, attr) {
+    ; PyObject* PyObject_GetAttrString(PyObject *o, const char *attr_name)
     return PythonDllCall("PyObject_GetAttrString", "Ptr", obj, "AStr", attr, "Cdecl Ptr")
 }
 
@@ -264,6 +265,11 @@ PyObject_CallObject(pyObject, args) {
 PyObject_Repr(o) {
     ; PyObject* PyObject_Repr(PyObject *o)
     return PythonDllCall("PyObject_Repr", "Ptr", o, "Cdecl Ptr")
+}
+
+PyObject_SetAttrString(obj, attr, v) {
+    ; int PyObject_SetAttrString(PyObject *o, const char *attr_name, PyObject *v)
+    return PythonDllCall("PyObject_SetAttrString", "Ptr", obj, "AStr", attr, "Ptr", v, "Cdecl Ptr")
 }
 
 PyObject_TypeCheck(ob, tp) {
@@ -283,7 +289,7 @@ PyTuple_New(len) {
 
 PyTuple_SetItem(p, pos, o) {
     ; int PyTuple_SetItem(PyObject *p, Py_ssize_t pos, PyObject *o)
-    return PythonDllCall("PyTuple_SetItem", "Ptr", p, "Int", pos, "Ptr", o, "Int")
+    return PythonDllCall("PyTuple_SetItem", "Ptr", p, "Int", pos, "Ptr", o, "Cdecl Int")
 }
 
 PySys_SetArgv(argc, argv) {

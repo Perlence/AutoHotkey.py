@@ -1,3 +1,5 @@
+import os
+import sys
 from dataclasses import dataclass
 from functools import partial
 from typing import Callable
@@ -6,6 +8,7 @@ import _ahk  # noqa
 
 __all__ = [
     "Timer",
+    "reload",
     "resume",
     "set_timer",
     "sleep",
@@ -69,3 +72,13 @@ def resume():
 
 def toggle_suspend():
     _ahk.call("Suspend", "Toggle")
+
+
+def reload():
+    _ahk.call("Menu", "Tray", "NoIcon")
+    args = list(map(_quote, [sys.executable, _ahk.embedpython] + sys.argv))
+    os.execv(sys.executable, args)
+
+
+def _quote(s):
+    return f'"{s}"'
