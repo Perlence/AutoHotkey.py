@@ -1,6 +1,7 @@
 import inspect
 import os
 import subprocess
+import sys
 from textwrap import dedent
 
 import pytest
@@ -8,7 +9,7 @@ import pytest
 import ahk
 
 
-AHK = "C:\\Program Files\\AutoHotkey\\AutoHotkey.exe"
+AHK = sys.executable
 EMBED_PYTHON = os.path.abspath("Python.ahk")
 
 
