@@ -58,13 +58,19 @@ Main() {
 
     argv0 := A_ScriptFullPath
     packArgs := ["Ptr", &argv0]
+    argStr := argv0
     for i, arg in A_Args {
         packArgs.Push("Ptr")
         packArgs.Push(A_Args.GetAddress(i))
+        argStr := argStr " " arg
     }
     argc := A_Args.Length() + 1
     Pack(argv, packArgs*)
     PySys_SetArgv(argc, &argv)
+
+    DetectHiddenWindows, On
+    WinSetTitle, ahk_id %A_ScriptHwnd%, , % argStr " - AutoHotkey v" A_AhkVersion
+    DetectHiddenWindows, Off
 
     ; Import the higher-level ahk module to bootstrap the excepthook.
     mainModule := PyImport_ImportModule("ahk.main")
