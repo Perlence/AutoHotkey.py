@@ -4,17 +4,17 @@ import os
 import subprocess
 import sys
 import threading
-from ctypes.wintypes import HMODULE
+from ctypes.wintypes import DWORD, HMODULE
 from pathlib import Path
 
 
-# TODO: Get programs associated with the .ahk extension instead of hardcoding.
 AHK = "C:\\Program Files\\AutoHotkey\\AutoHotkey.exe"
 
 
 def main():
     python_ahk_path = Path(__file__).parent / "Python.ahk"
-    args = [AHK, python_ahk_path] + sys.argv[1:]
+    ahk_exe_path = get_ahk_by_assoc() or AHK
+    args = [ahk_exe_path, python_ahk_path] + sys.argv[1:]
     os.environ["PYTHONUNBUFFERED"] = "1"
     export_python_dll_path()
     ahk = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=0)
@@ -22,6 +22,39 @@ def main():
     th.start()
     read_loop(ahk.stdout, sys.stdout.buffer)
     th.join()
+
+
+def get_ahk_by_assoc():
+    S_OK = 0
+    S_FALSE = 1
+    ASSOCF_NONE = 0
+    ASSOCSTR_EXECUTABLE = 2
+    out_len = DWORD(0)
+    res = ctypes.windll.Shlwapi.AssocQueryStringW(
+        ASSOCF_NONE,
+        ASSOCSTR_EXECUTABLE,
+        ".ahk",
+        None,
+        None,
+        ctypes.byref(out_len),
+    )
+    if res != S_FALSE:
+        return ""
+
+    out = ctypes.create_unicode_buffer(1024)
+    res = ctypes.windll.Shlwapi.AssocQueryStringW(
+        ASSOCF_NONE,
+        ASSOCSTR_EXECUTABLE,
+        ".ahk",
+        None,
+        out,
+        ctypes.byref(out_len),
+    )
+    if res != S_OK:
+        return ""
+
+    ahk_exe_path = out[:out_len.value].rstrip("\x00")
+    return ahk_exe_path
 
 
 def export_python_dll_path():
