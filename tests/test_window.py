@@ -75,13 +75,15 @@ def test_windows(child_ahk):
     win1.bring_to_top()
     assert msg_boxes.first() == win1
     win1.send_to_bottom()
+    ahk.sleep(.1)
     assert msg_boxes.last() == win1
     win1.bring_to_top()
     assert msg_boxes.first() == win1
 
     msg_boxes.minimize()
     assert win1.is_minimized
-    msg_boxes.activate(timeout=1)
+    ahk.sleep(.1)
+    assert msg_boxes.activate(timeout=1)
     assert win2.is_active
     win1.restore()
     msg_boxes.maximize()
@@ -114,7 +116,7 @@ def test_windows(child_ahk):
     ahk.send("{F24}")
 
 
-def test_window(child_ahk, detect_hidden_windows):
+def test_window_obj(child_ahk, detect_hidden_windows):
     def window():
         import ahk
         import sys
