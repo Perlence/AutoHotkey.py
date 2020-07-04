@@ -1,4 +1,17 @@
 LoadPython() {
+    ; Try loading Python DLL from the path set in the PYTHONDLL environment
+    ; variable. The variable is normally set by AutoHotkey.py.
+    EnvGet, python_dll, PYTHONDLL
+    if (python_dll) {
+        HPYTHON_DLL := LoadLibraryEx(python_dll, LOAD_WITH_ALTERED_SEARCH_PATH)
+        if (HPYTHON_DLL != NULL) {
+            return HPYTHON_DLL
+        }
+        if (A_LastError != ERROR_MOD_NOT_FOUND) {
+            End("Cannot load Python DLL: " A_LastError)
+        }
+    }
+
     ; Try default search-order. This approach works with virtualenv since
     ; activating one adds "VIRTUAL_ENV\Scripts" to the PATH.
     ; TODO: Add support for venv.
