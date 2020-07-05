@@ -1,8 +1,8 @@
 import inspect
-import os
 import subprocess
 import sys
 from textwrap import dedent
+from pathlib import Path
 
 import pytest
 
@@ -10,7 +10,8 @@ import ahk
 
 
 AHK = sys.executable
-EMBED_PYTHON = os.path.abspath("Python.ahk")
+EMBED_PYTHON = Path(__file__).parent.parent / "Python.ahk"
+AHK_PY = Path(__file__).parent.parent / "AutoHotkey.py"
 
 
 @pytest.fixture()

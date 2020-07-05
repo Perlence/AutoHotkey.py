@@ -22,21 +22,30 @@ def main():
     args = [ahk_exe_path, python_ahk_path] + sys.argv[1:]
     ahk = subprocess.Popen(
         args,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        stdout=subprocess.PIPE if sys.stdout else None,
+        stderr=subprocess.PIPE if sys.stderr else None,
         bufsize=0,
     )
 
-    th = threading.Thread(target=read_loop, args=(ahk.stderr, sys.stderr.buffer), daemon=True)
-    th.start()
+    if sys.stderr:
+        th = threading.Thread(target=read_loop, args=(ahk.stderr, sys.stderr.buffer), daemon=True)
+        th.start()
+
+    if sys.stdout:
+        try:
+            read_loop(ahk.stdout, sys.stdout.buffer)
+        except KeyboardInterrupt:
+            ahk.terminate()
 
     try:
-        read_loop(ahk.stdout, sys.stdout.buffer)
+        ahk.wait()
     except KeyboardInterrupt:
         ahk.terminate()
+        ahk.wait()
 
-    ahk.wait()
-    th.join()
+    if sys.stderr:
+        th.join()
+
     sys.exit(ahk.returncode)
 
 

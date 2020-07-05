@@ -1,3 +1,4 @@
+import subprocess
 from textwrap import dedent
 
 
@@ -149,3 +150,11 @@ def test_tracebacks(tmpdir, child_ahk):
 
     res = child_ahk.run(["-q", "-m", "nonexistent"])
     assert res.returncode == 1
+
+
+def test_pyw(tmpdir):
+    from conftest import AHK_PY
+    script = tmpdir / "script.py"
+    script.write("print('hello')")
+    res = subprocess.run(["pyw.exe", AHK_PY, script])
+    assert res.returncode == 0
