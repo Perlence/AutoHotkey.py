@@ -63,20 +63,10 @@ Main() {
 
     Py_None := Py_BuildValue("")
 
-    argv0 := A_ScriptFullPath
-    packArgs := ["Ptr", &argv0]
-    argStr := argv0
-    for i, arg in A_Args {
-        packArgs.Push("Ptr")
-        packArgs.Push(A_Args.GetAddress(i))
-        argStr := argStr " " arg
-    }
-    argc := A_Args.Length() + 1
-    Pack(argv, packArgs*)
-    PySys_SetArgvEx(argc, &argv, updatepath)
+    fullCommand := SetArgs(updatepath)
 
     DetectHiddenWindows, On
-    WinSetTitle, ahk_id %A_ScriptHwnd%, , % argStr " - AutoHotkey v" A_AhkVersion
+    WinSetTitle, ahk_id %A_ScriptHwnd%, , % fullCommand " - AutoHotkey v" A_AhkVersion
     DetectHiddenWindows, Off
 
     ; Import the higher-level ahk module to bootstrap the excepthook.
@@ -236,6 +226,21 @@ PyInit_ahk() {
     }
 
     return mod
+}
+
+SetArgs(updatepath) {
+    argv0 := A_ScriptFullPath
+    packArgs := ["Ptr", &argv0]
+    fullCommand := argv0
+    for i, arg in A_Args {
+        packArgs.Push("Ptr")
+        packArgs.Push(A_Args.GetAddress(i))
+        fullCommand := fullCommand " " arg
+    }
+    argc := A_Args.Length() + 1
+    Pack(argv, packArgs*)
+    PySys_SetArgvEx(argc, &argv, updatepath)
+    return fullCommand
 }
 
 AHKCall(self, args) {
