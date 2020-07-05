@@ -12,18 +12,41 @@ AHK = "C:\\Program Files\\AutoHotkey\\AutoHotkey.exe"
 
 
 def main():
-    python_ahk_path = Path(__file__).parent / "Python.ahk"
-    ahk_exe_path = get_ahk_by_assoc() or AHK
-    args = [ahk_exe_path, python_ahk_path] + sys.argv[1:]
     os.environ["PYTHONUNBUFFERED"] = "1"
     os.environ["PYTHONNOUSERSITE"] = "1"
     os.environ["PYTHONFULLPATH"] = ';'.join(sys.path)
     os.environ["PYTHONDLL"] = python_dll_path()
-    ahk = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=0)
-    th = threading.Thread(target=read_loop, args=(ahk.stderr, sys.stdout.buffer), daemon=True)
+
+    python_ahk_path = Path(__file__).parent / "Python.ahk"
+    ahk_exe_path = get_ahk_by_assoc() or AHK
+    args = [ahk_exe_path, python_ahk_path] + sys.argv[1:]
+    ahk = subprocess.Popen(
+        args,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        bufsize=0,
+    )
+
+    th = threading.Thread(target=read_loop, args=(ahk.stderr, sys.stderr.buffer), daemon=True)
     th.start()
-    read_loop(ahk.stdout, sys.stdout.buffer)
+
+    try:
+        read_loop(ahk.stdout, sys.stdout.buffer)
+    except KeyboardInterrupt:
+        ahk.terminate()
+
+    ahk.wait()
     th.join()
+    sys.exit(ahk.returncode)
+
+
+def python_dll_path():
+    dllpath_size = 1024
+    dllpath = ctypes.create_unicode_buffer(dllpath_size)
+    dllpath_len = ctypes.windll.kernel32.GetModuleFileNameW(HMODULE(sys.dllhandle), dllpath, dllpath_size)
+    if not dllpath_len:
+        return ""
+    return dllpath[:dllpath_len]
 
 
 def get_ahk_by_assoc():
@@ -59,29 +82,16 @@ def get_ahk_by_assoc():
     return ahk_exe_path
 
 
-def python_dll_path():
-    dllpath_size = 1024
-    dllpath = ctypes.create_unicode_buffer(dllpath_size)
-    dllpath_len = ctypes.windll.kernel32.GetModuleFileNameW(HMODULE(sys.dllhandle), dllpath, dllpath_size)
-    if not dllpath_len:
-        return ""
-    return dllpath[:dllpath_len]
-
-
 def read_loop(src, dest):
     try:
         while True:
-            line = src.read(io.DEFAULT_BUFFER_SIZE)
-            if not line:
+            buf = src.read(io.DEFAULT_BUFFER_SIZE)
+            if not buf:
                 break
-            dest.write(line)
+            dest.write(buf)
             dest.flush()
     except IOError as err:
         sys.stderr.write(Path(sys.argv[0]).name + ": " + err.strerror + "\n")
-        sys.exit(0)
-    except KeyboardInterrupt:
-        sys.stdout.write("\n")
-        sys.exit(0)
 
 
 if __name__ == "__main__":
