@@ -157,7 +157,7 @@ def test_window_obj(child_ahk, detect_hidden_windows):
     assert win1.process_name == "AutoHotkey.exe"
     assert nonexistent_window.process_name is None
 
-    assert win1.process_path == proc.args[0]
+    assert win1.process_path.endswith(win1.process_name)
     assert nonexistent_window.process_path is None
 
     assert nonexistent_window.opacity is None

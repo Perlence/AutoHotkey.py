@@ -27,25 +27,19 @@ def main():
         bufsize=0,
     )
 
+    if sys.stdout:
+        stdout_thread = threading.Thread(target=read_loop, args=(ahk.stdout, sys.stdout.buffer), daemon=True)
+        stdout_thread.start()
     if sys.stderr:
-        th = threading.Thread(target=read_loop, args=(ahk.stderr, sys.stderr.buffer), daemon=True)
-        th.start()
+        stderr_thread = threading.Thread(target=read_loop, args=(ahk.stderr, sys.stderr.buffer), daemon=True)
+        stderr_thread.start()
 
     if sys.stdout:
-        try:
-            read_loop(ahk.stdout, sys.stdout.buffer)
-        except KeyboardInterrupt:
-            ahk.terminate()
-
-    try:
-        ahk.wait()
-    except KeyboardInterrupt:
-        ahk.terminate()
-        ahk.wait()
-
+        stdout_thread.join()
     if sys.stderr:
-        th.join()
+        stderr_thread.join()
 
+    ahk.wait()
     sys.exit(ahk.returncode)
 
 
@@ -101,6 +95,7 @@ def read_loop(src, dest):
             dest.flush()
     except IOError as err:
         sys.stderr.write(Path(sys.argv[0]).name + ": " + err.strerror + "\n")
+    src.close()
 
 
 if __name__ == "__main__":

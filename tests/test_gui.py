@@ -80,6 +80,7 @@ def test_on_message(detect_hidden_windows):
 def test_on_message_timeout(child_ahk, detect_hidden_windows):
     def code():
         import ahk
+        import os
         import sys
 
         ahk.hotkey("F24", lambda: sys.exit())
@@ -89,12 +90,12 @@ def test_on_message_timeout(child_ahk, detect_hidden_windows):
             ahk.sleep(1)
             return 42
 
-        print("ok00")
+        print(os.getpid())
 
     proc = child_ahk.popen_code(code)
-    child_ahk.wait(0)
+    ahk_pid = int(proc.stdout.readline().strip())
 
-    win = ahk.windows.first(pid=proc.pid)
+    win = ahk.windows.first(pid=ahk_pid)
     with pytest.raises(RuntimeError, match="response timed out"):
         win.send_message(0x5555, 0, 99, timeout=0.1)
 

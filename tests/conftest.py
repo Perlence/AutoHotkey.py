@@ -1,4 +1,5 @@
 import inspect
+import signal
 import subprocess
 import sys
 from textwrap import dedent
@@ -6,11 +7,9 @@ from pathlib import Path
 
 import pytest
 
-import ahk
-
 
 AHK = sys.executable
-EMBED_PYTHON = Path(__file__).parent.parent / "Python.ahk"
+PY_AHK = Path(__file__).parent.parent / "Python.ahk"
 AHK_PY = Path(__file__).parent.parent / "AutoHotkey.py"
 
 
@@ -28,8 +27,14 @@ class ChildAHK:
         self.proc = None
 
     def run(self, args, **kwargs):
-        args = [AHK, EMBED_PYTHON, *args]
-        return subprocess.run(args, text=True, capture_output=True, encoding="utf-8", **kwargs)
+        # args = [AHK, PY_AHK, *args]
+        args = ["py.exe", AHK_PY, *args]
+        return subprocess.run(
+            args,
+            text=True, capture_output=True, encoding="utf-8",
+            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
+            **kwargs,
+        )
 
     def run_code(self, code, *, quiet=False, **kwargs):
         args = ["-"]
@@ -38,10 +43,16 @@ class ChildAHK:
         return self.run(args, input=self._extract_code(code), **kwargs)
 
     def popen(self, args, **kwargs):
-        args = [AHK, EMBED_PYTHON, *args]
+        # args = [AHK, PY_AHK, *args]
+        args = ["py.exe", AHK_PY, *args]
         self.proc = subprocess.Popen(
-            args, text=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE, encoding="utf-8", **kwargs)
+            args,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True, encoding="utf-8",
+            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
+            **kwargs)
         return self.proc
 
     def popen_code(self, code, *, args=(), quiet=False, **kwargs):
@@ -70,11 +81,20 @@ class ChildAHK:
         try:
             self.proc.wait(timeout=1)
         except subprocess.TimeoutExpired:
+            pass
+        else:
+            return
+
+        self.proc.send_signal(signal.CTRL_BREAK_EVENT)
+        try:
+            self.proc.wait(timeout=1)
+        except subprocess.TimeoutExpired:
             self.proc.terminate()
 
 
 @pytest.fixture()
 def detect_hidden_windows():
+    import ahk
     ahk.detect_hidden_windows(True)
     yield
     ahk.detect_hidden_windows(False)
