@@ -76,6 +76,12 @@ Py_BuildValue(format) {
     return PythonDllCall("Py_BuildValue", "AStr", format, "Cdecl Ptr")
 }
 
+Py_FinalizeEx() {
+    if (HPYTHON_DLL) {
+        return PythonDllCall("Py_FinalizeEx", "Cdecl Int")
+    }
+}
+
 Py_IncRef(pyObject) {
     ; void Py_IncRef(PyObject *o)
     PythonDllCall("Py_IncRef", "Ptr", pyObject, "Cdecl")
@@ -106,6 +112,10 @@ Py_TYPE(ob) {
     return NumGet(ob+8, "UPtr")
 }
 
+Py_SetPath(path) {
+    PythonDllCall("Py_SetPath", "Str", path, "Cdecl")
+}
+
 PyDict_New() {
     ; PyObject* PyDict_New()
     return PythonDllCall("PyDict_New", "Cdecl Ptr")
@@ -114,12 +124,6 @@ PyDict_New() {
 PyDict_SetItem(p, key, val) {
     ; int PyDict_SetItem(PyObject *p, PyObject *key, PyObject *val)
     return PythonDllCall("PyDict_SetItem", "Ptr", p, "Ptr", key, "Ptr", val, "Cdecl Int")
-}
-
-Py_FinalizeEx() {
-    if (HPYTHON_DLL) {
-        return PythonDllCall("Py_FinalizeEx", "Cdecl Int")
-    }
 }
 
 PyFloat_AsDouble(pyfloat) {
@@ -305,9 +309,9 @@ PyTuple_SetItem(p, pos, o) {
     return PythonDllCall("PyTuple_SetItem", "Ptr", p, "Int", pos, "Ptr", o, "Cdecl Int")
 }
 
-PySys_SetArgv(argc, argv) {
-    ; void PySys_SetArgv(int argc, wchar_t **argv)
-    PythonDllCall("PySys_SetArgv", "Int", argc, "Ptr", argv, "Cdecl")
+PySys_SetArgvEx(argc, argv, updatepath:=1) {
+    ; void PySys_SetArgvEx(int argc, wchar_t **argv, int updatepath)
+    PythonDllCall("PySys_SetArgvEx", "Int", argc, "Ptr", argv, "Int", updatepath, "Cdecl")
 }
 
 PyTuple_Pack(n, objects*) {

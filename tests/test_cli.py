@@ -2,7 +2,7 @@ from textwrap import dedent
 
 
 def test_stdin(child_ahk):
-    code = "import sys; print(__name__, __file__, sys.argv)"
+    code = "import ahk, sys; print(__name__, __file__, sys.argv)"
     res = child_ahk.run(["-"], input=code)
     assert res.stdout == "__main__ <stdin> ['-']\n"
     assert res.stderr == ""
@@ -27,14 +27,14 @@ def test_stdin(child_ahk):
 
 def test_script(tmpdir, child_ahk):
     script = tmpdir / "script.py"
-    script.write("import sys; print(__name__, __file__, sys.argv)")
+    script.write("import ahk, sys; print(__name__, __file__, sys.argv)")
     res = child_ahk.run([str(script)])
     assert res.stdout == f"__main__ {str(script)} [{repr(str(script))}]\n"
     assert res.stderr == ""
     assert res.returncode == 0
 
     beep = tmpdir / "beep.py"
-    beep.write("import sys; print(sys.argv); import boop")
+    beep.write("import ahk, sys; print(sys.argv); import boop")
     boop = tmpdir / "boop.py"
     boop.write("print('boop')")
     res = child_ahk.run([str(beep)])
@@ -48,7 +48,7 @@ def test_script(tmpdir, child_ahk):
 
 def test_module(tmpdir, child_ahk):
     script = tmpdir / "script.py"
-    script.write("import sys; print(__name__, __file__, sys.argv)")
+    script.write("import ahk, sys; print(__name__, __file__, sys.argv)")
     res = child_ahk.run(["-m", "script", "ahk.py", "1", "2"], cwd=tmpdir)
     assert res.stdout == f"__main__ {str(script)} [{repr(str(script))}, 'ahk.py', '1', '2']\n"
     assert res.stderr == ""
@@ -56,16 +56,16 @@ def test_module(tmpdir, child_ahk):
 
 
 def test_system_exit(child_ahk):
-    res = child_ahk.run_code("import sys; sys.exit()")
+    res = child_ahk.run_code("import ahk, sys; sys.exit()")
     assert res.returncode == 0
 
-    res = child_ahk.run_code("import sys; sys.exit(1)")
+    res = child_ahk.run_code("import ahk, sys; sys.exit(1)")
     assert res.returncode == 1
 
-    res = child_ahk.run_code("import sys; sys.exit(2)")
+    res = child_ahk.run_code("import ahk, sys; sys.exit(2)")
     assert res.returncode == 2
 
-    res = child_ahk.run_code("import sys; sys.exit('bye')", quiet=True)
+    res = child_ahk.run_code("import ahk, sys; sys.exit('bye')", quiet=True)
     assert res.returncode == 1
     assert res.stderr == "bye\n"
 

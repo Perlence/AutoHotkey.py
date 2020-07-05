@@ -51,6 +51,13 @@ Main() {
     LoadPython()
     PackBuiltinModule()
 
+    updatepath := 1
+    EnvGet, python_full_path, PYTHONFULLPATH
+    if (python_full_path) {
+        Py_SetPath(python_full_path)
+        updatepath := 0
+    }
+
     PyImport_AppendInittab(&AHKModule_name, Func("PyInit_ahk"))
     Py_Initialize()
 
@@ -66,7 +73,7 @@ Main() {
     }
     argc := A_Args.Length() + 1
     Pack(argv, packArgs*)
-    PySys_SetArgv(argc, &argv)
+    PySys_SetArgvEx(argc, &argv, updatepath)
 
     DetectHiddenWindows, On
     WinSetTitle, ahk_id %A_ScriptHwnd%, , % argStr " - AutoHotkey v" A_AhkVersion

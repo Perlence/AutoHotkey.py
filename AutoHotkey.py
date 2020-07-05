@@ -16,7 +16,9 @@ def main():
     ahk_exe_path = get_ahk_by_assoc() or AHK
     args = [ahk_exe_path, python_ahk_path] + sys.argv[1:]
     os.environ["PYTHONUNBUFFERED"] = "1"
-    export_python_dll_path()
+    os.environ["PYTHONNOUSERSITE"] = "1"
+    os.environ["PYTHONFULLPATH"] = ';'.join(sys.path)
+    os.environ["PYTHONDLL"] = python_dll_path()
     ahk = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=0)
     th = threading.Thread(target=read_loop, args=(ahk.stderr, sys.stdout.buffer), daemon=True)
     th.start()
@@ -57,12 +59,13 @@ def get_ahk_by_assoc():
     return ahk_exe_path
 
 
-def export_python_dll_path():
+def python_dll_path():
     dllpath_size = 1024
     dllpath = ctypes.create_unicode_buffer(dllpath_size)
     dllpath_len = ctypes.windll.kernel32.GetModuleFileNameW(HMODULE(sys.dllhandle), dllpath, dllpath_size)
-    if dllpath_len:
-        os.environ["PYTHONDLL"] = dllpath[:dllpath_len]
+    if not dllpath_len:
+        return ""
+    return dllpath[:dllpath_len]
 
 
 def read_loop(src, dest):

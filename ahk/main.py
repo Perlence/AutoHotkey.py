@@ -27,7 +27,7 @@ def main():
         sys.stdin.reconfigure(encoding="utf-8")
 
     venv = os.getenv("VIRTUAL_ENV")
-    if venv:
+    if venv and not os.getenv("PYTHONFULLPATH"):
         site.addsitedir(f"{venv}\\Lib\\site-packages")
 
     run_from_args()
