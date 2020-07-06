@@ -92,14 +92,6 @@ class ChildAHK:
             self.proc.terminate()
 
 
-@pytest.fixture()
-def detect_hidden_windows():
-    import ahk
-    ahk.detect_hidden_windows(True)
-    yield
-    ahk.detect_hidden_windows(False)
-
-
 @pytest.fixture(params=range(20))
 def repeat(request):
     return

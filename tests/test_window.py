@@ -31,10 +31,10 @@ def test_windows(child_ahk):
     child_ahk.popen_code(windows)
     ahk.set_win_delay(None)
 
-    assert repr(ahk.windows) == "Windows()"
+    assert repr(ahk.windows) == "Windows(exclude_hidden_windows=True)"
 
     msg_boxes = ahk.windows.filter(exe="AutoHotkey.exe")
-    assert repr(msg_boxes) == "Windows(exe='AutoHotkey.exe')"
+    assert repr(msg_boxes) == "Windows(exe='AutoHotkey.exe', exclude_hidden_windows=True)"
 
     wait_result = msg_boxes.wait(timeout=1)
     assert wait_result is not None
@@ -89,11 +89,9 @@ def test_windows(child_ahk):
     msg_boxes.maximize()
     assert win1.is_maximized
     win1.restore()
-    ahk.detect_hidden_windows(True)
     msg_boxes.hide()
     assert not win1.is_visible
     win1.show()
-    ahk.detect_hidden_windows(False)
     msg_boxes.pin_to_top()
     assert win1.always_on_top
     msg_boxes.unpin_from_top()
@@ -105,8 +103,9 @@ def test_windows(child_ahk):
     msg_boxes.enable()
     assert win1.is_enabled
     win1.activate(timeout=1)
-    msg_boxes.close()
-    assert win1.wait_close(timeout=1)
+    msg_boxes.close()  # Close actually hides this AHK message box
+    assert not win1.wait_close(timeout=0.1)
+    assert win1.wait_hidden(timeout=1)
 
     assert msg_boxes.wait_close(timeout=0.1) is False
     msg_boxes.close_all()
@@ -116,7 +115,7 @@ def test_windows(child_ahk):
     ahk.send("{F24}")
 
 
-def test_window_obj(child_ahk, detect_hidden_windows):
+def test_window_obj(child_ahk):
     def window():
         import ahk
         import sys
@@ -124,7 +123,7 @@ def test_window_obj(child_ahk, detect_hidden_windows):
         ahk.hotkey("F24", sys.exit)
         ahk.message_box("win1", title="win1")
 
-    proc = child_ahk.popen_code(window)
+    child_ahk.popen_code(window)
     ahk.set_win_delay(None)
 
     nonexistent_window = ahk.Window(99999)

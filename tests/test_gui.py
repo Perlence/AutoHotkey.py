@@ -37,7 +37,7 @@ def test_message_box(child_ahk):
     msg_box.send("{Enter}")
 
 
-def test_on_message(detect_hidden_windows):
+def test_on_message():
     not_win = ahk.Window(99999)
     assert not not_win.exists
     with pytest.raises(RuntimeError, match="there was a problem sending message"):
@@ -52,7 +52,8 @@ def test_on_message(detect_hidden_windows):
         args = (w_param, l_param, msg, hwnd)
         return 42
 
-    win = ahk.windows.first(pid=os.getpid())
+    win = ahk.all_windows.first(pid=os.getpid())
+    assert win
     result = win.send_message(0x5555, 0, 99)
     assert result == 42
     assert args == (0, 99, 0x5555, win.id)
@@ -77,7 +78,7 @@ def test_on_message(detect_hidden_windows):
     assert result == 0
 
 
-def test_on_message_timeout(child_ahk, detect_hidden_windows):
+def test_on_message_timeout(child_ahk):
     def code():
         import ahk
         import os
@@ -95,7 +96,7 @@ def test_on_message_timeout(child_ahk, detect_hidden_windows):
     proc = child_ahk.popen_code(code)
     ahk_pid = int(proc.stdout.readline().strip())
 
-    win = ahk.windows.first(pid=ahk_pid)
+    win = ahk.all_windows.first(pid=ahk_pid)
     with pytest.raises(RuntimeError, match="response timed out"):
         win.send_message(0x5555, 0, 99, timeout=0.1)
 
