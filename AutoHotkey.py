@@ -27,15 +27,17 @@ def main():
         bufsize=0,
     )
 
-    if sys.stdout:
-        stdout_thread = threading.Thread(target=read_loop, args=(ahk.stdout, sys.stdout.buffer), daemon=True)
-        stdout_thread.start()
     if sys.stderr:
         stderr_thread = threading.Thread(target=read_loop, args=(ahk.stderr, sys.stderr.buffer), daemon=True)
         stderr_thread.start()
 
     if sys.stdout:
-        stdout_thread.join()
+        try:
+            read_loop(ahk.stdout, sys.stdout.buffer)
+        except KeyboardInterrupt:
+            # KeyboardInterrupt is automatically propagated to the subprocess.
+            pass
+
     if sys.stderr:
         stderr_thread.join()
 
@@ -86,15 +88,12 @@ def get_ahk_by_assoc():
 
 
 def read_loop(src, dest):
-    try:
-        while True:
-            buf = src.read(io.DEFAULT_BUFFER_SIZE)
-            if not buf:
-                break
-            dest.write(buf)
-            dest.flush()
-    except IOError as err:
-        sys.stderr.write(Path(sys.argv[0]).name + ": " + err.strerror + "\n")
+    while True:
+        buf = src.read(io.DEFAULT_BUFFER_SIZE)
+        if not buf:
+            break
+        dest.write(buf)
+        dest.flush()
     src.close()
 
 
