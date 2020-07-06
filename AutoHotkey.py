@@ -31,15 +31,14 @@ def main():
         stderr_thread = threading.Thread(target=read_loop, args=(ahk.stderr, sys.stderr.buffer), daemon=True)
         stderr_thread.start()
 
-    if sys.stdout:
-        try:
+    try:
+        if sys.stdout:
             read_loop(ahk.stdout, sys.stdout.buffer)
-        except KeyboardInterrupt:
-            # KeyboardInterrupt is automatically propagated to the subprocess.
-            pass
-
-    if sys.stderr:
-        stderr_thread.join()
+        if sys.stderr:
+            stderr_thread.join()
+    except KeyboardInterrupt:
+        # KeyboardInterrupt is automatically propagated to the subprocess.
+        pass
 
     ahk.wait()
     sys.exit(ahk.returncode)
