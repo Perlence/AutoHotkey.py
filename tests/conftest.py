@@ -31,7 +31,7 @@ class ChildAHK:
         args = ["py.exe", AHK_PY, *args]
         return subprocess.run(
             args,
-            text=True, capture_output=True, encoding="utf-8",
+            capture_output=True, encoding="utf-8",
             creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
             **kwargs,
         )
@@ -50,7 +50,7 @@ class ChildAHK:
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            text=True, encoding="utf-8",
+            encoding="utf-8",
             creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
             **kwargs)
         return self.proc
