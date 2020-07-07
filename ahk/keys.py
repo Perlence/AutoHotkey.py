@@ -1,5 +1,6 @@
 import inspect
 import threading
+from contextlib import contextmanager
 from dataclasses import dataclass
 from functools import partial
 from typing import Callable, Optional
@@ -175,7 +176,8 @@ class BaseHotkeyContext:
         )
         return hs
 
-    def _enter(self):
+    @contextmanager
+    def _manager(self):
         # I don't want to make BaseHotkeyContext a Python context manager,
         # because the end users will be tempted to use it as such, e.g:
         #
@@ -196,6 +198,12 @@ class BaseHotkeyContext:
         #     ctx = hotkey_context(lambda: ...)
         #     ctx.hotkey(...)
 
+        with BaseHotkeyContext._lock:
+            self._enter()
+            yield
+            self._exit()
+
+    def _enter(self):
         pass
 
     def _exit(self):
@@ -263,12 +271,8 @@ class Hotkey:
         option_str = "".join(options)
 
         context_hash = hash(self.context)
-        with BaseHotkeyContext._lock:
-            self.context._enter()
-            try:
-                _ahk.call("Hotkey", context_hash, self.key_name, func or "", option_str)
-            finally:
-                self.context._exit()
+        with self.context._manager():
+            _ahk.call("Hotkey", context_hash, self.key_name, func or "", option_str)
 
 
 @dataclass(frozen=True)
@@ -361,13 +365,9 @@ class Hotstring:
 
         option_str = "".join(options)
 
-        with BaseHotkeyContext._lock:
-            self.context._enter()
-            try:
-                # TODO: Handle changing replacement func.
-                _ahk.call("Hotstring", f":{option_str}:{self.string}", replacement or "")
-            finally:
-                self.context._exit()
+        with self.context._manager():
+            # TODO: Handle changing replacement func.
+            _ahk.call("Hotstring", f":{option_str}:{self.string}", replacement or "")
 
 
 def reset_hotstring():
