@@ -1,4 +1,5 @@
 import inspect
+import threading
 from dataclasses import dataclass
 from functools import partial
 from typing import Callable, Optional
@@ -87,6 +88,8 @@ def _set_key_state(cmd, state):
 
 @dataclass(frozen=True)
 class BaseHotkeyContext:
+    _lock = threading.RLock()
+
     def hotkey(
         self,
         key_name: str,
@@ -173,6 +176,26 @@ class BaseHotkeyContext:
         return hs
 
     def _enter(self):
+        # I don't want to make BaseHotkeyContext a Python context manager,
+        # because the end users will be tempted to use it as such, e.g:
+        #
+        #     with hotkey_context(lambda: ...):
+        #         hotkey(...)
+        #
+        # This approach has a number of issues that can be mitigated, but better
+        # be avoided:
+        #
+        # 1. Current context must be stored in a thread-local storage in order
+        #    to be referenced by hotkey(). This can be solved by returning the
+        #    context as `with ... as ctx`.
+        # 2. Nested contexts become possible, but implementing them is not
+        #    trivial.
+        #
+        # Instead, the following is the chosen way to use the hotkey contexts:
+        #
+        #     ctx = hotkey_context(lambda: ...)
+        #     ctx.hotkey(...)
+
         pass
 
     def _exit(self):
@@ -240,9 +263,12 @@ class Hotkey:
         option_str = "".join(options)
 
         context_hash = hash(self.context)
-        self.context._enter()
-        _ahk.call("Hotkey", context_hash, self.key_name, func or "", option_str)
-        self.context._exit()
+        with BaseHotkeyContext._lock:
+            self.context._enter()
+            try:
+                _ahk.call("Hotkey", context_hash, self.key_name, func or "", option_str)
+            finally:
+                self.context._exit()
 
 
 @dataclass(frozen=True)
@@ -335,10 +361,13 @@ class Hotstring:
 
         option_str = "".join(options)
 
-        self.context._enter()
-        # TODO: Handle changing replacement func.
-        _ahk.call("Hotstring", f":{option_str}:{self.string}", replacement or "")
-        self.context._exit()
+        with BaseHotkeyContext._lock:
+            self.context._enter()
+            try:
+                # TODO: Handle changing replacement func.
+                _ahk.call("Hotstring", f":{option_str}:{self.string}", replacement or "")
+            finally:
+                self.context._exit()
 
 
 def reset_hotstring():
@@ -399,6 +428,8 @@ class RemappedKey:
 
 def send(keys):
     # TODO: Consider adding `mode` keyword?
+    # TODO: Sending "{U+0009}" and "\u0009" gives different results depending on
+    # how tabs are handled in the application.
     _ahk.call("Send", keys)
 
 
