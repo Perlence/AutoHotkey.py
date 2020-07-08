@@ -17,7 +17,7 @@ def message_box(text=None, title="", options=0, timeout=None):
         return _ahk.call("MsgBox")
 
     return _ahk.call("MsgBox", options, title, str(text), timeout)
-    # TODO: Return result of IfMsgBox?
+    # XXX: Return result of IfMsgBox?
 
 
 def on_message(msg_number, func=None, *, max_threads=1, prepend_handler=False):

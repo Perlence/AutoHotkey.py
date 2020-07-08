@@ -91,6 +91,9 @@ def _set_key_state(cmd, state):
 class BaseHotkeyContext:
     _lock = threading.RLock()
 
+    # XXX: Consider adding context options: MaxThreadsBuffer,
+    # MaxThreadsPerHotkey, and InputLevel.
+
     def hotkey(
         self,
         key_name: str,
@@ -427,7 +430,7 @@ class RemappedKey:
 
 
 def send(keys):
-    # TODO: Consider adding `mode` keyword?
+    # XXX: Consider adding `mode` keyword.
     # TODO: Sending "{U+0009}" and "\u0009" gives different results depending on
     # how tabs are handled in the application.
     _ahk.call("Send", keys)

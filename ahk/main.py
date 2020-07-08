@@ -221,6 +221,6 @@ def show_error(text, end="\n"):
     if sys.stderr is not None:
         print(text, end=end, file=sys.stderr, flush=True)
     if not quiet:
-        # TODO: Add more MB_* constants to the module?
+        # XXX: Add more MB_* constants to the module?
         MB_ICONERROR = 0x10
         gui.message_box(text, options=MB_ICONERROR)

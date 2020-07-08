@@ -18,7 +18,7 @@ __all__ = [
 
 
 def set_timer(func=None, period=0.25, countdown=None, priority=0):
-    # TODO: Should this be threading.Timer?
+    # XXX: Should this be threading.Timer?
     if func is None:
         # Return the decorator.
         return partial(set_timer, period=period, countdown=countdown, priority=priority)

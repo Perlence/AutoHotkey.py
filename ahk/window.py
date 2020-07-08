@@ -80,8 +80,8 @@ class Windows:
     exclude_hidden_windows: bool = True
 
     def filter(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        # TODO: Consider adding the "detect_hidden_text" parameter.
-        # TODO: Consider adding the "title_match_mode" parameter.
+        # XXX: Consider adding the "detect_hidden_text" parameter.
+        # XXX: Consider adding the "title_match_mode" parameter.
         if title is None and class_name is None and id is None and pid is None and exe is None and text is None:
             return self
         return dc.replace(
@@ -95,7 +95,8 @@ class Windows:
         )
 
     def exclude(self, title=None, *, text=None, hidden_windows=None):
-        # TODO: Implement class_name, id, pid, and exe exclusion in Python.
+        # XXX: Consider implementing class_name, id, pid, and exe exclusion in
+        # Python.
         if title is None and text is None and hidden_windows is None:
             return self
         return dc.replace(
@@ -772,7 +773,7 @@ class Control(_Window):
 
 @dc.dataclass(frozen=True)
 class WindowHotkeyContext(keys.BaseHotkeyContext):
-    # TODO: Title and text have different modes that depend on global config.
+    # FIXME: Title and text have different modes that depend on global config.
     # This makes win_title and win_text not enough to identify the context.
     cmd: str
     win_title: str
