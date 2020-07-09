@@ -1,5 +1,11 @@
 __pycache__/
 *.py[cod]
 build/
+dist/
+*.egg-info/
+
+env/
+testenv/
+testvenv/
 
 .vscode/

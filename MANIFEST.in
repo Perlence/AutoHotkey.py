@@ -1,0 +1,11 @@
+include LICENSE
+include README.md
+include CHANGES.md
+include ahk/*.ahk
+include ahk/Lib/*.ahk
+graft tests
+graft examples
+graft docs
+prune docs/_build
+prune docs/_themes
+global-exclude *.py[co]

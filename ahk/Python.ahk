@@ -45,6 +45,11 @@ return
 
 
 Main() {
+    ; EnvSet, VIRTUAL_ENV, c:\Users\Sviatoslav\.virtualenvs\Python.ahk-PsU-3l2d
+    ; if (A_Args.Count() == 0) {
+    ;     A_Args := ["playground.py"]
+    ; }
+
     DllCall("AttachConsole", "Int", -1)
     ; EnvSet command is not respected by C getenv, do it via ucrtbase.
     DllCall("ucrtbase\_putenv_s", "AStr", "PYTHONUNBUFFERED", "AStr", "1", "Int")
@@ -73,24 +78,28 @@ Main() {
     ; Import the higher-level ahk module to bootstrap the excepthook.
     mainModule := PyImport_ImportModule("ahk.main")
     if (mainModule == NULL) {
+        PyErr_Print()
         End("Cannot load ahk module.")
     }
 
     Py_AHKError := PyObject_GetAttrString(mainModule, "Error")
     if (Py_AHKError == NULL) {
         Py_DecRef(mainModule)
+        PyErr_Print()
         End("Module 'main' has no attribute 'Error'.")
     }
 
     Py_HandleSystemExit := PyObject_GetAttrString(mainModule, "handle_system_exit")
     if (Py_HandleSystemExit == NULL) {
         Py_DecRef(mainModule)
+        PyErr_Print()
         End("Module 'main' has no attribute 'handle_system_exit'.")
     }
 
     mainFunc := PyObject_GetAttrString(mainModule, "main")
     if (mainFunc == NULL) {
         Py_DecRef(mainModule)
+        PyErr_Print()
         End("Module 'main' has no attribute 'main'.")
     }
 
