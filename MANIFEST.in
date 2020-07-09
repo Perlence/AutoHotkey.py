@@ -1,8 +1,8 @@
 include LICENSE
 include README.md
 include CHANGES.md
-include ahk/*.ahk
-include ahk/Lib/*.ahk
+include ahkpy/*.ahk
+include ahkpy/Lib/*.ahk
 graft tests
 graft examples
 graft docs

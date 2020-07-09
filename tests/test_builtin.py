@@ -3,7 +3,7 @@ import os
 import pytest
 
 import _ahk  # noqa
-import ahk
+import ahkpy as ahk
 
 
 def test_call():

@@ -1,4 +1,4 @@
-# Python.ahk
+# AutoHotkey.py
 
 Embed Python into AutoHotkey.
 
@@ -14,18 +14,18 @@ Create a virtual environment for your script and activate it:
 Install the package from the URL:
 
 ```bat
-> py -m pip install git+https://github.com/Perlence/Python.ahk
+> py -m pip install git+https://github.com/Perlence/AutoHotkey.py
 ```
 
 Run the sample code:
 
 ```bat
 > type con > playground.py
-import ahk
+import ahkpy as ahk
 ahk.message_box("Hello!")
 ^Z
 
-> py -m ahk playground.py
+> py -m ahkpy playground.py
 ```
 
 ## Supported Versions
@@ -33,4 +33,4 @@ ahk.message_box("Hello!")
 - AutoHotkey 1.1
 - Python 3.7 or greater
 
-Python.ahk was tested on Windows 10 v2004, AutoHotkey v1.1.30.03, Python v3.8.1.
+AutoHotkey.py was tested on Windows 10 v2004, AutoHotkey v1.1.30.03, Python v3.8.1.

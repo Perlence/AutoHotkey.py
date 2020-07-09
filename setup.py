@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    name='Python.ahk',
+    name='AutoHotkey.py',
     version='0.1a0',
     classifiers=[
         'Development Status :: 3 - Alpha',

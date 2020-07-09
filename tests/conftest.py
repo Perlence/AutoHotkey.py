@@ -3,14 +3,11 @@ import signal
 import subprocess
 import sys
 from textwrap import dedent
-from pathlib import Path
 
 import pytest
 
 
 AHK = sys.executable
-PY_AHK = Path(__file__).parent.parent / "Python.ahk"
-AHK_PY = Path(__file__).parent.parent / "AutoHotkey.py"
 
 
 @pytest.fixture()
@@ -27,8 +24,7 @@ class ChildAHK:
         self.proc = None
 
     def run(self, args, **kwargs):
-        # args = [AHK, PY_AHK, *args]
-        args = ["py.exe", AHK_PY, *args]
+        args = ["py.exe", "-m", "ahkpy", *args]
         return subprocess.run(
             args,
             capture_output=True, encoding="utf-8",
@@ -43,8 +39,7 @@ class ChildAHK:
         return self.run(args, input=self._extract_code(code), **kwargs)
 
     def popen(self, args, **kwargs):
-        # args = [AHK, PY_AHK, *args]
-        args = ["py.exe", AHK_PY, *args]
+        args = ["py.exe", "-m", "ahkpy", *args]
         self.proc = subprocess.Popen(
             args,
             stdin=subprocess.PIPE,

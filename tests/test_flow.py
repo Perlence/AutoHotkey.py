@@ -3,12 +3,12 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
-import ahk
+import ahkpy as ahk
 
 
 def test_sleep(child_ahk):
     def code():
-        import ahk
+        import ahkpy as ahk
         ahk.set_timer(lambda: print(1), countdown=0.1)
         ahk.sleep(0.2)  # sleep longer than the countdown
         print(2)
@@ -17,12 +17,12 @@ def test_sleep(child_ahk):
         # 1/0
 
     proc = child_ahk.run_code(code)
-    assert proc.stdout == "1\n2\n"
     assert proc.stderr == ""
+    assert proc.stdout == "1\n2\n"
     assert proc.returncode == 0
 
     def code():
-        import ahk
+        import ahkpy as ahk
         import threading
         ahk.set_timer(lambda: print(1), countdown=0.1)
         threading.Timer(0.2, lambda: print(2)).start()
@@ -30,8 +30,8 @@ def test_sleep(child_ahk):
         print(3)
 
     proc = child_ahk.run_code(code)
-    assert proc.stdout == "1\n2\n3\n"
     assert proc.stderr == ""
+    assert proc.stdout == "1\n2\n3\n"
     assert proc.returncode == 0
 
 
@@ -44,7 +44,7 @@ def test_timer(child_ahk):
     del timer
 
     def code():
-        import ahk
+        import ahkpy as ahk
         import sys
 
         ahk.hotkey("F24", lambda: None)  # Make the script persistent
@@ -57,12 +57,12 @@ def test_timer(child_ahk):
         print("Ding!")
 
     res = child_ahk.run_code(code)
-    assert res.stdout == "Ding!\nDong!\n"
     assert res.stderr == ""
+    assert res.stdout == "Ding!\nDong!\n"
     assert res.returncode == 0
 
     def code():
-        import ahk
+        import ahkpy as ahk
         import sys
 
         ahk.hotkey("F24", lambda: None)  # Make the script persistent
@@ -77,14 +77,14 @@ def test_timer(child_ahk):
             sys.exit()
 
     res = child_ahk.run_code(code)
-    assert res.stdout == "Ding!\n"
     assert res.stderr == ""
+    assert res.stdout == "Ding!\n"
     assert res.returncode == 0
 
 
 def test_suspend(child_ahk):
     def code():
-        import ahk
+        import ahkpy as ahk
         import sys
 
         ahk.hotkey("F13", lambda: print("ok01"))
@@ -114,7 +114,7 @@ def test_suspend(child_ahk):
 
 def test_callback_after_error(child_ahk):
     def code():
-        import ahk
+        import ahkpy as ahk
         import sys
         ahk.hotkey("F24", sys.exit)
 
@@ -141,7 +141,7 @@ def test_callback_after_error(child_ahk):
 
 def test_reload(child_ahk, tmpdir):
     def code():
-        import ahk
+        import ahkpy as ahk
         import sys
         ahk.hotkey('F24', sys.exit)
         ahk.hotkey('F13', ahk.reload)

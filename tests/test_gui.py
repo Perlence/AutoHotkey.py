@@ -2,12 +2,12 @@ import os
 
 import pytest
 
-import ahk
+import ahkpy as ahk
 
 
 def test_message_box(child_ahk):
     def msg_boxes_code():
-        import ahk
+        import ahkpy as ahk
         ahk.message_box()
         ahk.message_box("Hello, мир!")
         ahk.message_box("Hello, 世界")
@@ -80,7 +80,7 @@ def test_on_message():
 
 def test_on_message_timeout(child_ahk):
     def code():
-        import ahk
+        import ahkpy as ahk
         import os
         import sys
 

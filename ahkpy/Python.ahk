@@ -45,11 +45,6 @@ return
 
 
 Main() {
-    ; EnvSet, VIRTUAL_ENV, c:\Users\Sviatoslav\.virtualenvs\Python.ahk-PsU-3l2d
-    ; if (A_Args.Count() == 0) {
-    ;     A_Args := ["playground.py"]
-    ; }
-
     DllCall("AttachConsole", "Int", -1)
     ; EnvSet command is not respected by C getenv, do it via ucrtbase.
     DllCall("ucrtbase\_putenv_s", "AStr", "PYTHONUNBUFFERED", "AStr", "1", "Int")
@@ -76,7 +71,7 @@ Main() {
     DetectHiddenWindows, Off
 
     ; Import the higher-level ahk module to bootstrap the excepthook.
-    mainModule := PyImport_ImportModule("ahk.main")
+    mainModule := PyImport_ImportModule("ahkpy.main")
     if (mainModule == NULL) {
         PyErr_Print()
         End("Cannot load ahk module.")

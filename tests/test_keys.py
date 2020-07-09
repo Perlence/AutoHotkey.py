@@ -5,7 +5,7 @@ from textwrap import dedent
 import pytest
 
 import _ahk  # noqa
-import ahk
+import ahkpy as ahk
 
 
 def test_get_key_state(child_ahk):
@@ -68,7 +68,7 @@ def test_hotkey(child_ahk):
     hk.disable()
 
     def hotkeys():
-        import ahk
+        import ahkpy as ahk
         import sys
 
         ahk.hotkey("F24", sys.exit)
@@ -161,7 +161,7 @@ def test_hotstring(request, child_ahk):
 
 def test_hotkey_context(child_ahk):
     def code():
-        import ahk
+        import ahkpy as ahk
         import sys
         ahk.hotkey("F24", sys.exit)
         ahk.hotkey("F13", lambda: ahk.message_box("Beep"))
@@ -188,7 +188,7 @@ def test_hotkey_context(child_ahk):
 
 def test_failing_hotkey_context(child_ahk):
     def code():
-        import ahk
+        import ahkpy as ahk
         ctx = ahk.HotkeyContext(lambda: ahk.windows.get_active(class_name="Shell_TrayWnd"))
         ctx.hotkey("F13", lambda: ahk.message_box("Boop"))
         print("ok00")
@@ -211,7 +211,7 @@ def test_failing_hotkey_context(child_ahk):
 
 def test_key_wait(child_ahk):
     def code():
-        import ahk
+        import ahkpy as ahk
         import sys
 
         print("ok00")
@@ -266,7 +266,7 @@ def test_send_level(child_ahk):
     ahk.send_level(0)
 
     def code():
-        import ahk
+        import ahkpy as ahk
         import _ahk  # noqa
 
         @ahk.set_timer(countdown=0.1)
@@ -297,7 +297,7 @@ def test_send_level(child_ahk):
 def test_send_level_threaded(child_ahk):
     # TODO: SendLevel and friends must be thread-local in Python.
     def threaded():
-        import ahk
+        import ahkpy as ahk
         import _ahk  # noqa
         import threading
 
@@ -331,7 +331,7 @@ def test_send_level_threaded(child_ahk):
 
 def test_remap_key(child_ahk):
     def hotkeys():
-        import ahk
+        import ahkpy as ahk
         import sys
         ahk.hotkey("F24", sys.exit)
 

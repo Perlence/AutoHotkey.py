@@ -5,12 +5,12 @@ from functools import partial
 
 import pytest
 
-import ahk
+import ahkpy as ahk
 
 
 def test_windows(child_ahk):
     def windows():
-        import ahk
+        import ahkpy as ahk
         import sys
 
         ahk.hotkey("F24", sys.exit)
@@ -117,7 +117,7 @@ def test_windows(child_ahk):
 
 def test_window_obj(child_ahk):
     def window():
-        import ahk
+        import ahkpy as ahk
         import sys
 
         ahk.hotkey("F24", sys.exit)
@@ -244,7 +244,7 @@ def test_status_bar(request):
 
 def test_window_context(child_ahk):
     def code():
-        import ahk
+        import ahkpy as ahk
         import sys
         ahk.hotkey("F24", sys.exit)
         ahk.hotkey("F13", lambda: ahk.message_box("General"))
@@ -273,7 +273,7 @@ def test_window_context(child_ahk):
 
 def test_active_window_context(child_ahk):
     def code():
-        import ahk
+        import ahkpy as ahk
         import sys
         ahk.hotkey("F24", sys.exit)
         ahk.hotkey("F13", lambda: ahk.message_box("General"), max_threads=2)
@@ -308,7 +308,7 @@ def test_active_window_context(child_ahk):
 
 def test_exclude_window_context(child_ahk):
     def code():
-        import ahk
+        import ahkpy as ahk
         import sys
         ahk.hotkey("F24", sys.exit)
         ahk.hotkey("F13", lambda: ahk.message_box("General"), max_threads=2)
@@ -344,7 +344,7 @@ def test_exclude_window_context(child_ahk):
 
 def test_exclude_active_window_context(child_ahk):
     def code():
-        import ahk
+        import ahkpy as ahk
         import sys
         ahk.hotkey("F24", sys.exit)
         ahk.hotkey("F13", lambda: ahk.message_box("General"), max_threads=3)
