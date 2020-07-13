@@ -68,6 +68,8 @@ def run_from_args():
                          help="run library module as a script")
     program.add_argument("FILE", nargs="?",
                          help="program read from script file")
+    program.add_argument("STDIN", nargs="?", metavar="-",
+                         help="program read from stdin")
     parser.add_argument("ARGS", nargs="*",
                         help="arguments passed to program in sys.argv[1:]")
 
