@@ -64,7 +64,7 @@ def run_from_args():
     program = parser.add_mutually_exclusive_group()
     program.add_argument("-c", metavar="CMD", dest="cmd",
                          help="program passed in as string")
-    program.add_argument("-m", "--module",
+    program.add_argument("-m", dest="module", metavar="MOD",
                          help="run library module as a script")
     program.add_argument("FILE", nargs="?",
                          help="program read from script file")
