@@ -62,6 +62,8 @@ def run_from_args():
     parser.add_argument("-q", "--quiet", action="store_true",
                         help="supress message boxes with errors")
     program = parser.add_mutually_exclusive_group()
+    program.add_argument("-c", metavar="CMD", dest="cmd",
+                         help="program passed in as string")
     program.add_argument("-m", "--module",
                          help="run library module as a script")
     program.add_argument("FILE", nargs="?",
@@ -81,7 +83,10 @@ def run_from_args():
         parser.print_help()
         sys.exit()
 
-    if args.module:
+    if args.cmd:
+        sys.argv = ["-c", *args.rest]
+        run_source(args.cmd)
+    elif args.module:
         sys.argv = [args.module, *args.rest]
         cwd = os.path.abspath(os.getcwd())
         if cwd not in sys.path:
@@ -124,7 +129,11 @@ def parse_args():
     if len(args) < 1:
         return
 
-    if args[0] == "-m":
+    if args[0] == "-c":
+        if len(args) < 2:
+            return
+        res.cmd, *res.rest = args[1:]
+    elif args[0] == "-m":
         if len(args) < 2:
             return
         res.module, *res.rest = args[1:]

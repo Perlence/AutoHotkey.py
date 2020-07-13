@@ -47,6 +47,20 @@ def test_script(tmpdir, child_ahk):
     assert res.returncode == 0
 
 
+def test_cmd(child_ahk):
+    code = "import ahkpy as ahk, sys; print(__name__, __file__, sys.argv)"
+    res = child_ahk.run(["-c", code])
+    assert res.stderr == ""
+    assert res.stdout == "__main__ <stdin> ['-c']\n"
+    assert res.returncode == 0
+
+    code = "import ahkpy as ahk, sys; print(__name__, __file__, sys.argv)"
+    res = child_ahk.run(["-c", code, "hello"])
+    assert res.stderr == ""
+    assert res.stdout == "__main__ <stdin> ['-c', 'hello']\n"
+    assert res.returncode == 0
+
+
 def test_module(tmpdir, child_ahk):
     script = tmpdir / "script.py"
     script.write("import ahkpy as ahk, sys; print(__name__, __file__, sys.argv)")
