@@ -1,4 +1,5 @@
 import argparse
+import dataclasses as dc
 import io
 import os
 import runpy
@@ -6,6 +7,7 @@ import site
 import sys
 import traceback
 from pkgutil import read_code
+from typing import List, Optional
 
 import _ahk  # noqa
 
@@ -73,28 +75,28 @@ def run_from_args():
         sys.exit(2)
 
     global quiet
-    help, quiet, module, file, rest = args
+    quiet = args.quiet
 
-    if help:
+    if args.help:
         parser.print_help()
         sys.exit()
 
-    if module:
-        sys.argv = [module, *rest]
+    if args.module:
+        sys.argv = [args.module, *args.rest]
         cwd = os.path.abspath(os.getcwd())
         if cwd not in sys.path:
             sys.path.insert(0, cwd)
-        run_module(module)
-    elif file == "-":
+        run_module(args.module)
+    elif args.file == "-":
         del sys.argv[0]
         code = sys.stdin.read()
         run_source(code)
-    elif file:
-        sys.argv = [file, *rest]
-        script_dir = os.path.abspath(os.path.dirname(file))
+    elif args.file:
+        sys.argv = [args.file, *args.rest]
+        script_dir = os.path.abspath(os.path.dirname(args.file))
         if script_dir not in sys.path:
             sys.path.insert(0, script_dir)
-        run_path(file)
+        run_path(args.file)
     else:
         # TODO: Implement interactive mode.
         # TODO: Show usage in a message box.
@@ -109,19 +111,14 @@ def parse_args():
         return
 
     args = sys.argv[1:]
-
-    help = False
-    quiet = False
-    module = None
-    file = None
-    rest = []
+    res = Args()
 
     if args[0] in ("-h", "--help"):
-        help = True
-        return help, quiet, module, file, rest
+        res.help = True
+        return res
 
     if args[0] in ("-q", "--quiet"):
-        quiet = True
+        res.quiet = True
         del args[0]
 
     if len(args) < 1:
@@ -130,11 +127,21 @@ def parse_args():
     if args[0] == "-m":
         if len(args) < 2:
             return
-        module, *rest = args[1:]
+        res.module, *res.rest = args[1:]
     else:
-        file, *rest = args
+        res.file, *res.rest = args
 
-    return help, quiet, module, file, rest
+    return res
+
+
+@dc.dataclass
+class Args:
+    help: bool = False
+    quiet: bool = False
+    cmd: Optional[str] = None
+    module: Optional[str] = None
+    file: Optional[str] = None
+    rest: List[str] = dc.field(default_factory=list)
 
 
 def run_path(filename):
