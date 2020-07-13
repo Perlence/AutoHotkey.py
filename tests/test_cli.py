@@ -4,7 +4,7 @@ from textwrap import dedent
 
 def test_stdin(child_ahk):
     code = "import ahkpy as ahk, sys; print(__name__, __file__, sys.argv)"
-    res = child_ahk.run(["-"], input=code)
+    res = child_ahk.run(["-q", "-"], input=code)
     assert res.stderr == ""
     assert res.stdout == "__main__ <stdin> ['-']\n"
     assert res.returncode == 0

@@ -88,7 +88,7 @@ def run_from_args():
             sys.path.insert(0, cwd)
         run_module(args.module)
     elif args.file == "-":
-        del sys.argv[0]
+        sys.argv = ["-", *args.rest]
         code = sys.stdin.read()
         run_source(code)
     elif args.file:
