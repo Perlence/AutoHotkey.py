@@ -10,7 +10,7 @@ except ModuleNotFoundError:
                 for arg in _sys.argv
             )
             raise RuntimeError(
-                f"AHK interop is not available. Please start your code as 'py -m ahk {quoted_args}'.",
+                f"AHK interop is not available. Please start your code as 'py -m ahkpy {quoted_args}'.",
             )
 
     # TODO: Write a test for this.
