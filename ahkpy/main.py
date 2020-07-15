@@ -58,91 +58,61 @@ def handle_system_exit(value):
 
 
 def run_from_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-q", "--quiet", action="store_true",
-                        help="supress message boxes with errors")
-    program = parser.add_mutually_exclusive_group()
-    program.add_argument("-c", metavar="CMD", dest="cmd",
-                         help="program passed in as string")
-    program.add_argument("-m", dest="module", metavar="MOD",
-                         help="run library module as a script")
-    program.add_argument("FILE", nargs="?",
-                         help="program read from script file")
-    program.add_argument("STDIN", nargs="?", metavar="-",
-                         help="program read from stdin")
-    parser.add_argument("ARGS", nargs="*",
-                        help="arguments passed to program in sys.argv[1:]")
+    usage = "Python.ahk [-h] [-q] [-c CMD | -m MOD | FILE | -] [ARGS] ..."
+    parser = argparse.ArgumentParser(usage=usage)
+    parser.add_argument(
+        "-q", "--quiet", action="store_true",
+        help="supress message boxes with errors",
+    )
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "-c", dest="cmd", action="store_true",
+        help="program passed in as string",
+    )
+    group.add_argument(
+        "-m", dest="module", action="store_true",
+        help="run library module as a script",
+    )
+    parser.add_argument(
+        "ARGS", nargs=argparse.REMAINDER,
+        help="arguments passed to program in sys.argv[1:]",
+    )
 
-    args = parse_args()
-    if args is None:
+    if len(sys.argv) < 2:
         parser.print_usage(sys.stderr)
         sys.exit(2)
 
+    options = parser.parse_args()
+    args = options.ARGS
+
     global quiet
-    quiet = args.quiet
+    quiet = options.quiet
 
-    if args.help:
-        parser.print_help()
-        sys.exit()
-
-    if args.cmd:
-        sys.argv = ["-c", *args.rest]
-        run_source(args.cmd)
-    elif args.module:
-        sys.argv = [args.module, *args.rest]
+    if options.cmd:
+        sys.argv[:] = ["-c", *args[1:]]
+        run_source(args[0])
+    elif options.module:
+        sys.argv[:] = args
         cwd = os.path.abspath(os.getcwd())
         if cwd not in sys.path:
             sys.path.insert(0, cwd)
-        run_module(args.module)
-    elif args.file == "-":
-        sys.argv = ["-", *args.rest]
+        run_module(args[0])
+    elif args[0] == "-":
+        sys.argv[:] = ["-", *args[1:]]
         code = sys.stdin.read()
         run_source(code)
-    elif args.file:
-        sys.argv = [args.file, *args.rest]
-        script_dir = os.path.abspath(os.path.dirname(args.file))
+    elif args[0]:
+        sys.argv[:] = args
+        script_dir = os.path.abspath(os.path.dirname(args[0]))
         if script_dir not in sys.path:
             sys.path.insert(0, script_dir)
-        run_path(args.file)
+        run_path(args[0])
     else:
+        # TODO: Implement running code from directories.
         # TODO: Implement interactive mode.
         # TODO: Show usage in a message box.
         parser.print_usage()
         sys.exit()
-
-
-def parse_args():
-    # Parse arguments manually instead of using ArgumentParser.parse_args,
-    # because I want to keep the strict order of arguments.
-    if len(sys.argv) < 2:
-        return
-
-    args = sys.argv[1:]
-    res = Args()
-
-    if args[0] in ("-h", "--help"):
-        res.help = True
-        return res
-
-    if args[0] in ("-q", "--quiet"):
-        res.quiet = True
-        del args[0]
-
-    if len(args) < 1:
-        return
-
-    if args[0] == "-c":
-        if len(args) < 2:
-            return
-        res.cmd, *res.rest = args[1:]
-    elif args[0] == "-m":
-        if len(args) < 2:
-            return
-        res.module, *res.rest = args[1:]
-    else:
-        res.file, *res.rest = args
-
-    return res
 
 
 @dc.dataclass
