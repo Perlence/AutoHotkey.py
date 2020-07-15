@@ -6,7 +6,8 @@ import runpy
 import site
 import sys
 import traceback
-from pkgutil import read_code
+from functools import partial
+from pkgutil import read_code, get_importer
 from typing import List, Optional
 
 import _ahk  # noqa
@@ -108,7 +109,6 @@ def run_from_args():
             sys.path.insert(0, script_dir)
         run_path(args[0])
     else:
-        # TODO: Implement running code from directories.
         # TODO: Implement interactive mode.
         # TODO: Show usage in a message box.
         parser.print_usage()
@@ -127,13 +127,23 @@ class Args:
 
 def run_path(filename):
     try:
-        # runpy._get_code_from_file:
-        with io.open_code(filename) as f:
-            code = read_code(f)
-        if code is None:
-            # That didn't work, so try it as normal source code
+        # runpy.run_path:
+        importer = get_importer(filename)
+        is_NullImporter = False
+        if type(importer).__module__ == 'imp':
+            if type(importer).__name__ == 'NullImporter':
+                is_NullImporter = True
+        if isinstance(importer, type(None)) or is_NullImporter:
+            # runpy._get_code_from_file:
             with io.open_code(filename) as f:
-                code = compile(f.read(), filename, "exec")
+                code = read_code(f)
+            if code is None:
+                # That didn't work, so try it as normal source code
+                with io.open_code(filename) as f:
+                    code = compile(f.read(), filename, "exec")
+        else:
+            # TODO: Write a test for running directories.
+            code = partial(runpy.run_path, filename, run_name="__main__")
     except FileNotFoundError as err:
         show_error(f"Can't open file: {err}")
         sys.exit(2)
@@ -159,7 +169,10 @@ def run_code(code, filename):
             "__doc__": None,
             "__file__": filename,
         }
-        exec(code, globs)
+        if callable(code):
+            code()
+        else:
+            exec(code, globs)
     except SystemExit:
         raise
     except:  # noqa
