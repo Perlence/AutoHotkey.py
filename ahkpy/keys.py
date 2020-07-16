@@ -3,7 +3,7 @@ import threading
 from contextlib import contextmanager
 from dataclasses import dataclass
 from functools import partial
-from typing import Callable, Optional
+from typing import Callable, Union
 
 import _ahk  # noqa
 
@@ -30,10 +30,6 @@ __all__ = [
     "set_num_lock_state",
     "set_scroll_lock_state",
 ]
-
-
-def DEFAULT(value):
-    return None
 
 
 class SendMode:
@@ -99,10 +95,10 @@ class BaseHotkeyContext:
         key_name: str,
         func: Callable = None,
         *,
-        buffer: Optional[bool] = DEFAULT(False),
-        priority: Optional[int] = DEFAULT(0),
-        max_threads: Optional[int] = DEFAULT(1),
-        input_level: Optional[int] = DEFAULT(0),
+        buffer=False,
+        priority=0,
+        max_threads=1,
+        input_level=0,
     ):
         if key_name == "":
             raise Error("invalid key name")
@@ -124,21 +120,21 @@ class BaseHotkeyContext:
 
     def hotstring(
         self,
-        string,
-        replacement=None,
+        string: str,
+        replacement: Union[str, Callable] = None,
         *,
-        wait_for_end_char=DEFAULT(True),
-        replace_inside_word=DEFAULT(False),
-        backspacing=DEFAULT(True),
-        case_sensitive=DEFAULT(False),
-        conform_to_case=DEFAULT(False),
-        key_delay=None,
-        omit_end_char=DEFAULT(False),
-        priority=DEFAULT(0),
-        raw=DEFAULT(False),
-        text=DEFAULT(False),
-        mode=DEFAULT(SendMode.INPUT),
-        reset_recognizer=DEFAULT(False),
+        wait_for_end_char=True,
+        replace_inside_word=False,
+        backspacing=True,
+        case_sensitive=False,
+        conform_to_case=False,
+        key_delay=-1,
+        omit_end_char=False,
+        priority=0,
+        raw=False,
+        text=False,
+        mode=None,
+        reset_recognizer=False,
     ):
         # TODO: Implement setting global options.
         # TODO: Write tests.
@@ -340,6 +336,8 @@ class Hotstring:
             options.append("C0")
 
         if key_delay is not None:
+            if key_delay > 0:
+                key_delay = int(key_delay * 1000)
             options.append(f"K{key_delay}")
 
         if priority is not None:
