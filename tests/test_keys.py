@@ -140,23 +140,31 @@ def test_hotkey(child_ahk):
 
 
 def test_hotstring(request, child_ahk):
-    ahk.send_level(0)
-    ahk.hotstring("--", "—")
-
     notepad_proc = subprocess.Popen(["notepad.exe"])
     request.addfinalizer(notepad_proc.terminate)
     notepad_win = ahk.windows.wait(pid=notepad_proc.pid)
     edit = notepad_win.get_control("Edit1")
 
-    ahk.send_level(10)
-    ahk.send("--{Space}")
+    dashes = ahk.hotstring("--", "—")
+
+    ahk.send("--", level=10)
+    ahk.sleep(0)
+    assert edit.text == "--"
+    ahk.send(" ", level=10)
     ahk.sleep(0)
     assert edit.text == "— "
 
     edit.text = ""
     assert edit.text == ""
 
-    ahk.send("{F24}")
+    dashes.update(wait_for_end_char=False)
+    ahk.send("--", level=10)
+    ahk.sleep(0)
+    assert edit.text == "—"
+
+    edit.text = ""
+
+    ahk.send("{F24}", level=10)
 
 
 def test_hotkey_context(child_ahk):
@@ -243,9 +251,9 @@ def test_key_wait(child_ahk):
 
 def test_send_level(child_ahk):
     with pytest.raises(ValueError, match="level must be between 0 and 100"):
-        ahk.send_level(-1)
+        ahk.send("{F13}", level=-1)
     with pytest.raises(ValueError, match="level must be between 0 and 100"):
-        ahk.send_level(101)
+        ahk.send("{F13}", level=101)
 
     called = False
 
@@ -258,75 +266,9 @@ def test_send_level(child_ahk):
     ahk.sleep(0)  # Let AHK process the hotkey.
     assert not called
 
-    ahk.send_level(20)
-    ahk.send("{F15}")
+    ahk.send("{F15}", level=20)
     ahk.sleep(0)
     assert called
-
-    ahk.send_level(0)
-
-    def code():
-        import ahkpy as ahk
-        import _ahk  # noqa
-
-        @ahk.set_timer(countdown=0.1)
-        def beep():
-            print("beep", _ahk.call("A_SendLevel"), flush=True)
-            ahk.send_level(20)
-            print("beep", _ahk.call("A_SendLevel"), flush=True)
-
-        @ahk.set_timer(countdown=0.2)
-        def boop():
-            print("boop", _ahk.call("A_SendLevel"), flush=True)
-
-        ahk.send_level(10)
-        print("main", _ahk.call("A_SendLevel"), flush=True)
-        ahk.sleep(0.3)
-
-    proc = child_ahk.run_code(code)
-    assert proc.stdout == dedent("""\
-        main 10
-        beep 10
-        beep 20
-        boop 10
-        """)
-    assert proc.stderr == ""
-    assert proc.returncode == 0
-
-
-def test_send_level_threaded(child_ahk):
-    # TODO: SendLevel and friends must be thread-local in Python.
-    def threaded():
-        import ahkpy as ahk
-        import _ahk  # noqa
-        import threading
-
-        def beep():
-            print("beep", _ahk.call("A_SendLevel"), flush=True)
-            ahk.send_level(20)
-            print("beep", _ahk.call("A_SendLevel"), flush=True)
-
-        threading.Timer(0.1, beep).start()
-
-        def boop():
-            print("boop", _ahk.call("A_SendLevel"), flush=True)
-
-        threading.Timer(0.2, boop).start()
-
-        ahk.send_level(10)
-        print("main", _ahk.call("A_SendLevel"), flush=True)
-        ahk.sleep(0.3)
-
-    proc = child_ahk.run_code(threaded)
-    with pytest.xfail():
-        assert proc.stdout == dedent("""\
-            main 10
-            beep 10
-            beep 20
-            boop 10
-            """)
-    assert proc.stderr == ""
-    assert proc.returncode == 0
 
 
 def test_remap_key(child_ahk):
@@ -345,10 +287,9 @@ def test_remap_key(child_ahk):
     child_ahk.wait(0)
 
     remap = ahk.remap_key("F13", "F14")
-    ahk.send_level(10)
-    ahk.send("{F13}")
+    ahk.send("{F13}", level=10)
     assert ahk.windows.wait(exe="AutoHotkey.exe", text="F14 pressed", timeout=1)
 
     remap.disable()
 
-    ahk.send("{F24}")
+    ahk.send("{F24}", level=10)

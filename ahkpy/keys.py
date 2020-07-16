@@ -23,7 +23,6 @@ __all__ = [
     "key_wait_released",
     "remap_key",
     "reset_hotstring",
-    "send_level",
     "send_mode",
     "send",
     "set_caps_lock_state",
@@ -427,15 +426,28 @@ class RemappedKey:
         self.wildcard_origin_up.toggle()
 
 
-def send(keys):
-    # XXX: Consider adding `mode` keyword.
+send_lock = threading.RLock()
+
+
+def send(keys, *, mode=SendMode.INPUT, level=0):
     # TODO: Sending "{U+0009}" and "\u0009" gives different results depending on
     # how tabs are handled in the application.
-    _ahk.call("Send", keys)
+
+    if mode == SendMode.INPUT:
+        cmd = "SendInput"
+    elif mode == SendMode.PLAY:
+        cmd = "SendPlay"
+    elif mode == SendMode.EVENT:
+        cmd = "SendEvent"
+    else:
+        raise ValueError(f"unknown send mode: {mode!r}")
+
+    with send_lock:
+        _send_level(level)
+        _ahk.call(cmd, keys)
 
 
-def send_level(level: int):
-    # TODO: Make this setting thread-local.
+def _send_level(level: int):
     if not 0 <= level <= 100:
         raise ValueError("level must be between 0 and 100")
     _ahk.call("SendLevel", int(level))
