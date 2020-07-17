@@ -104,6 +104,14 @@ class BaseHotkeyContext:
 
         if func is None:
             # Return the decorator.
+
+            # XXX: Consider implementing decorator chaining, e.g.:
+            #
+            #     @ahk.hotkey("F11")
+            #     @ahk.hotkey("F12")
+            #     def func():
+            #         print("F11 or F12 was pressed")
+
             return partial(self.hotkey, key_name, buffer=buffer, priority=priority,
                            max_threads=max_threads, input_level=input_level)
 
@@ -126,7 +134,7 @@ class BaseHotkeyContext:
         replace_inside_word=False,
         backspacing=True,
         case_sensitive=False,
-        conform_to_case=False,
+        conform_to_case=True,
         key_delay=-1,
         omit_end_char=False,
         priority=0,
@@ -156,13 +164,12 @@ class BaseHotkeyContext:
                 reset_recognizer=reset_recognizer,
             )
 
-        hs = Hotstring(string, context=self)
+        hs = Hotstring(string, case_sensitive, context=self)
         hs.update(
             replacement=replacement,
             wait_for_end_char=wait_for_end_char,
             replace_inside_word=replace_inside_word,
             backspacing=backspacing,
-            case_sensitive=case_sensitive,
             conform_to_case=conform_to_case,
             key_delay=key_delay,
             omit_end_char=omit_end_char,
@@ -240,6 +247,16 @@ class Hotkey:
     key_name: str
     context: BaseHotkeyContext
 
+    # I decided not to have 'func' and hotkey options as fields, because:
+    #
+    # 1. There's no way to get the option's value from an existing Hotkey. This
+    #    means that the option must be stored in the Python Hotkey object.
+    # 2. There's always a chance of setting an option in AHK but failing to
+    #    store it in Python. Likewise, an option may be stored in Python, but
+    #    not set in AHK yet.
+    # 3. An option may be changed from the AHK side. In this case the value
+    #    stored in the Python Hotkey object becomes absolete and misleading.
+
     def enable(self):
         _ahk.call("HotkeySpecial", self.key_name, "On")
 
@@ -276,7 +293,19 @@ class Hotkey:
 @dataclass(frozen=True)
 class Hotstring:
     string: str
+    case_sensitive: bool
     context: BaseHotkeyContext
+
+    # There are no 'replacement' and option fields in Hotstring object. See the
+    # reasoning in the Hotkey class.
+
+    # Case sensitivity and conformity transitions:
+    #     CO <-> C1
+    #     C1 <-- C --> C0
+
+    def __post_init__(self):
+        if hasattr(self.string, 'lower') and not self.case_sensitive:
+            object.__setattr__(self, "string", self.string.lower())
 
     def disable(self):
         _ahk.call("Hotstring", str(self.string), "", "Off")
@@ -288,20 +317,8 @@ class Hotstring:
         _ahk.call("Hotstring", str(self.string), "", "Toggle")
 
     def update(
-        self,
-        *,
-        replacement=None,
-        wait_for_end_char=None,
-        replace_inside_word=None,
-        backspacing=None,
-        case_sensitive=None,
-        conform_to_case=None,
-        key_delay=None,
-        omit_end_char=None,
-        priority=None,
-        raw=None,
-        text=None,
-        mode=None,
+        self, *, replacement=None, wait_for_end_char=None, replace_inside_word=None, backspacing=None,
+        conform_to_case=None, key_delay=None, omit_end_char=None, priority=None, raw=None, text=None, mode=None,
         reset_recognizer=None,
     ):
         options = []
@@ -328,11 +345,9 @@ class Hotstring:
             options.append("B0")
 
         if conform_to_case:
-            options.append("C1")
-        elif case_sensitive:
-            options.append("C")
-        elif case_sensitive is not None or conform_to_case is not None:
             options.append("C0")
+        elif conform_to_case is not None:
+            options.append("C1")
 
         if key_delay is not None:
             if key_delay > 0:

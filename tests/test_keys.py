@@ -164,6 +164,13 @@ def test_hotstring(request, child_ahk):
 
     edit.text = ""
 
+    ahk.hotstring("beep", "boop")
+    ahk.send("Beep ", level=10)
+    ahk.sleep(0)
+    assert edit.text == "Boop "
+
+    edit.text = ""
+
     ahk.send("{F24}", level=10)
 
 
