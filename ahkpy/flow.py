@@ -75,6 +75,8 @@ def toggle_suspend():
 
 
 def reload():
+    # TODO: If the new script has an error, AHK will show it and quit. Instead,
+    # keep the old script running.
     _ahk.call("Menu", "Tray", "NoIcon")
     args = list(map(_quote, [sys.executable, _ahk.script_full_path] + sys.argv))
     os.execv(sys.executable, args)

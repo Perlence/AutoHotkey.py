@@ -82,6 +82,14 @@ class Windows:
     def filter(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         # XXX: Consider adding the "detect_hidden_text" parameter.
         # XXX: Consider adding the "title_match_mode" parameter.
+        # TODO: Filtering by an attribute of a null-window matches all the windows:
+        #
+        #     null_win = ahk.windows.first(id=99999)
+        #     assert not null_win
+        #     assert null_win.title is None
+        #     len(ahk.windows.filter(title=null_win.title))  # len > 0
+        #
+
         if title is None and class_name is None and id is None and pid is None and exe is None and text is None:
             return self
         return dc.replace(
