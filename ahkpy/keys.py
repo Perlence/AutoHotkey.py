@@ -23,7 +23,6 @@ __all__ = [
     "key_wait_released",
     "remap_key",
     "reset_hotstring",
-    "send_mode",
     "send",
     "set_caps_lock_state",
     "set_num_lock_state",
@@ -466,8 +465,3 @@ def _send_level(level: int):
     if not 0 <= level <= 100:
         raise ValueError("level must be between 0 and 100")
     _ahk.call("SendLevel", int(level))
-
-
-def send_mode(mode):
-    # TODO: Make this setting thread-local.
-    _ahk.call("SendMode", mode)
