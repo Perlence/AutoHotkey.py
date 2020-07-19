@@ -229,6 +229,13 @@ class TestHotstring:
         ahk.sleep(0)
         assert edit.text == "practicairline "
 
+    def test_no_backspacing(self, request, edit):
+        em = ahk.hotstring("<em>", "</em>{left 5}", wait_for_end_char=False, backspacing=False)
+        request.addfinalizer(em.disable)
+        ahk.send("hello <em>world", level=10)
+        ahk.sleep(0)
+        assert edit.text == "hello <em>world</em>"
+
 
 def test_hotkey_context(child_ahk):
     def code():
