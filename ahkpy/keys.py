@@ -2,7 +2,6 @@ import inspect
 import threading
 from contextlib import contextmanager
 from dataclasses import dataclass
-from functools import partial
 from typing import Callable, Union
 
 import _ahk  # noqa
@@ -101,28 +100,33 @@ class BaseHotkeyContext:
         if key_name == "":
             raise Error("invalid key name")
 
-        if func is None:
-            # Return the decorator.
+        def hotkey_decorator(func):
+            if not callable(func):
+                raise TypeError(f"object {func!r} must be callable")
 
+            hk = Hotkey(key_name, context=self)
+            hk.update(
+                func=func,
+                buffer=buffer,
+                priority=priority,
+                max_threads=max_threads,
+                input_level=input_level,
+            )
+            return hk
+
+        if func is None:
             # XXX: Consider implementing decorator chaining, e.g.:
             #
             #     @ahk.hotkey("F11")
             #     @ahk.hotkey("F12")
             #     def func():
             #         print("F11 or F12 was pressed")
-
-            return partial(self.hotkey, key_name, buffer=buffer, priority=priority,
-                           max_threads=max_threads, input_level=input_level)
-
-        if not callable(func):
-            raise TypeError(f"object {func!r} must be callable")
+            return hotkey_decorator
 
         # TODO: Handle case when func == "AltTab" or other substitutes.
         # TODO: Hotkey command may set ErrorLevel. Raise an exception.
 
-        hk = Hotkey(key_name, context=self)
-        hk.update(func=func, buffer=buffer, priority=priority, max_threads=max_threads, input_level=input_level)
-        return hk
+        return hotkey_decorator(func)
 
     def hotstring(
         self,
@@ -144,15 +148,13 @@ class BaseHotkeyContext:
     ):
         # TODO: Implement setting global options.
         # TODO: Write tests.
-        if replacement is None:
-            # Return the decorator.
-            return partial(
-                self.hotstring,
-                string,
+        def hotstring_decorator(replacement):
+            hs = Hotstring(string, case_sensitive, context=self)
+            hs.update(
+                replacement=replacement,
                 wait_for_end_char=wait_for_end_char,
                 replace_inside_word=replace_inside_word,
                 backspacing=backspacing,
-                case_sensitive=case_sensitive,
                 conform_to_case=conform_to_case,
                 key_delay=key_delay,
                 omit_end_char=omit_end_char,
@@ -162,23 +164,11 @@ class BaseHotkeyContext:
                 mode=mode,
                 reset_recognizer=reset_recognizer,
             )
+            return hs
 
-        hs = Hotstring(string, case_sensitive, context=self)
-        hs.update(
-            replacement=replacement,
-            wait_for_end_char=wait_for_end_char,
-            replace_inside_word=replace_inside_word,
-            backspacing=backspacing,
-            conform_to_case=conform_to_case,
-            key_delay=key_delay,
-            omit_end_char=omit_end_char,
-            priority=priority,
-            raw=raw,
-            text=text,
-            mode=mode,
-            reset_recognizer=reset_recognizer,
-        )
-        return hs
+        if replacement is None:
+            return hotstring_decorator
+        return hotstring_decorator(replacement)
 
     @contextmanager
     def _manager(self):

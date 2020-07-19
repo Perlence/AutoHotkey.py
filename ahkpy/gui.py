@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from functools import partial
 from typing import Callable
 
 import _ahk  # noqa
@@ -21,17 +20,19 @@ def message_box(text=None, title="", options=0, timeout=None):
 
 
 def on_message(msg_number, func=None, *, max_threads=1, prepend_handler=False):
-    if func is None:
-        return partial(on_message, msg_number, max_threads=max_threads, prepend_handler=prepend_handler)
-
     if max_threads is not None and max_threads <= 0:
         raise ValueError("max_threads must be positive")
 
     if prepend_handler:
         max_threads *= -1
 
-    _ahk.call("OnMessage", int(msg_number), func, max_threads)
-    return MessageHandler(msg_number, func)
+    def on_message_decorator(func):
+        _ahk.call("OnMessage", int(msg_number), func, max_threads)
+        return MessageHandler(msg_number, func)
+
+    if func is None:
+        return on_message_decorator
+    return on_message_decorator(func)
 
 
 @dataclass(frozen=True)

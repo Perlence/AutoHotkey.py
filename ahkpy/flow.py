@@ -1,7 +1,6 @@
 import os
 import sys
 from dataclasses import dataclass
-from functools import partial
 from typing import Callable
 
 import _ahk  # noqa
@@ -19,20 +18,20 @@ __all__ = [
 
 def set_timer(func=None, period=0.25, countdown=None, priority=0):
     # XXX: Should this be threading.Timer?
-    if func is None:
-        # Return the decorator.
-        return partial(set_timer, period=period, countdown=countdown, priority=priority)
-
     if countdown is not None:
         if countdown < 0:
             raise ValueError("countdown must be positive")
         period = -countdown
     period = int(period*1000)
 
-    _ahk.call("SetTimer", func, period, priority)
+    def set_timer_decorator(func):
+        _ahk.call("SetTimer", func, period, priority)
+        # TODO: Remove func from CALLBACKS after its execution if *countdown* is set.
+        return Timer(func)
 
-    # TODO: Remove func from CALLBACKS after its execution if *countdown* is set.
-    return Timer(func)
+    if func is None:
+        return set_timer_decorator
+    return set_timer_decorator(func)
 
 
 @dataclass(frozen=True)
