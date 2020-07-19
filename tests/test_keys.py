@@ -139,39 +139,95 @@ def test_hotkey(child_ahk):
     assert proc.returncode == 0
 
 
-def test_hotstring(request, child_ahk):
-    notepad_proc = subprocess.Popen(["notepad.exe"])
-    request.addfinalizer(notepad_proc.terminate)
-    notepad_win = ahk.windows.wait(pid=notepad_proc.pid)
-    edit = notepad_win.get_control("Edit1")
+class TestHotstring:
+    @pytest.fixture(scope="class")
+    def notepad(self, request):
+        notepad_proc = subprocess.Popen(["notepad.exe"])
+        try:
+            notepad_win = ahk.windows.wait(pid=notepad_proc.pid)
+            yield notepad_win
+        finally:
+            notepad_proc.terminate()
 
-    dashes = ahk.hotstring("--", "—")
+    @pytest.fixture
+    def edit(self, notepad):
+        edit = notepad.get_control("Edit1")
+        edit.text = ""
+        assert edit.text == ""
+        yield edit
+        edit.text = ""
+        assert edit.text == ""
 
-    ahk.send("--", level=10)
-    ahk.sleep(0)
-    assert edit.text == "--"
-    ahk.send(" ", level=10)
-    ahk.sleep(0)
-    assert edit.text == "— "
+    def test_simple(self, request, edit):
+        dashes = ahk.hotstring("--", "—")
+        request.addfinalizer(dashes.disable)
+        ahk.send("--", level=10)
+        ahk.sleep(0)
+        assert edit.text == "--"
+        ahk.send(" ", level=10)
+        ahk.sleep(0)
+        assert edit.text == "— "
 
-    edit.text = ""
-    assert edit.text == ""
+    def test_no_wait_for_end_char(self, request, edit):
+        dashes = ahk.hotstring("--", "—")
+        request.addfinalizer(dashes.disable)
+        dashes.update(wait_for_end_char=False)
+        ahk.send("--", level=10)
+        ahk.sleep(0)
+        assert edit.text == "—"
 
-    dashes.update(wait_for_end_char=False)
-    ahk.send("--", level=10)
-    ahk.sleep(0)
-    assert edit.text == "—"
+    def test_on_off(self, request, edit):
+        beep = ahk.hotstring("beep", "boop")
+        request.addfinalizer(beep.disable)
+        ahk.send("Beep ", level=10)
+        ahk.sleep(0)
+        assert edit.text == "Boop "
 
-    edit.text = ""
+        edit.text = ""
+        beep.disable()
+        ahk.send("Beep ", level=10)
+        ahk.sleep(0)
+        assert edit.text == "Beep "
 
-    ahk.hotstring("beep", "boop")
-    ahk.send("Beep ", level=10)
-    ahk.sleep(0)
-    assert edit.text == "Boop "
+        edit.text = ""
+        beep.enable()
+        ahk.send("Beep ", level=10)
+        ahk.sleep(0)
+        assert edit.text == "Boop "
 
-    edit.text = ""
+        edit.text = ""
+        beep.toggle()
+        ahk.send("Beep ", level=10)
+        ahk.sleep(0)
+        assert edit.text == "Beep "
 
-    ahk.send("{F24}", level=10)
+    def test_case_sensitive(self, request, edit):
+        case = ahk.hotstring("CaSe", "EsAc", case_sensitive=True)
+        request.addfinalizer(case.disable)
+        ahk.send("case ", level=10)
+        ahk.sleep(0)
+        assert edit.text == "case "
+        ahk.send("CaSe ", level=10)
+        ahk.sleep(0)
+        assert edit.text == "case EsAc "
+
+    def test_decorator(self, request, edit):
+        @ahk.hotstring("blarp")
+        def blarp():
+            ahk.send('boop ', level=10)
+
+        request.addfinalizer(blarp.disable)
+        edit.text = ""
+        ahk.send("blarp ", level=10)
+        ahk.sleep(0)
+        assert edit.text == "boop "
+
+    def test_replace_inside_word(self, request, edit):
+        airline = ahk.hotstring("al", "airline", replace_inside_word=True)
+        request.addfinalizer(airline.disable)
+        ahk.send("practical ", level=10)
+        ahk.sleep(0)
+        assert edit.text == "practicairline "
 
 
 def test_hotkey_context(child_ahk):

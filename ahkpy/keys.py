@@ -149,11 +149,10 @@ class BaseHotkeyContext:
         # TODO: Implement setting global options.
         # TODO: Write tests.
         def hotstring_decorator(replacement):
-            hs = Hotstring(string, case_sensitive, context=self)
+            hs = Hotstring(string, case_sensitive, replace_inside_word, context=self)
             hs.update(
                 replacement=replacement,
                 wait_for_end_char=wait_for_end_char,
-                replace_inside_word=replace_inside_word,
                 backspacing=backspacing,
                 conform_to_case=conform_to_case,
                 key_delay=key_delay,
@@ -164,6 +163,9 @@ class BaseHotkeyContext:
                 mode=mode,
                 reset_recognizer=reset_recognizer,
             )
+            # Enable the hotstring in case another hotstring with the same
+            # 'string' existed before, but was disabled.
+            hs.enable()
             return hs
 
         if replacement is None:
@@ -283,6 +285,7 @@ class Hotkey:
 class Hotstring:
     string: str
     case_sensitive: bool
+    replace_inside_word: bool
     context: BaseHotkeyContext
 
     # There are no 'replacement' and option fields in Hotstring object. See the
@@ -297,18 +300,22 @@ class Hotstring:
             object.__setattr__(self, "string", self.string.lower())
 
     def disable(self):
-        _ahk.call("Hotstring", str(self.string), "", "Off")
+        _ahk.call("Hotstring", f":{self._id_options()}:{self.string}", "", "Off")
 
     def enable(self):
-        _ahk.call("Hotstring", str(self.string), "", "On")
+        _ahk.call("Hotstring", f":{self._id_options()}:{self.string}", "", "On")
 
     def toggle(self):
-        _ahk.call("Hotstring", str(self.string), "", "Toggle")
+        _ahk.call("Hotstring", f":{self._id_options()}:{self.string}", "", "Toggle")
+
+    def _id_options(self):
+        case_option = "C" if self.case_sensitive else ""
+        replace_inside_option = "?" if self.replace_inside_word else "?0"
+        return f"{case_option}{replace_inside_option}"
 
     def update(
-        self, *, replacement=None, wait_for_end_char=None, replace_inside_word=None, backspacing=None,
-        conform_to_case=None, key_delay=None, omit_end_char=None, priority=None, raw=None, text=None, mode=None,
-        reset_recognizer=None,
+        self, *, replacement=None, wait_for_end_char=None, backspacing=None, conform_to_case=None, key_delay=None,
+        omit_end_char=None, priority=None, raw=None, text=None, mode=None, reset_recognizer=None,
     ):
         options = []
 
@@ -323,9 +330,9 @@ class Hotstring:
             if omit_end_char is False:
                 options.append("O0")
 
-        if replace_inside_word:
+        if self.replace_inside_word:
             options.append("?")
-        elif replace_inside_word is not None:
+        else:
             options.append("?0")
 
         if backspacing:
@@ -333,7 +340,9 @@ class Hotstring:
         elif backspacing is not None:
             options.append("B0")
 
-        if conform_to_case:
+        if self.case_sensitive:
+            options.append("C")
+        elif conform_to_case:
             options.append("C0")
         elif conform_to_case is not None:
             options.append("C1")
@@ -375,7 +384,10 @@ class Hotstring:
 
 
 def reset_hotstring():
-    _ahk.call("Reset")
+    _ahk.call("Hotstring", "Reset")
+
+
+# TODO: Implement Hotstring, MouseReset and Hotstring, EndChars.
 
 
 def key_wait_pressed(key_name, logical_state=False, timeout=None) -> bool:
