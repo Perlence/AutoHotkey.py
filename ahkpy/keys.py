@@ -249,13 +249,16 @@ class Hotkey:
     #    stored in the Python Hotkey object becomes absolete and misleading.
 
     def enable(self):
-        _ahk.call("HotkeySpecial", self.key_name, "On")
+        with self.context._manager():
+            _ahk.call("HotkeySpecial", self.key_name, "On")
 
     def disable(self):
-        _ahk.call("HotkeySpecial", self.key_name, "Off")
+        with self.context._manager():
+            _ahk.call("HotkeySpecial", self.key_name, "Off")
 
     def toggle(self):
-        _ahk.call("HotkeySpecial", self.key_name, "Toggle")
+        with self.context._manager():
+            _ahk.call("HotkeySpecial", self.key_name, "Toggle")
 
     def update(self, *, func=None, buffer=None, priority=None, max_threads=None, input_level=None):
         options = []
@@ -300,13 +303,16 @@ class Hotstring:
             object.__setattr__(self, "string", self.string.lower())
 
     def disable(self):
-        _ahk.call("Hotstring", f":{self._id_options()}:{self.string}", "", "Off")
+        with self.context._manager():
+            _ahk.call("Hotstring", f":{self._id_options()}:{self.string}", "", "Off")
 
     def enable(self):
-        _ahk.call("Hotstring", f":{self._id_options()}:{self.string}", "", "On")
+        with self.context._manager():
+            _ahk.call("Hotstring", f":{self._id_options()}:{self.string}", "", "On")
 
     def toggle(self):
-        _ahk.call("Hotstring", f":{self._id_options()}:{self.string}", "", "Toggle")
+        with self.context._manager():
+            _ahk.call("Hotstring", f":{self._id_options()}:{self.string}", "", "Toggle")
 
     def _id_options(self):
         case_option = "C" if self.case_sensitive else ""

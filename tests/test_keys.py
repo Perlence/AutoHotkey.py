@@ -169,12 +169,28 @@ class TestHotstring:
         assert edit.text == "— "
 
     def test_no_wait_for_end_char(self, request, edit):
+        jsmith = ahk.hotstring("j@", "jsmith@somedomain.com", wait_for_end_char=False)
+        request.addfinalizer(jsmith.disable)
+        ahk.send("j@", level=10)
+        ahk.sleep(0)
+        assert edit.text == "jsmith@somedomain.com"
+
+        edit.text = ""
         dashes = ahk.hotstring("--", "—")
         request.addfinalizer(dashes.disable)
         dashes.update(wait_for_end_char=False)
         ahk.send("--", level=10)
         ahk.sleep(0)
         assert edit.text == "—"
+
+        edit.text = ""
+        dashes.update(wait_for_end_char=True)
+        ahk.send("--", level=10)
+        ahk.sleep(0)
+        assert edit.text == "--"
+        ahk.send(" ", level=10)
+        ahk.sleep(0)
+        assert edit.text == "— "
 
     def test_on_off(self, request, edit):
         beep = ahk.hotstring("beep", "boop")
@@ -235,6 +251,14 @@ class TestHotstring:
         ahk.send("hello <em>world", level=10)
         ahk.sleep(0)
         assert edit.text == "hello <em>world</em>"
+
+    def test_active_window_context(self, request, edit):
+        notepad_ctx = ahk.windows.active_window_context(class_name="Notepad")
+        padnote = notepad_ctx.hotstring("notepad", "padnote")
+        request.addfinalizer(padnote.disable)
+        ahk.send("notepad ", level=10)
+        ahk.sleep(0)
+        assert edit.text == "padnote "
 
 
 def test_hotkey_context(child_ahk):
