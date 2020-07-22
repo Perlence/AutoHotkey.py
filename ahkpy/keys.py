@@ -133,17 +133,17 @@ class BaseHotkeyContext:
         string: str,
         replacement: Union[str, Callable] = None,
         *,
-        wait_for_end_char=True,
-        replace_inside_word=False,
-        backspacing=True,
         case_sensitive=False,
         conform_to_case=True,
-        key_delay=-1,
+        replace_inside_word=False,
+        wait_for_end_char=True,
         omit_end_char=False,
+        backspacing=True,
         priority=0,
         raw=False,
         text=False,
         mode=None,
+        key_delay=-1,
         reset_recognizer=False,
     ):
         # TODO: Implement setting global options.
@@ -152,15 +152,15 @@ class BaseHotkeyContext:
             hs = Hotstring(string, case_sensitive, replace_inside_word, context=self)
             hs.update(
                 replacement=replacement,
-                wait_for_end_char=wait_for_end_char,
-                backspacing=backspacing,
                 conform_to_case=conform_to_case,
-                key_delay=key_delay,
+                wait_for_end_char=wait_for_end_char,
                 omit_end_char=omit_end_char,
+                backspacing=backspacing,
                 priority=priority,
                 raw=raw,
                 text=text,
                 mode=mode,
+                key_delay=key_delay,
                 reset_recognizer=reset_recognizer,
             )
             # Enable the hotstring in case another hotstring with the same
@@ -320,10 +320,22 @@ class Hotstring:
         return f"{case_option}{replace_inside_option}"
 
     def update(
-        self, *, replacement=None, wait_for_end_char=None, backspacing=None, conform_to_case=None, key_delay=None,
-        omit_end_char=None, priority=None, raw=None, text=None, mode=None, reset_recognizer=None,
+        self, *, replacement=None, conform_to_case=None, wait_for_end_char=None, omit_end_char=None, backspacing=None,
+        priority=None, raw=None, text=None, mode=None, key_delay=None, reset_recognizer=None,
     ):
         options = []
+
+        if self.case_sensitive:
+            options.append("C")
+        elif conform_to_case:
+            options.append("C0")
+        elif conform_to_case is not None:
+            options.append("C1")
+
+        if self.replace_inside_word:
+            options.append("?")
+        else:
+            options.append("?0")
 
         if wait_for_end_char is False:
             options.append("*")
@@ -336,22 +348,10 @@ class Hotstring:
             if omit_end_char is False:
                 options.append("O0")
 
-        if self.replace_inside_word:
-            options.append("?")
-        else:
-            options.append("?0")
-
         if backspacing:
             options.append("B")
         elif backspacing is not None:
             options.append("B0")
-
-        if self.case_sensitive:
-            options.append("C")
-        elif conform_to_case:
-            options.append("C0")
-        elif conform_to_case is not None:
-            options.append("C1")
 
         if key_delay is not None:
             if key_delay > 0:
@@ -368,6 +368,8 @@ class Hotstring:
         elif raw is not None or text is not None:
             options.append("R0")
 
+        # TODO: The hotstring is not replaced when the mode is set to Input
+        # explicitly.
         if mode is not None:
             mode = mode.lower()
         if mode == SendMode.INPUT:
