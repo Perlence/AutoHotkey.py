@@ -168,10 +168,64 @@ class TestHotstring:
         ahk.sleep(0)
         assert edit.text == "— "
 
-    def test_no_wait_for_end_char(self, request, edit):
+    def test_wait_for_and_omit_end_char(self, request, edit):
         jsmith = ahk.hotstring("j@", "jsmith@somedomain.com", wait_for_end_char=False)
         request.addfinalizer(jsmith.disable)
         ahk.send("j@", level=10)
+        ahk.sleep(0)
+        assert edit.text == "jsmith@somedomain.com"
+
+        edit.text = ""
+        jsmith.update(wait_for_end_char=False, omit_end_char=False)
+        ahk.send("j@", level=10)
+        ahk.sleep(0)
+        assert edit.text == "jsmith@somedomain.com"
+
+        edit.text = ""
+        jsmith.update(wait_for_end_char=False, omit_end_char=True)
+        ahk.send("j@", level=10)
+        ahk.sleep(0)
+        assert edit.text == "jsmith@somedomain.com"
+
+        edit.text = ""
+        jsmith.update(omit_end_char=False)  # wait_for_end_char=False implied
+        ahk.send("j@", level=10)
+        ahk.sleep(0)
+        assert edit.text == "jsmith@somedomain.com"
+
+        edit.text = ""
+        jsmith.update(omit_end_char=True)
+        ahk.send("j@", level=10)
+        ahk.sleep(0)
+        assert edit.text == "j@"
+        ahk.send(" ", level=10)
+        ahk.sleep(0)
+        assert edit.text == "jsmith@somedomain.com"
+
+        edit.text = ""
+        jsmith.update(wait_for_end_char=True)  # omit_end_char implied
+        ahk.send("j@", level=10)
+        ahk.sleep(0)
+        assert edit.text == "j@"
+        ahk.send(" ", level=10)
+        ahk.sleep(0)
+        assert edit.text == "jsmith@somedomain.com"
+
+        edit.text = ""
+        jsmith.update(wait_for_end_char=True, omit_end_char=False)
+        ahk.send("j@", level=10)
+        ahk.sleep(0)
+        assert edit.text == "j@"
+        ahk.send(" ", level=10)
+        ahk.sleep(0)
+        assert edit.text == "jsmith@somedomain.com "
+
+        edit.text = ""
+        jsmith.update(wait_for_end_char=True, omit_end_char=True)
+        ahk.send("j@", level=10)
+        ahk.sleep(0)
+        assert edit.text == "j@"
+        ahk.send(" ", level=10)
         ahk.sleep(0)
         assert edit.text == "jsmith@somedomain.com"
 
@@ -233,8 +287,10 @@ class TestHotstring:
             ahk.send('boop ', level=10)
 
         request.addfinalizer(blarp.disable)
-        edit.text = ""
-        ahk.send("blarp ", level=10)
+        ahk.send("blarp", level=10)
+        ahk.sleep(0)
+        assert edit.text == "blarp"
+        ahk.send(" ", level=10)
         ahk.sleep(0)
         assert edit.text == "boop "
 
@@ -251,6 +307,23 @@ class TestHotstring:
         ahk.send("hello <em>world", level=10)
         ahk.sleep(0)
         assert edit.text == "hello <em>world</em>"
+
+    def test_conform_to_case(self, request, edit):
+        pillow = ahk.hotstring("pillow", "wollip", conform_to_case=False)
+        request.addfinalizer(pillow.disable)
+        ahk.send("pillow ", level=10)
+        ahk.sleep(0)
+        assert edit.text == "wollip "
+
+        edit.text = ""
+        ahk.send("PILLOW ", level=10)
+        ahk.sleep(0)
+        assert edit.text == "wollip "
+
+        edit.text = ""
+        ahk.send("PiLLoW ", level=10)
+        ahk.sleep(0)
+        assert edit.text == "wollip "
 
     def test_active_window_context(self, request, edit):
         notepad_ctx = ahk.windows.active_window_context(class_name="Notepad")
