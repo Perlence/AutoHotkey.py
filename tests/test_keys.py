@@ -347,6 +347,28 @@ class TestHotstring:
         ahk.sleep(0)
         assert edit.text == "wollip "
 
+    def test_reset_recognizer(self, request, edit):
+        @ahk.hotstring("11", backspacing=False, wait_for_end_char=False, replace_inside_word=True)
+        def eleven():
+            ahk.send("xx")
+
+        request.addfinalizer(eleven.disable)
+        ahk.send("11", level=10)
+        ahk.sleep(0)
+        assert edit.text == "11xx"
+        ahk.send("1 ", level=10)
+        ahk.sleep(0)
+        assert edit.text == "11xx1 xx"
+
+        edit.text = ""
+        eleven.update(reset_recognizer=True)
+        ahk.send("11", level=10)
+        ahk.sleep(0)
+        assert edit.text == "11xx"
+        ahk.send("1 ", level=10)
+        ahk.sleep(0)
+        assert edit.text == "11xx1 "
+
     def test_active_window_context(self, request, edit):
         notepad_ctx = ahk.windows.active_window_context(class_name="Notepad")
         padnote = notepad_ctx.hotstring("notepad", "padnote")
