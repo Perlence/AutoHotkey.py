@@ -56,87 +56,90 @@ def test_hotkey_refcounts():
     assert sys.getrefcount(func2) == func2_refcount
 
 
-def test_hotkey(child_ahk):
-    with pytest.raises(ahk.Error, match="invalid key name"):
-        ahk.hotkey("")
+class TestHotkey:
+    def test_exceptions(self):
+        with pytest.raises(ahk.Error, match="invalid key name"):
+            ahk.hotkey("")
 
-    with pytest.raises(TypeError, match="must be callable"):
-        ahk.hotkey("^t", func="not callable")
+        with pytest.raises(TypeError, match="must be callable"):
+            ahk.hotkey("^t", func="not callable")
 
-    hk = ahk.hotkey("F13", lambda: None)
-    assert hk.key_name == "F13"
-    hk.disable()
+    def test_hotkey_field(self):
+        hk = ahk.hotkey("F13", lambda: None)
+        assert hk.key_name == "F13"
+        hk.disable()
 
-    def hotkeys():
-        import ahkpy as ahk
-        import sys
+    def test_hotkeys_in_child_ahk(self, child_ahk):
+        def hotkeys():
+            import ahkpy as ahk
+            import sys
 
-        ahk.hotkey("F24", sys.exit)
+            ahk.hotkey("F24", sys.exit)
 
-        @ahk.hotkey("F14")
-        def show_msgbox():
-            ahk.message_box("Hello from hotkey.")
+            @ahk.hotkey("F14")
+            def show_msgbox():
+                ahk.message_box("Hello from hotkey.")
 
-        @ahk.hotkey("F15")
-        def show_bang():
-            1 / 0
+            @ahk.hotkey("F15")
+            def show_bang():
+                1 / 0
 
-        @ahk.hotkey("F16")
-        def disable_ctrl_t():
-            show_msgbox.disable()
-            print("ok01")
+            @ahk.hotkey("F16")
+            def disable_ctrl_t():
+                show_msgbox.disable()
+                print("ok01")
 
-        @ahk.hotkey("F17")
-        def enable_ctrl_t():
-            show_msgbox.enable()
-            print("ok02")
+            @ahk.hotkey("F17")
+            def enable_ctrl_t():
+                show_msgbox.enable()
+                print("ok02")
 
-        @ahk.hotkey("F18")
-        def change_f14():
-            show_msgbox.update(func=lambda: print("ok04"))
-            print("ok03")
+            @ahk.hotkey("F18")
+            def change_f14():
+                show_msgbox.update(func=lambda: print("ok04"))
+                print("ok03")
 
-        print("ok00")
+            print("ok00")
 
-    proc = child_ahk.popen_code(hotkeys)
-    child_ahk.wait(0)
+        proc = child_ahk.popen_code(hotkeys)
+        child_ahk.wait(0)
 
-    msg_boxes = ahk.windows.filter(title="Python.ahk")
-    assert not msg_boxes.get_active(text="Hello from hotkey")
-    ahk.send("{F14}")
-    assert msg_boxes.wait(text="Hello from hotkey", timeout=0.5)
-    msg_boxes.send("{Space}")
+        msg_boxes = ahk.windows.filter(title="Python.ahk")
+        assert not msg_boxes.get_active(text="Hello from hotkey")
+        ahk.send("{F14}")
+        assert msg_boxes.wait(text="Hello from hotkey", timeout=0.5)
+        msg_boxes.send("{Space}")
 
-    assert not msg_boxes.get_active(text="ZeroDivisionError")
-    ahk.send("{F15}")
-    assert msg_boxes.wait(text="ZeroDivisionError", timeout=0.5)
+        assert not msg_boxes.get_active(text="ZeroDivisionError")
+        ahk.send("{F15}")
+        assert msg_boxes.wait(text="ZeroDivisionError", timeout=0.5)
 
-    msg_boxes.send("{Space}")
-    assert msg_boxes.wait_close(text="ZeroDivisionError", timeout=1)
+        msg_boxes.send("{Space}")
+        assert msg_boxes.wait_close(text="ZeroDivisionError", timeout=1)
 
-    ahk.send("{F16}")  # Disable {F14}
-    child_ahk.wait(1)
-    ahk.send("{F14}")
-    assert not msg_boxes.wait(text="Hello from hotkey", timeout=0.5)
+        ahk.send("{F16}")  # Disable {F14}
+        child_ahk.wait(1)
+        ahk.send("{F14}")
+        assert not msg_boxes.wait(text="Hello from hotkey", timeout=0.5)
 
-    ahk.send("{F17}")  # Enable {F14}
-    child_ahk.wait(2)
-    ahk.send("{F14}")
-    assert msg_boxes.wait(text="Hello from hotkey", timeout=1)
+        ahk.send("{F17}")  # Enable {F14}
+        child_ahk.wait(2)
+        ahk.send("{F14}")
+        assert msg_boxes.wait(text="Hello from hotkey", timeout=1)
 
-    msg_boxes.send("{Space}")
-    assert msg_boxes.wait_close(text="Hello from hotkey", timeout=1)
+        msg_boxes.send("{Space}")
+        assert msg_boxes.wait_close(text="Hello from hotkey", timeout=1)
 
-    ahk.send("{F18}")  # Change the handler of {F14} to print "ok04"
-    child_ahk.wait(3)
-    ahk.send("{F14}")
-    assert not msg_boxes.wait(text="Hello from hotkey", timeout=0.5)
-    child_ahk.wait(4)
+        ahk.send("{F18}")  # Change the handler of {F14} to print "ok04"
+        child_ahk.wait(3)
+        ahk.send("{F14}")
+        assert not msg_boxes.wait(text="Hello from hotkey", timeout=0.5)
+        child_ahk.wait(4)
 
-    ahk.send("{F24}")
-    child_ahk.close()
-    assert "ZeroDivisionError:" in proc.stderr.read()
-    assert proc.returncode == 0
+        ahk.send("{F24}")
+        child_ahk.close()
+        assert "ZeroDivisionError:" in proc.stderr.read()
+        assert proc.returncode == 0
 
 
 class TestHotstring:
