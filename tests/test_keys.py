@@ -369,6 +369,13 @@ class TestHotstring:
         ahk.sleep(0)
         assert edit.text == "11xx1 "
 
+    def test_text(self, request, edit):
+        gyre = ahk.hotstring("gyre", "{F13}eryg", text=True)
+        request.addfinalizer(gyre.disable)
+        ahk.send("gyre ", level=10)
+        ahk.sleep(0)
+        assert edit.text == "{F13}eryg "
+
     def test_active_window_context(self, request, edit):
         notepad_ctx = ahk.windows.active_window_context(class_name="Notepad")
         padnote = notepad_ctx.hotstring("notepad", "padnote")

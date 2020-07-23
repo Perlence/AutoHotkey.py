@@ -141,7 +141,6 @@ class BaseHotkeyContext:
         omit_end_char=False,
         backspacing=True,
         priority=0,
-        raw=False,
         text=False,
         mode=None,
         key_delay=-1,
@@ -158,7 +157,6 @@ class BaseHotkeyContext:
                 omit_end_char=omit_end_char,
                 backspacing=backspacing,
                 priority=priority,
-                raw=raw,
                 text=text,
                 mode=mode,
                 key_delay=key_delay,
@@ -322,7 +320,7 @@ class Hotstring:
 
     def update(
         self, *, replacement=None, conform_to_case=None, wait_for_end_char=None, omit_end_char=None, backspacing=None,
-        priority=None, raw=None, text=None, mode=None, key_delay=None, reset_recognizer=None,
+        priority=None, text=None, mode=None, key_delay=None, reset_recognizer=None,
     ):
         options = []
 
@@ -364,10 +362,8 @@ class Hotstring:
 
         if text:
             options.append("T")
-        elif raw:
-            options.append("R")
-        elif raw is not None or text is not None:
-            options.append("R0")
+        elif text is not None:
+            options.append("T0")
 
         # TODO: The hotstring is not replaced when the mode is set to Input
         # explicitly.
