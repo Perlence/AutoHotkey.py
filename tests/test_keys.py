@@ -64,10 +64,29 @@ class TestHotkey:
         with pytest.raises(TypeError, match="must be callable"):
             ahk.hotkey("^t", func="not callable")
 
-    def test_hotkey_field(self):
+    def test_hotkey_field(self, request):
         hk = ahk.hotkey("F13", lambda: None)
+        request.addfinalizer(hk.disable)
         assert hk.key_name == "F13"
+
+    def test_reenable_on_init(self, request):
+        hk = ahk.hotkey("F13", lambda: None)
+        request.addfinalizer(hk.disable)
         hk.disable()
+
+        called = False
+
+        @ahk.hotkey("F13")
+        def hk2():
+            nonlocal called
+            called = True
+
+        request.addfinalizer(hk2.disable)
+
+        assert not called
+        ahk.send("{F13}", level=1)
+        ahk.sleep(0)
+        assert called
 
     def test_hotkeys_in_child_ahk(self, child_ahk):
         def hotkeys():

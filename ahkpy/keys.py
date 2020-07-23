@@ -112,6 +112,7 @@ class BaseHotkeyContext:
                 max_threads=max_threads,
                 input_level=input_level,
             )
+            hk.enable()
             return hk
 
         if func is None:
@@ -421,6 +422,7 @@ def _key_wait(key_name, down=False, logical_state=False, timeout=None) -> bool:
 def remap_key(origin_key, destination_key):
     # TODO: Handle LCtrl as the origin key.
     # TODO: Handle remapping keyboard key to a mouse button.
+    # TODO: Implement context-specific remapping.
     @hotkey(f"*{origin_key}")
     def wildcard_origin():
         send("{Blind}{%s DownR}" % destination_key)
