@@ -23,4 +23,4 @@ from .gui import *  # noqa
 from .keys import *  # noqa
 from .window import *  # noqa
 
-__version__ = "0.1a0"
+__version__ = "0.1.dev"
