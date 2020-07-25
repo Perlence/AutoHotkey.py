@@ -147,7 +147,6 @@ class BaseHotkeyContext:
         reset_recognizer=False,
     ):
         # TODO: Implement setting global options.
-        # TODO: Write tests.
         def hotstring_decorator(replacement):
             hs = Hotstring(string, case_sensitive, replace_inside_word, context=self)
             hs.update(

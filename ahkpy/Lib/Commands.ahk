@@ -10,17 +10,12 @@ _Click(Item1="",Item2="",Item3="",Item4="",Item5="",Item6="",Item7="") {
     Click %Item1%,%Item2%,%Item3%,%Item4%,%Item5%,%Item6%,%Item7%
 }
 
-/**
- * Implementation: Identical.
- * "Clipboard" and "ErrorLevel" are the only built-in variables that allow write access.
- * Because "getBuiltInVar()" only handles getters, these 2 had to be customized.
- */
-_Clipboard(a*) { ; variadic parameters, to detect the role (getter or setter)
-    if (a.MaxIndex()) { ; setter
-        Clipboard := a[1]
-    } else { ; getter
-        return Clipboard
-    }
+_GetClipboard() {
+    return Clipboard
+}
+
+_SetClipboard(Value) {
+    Clipboard := Value
 }
 
 _ClipWait(SecondsToWait="",AnyKindOfData="") {
@@ -197,6 +192,7 @@ _GuiControlGet(Subcommand="",ControlID="",Param4="") {
 _Hotkey(ContextID, KeyName, Func, Options) {
     StringLower, KeyName, KeyName
     if (Func) {
+        ; TODO: The order of modifier keys doesn't matter in the KeyName.
         oldFunc := CALLBACKS["Hotkey" ContextID " " KeyName]
         if (oldFunc and oldFunc != "FREE" and Func["pyFunc"] != oldFunc["pyFunc"]) {
             WRAPPED_PYTHON_FUNCTIONS[oldFunc["pyFunc"]] := "FREE"

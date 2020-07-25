@@ -17,6 +17,7 @@ except ModuleNotFoundError:
     _sys.modules['_ahk'] = _shim()
     del _shim
 
+from .clipboard import *  # noqa
 from .exceptions import *  # noqa
 from .flow import *  # noqa
 from .gui import *  # noqa
