@@ -37,6 +37,7 @@ def set_timer(func=None, period=0.25, countdown=None, priority=0):
 @dataclass(frozen=True)
 class Timer:
     func: Callable
+    __slots__ = tuple(__annotations__.keys())
 
     def start(self):
         _ahk.call("SetTimer", self.func, "On")

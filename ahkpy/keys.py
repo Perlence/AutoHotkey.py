@@ -212,6 +212,7 @@ hotstring = default_context.hotstring
 @dataclass(frozen=True)
 class HotkeyContext(BaseHotkeyContext):
     predicate: Callable
+    __slots__ = tuple(__annotations__.keys())
 
     def __init__(self, predicate):
         signature = inspect.signature(predicate)
@@ -235,6 +236,7 @@ class HotkeyContext(BaseHotkeyContext):
 class Hotkey:
     key_name: str
     context: BaseHotkeyContext
+    __slots__ = tuple(__annotations__.keys())
 
     # I decided not to have 'func' and hotkey options as fields, because:
     #
@@ -288,6 +290,7 @@ class Hotstring:
     case_sensitive: bool
     replace_inside_word: bool
     context: BaseHotkeyContext
+    __slots__ = tuple(__annotations__.keys())
 
     # There are no 'replacement' and option fields in Hotstring object. See the
     # reasoning in the Hotkey class.
@@ -433,6 +436,7 @@ def remap_key(origin_key, destination_key):
 class RemappedKey:
     wildcard_origin: Hotkey
     wildcard_origin_up: Hotkey
+    __slots__ = tuple(__annotations__.keys())
 
     def enable(self):
         self.wildcard_origin.enable()

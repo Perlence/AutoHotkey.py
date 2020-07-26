@@ -39,6 +39,7 @@ def on_message(msg_number, func=None, *, max_threads=1, prepend_handler=False):
 class MessageHandler:
     msg_number: int
     func: Callable
+    __slots__ = tuple(__annotations__.keys())
 
     def disable(self):
         _ahk.call("OnMessage", self.msg_number, self.func, 0)
