@@ -30,7 +30,7 @@ def test_on_clipboard_change(request):
     def handler(clipboard):
         history.append(clipboard)
 
-    request.addfinalizer(handler.disable)
+    request.addfinalizer(handler.unregister)
 
     ahk.set_clipboard("")
     ahk.sleep(0)
@@ -45,7 +45,7 @@ def test_on_clipboard_change(request):
     def prepended_handler(clipboard):
         history.append(clipboard.upper())
 
-    request.addfinalizer(prepended_handler.disable)
+    request.addfinalizer(prepended_handler.unregister)
 
     history.clear()
     ahk.set_clipboard("hey")
@@ -56,7 +56,7 @@ def test_on_clipboard_change(request):
     def exclamator(clipboard):
         history.append(clipboard + "!!")
 
-    request.addfinalizer(exclamator.disable)
+    request.addfinalizer(exclamator.unregister)
 
     history.clear()
     ahk.set_clipboard("yay")
@@ -64,7 +64,7 @@ def test_on_clipboard_change(request):
     assert history == ["YAY", "yay", "yay!!"]
 
     history.clear()
-    handler.disable()
+    handler.unregister()
     ahk.set_clipboard("hello again")
     ahk.sleep(0.1)
     assert history == ["HELLO AGAIN", "hello again!!"]

@@ -37,7 +37,7 @@ def test_message_box(child_ahk):
     msg_box.send("{Enter}")
 
 
-def test_on_message():
+def test_on_message(request):
     not_win = ahk.Window(99999)
     assert not not_win.exists
     with pytest.raises(RuntimeError, match="there was a problem sending message"):
@@ -51,6 +51,8 @@ def test_on_message():
         nonlocal args
         args = (w_param, l_param, msg, hwnd)
         return 42
+
+    request.addfinalizer(handler.unregister)
 
     win = ahk.all_windows.first(pid=os.getpid())
     assert win
@@ -73,7 +75,7 @@ def test_on_message():
     result = win.post_message(0x5556, 0, 99)
     assert result is True
 
-    handler.disable()
+    handler.unregister()
     result = win.send_message(0x5555, 0, 99)
     assert result == 0
 
