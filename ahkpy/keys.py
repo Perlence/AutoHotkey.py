@@ -18,8 +18,8 @@ __all__ = [
     "hotkey",
     "hotstring",
     "is_key_toggled",
-    "key_wait_pressed",
-    "key_wait_released",
+    "wait_key_pressed",
+    "wait_key_released",
     "remap_key",
     "reset_hotstring",
     "send",
@@ -394,11 +394,11 @@ def reset_hotstring():
 # TODO: Implement Hotstring, MouseReset and Hotstring, EndChars.
 
 
-def key_wait_pressed(key_name, logical_state=False, timeout=None) -> bool:
+def wait_key_pressed(key_name, logical_state=False, timeout=None) -> bool:
     return _key_wait(key_name, down=True, logical_state=logical_state, timeout=timeout)
 
 
-def key_wait_released(key_name, logical_state=False, timeout=None) -> bool:
+def wait_key_released(key_name, logical_state=False, timeout=None) -> bool:
     return _key_wait(key_name, down=False, logical_state=logical_state, timeout=timeout)
 
 
