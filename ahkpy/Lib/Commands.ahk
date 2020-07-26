@@ -20,6 +20,7 @@ _SetClipboard(Value) {
 
 _ClipWait(SecondsToWait="",AnyKindOfData="") {
     ClipWait %SecondsToWait%,%AnyKindOfData%
+    return ErrorLevel
 }
 
 _Control(Cmd,Value="",Control="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
