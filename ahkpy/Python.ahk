@@ -530,7 +530,6 @@ GuiContextMenu:
 GuiDropFiles:
 GuiEscape:
 GuiSize:
-OnClipboardChange:
     PyCall(CALLBACKS[A_ThisLabel])
     return
 
