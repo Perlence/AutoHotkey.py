@@ -1,3 +1,4 @@
+import enum
 import inspect
 import threading
 from contextlib import contextmanager
@@ -29,7 +30,7 @@ __all__ = [
 ]
 
 
-class SendMode:
+class SendMode(enum.Enum):
     INPUT = "input"
     PLAY = "play"
     EVENT = "event"
@@ -369,13 +370,13 @@ class Hotstring:
 
         # TODO: The hotstring is not replaced when the mode is set to Input
         # explicitly.
-        if mode is not None:
-            mode = mode.lower()
-        if mode == SendMode.INPUT:
+        if isinstance(mode, str):
+            mode = SendMode(mode.lower())
+        if mode is SendMode.INPUT:
             options.append("SI")
-        elif mode == SendMode.PLAY:
+        elif mode is SendMode.PLAY:
             options.append("SP")
-        elif mode == SendMode.EVENT:
+        elif mode is SendMode.EVENT:
             options.append("SE")
 
         if reset_recognizer:
@@ -458,11 +459,13 @@ def send(keys, *, mode=SendMode.INPUT, level=0):
     # TODO: Sending "{U+0009}" and "\u0009" gives different results depending on
     # how tabs are handled in the application.
 
-    if mode == SendMode.INPUT:
+    if isinstance(mode, str):
+        mode = SendMode(mode.lower())
+    if mode is SendMode.INPUT:
         cmd = "SendInput"
-    elif mode == SendMode.PLAY:
+    elif mode is SendMode.PLAY:
         cmd = "SendPlay"
-    elif mode == SendMode.EVENT:
+    elif mode is SendMode.EVENT:
         cmd = "SendEvent"
     else:
         raise ValueError(f"unknown send mode: {mode!r}")
