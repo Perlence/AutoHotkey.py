@@ -15,6 +15,9 @@ __all__ = [
 ]
 
 
+NOTSET = object()
+
+
 class CoordMode(enum.Enum):
     SCREEN = 'screen'
     WINDOW = 'window'
@@ -65,23 +68,28 @@ class ToolTip:
     text: str = None
     x: int = None
     y: int = None
-    coord_mode: CoordMode = CoordMode.SCREEN
-    _id: int = dc.field(default=None, repr=False)
+    coord_mode: CoordMode = CoordMode.WINDOW
+    _id: int = dc.field(default=None, init=False, repr=False)
 
     _pool_lock = threading.RLock()
     _pool = deque(range(1, 21))
 
-    def show(self, text=None, x=None, y=None, coord_mode=None):
-        # TODO: Write tests.
+    def __init__(self, text=None, x=None, y=None, coord_mode=CoordMode.WINDOW):
+        # Write the __init__ method for code suggestions.
+        self.text = text
+        self.x = x
+        self.y = y
+        self.coord_mode = coord_mode
 
+    def show(self, text=None, x=NOTSET, y=NOTSET, coord_mode=None):
         if not text and not self.text:
             raise ValueError("text must not be empty")
         elif text:
             self.text = text
 
-        if x is not None:
+        if x is not NOTSET:
             self.x = x
-        if y is not None:
+        if y is not NOTSET:
             self.y = y
         x = self.x if self.x is not None else ""
         y = self.y if self.y is not None else ""
@@ -110,7 +118,7 @@ class ToolTip:
                 self._id = ToolTip._pool.popleft()
             return self._id
         except IndexError:
-            raise RuntimeError("cannot show more than 20 tooltips") from None
+            raise RuntimeError("cannot show more than 20 tooltips simultaneously") from None
 
     def _release(self):
         with ToolTip._pool_lock:

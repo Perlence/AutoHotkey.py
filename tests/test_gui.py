@@ -107,3 +107,32 @@ def test_on_message_timeout(child_ahk):
     assert proc.stdout.read() == ""
     assert proc.stderr.read() == ""
     assert proc.returncode == 0
+
+
+class TestTooltip:
+    def test_basic(self, request):
+        tooltip_windows = ahk.windows.filter(class_name="tooltips_class32", exe="AutoHotkey.exe")
+        assert not tooltip_windows.exist()
+
+        t1 = ahk.ToolTip()
+        request.addfinalizer(t1.hide)
+        t1.show("hello", 0, 0)
+        assert tooltip_windows.exist()
+
+        t1.hide()
+        assert not tooltip_windows.exist()
+
+    def test_exceptions(self, request):
+        with pytest.raises(ValueError, match="text must not be empty"):
+            ahk.ToolTip().show()
+
+    def test_too_many_tooltips(self, request):
+        tooltips = []
+        for i in range(1, 21):
+            t = ahk.ToolTip(i)
+            request.addfinalizer(t.hide)
+            t.show(x=50*i, y=50*i)
+            tooltips.append(t)
+
+        with pytest.raises(RuntimeError, match="cannot show more than 20 tooltips"):
+            ahk.ToolTip().show("21")
