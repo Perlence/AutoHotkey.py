@@ -1,7 +1,7 @@
 import dataclasses as dc
 import enum
+import queue
 import threading
-from collections import deque
 from typing import Callable
 
 import _ahk  # noqa
@@ -71,8 +71,10 @@ class ToolTip:
     coord_mode: CoordMode = CoordMode.WINDOW
     _id: int = dc.field(default=None, init=False, repr=False)
 
-    _pool_lock = threading.RLock()
-    _pool = deque(range(1, 21))
+    _pool = queue.LifoQueue(maxsize=20)
+    for tooltip_id in range(20, 0, -1):
+        _pool.put(tooltip_id)
+    del tooltip_id
 
     def __init__(self, text=None, x=None, y=None, coord_mode=CoordMode.WINDOW):
         # Write the __init__ method for code suggestions.
@@ -111,17 +113,18 @@ class ToolTip:
         self._release()
 
     def _acquire(self):
-        if self._id is not None:
-            return self._id
-        try:
-            with ToolTip._pool_lock:
-                self._id = ToolTip._pool.popleft()
-            return self._id
-        except IndexError:
-            raise RuntimeError("cannot show more than 20 tooltips simultaneously") from None
+        if self._id is None:
+            try:
+                self._id = ToolTip._pool.get_nowait()
+            except queue.Empty:
+                raise RuntimeError("cannot show more than 20 tooltips simultaneously") from None
+        return self._id
 
     def _release(self):
-        with ToolTip._pool_lock:
-            if self._id not in ToolTip._pool:
-                ToolTip._pool.appendleft(self._id)
-            self._id = None
+        if self._id is None:
+            return
+        try:
+            ToolTip._pool.put_nowait(self._id)
+        except queue.Full:
+            raise RuntimeError("tooltip pool is corrupted") from None
+        self._id = None
