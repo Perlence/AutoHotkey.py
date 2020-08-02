@@ -1,5 +1,6 @@
 import os
 import sys
+from ctypes import windll
 from dataclasses import dataclass
 from typing import Callable
 
@@ -7,6 +8,7 @@ import _ahk  # noqa
 
 __all__ = [
     "Timer",
+    "output_debug",
     "reload",
     "resume",
     "set_timer",
@@ -84,3 +86,14 @@ def reload():
 
 def _quote(s):
     return f'"{s}"'
+
+
+def output_debug(*objs, sep=' '):
+    if sep is None:
+        # Python documentation for the print() function:
+        #
+        # > Both *sep* and *end* must be strings; they can also be `None`, which
+        # > means to use the default values.
+        sep = ' '
+    debug_str = sep.join(map(str, objs))
+    windll.kernel32.OutputDebugStringW(debug_str)
