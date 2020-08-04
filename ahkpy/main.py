@@ -1,11 +1,13 @@
 import argparse
 import dataclasses as dc
 import io
+import msvcrt
 import os
 import runpy
 import site
 import sys
 import traceback
+import _winapi
 from functools import partial
 from pkgutil import read_code, get_importer
 from typing import List, Optional
@@ -28,6 +30,12 @@ def main():
         sys.stderr.reconfigure(encoding="utf-8")
     if sys.stdin:
         sys.stdin.reconfigure(encoding="utf-8")
+    else:
+        # http://www.halcyon.com/~ast/dload/guicon.htm
+        p2cread = _winapi.GetStdHandle(_winapi.STD_INPUT_HANDLE)
+        if p2cread is not None:
+            p2cread = msvcrt.open_osfhandle(p2cread, 0)
+            sys.stdin = io.open(p2cread, "r")
 
     venv = os.getenv("VIRTUAL_ENV")
     if venv and not os.getenv("PYTHONFULLPATH"):
