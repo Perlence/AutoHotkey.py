@@ -27,13 +27,16 @@ def main():
         bufsize=0,
     )
 
+    if sys.stdout:
+        stdout_thread = threading.Thread(target=read_loop, args=(ahk.stdout, sys.stdout.buffer), daemon=True)
+        stdout_thread.start()
     if sys.stderr:
         stderr_thread = threading.Thread(target=read_loop, args=(ahk.stderr, sys.stderr.buffer), daemon=True)
         stderr_thread.start()
 
     try:
         if sys.stdout:
-            read_loop(ahk.stdout, sys.stdout.buffer)
+            stdout_thread.join()
         if sys.stderr:
             stderr_thread.join()
     except KeyboardInterrupt:
