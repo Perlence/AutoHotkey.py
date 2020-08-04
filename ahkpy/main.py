@@ -1,5 +1,4 @@
 import argparse
-import dataclasses as dc
 import io
 import msvcrt
 import os
@@ -10,7 +9,6 @@ import traceback
 import _winapi
 from functools import partial
 from pkgutil import read_code, get_importer
-from typing import List, Optional
 
 import _ahk  # noqa
 
@@ -121,16 +119,6 @@ def run_from_args():
         # TODO: Show usage in a message box.
         parser.print_usage()
         sys.exit()
-
-
-@dc.dataclass
-class Args:
-    help: bool = False
-    quiet: bool = False
-    cmd: Optional[str] = None
-    module: Optional[str] = None
-    file: Optional[str] = None
-    rest: List[str] = dc.field(default_factory=list)
 
 
 def run_path(filename):
