@@ -1,3 +1,4 @@
+import signal
 import subprocess
 from textwrap import dedent
 
@@ -172,3 +173,20 @@ def test_pyw(tmpdir):
     script.write(code)
     res = subprocess.run(["pyw.exe", "-m", "ahkpy", script])
     assert res.returncode == 0
+
+
+def test_close(child_ahk):
+    def code():
+        import sys
+        import ahkpy as ahk
+        ahk.hotkey('F24', sys.exit)
+        print("ok00")
+
+    proc = child_ahk.popen_code(code)
+    child_ahk.wait(0)
+
+    proc.send_signal(signal.CTRL_BREAK_EVENT)
+    proc.wait(timeout=1)
+    assert proc.stderr.read() == ""
+    assert proc.stdout.read() == ""
+    assert proc.returncode == 3221225786
