@@ -82,10 +82,6 @@ def run_from_args():
         help="arguments passed to program in sys.argv[1:]",
     )
 
-    if len(sys.argv) < 2:
-        parser.print_usage(sys.stderr)
-        sys.exit(2)
-
     options = parser.parse_args()
     args = options.ARGS
 
@@ -101,21 +97,22 @@ def run_from_args():
         if cwd not in sys.path:
             sys.path.insert(0, cwd)
         run_module(args[0])
-    elif args[0] == "-":
+    elif args and args[0] == "-":
         sys.argv[:] = ["-", *args[1:]]
         code = sys.stdin.read()
         run_source(code)
-    elif args[0]:
+    elif args and args[0]:
         sys.argv[:] = args
         script_dir = os.path.abspath(os.path.dirname(args[0]))
         if script_dir not in sys.path:
             sys.path.insert(0, script_dir)
         run_path(args[0])
     else:
-        # TODO: Implement interactive mode.
-        # TODO: Show usage in a message box.
-        parser.print_usage()
-        sys.exit()
+        # TODO: AHK is unresponsive during the interactive session.
+        # TODO: Write a test for the interactive mode.
+        # TODO: Show usage in a message box if stdin is not available.
+        import code
+        code.interact(exitmsg="")
 
 
 def run_path(filename):
