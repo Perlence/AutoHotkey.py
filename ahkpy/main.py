@@ -62,7 +62,7 @@ def handle_system_exit(value):
 
 
 def run_from_args():
-    usage = "Python.ahk [-h] [-q] [-c CMD | -m MOD | FILE | -] [ARGS] ..."
+    usage = "py -m ahkpy [-h] [-q] [-c CMD | -m MOD | FILE | -] [ARGS] ..."
     parser = argparse.ArgumentParser(usage=usage)
     parser.add_argument(
         "-q", "--quiet", action="store_true",
@@ -107,9 +107,12 @@ def run_from_args():
         if script_dir not in sys.path:
             sys.path.insert(0, script_dir)
         run_path(args[0])
+    elif sys.stderr is None:
+        usage = parser.format_usage()
+        gui.message_box(usage)
+        sys.exit(2)
     else:
         # TODO: AHK is unresponsive during the interactive session.
-        # TODO: Show usage in a message box if stdin is not available.
         import code
         quiet = True
         code.interact(exitmsg="")
