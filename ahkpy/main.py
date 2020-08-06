@@ -109,9 +109,9 @@ def run_from_args():
         run_path(args[0])
     else:
         # TODO: AHK is unresponsive during the interactive session.
-        # TODO: Write a test for the interactive mode.
         # TODO: Show usage in a message box if stdin is not available.
         import code
+        quiet = True
         code.interact(exitmsg="")
 
 

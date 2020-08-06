@@ -190,3 +190,33 @@ def test_close(child_ahk):
     assert proc.stderr.read() == ""
     assert proc.stdout.read() == ""
     assert proc.returncode == 3221225786
+
+
+def test_repl(child_ahk):
+    proc = child_ahk.popen([])
+
+    assert proc.stderr.readline().startswith("Python 3")
+    assert proc.stderr.readline().startswith('Type "help"')
+    assert proc.stderr.readline().startswith('(InteractiveConsole)')
+    assert proc.stdout.read(4) == ">>> "
+
+    proc.stdin.write("print('hello!')\n")
+    proc.stdin.flush()
+    assert proc.stdout.read(7) == "hello!\n"
+    assert proc.stdout.read(4) == ">>> "
+
+    proc.stdin.write("q\n")
+    proc.stdin.flush()
+    assert proc.stderr.readline().startswith("Traceback")
+    assert proc.stderr.readline().startswith("  File")
+    assert proc.stderr.readline().startswith("    exec")
+    assert proc.stderr.readline().startswith("  File")
+    assert proc.stderr.readline().startswith("NameError: name 'q' is not defined")
+    assert proc.stdout.read(4) == ">>> "
+
+    proc.stdin.write("exit()\n")
+    proc.stdin.flush()
+    proc.wait(timeout=1)
+    assert proc.stderr.read() == ""
+    assert proc.stdout.read() == ""
+    assert proc.returncode == 0
