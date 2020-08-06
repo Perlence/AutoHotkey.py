@@ -1,13 +1,11 @@
 import enum
 import inspect
-import threading
 from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Callable, Union
 
-import _ahk  # noqa
-
 from .exceptions import Error
+from .flow import ahk_call, global_ahk_lock
 
 __all__ = [
     "Hotkey",
@@ -51,7 +49,7 @@ def is_key_toggled(key_name):
 
 
 def _get_key_state(key_name, mode=None):
-    result = _ahk.call("GetKeyState", key_name, mode)
+    result = ahk_call("GetKeyState", key_name, mode)
     if result == "":
         raise ValueError("key_name is invalid or the state of the key could not be determined")
     return bool(result)
@@ -78,13 +76,11 @@ def _set_key_state(cmd, state):
         state = "On"
     else:
         state = "Off"
-    _ahk.call(cmd, state)
+    ahk_call(cmd, state)
 
 
 @dataclass(frozen=True)
 class BaseHotkeyContext:
-    _lock = threading.RLock()
-
     # XXX: Consider adding context options: MaxThreadsBuffer,
     # MaxThreadsPerHotkey, and InputLevel.
 
@@ -193,10 +189,12 @@ class BaseHotkeyContext:
         #     ctx = hotkey_context(lambda: ...)
         #     ctx.hotkey(...)
 
-        with BaseHotkeyContext._lock:
+        with global_ahk_lock:
             self._enter()
-            yield
-            self._exit()
+            try:
+                yield
+            finally:
+                self._exit()
 
     def _enter(self):
         pass
@@ -227,10 +225,10 @@ class HotkeyContext(BaseHotkeyContext):
         object.__setattr__(self, "predicate", wrapper)
 
     def _enter(self):
-        _ahk.call("HotkeyContext", self.predicate)
+        ahk_call("HotkeyContext", self.predicate)
 
     def _exit(self):
-        _ahk.call("HotkeyExitContext")
+        ahk_call("HotkeyExitContext")
 
 
 @dataclass(frozen=True)
@@ -251,15 +249,15 @@ class Hotkey:
 
     def enable(self):
         with self.context._manager():
-            _ahk.call("HotkeySpecial", self.key_name, "On")
+            ahk_call("HotkeySpecial", self.key_name, "On")
 
     def disable(self):
         with self.context._manager():
-            _ahk.call("HotkeySpecial", self.key_name, "Off")
+            ahk_call("HotkeySpecial", self.key_name, "Off")
 
     def toggle(self):
         with self.context._manager():
-            _ahk.call("HotkeySpecial", self.key_name, "Toggle")
+            ahk_call("HotkeySpecial", self.key_name, "Toggle")
 
     def update(self, *, func=None, buffer=None, priority=None, max_threads=None, input_level=None):
         options = []
@@ -282,7 +280,7 @@ class Hotkey:
 
         context_hash = hash(self.context)
         with self.context._manager():
-            _ahk.call("Hotkey", context_hash, self.key_name, func or "", option_str)
+            ahk_call("Hotkey", context_hash, self.key_name, func or "", option_str)
 
 
 @dataclass(frozen=True)
@@ -306,15 +304,15 @@ class Hotstring:
 
     def disable(self):
         with self.context._manager():
-            _ahk.call("Hotstring", f":{self._id_options()}:{self.string}", "", "Off")
+            ahk_call("Hotstring", f":{self._id_options()}:{self.string}", "", "Off")
 
     def enable(self):
         with self.context._manager():
-            _ahk.call("Hotstring", f":{self._id_options()}:{self.string}", "", "On")
+            ahk_call("Hotstring", f":{self._id_options()}:{self.string}", "", "On")
 
     def toggle(self):
         with self.context._manager():
-            _ahk.call("Hotstring", f":{self._id_options()}:{self.string}", "", "Toggle")
+            ahk_call("Hotstring", f":{self._id_options()}:{self.string}", "", "Toggle")
 
     def _id_options(self):
         case_option = "C" if self.case_sensitive else ""
@@ -388,11 +386,11 @@ class Hotstring:
 
         with self.context._manager():
             # TODO: Handle changing replacement func.
-            _ahk.call("Hotstring", f":{option_str}:{self.string}", replacement or "")
+            ahk_call("Hotstring", f":{option_str}:{self.string}", replacement or "")
 
 
 def reset_hotstring():
-    _ahk.call("Hotstring", "Reset")
+    ahk_call("Hotstring", "Reset")
 
 
 # TODO: Implement Hotstring, MouseReset and Hotstring, EndChars.
@@ -414,7 +412,7 @@ def _key_wait(key_name, down=False, logical_state=False, timeout=None) -> bool:
         options.append("L")
     if timeout is not None:
         options.append(f"T{timeout}")
-    timed_out = _ahk.call("KeyWait", str(key_name), "".join(options))
+    timed_out = ahk_call("KeyWait", str(key_name), "".join(options))
     return not timed_out
 
 
@@ -452,9 +450,6 @@ class RemappedKey:
         self.wildcard_origin_up.toggle()
 
 
-send_lock = threading.RLock()
-
-
 def send(keys, *, mode=SendMode.INPUT, level=0):
     # TODO: Sending "{U+0009}" and "\u0009" gives different results depending on
     # how tabs are handled in the application.
@@ -470,12 +465,12 @@ def send(keys, *, mode=SendMode.INPUT, level=0):
     else:
         raise ValueError(f"unknown send mode: {mode!r}")
 
-    with send_lock:
+    with global_ahk_lock:
         _send_level(level)
-        _ahk.call(cmd, keys)
+        ahk_call(cmd, keys)
 
 
 def _send_level(level: int):
     if not 0 <= level <= 100:
         raise ValueError("level must be between 0 and 100")
-    _ahk.call("SendLevel", int(level))
+    ahk_call("SendLevel", int(level))

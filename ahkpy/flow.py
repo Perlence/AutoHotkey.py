@@ -1,5 +1,6 @@
 import os
 import sys
+import threading
 from ctypes import windll
 from dataclasses import dataclass
 from typing import Callable
@@ -17,6 +18,13 @@ __all__ = [
     "toggle_suspend",
 ]
 
+global_ahk_lock = threading.RLock()
+
+
+def ahk_call(cmd, *args):
+    with global_ahk_lock:
+        return _ahk.call(cmd, *args)
+
 
 def set_timer(func=None, period=0.25, countdown=None, priority=0):
     # XXX: Should this be threading.Timer?
@@ -27,7 +35,7 @@ def set_timer(func=None, period=0.25, countdown=None, priority=0):
     period = int(period*1000)
 
     def set_timer_decorator(func):
-        _ahk.call("SetTimer", func, period, priority)
+        ahk_call("SetTimer", func, period, priority)
         # TODO: Remove func from CALLBACKS after its execution if *countdown* is set.
         return Timer(func)
 
@@ -42,44 +50,44 @@ class Timer:
     __slots__ = tuple(__annotations__.keys())
 
     def start(self):
-        _ahk.call("SetTimer", self.func, "On")
+        ahk_call("SetTimer", self.func, "On")
 
     def stop(self):
-        _ahk.call("SetTimer", self.func, "Off")
+        ahk_call("SetTimer", self.func, "Off")
 
     def cancel(self):
         # TODO: Remove self.func from CALLBACKS and WRAPPED_PYTHON_FUNCTIONS in AHK.
-        _ahk.call("SetTimer", self.func, "Delete")
+        ahk_call("SetTimer", self.func, "Delete")
 
     def set_priority(self, priority):
-        _ahk.call("SetTimer", self.func, "", priority)
+        ahk_call("SetTimer", self.func, "", priority)
 
 
 def sleep(secs):
     if secs < 0:
         raise ValueError("sleep length must be non-negative")
     elif secs == 0:
-        _ahk.call("Sleep", -1)
+        ahk_call("Sleep", -1)
     else:
-        _ahk.call("Sleep", int(secs * 1000))
+        ahk_call("Sleep", int(secs * 1000))
 
 
 def suspend():
-    _ahk.call("Suspend", "On")
+    ahk_call("Suspend", "On")
 
 
 def resume():
-    _ahk.call("Suspend", "Off")
+    ahk_call("Suspend", "Off")
 
 
 def toggle_suspend():
-    _ahk.call("Suspend", "Toggle")
+    ahk_call("Suspend", "Toggle")
 
 
 def reload():
     # TODO: If the new script has an error, AHK will show it and quit. Instead,
     # keep the old script running.
-    _ahk.call("Menu", "Tray", "NoIcon")
+    ahk_call("Menu", "Tray", "NoIcon")
     args = list(map(_quote, [sys.executable, _ahk.script_full_path] + sys.argv))
     os.execv(sys.executable, args)
 

@@ -1,12 +1,10 @@
 import dataclasses as dc
 import enum
-import threading
-
-import _ahk  # noqa
 
 from . import colors
 from . import keys
 from .exceptions import Error
+from .flow import ahk_call, global_ahk_lock
 
 __all__ = [
     "Control",
@@ -24,14 +22,10 @@ __all__ = [
 ]
 
 
-last_found_window_lock = threading.RLock()
-detect_hidden_windows_lock = threading.RLock()
-
-
 def detect_hidden_text(value):
     # TODO: Make this setting thread-local.
     value = "On" if value else "Off"
-    _ahk.call("DetectHiddenText", value)
+    ahk_call("DetectHiddenText", value)
 
 
 def set_title_match_mode(mode=None, speed=None):
@@ -49,13 +43,13 @@ def set_title_match_mode(mode=None, speed=None):
         ahk_mode = match_modes.get(str(mode).lower())
         if ahk_mode is None:
             raise ValueError(f"unknown match mode {mode!r}")
-        _ahk.call("SetTitleMatchMode", ahk_mode)
+        ahk_call("SetTitleMatchMode", ahk_mode)
 
     if speed is not None:
         speeds = ["fast", "slow"]
         if speed.lower() not in speeds:
             raise ValueError(f"unknown speed {speed!r}")
-        _ahk.call("SetTitleMatchMode", speed)
+        ahk_call("SetTitleMatchMode", speed)
 
 
 def set_win_delay(value):
@@ -64,7 +58,7 @@ def set_win_delay(value):
         value = -1
     else:
         value *= 1000
-    _ahk.call("SetWinDelay", value)
+    ahk_call("SetWinDelay", value)
 
 
 @dc.dataclass(frozen=True)
@@ -160,7 +154,7 @@ class Windows:
         # Calling WinWait[Not]Active and WinWait sets an implicit Last Found
         # Window that is local to the current AHK thread. Let's retrieve it
         # while protecting it from being overwritten by other Python threads.
-        with last_found_window_lock:
+        with global_ahk_lock:
             timed_out = self._call(cmd, *self._include(), timeout or "", *self._exclude())
             if timed_out:
                 return Window(0)
@@ -325,12 +319,12 @@ class Windows:
         return self.__class__.__qualname__ + f"({', '.join(field_strs)})"
 
     def _call(self, cmd, *args):
-        with detect_hidden_windows_lock:
+        with global_ahk_lock:
             if self.exclude_hidden_windows:
-                _ahk.call("DetectHiddenWindows", "Off")
+                ahk_call("DetectHiddenWindows", "Off")
             else:
-                _ahk.call("DetectHiddenWindows", "On")
-            return _ahk.call(cmd, *args)
+                ahk_call("DetectHiddenWindows", "On")
+            return ahk_call(cmd, *args)
 
     def _query(self):
         return (*self._include(), *self._exclude())
@@ -382,12 +376,12 @@ class _Window:
         # when there are no Notepad windows.
         if self.id == 0:
             return
-        with detect_hidden_windows_lock:
+        with global_ahk_lock:
             if exclude_hidden_windows:
-                _ahk.call("DetectHiddenWindows", "Off")
+                ahk_call("DetectHiddenWindows", "Off")
             else:
-                _ahk.call("DetectHiddenWindows", "On")
-            return _ahk.call(cmd, *args)
+                ahk_call("DetectHiddenWindows", "On")
+            return ahk_call(cmd, *args)
 
     def _include(self):
         win_text = ""
@@ -788,10 +782,10 @@ class WindowHotkeyContext(keys.BaseHotkeyContext):
     win_text: str
 
     def _enter(self):
-        _ahk.call("HotkeyWinContext", self.cmd, self.win_title, self.win_text)
+        ahk_call("HotkeyWinContext", self.cmd, self.win_title, self.win_text)
 
     def _exit(self):
-        _ahk.call("HotkeyExitContext")
+        ahk_call("HotkeyExitContext")
 
 
 class WindowStyle(enum.IntFlag):

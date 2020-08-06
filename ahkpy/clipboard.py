@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from functools import partial
 from typing import Callable
 
-import _ahk  # noqa
+from .flow import ahk_call
 
 __all__ = [
     "ClipboardHandler",
@@ -14,18 +14,18 @@ __all__ = [
 
 
 def get_clipboard():
-    return _ahk.call("GetClipboard")
+    return ahk_call("GetClipboard")
 
 
 def set_clipboard(value):
-    return _ahk.call("SetClipboard", str(value))
+    return ahk_call("SetClipboard", str(value))
 
 
 def wait_clipboard(timeout=None):
     # TODO: Implement WaitForAnyData argument.
     if timeout is not None:
         timeout = float(timeout)
-    timed_out = _ahk.call("ClipWait", timeout)
+    timed_out = ahk_call("ClipWait", timeout)
     if timed_out:
         return ""
     return get_clipboard()
@@ -36,7 +36,7 @@ def on_clipboard_change(func=None, *, prepend_handler=False):
 
     def on_clipboard_change_decorator(func):
         wrapper = partial(_clipboard_handler, func)
-        _ahk.call("OnClipboardChange", wrapper, option)
+        ahk_call("OnClipboardChange", wrapper, option)
         return ClipboardHandler(wrapper)
 
     if func is None:
@@ -61,7 +61,7 @@ class ClipboardHandler:
 
     def unregister(self):
         # TODO: Remove self.func from CALLBACKS and WRAPPED_PYTHON_FUNCTIONS in AHK.
-        _ahk.call("OnClipboardChange", self.func, 0)
+        ahk_call("OnClipboardChange", self.func, 0)
 
 
 # TODO: Implement ClipboardAll.

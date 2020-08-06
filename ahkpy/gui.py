@@ -4,7 +4,7 @@ import queue
 import threading
 from typing import Callable
 
-import _ahk  # noqa
+from .flow import ahk_call, global_ahk_lock
 
 __all__ = [
     "CoordMode",
@@ -24,15 +24,12 @@ class CoordMode(enum.Enum):
     CLIENT = 'client'
 
 
-coord_mode_lock = threading.RLock()
-
-
 def message_box(text=None, title="", options=0, timeout=None):
     if text is None:
         # Show "Press OK to continue."
-        return _ahk.call("MsgBox")
+        return ahk_call("MsgBox")
 
-    return _ahk.call("MsgBox", options, title, str(text), timeout)
+    return ahk_call("MsgBox", options, title, str(text), timeout)
     # XXX: Return result of IfMsgBox?
 
 
@@ -44,7 +41,7 @@ def on_message(msg_number, func=None, *, max_threads=1, prepend_handler=False):
         max_threads *= -1
 
     def on_message_decorator(func):
-        _ahk.call("OnMessage", int(msg_number), func, max_threads)
+        ahk_call("OnMessage", int(msg_number), func, max_threads)
         return MessageHandler(msg_number, func)
 
     if func is None:
@@ -60,7 +57,7 @@ class MessageHandler:
 
     def unregister(self):
         # TODO: Remove self.func from CALLBACKS and WRAPPED_PYTHON_FUNCTIONS in AHK.
-        _ahk.call("OnMessage", self.msg_number, self.func, 0)
+        ahk_call("OnMessage", self.msg_number, self.func, 0)
 
 
 @dc.dataclass
@@ -102,14 +99,14 @@ class ToolTip:
             self.coord_mode = coord_mode
 
         tooltip_id = self._acquire()
-        with coord_mode_lock:
-            _ahk.call("CoordMode", "ToolTip", self.coord_mode.value)
-            _ahk.call("ToolTip", str(self.text), x, y, tooltip_id)
+        with global_ahk_lock:
+            ahk_call("CoordMode", "ToolTip", self.coord_mode.value)
+            ahk_call("ToolTip", str(self.text), x, y, tooltip_id)
 
     def hide(self):
         if self._id is None:
             return
-        _ahk.call("ToolTip", "", "", "", self._id)
+        ahk_call("ToolTip", "", "", "", self._id)
         self._release()
 
     def _acquire(self):
