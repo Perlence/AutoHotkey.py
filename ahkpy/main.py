@@ -106,7 +106,11 @@ def run_from_args():
         if cwd not in sys.path:
             sys.path.insert(0, cwd)
         run_module(args[0])
-    elif args and args[0] == "-":
+    elif (
+        args and args[0] == "-" or
+        # TODO: Write a test for non-interactive stdin.
+        not args and sys.stdin and not sys.stdin.isatty()
+    ):
         sys.argv[:] = ["-", *args[1:]]
         code = sys.stdin.read()
         run_source(code)
