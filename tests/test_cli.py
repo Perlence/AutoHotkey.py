@@ -195,9 +195,9 @@ def test_close(child_ahk):
 
 
 @pytest.mark.skip(
-    reason="Reading from stderr and stdout blocks indefinitely. The same "
-           "problem happens with the actual Python interpreter in the "
-           "interactive mode.",
+    reason="subprocess.PIPE is not a TTY, therefore using it as stdin "
+           "activates the non-interactive, 'read all the code from stdin and "
+           "execute it' mode.",
 )
 def test_interactive_mode(child_ahk):
     proc = child_ahk.popen([], bufsize=0)
