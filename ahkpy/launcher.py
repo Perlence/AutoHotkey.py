@@ -1,9 +1,7 @@
 import ctypes
-import io
 import os
 import subprocess
 import sys
-import threading
 from ctypes.wintypes import DWORD, HMODULE
 from pathlib import Path
 
@@ -20,30 +18,17 @@ def main():
     python_ahk_path = Path(__file__).parent / "Python.ahk"
     ahk_exe_path = get_ahk_by_assoc() or AHK
     args = [ahk_exe_path, python_ahk_path] + sys.argv[1:]
-    ahk = subprocess.Popen(
-        args,
-        stdout=subprocess.PIPE if sys.stdout else None,
-        stderr=subprocess.PIPE if sys.stderr else None,
-        bufsize=0,
-    )
+    ahk = subprocess.Popen(args, stdin=sys.stdin, bufsize=0)
 
-    if sys.stdout:
-        stdout_thread = threading.Thread(target=read_loop, args=(ahk.stdout, sys.stdout.buffer), daemon=True)
-        stdout_thread.start()
-    if sys.stderr:
-        stderr_thread = threading.Thread(target=read_loop, args=(ahk.stderr, sys.stderr.buffer), daemon=True)
-        stderr_thread.start()
+    while True:
+        try:
+            code = ahk.wait()
+            if code is not None:
+                break
+        except KeyboardInterrupt:
+            # KeyboardInterrupt is automatically propagated to the subprocess.
+            pass
 
-    try:
-        if sys.stdout:
-            stdout_thread.join()
-        if sys.stderr:
-            stderr_thread.join()
-    except KeyboardInterrupt:
-        # KeyboardInterrupt is automatically propagated to the subprocess.
-        pass
-
-    ahk.wait()
     sys.exit(ahk.returncode)
 
 
@@ -87,16 +72,6 @@ def get_ahk_by_assoc():
 
     ahk_exe_path = out[:out_len.value].rstrip("\x00")
     return ahk_exe_path
-
-
-def read_loop(src, dest):
-    while True:
-        buf = src.read(io.DEFAULT_BUFFER_SIZE)
-        if not buf:
-            break
-        dest.write(buf)
-        dest.flush()
-    src.close()
 
 
 if __name__ == "__main__":

@@ -1,9 +1,11 @@
 import argparse
 import io
+import msvcrt
 import os
 import runpy
 import sys
 import traceback
+import _winapi
 from functools import partial
 
 from . import gui
@@ -18,18 +20,16 @@ def main():
 
     if sys.stdout:
         sys.stdout.reconfigure(encoding="utf-8")
+    else:
+        sys.stdout = open_std(_winapi.STD_OUTPUT_HANDLE, "w")
     if sys.stderr:
         sys.stderr.reconfigure(encoding="utf-8")
+    else:
+        sys.stderr = open_std(_winapi.STD_ERROR_HANDLE, "w")
     if sys.stdin:
         sys.stdin.reconfigure(encoding="utf-8")
     else:
-        # http://www.halcyon.com/~ast/dload/guicon.htm
-        import msvcrt
-        import _winapi
-        p2cread = _winapi.GetStdHandle(_winapi.STD_INPUT_HANDLE)
-        if p2cread is not None:
-            p2cread = msvcrt.open_osfhandle(p2cread, 0)
-            sys.stdin = io.open(p2cread, "r")
+        sys.stdin = open_std(_winapi.STD_INPUT_HANDLE, "r")
 
     venv = os.getenv("VIRTUAL_ENV")
     if venv and not os.getenv("PYTHONFULLPATH"):
@@ -37,6 +37,15 @@ def main():
         site.addsitedir(f"{venv}\\Lib\\site-packages")
 
     run_from_args()
+
+
+def open_std(std_device, mode):
+    # http://www.halcyon.com/~ast/dload/guicon.htm
+    handle = _winapi.GetStdHandle(std_device)
+    if handle is None:
+        return
+    fd = msvcrt.open_osfhandle(handle, os.O_TEXT)
+    return io.open(fd, mode, encoding="utf-8")
 
 
 def handle_system_exit(value):

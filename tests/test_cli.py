@@ -2,6 +2,8 @@ import signal
 import subprocess
 from textwrap import dedent
 
+import pytest
+
 
 def test_stdin(child_ahk):
     code = "import ahkpy as ahk, sys; print(__name__, __file__, sys.argv)"
@@ -192,8 +194,13 @@ def test_close(child_ahk):
     assert proc.returncode == 3221225786
 
 
-def test_repl(child_ahk):
-    proc = child_ahk.popen([])
+@pytest.mark.skip(
+    reason="Reading from stderr and stdout blocks indefinitely. The same "
+           "problem happens with the actual Python interpreter in the "
+           "interactive mode.",
+)
+def test_interactive_mode(child_ahk):
+    proc = child_ahk.popen([], bufsize=0)
 
     assert proc.stderr.readline().startswith("Python 3")
     assert proc.stderr.readline().startswith('Type "help"')
