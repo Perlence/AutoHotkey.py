@@ -1,5 +1,4 @@
 import argparse
-import io
 import os
 import runpy
 import sys
@@ -39,7 +38,7 @@ def main():
 
 def open_console(con, mode):
     try:
-        return io.open(con, mode, encoding="utf-8")
+        return open(con, mode, encoding="utf-8")
     except OSError:
         return None
 
@@ -130,6 +129,7 @@ def run_from_args():
 def run_path(filename):
     try:
         # runpy.run_path:
+        import io
         from pkgutil import get_importer, read_code
         importer = get_importer(filename)
         is_NullImporter = False
