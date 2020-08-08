@@ -145,6 +145,8 @@ def coop(func, *args, **kwargs):
 def _run_coop(queue, func, args, kwargs):
     try:
         result = func(*args, **kwargs), None
-    except (Exception, SystemExit) as exc:
+    except BaseException as exc:
+        # Catch BaseException because we also want SystemExit and
+        # KeyboardInterrupt.
         result = None, exc
     queue.put(result)
