@@ -122,9 +122,17 @@ def run_from_args():
         sys.exit(2)
     else:
         import code
-        from . import flow
+        import ahkpy
         quiet = True
-        flow.coop(code.interact, readfunc=interactive_input, exitmsg="")
+        ahkpy.coop(
+            code.interact,
+            readfunc=interactive_input,
+            exitmsg="",
+            local={
+                "ahkpy": ahkpy,
+                "ahk": ahkpy,
+            },
+        )
 
 
 def interactive_input(prompt=""):
