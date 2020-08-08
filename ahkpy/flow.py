@@ -1,7 +1,8 @@
+import ctypes
 import os
 import sys
+import queue
 import threading
-from ctypes import windll
 from dataclasses import dataclass
 from typing import Callable
 
@@ -9,6 +10,7 @@ import _ahk  # noqa
 
 __all__ = [
     "Timer",
+    "coop",
     "output_debug",
     "reload",
     "resume",
@@ -104,4 +106,45 @@ def output_debug(*objs, sep=' '):
         # > means to use the default values.
         sep = ' '
     debug_str = sep.join(map(str, objs))
-    windll.kernel32.OutputDebugStringW(debug_str)
+    ctypes.windll.kernel32.OutputDebugStringW(debug_str)
+
+
+def coop(func, *args, **kwargs):
+    """Run the given function in a new thread and make it cooperate with AHK's
+    event loop.
+
+    The call starts a new thread and blocks the current thread until the
+    function finishes. Returns the result of the function or raises the
+    exception.
+    """
+    q = queue.Queue(maxsize=1)
+    th = threading.Thread(
+        target=_run_coop,
+        args=(q, func, args, kwargs),
+        daemon=True,
+    )
+    th.start()
+    while True:
+        try:
+            if not th.is_alive():
+                break
+            sleep(0.01)
+        except KeyboardInterrupt:
+            set_async_exc = ctypes.pythonapi.PyThreadState_SetAsyncExc
+            thread_id = th.ident
+            kbd_interrupt = ctypes.py_object(KeyboardInterrupt)
+            if th.is_alive():
+                set_async_exc(thread_id, kbd_interrupt)
+
+    val, exc = q.get()
+    if exc is not None:
+        raise exc
+    return val
+
+
+def _run_coop(queue, func, args, kwargs):
+    try:
+        result = func(*args, **kwargs), None
+    except (Exception, SystemExit) as exc:
+        result = None, exc
+    queue.put(result)

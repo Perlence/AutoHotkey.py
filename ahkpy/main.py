@@ -2,6 +2,7 @@ import argparse
 import os
 import runpy
 import sys
+import time
 import traceback
 from functools import partial
 
@@ -120,10 +121,19 @@ def run_from_args():
         gui.message_box(usage)
         sys.exit(2)
     else:
-        # TODO: AHK is unresponsive during the interactive session.
         import code
+        from . import flow
         quiet = True
-        code.interact(exitmsg="")
+        flow.coop(code.interact, readfunc=interactive_input, exitmsg="")
+
+
+def interactive_input(prompt=""):
+    try:
+        return input(prompt)
+    except EOFError:
+        # https://bugs.python.org/issue26531
+        time.sleep(0.1)
+        raise
 
 
 def run_path(filename):
