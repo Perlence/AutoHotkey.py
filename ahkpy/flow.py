@@ -116,6 +116,9 @@ def coop(func, *args, **kwargs):
     The call starts a new thread and blocks the current thread until the
     function finishes. Returns the result of the function or raises the
     exception.
+
+    Use *coop* to execute long-running I/O bound Python processes like HTTP
+    servers and stdin readers.
     """
     q = queue.Queue(maxsize=1)
     th = threading.Thread(
@@ -136,7 +139,10 @@ def coop(func, *args, **kwargs):
             if th.is_alive():
                 set_async_exc(thread_id, kbd_interrupt)
 
-    val, exc = q.get()
+    try:
+        val, exc = q.get_nowait()
+    except queue.Empty:
+        raise RuntimeError("coop thread did not return a value") from None
     if exc is not None:
         raise exc
     return val
