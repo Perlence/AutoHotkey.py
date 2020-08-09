@@ -205,9 +205,9 @@ def test_interactive_mode(request):
     assert '(InteractiveConsole)' in proc.readline()
     assert proc.read(3) == ">>>"
 
-    proc.write("print('hello!')\r\n")
-    assert "print('hello!')" in proc.readline()
-    assert "hello!" in proc.readline()
+    proc.write("import sys; sys.argv\r\n")
+    assert "import sys; sys.argv" in proc.readline()
+    assert "['']" in proc.readline()
     assert proc.read(3) == ">>>"
 
     proc.write("nonexistent\r\n")

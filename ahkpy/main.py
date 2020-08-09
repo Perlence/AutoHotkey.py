@@ -124,6 +124,7 @@ def run_from_args():
         import code
         import ahkpy
         quiet = True
+        sys.argv[:] = [""]
         ahkpy.coop(
             code.interact,
             readfunc=interactive_input,
