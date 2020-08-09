@@ -7,6 +7,7 @@ from pathlib import Path
 
 
 AHK = "C:\\Program Files\\AutoHotkey\\AutoHotkey.exe"
+EXIT_CODE_RELOAD = 65530
 
 
 def main():
@@ -18,18 +19,24 @@ def main():
     python_ahk_path = Path(__file__).parent / "Python.ahk"
     ahk_exe_path = get_ahk_by_assoc() or AHK
     args = [ahk_exe_path, python_ahk_path] + sys.argv[1:]
-    ahk = subprocess.Popen(args, stdin=sys.stdin, bufsize=0)
 
     while True:
-        try:
-            code = ahk.wait()
-            if code is not None:
-                break
-        except KeyboardInterrupt:
-            # KeyboardInterrupt is automatically propagated to the subprocess.
-            pass
+        ahk = subprocess.Popen(args, stdin=sys.stdin)
 
-    sys.exit(ahk.returncode)
+        while True:
+            try:
+                code = ahk.wait()
+                if code is not None:
+                    break
+            except KeyboardInterrupt:
+                # KeyboardInterrupt is automatically propagated to the subprocess.
+                pass
+
+        if ahk.returncode == EXIT_CODE_RELOAD:
+            print("Reloading AHK...", file=sys.stderr)
+            continue
+
+        sys.exit(ahk.returncode)
 
 
 def python_dll_path():

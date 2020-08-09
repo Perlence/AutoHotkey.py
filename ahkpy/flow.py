@@ -1,5 +1,4 @@
 import ctypes
-import os
 import sys
 import queue
 import threading
@@ -89,13 +88,8 @@ def toggle_suspend():
 def reload():
     # TODO: If the new script has an error, AHK will show it and quit. Instead,
     # keep the old script running.
-    ahk_call("Menu", "Tray", "NoIcon")
-    args = list(map(_quote, [sys.executable, _ahk.script_full_path] + sys.argv))
-    os.execv(sys.executable, args)
-
-
-def _quote(s):
-    return f'"{s}"'
+    from . import launcher
+    sys.exit(launcher.EXIT_CODE_RELOAD)
 
 
 def output_debug(*objs, sep=' '):
