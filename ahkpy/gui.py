@@ -1,7 +1,6 @@
 import dataclasses as dc
 import enum
 import queue
-import threading
 from typing import Callable
 
 from .flow import ahk_call, global_ahk_lock

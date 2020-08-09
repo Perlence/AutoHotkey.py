@@ -107,12 +107,34 @@ def coop(func, *args, **kwargs):
     """Run the given function in a new thread and make it cooperate with AHK's
     event loop.
 
+    Use *coop* to execute **pre-existing** long-running I/O bound Python
+    processes like HTTP servers and stdin readers that are designed to handle
+    KeyboardInterrupt:
+
+    .. code-block:: python
+
+        import code
+        import ahkpy as ahk
+        ahk.coop(code.interact)
+
     The call starts a new thread and blocks the current thread until the
     function finishes. Returns the result of the function or raises the
     exception.
 
-    Use *coop* to execute long-running I/O bound Python processes like HTTP
-    servers and stdin readers.
+    Whenever KeyboardInterrupt occurs in the current thread, it's propagated to
+    the background thread so it could stop.
+
+    If you start your own threads, be sure to yield the control back to AHK so
+    it could process its message queue:
+
+    .. code-block:: python
+
+        import threading
+        th = threading.Thread(target=some_worker)
+        th.start()
+        while th.is_alive():
+            # Important: Let AHK handle its message queue.
+            ahk.sleep(0.01)
     """
     q = queue.Queue(maxsize=1)
     th = threading.Thread(

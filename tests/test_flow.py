@@ -158,3 +158,39 @@ def test_reload(child_ahk, tmpdir):
     assert ahk.windows.wait(title="Python.ahk", text="ok00", timeout=1)
 
     ahk.send("{F24}")
+
+
+def test_coop(child_ahk):
+    def code():
+        import runpy
+        import sys
+        import ahkpy as ahk
+
+        ahk.hotkey("F24", sys.exit)
+        ahk.hotkey("F13", lambda: ahk.message_box("hello"))
+
+        print("ok00")
+
+        ahk.coop(
+            runpy.run_module,
+            mod_name="http.server",
+            run_name="__main__",
+            alter_sys=True,
+        )
+
+    proc = child_ahk.popen_code(code)
+    child_ahk.wait(0)
+
+    assert proc.stdout.readline().startswith("Serving HTTP")
+
+    from urllib.request import urlopen
+    resp = urlopen("http://localhost:8000")
+    assert b"Directory listing for /" in resp.read()
+
+    assert '"GET / HTTP/1.1" 200' in proc.stderr.readline()
+
+    ahk.send("{F13}")
+    assert ahk.windows.wait_active(exe="AutoHotkey.exe", text="hello", timeout=1)
+
+    # TODO: Test sending KeyboardInterrupt.
+    ahk.send("{F24}")
