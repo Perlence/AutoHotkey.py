@@ -68,7 +68,7 @@ def handle_system_exit(value):
 
 def run_from_args():
     usage = "py -m ahkpy [-h] [-q] [-c CMD | -m MOD | FILE | -] [ARGS] ..."
-    parser = argparse.ArgumentParser(usage=usage)
+    parser = GUIArgumentParser(usage=usage)
     parser.add_argument(
         "-q", "--quiet", action="store_true",
         help="supress message boxes with errors",
@@ -130,11 +130,19 @@ def run_from_args():
             sys.path.insert(0, script_dir)
         run_path(args[0])
     else:
-        usage = parser.format_usage()
-        print(usage, file=sys.stderr)
-        if sys.stderr is None:
-            gui.message_box(usage)
+        parser.print_usage(sys.stderr)
         sys.exit(2)
+
+
+class GUIArgumentParser(argparse.ArgumentParser):
+    def _print_message(self, message, file=None):
+        if message:
+            if file is None:
+                file = sys.stderr
+            if file is None:
+                gui.message_box(message)
+                return
+            file.write(message)
 
 
 def interactive_input(prompt=""):
