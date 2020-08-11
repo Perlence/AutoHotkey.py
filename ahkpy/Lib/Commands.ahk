@@ -35,14 +35,9 @@ _ControlFocus(Control="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") 
     ControlFocus %Control%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
 }
 
-/**
- * Implementation: Minor change (returns Object)
- * "ControlGetPos" is special because it outputs 4 variables.
- * In JS, we return an Object with 4 properties: X, Y, Width and Height.
- */
 _ControlGetPos(Control="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
     ControlGetPos X,Y,Width,Height,%Control%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
-    return JS.Object("X", X, "Y", Y, "Width", Width, "Height", Height)
+    return {X: X, Y: Y, Width: Width, Height: Height}
 }
 
 _ControlGet(Cmd,Value="",Control="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
@@ -120,14 +115,15 @@ _FileGetAttrib(Filename="") {
     return OutputVar
 }
 
-/**
- * Implementation: Minor change (returns Object)
- * "FileGetShortcut" is special because it outputs 7 variables.
- * In JS, we return an Object with 7 properties: Target, Dir, Args, Description, Icon, IconNum, RunState.
- */
 _FileGetShortcut(LinkFile, Target="", Dir="", Args="", Description="", Icon="", IconNum="", RunState="") {
     FileGetShortcut, %LinkFile%, %Target%, %Dir%, %Args%, %Description%, %Icon%, %IconNum%, %RunState%
-    return JS.Object("Target",Target, "Dir",Dir, "Args",Args, "Description",Description, "Icon",Icon, "IconNum",IconNum, "RunState",RunState)
+    return { Target: Target
+        , Dir: Dir
+        , Args: Args
+        , Description: Description
+        , Icon: Icon
+        , IconNum: IconNum
+        , RunState: RunState }
 }
 
 _FileGetVersion(Filename="") {
@@ -219,14 +215,9 @@ _HotkeyExitContext() {
     Hotkey, If
 }
 
-/**
- * Implementation: Minor change (returns Object).
- * "ImageSearch" is special because it outputs 2 variables.
- * In JS, we return an Object with 2 properties: X, Y.
- */
 _ImageSearch(X1,Y1,X2,Y2,ImageFile) {
     ImageSearch X,Y,%X1%,%Y1%,%X2%,%Y2%,%ImageFile%
-    return JS.Object("X",X, "Y",Y)
+    return {X: X, Y: Y}
 }
 
 _Input(Options="",EndKeys="",MatchList="") {
@@ -281,24 +272,15 @@ _MouseClickDrag(WhichButton,X1,Y1,X2,Y2,Speed="",R="") {
     MouseClickDrag %WhichButton%,%X1%,%Y1%,%X2%,%Y2%,%Speed%,%R%
 }
 
-/**
- * Implementation: Minor change (returns Object).
- * "MouseGetPos" is special because it outputs 4 variables.
- * In JS, we return an Object with 4 properties: X, Y, Win, Control.
- */
 _MouseGetPos(Flag="") {
     MouseGetPos X, Y, Win, Control, %Flag%
-    return JS.Object("X",X, "Y",Y, "Win",Win+0, "Control",Control)
+    return {X: X, Y: Y, Win: Win+0, Control: Control}
 }
 
 _MouseMove(X,Y,Speed="",R="") {
     MouseMove %X%,%Y%,%Speed%,%R%
 }
 
-/*
- * the commas separating the parameters are interperted as string.
- * Also, the case for no-parameters had to be intercepted.
- */
 _MsgBox(Params*) {
     if (Params.Length() == 0) {
         MsgBox
@@ -336,14 +318,9 @@ _PixelGetColor(X,Y,Flags="") {
     return OutputVar
 }
 
-/**
- * Implementation: Minor change (returns Object).
- * "PixelSearch" is special because it outputs 2 variables.
- * In JS, we return an Object with 2 properties: X, Y.
- */
 _PixelSearch(X1,Y1,X2,Y2,ColorID,Variation="",Flags="") {
     PixelSearch X,Y,%X1%,%Y1%,%X2%,%Y2%,%ColorID%,%Variation%,%Flags%
-    return JS.Object("X",X, "Y",Y)
+    return {X: X, Y: Y}
 }
 
 _PostMessage(Msg,wParam="",lParam="",Control="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
@@ -388,11 +365,6 @@ _RunAs(User="",Password="",Domain="") {
     RunAs %User%,%Password%,%Domain%
 }
 
-/**
- * Implementation: Major change (doesn't return exit code).
- * "RunWait" is special because it sets a process ID which can be read by another thread.
- * For JS, we cannot implement this feature and therefore don't return any PID (as opposed to "Run")
- */
 _RunWait(Target,WorkingDir="",Flags="") {
     RunWait %Target%, %WorkingDir%, %Flags%
 }
@@ -486,10 +458,6 @@ _SoundBeep(Frequency="",Duration="") {
     SoundBeep %Frequency%,%Duration%
 }
 
-/**
- * Implementation: Normalization.
- * "SoundGet" is special because it has multiple return types (Number or String).
- */
 _SoundGet(ComponentType="",ControlType="",DeviceNumber="") {
     SoundGet OutputVar, %ComponentType%, %ControlType%, %DeviceNumber%
     static STRING_CONTROL_TYPES := {ONOFF:1, MUTE:1, MONO:1, LOUDNESS:1, STEREOENH:1, BASSBOOST:1}
@@ -543,17 +511,10 @@ _Suspend(Mode="") {
     Suspend %Mode%
 }
 
-/**
- * Implementation: Minor change (returns Object).
- * "SysGet" is special because it has multiple return types (Number|String|Object).
- * If Subcommand="Monitor", the output will be an Object with 4 properties: Left, Top, Right, Bottom.
- * If Subcommand="MonitorName", the output will be String.
- * Otherwise, the output will be Number.
- */
 _SysGet(Subcommand,Param2="") {
     SysGet v, %Subcommand%, %Param2%
     if (Subcommand == "Monitor") {
-        return JS.Object("Left",vLeft, "Top",vTop, "Right",vRight, "Bottom",vBottom)
+        return {Left: vLeft, Top: vTop, Right: vRight, Bottom: vBottom}
     } else if (Subcommand == "MonitorName") {
         return v
     } else {
@@ -602,11 +563,6 @@ _WinClose(WinTitle="",WinText="",SecondsToWait="",ExcludeTitle="",ExcludeText=""
     WinClose %WinTitle%,%WinText%,%SecondsToWait%,%ExcludeTitle%,%ExcludeText%
 }
 
-/**
- * Implementation: Minor change (returns Object).
- * "WinGet" is special because it may output an pseudo-array.
- * In JS, if Cmd=List, we return an Array of Numbers.
- */
 _WinGet(Cmd="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
     WinGet OutputVar,%Cmd%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
     StringLower, Cmd, Cmd
@@ -626,11 +582,6 @@ _WinGetClass(WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
     return OutputVar
 }
 
-/**
- * Implementation: Minor change (returns Object).
- * "WinGetPos" is special because it outputs 4 variables.
- * In JS, we return an Object with 4 properties: X, Y, Width, Height.
- */
 _WinGetPos(WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
     WinGetPos X, Y, Width, Height, %WinTitle%, %WinText%, %ExcludeTitle%, %ExcludeText%
     return {Width: Width, Height: Height, X: X, Y: Y}
