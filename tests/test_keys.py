@@ -1,6 +1,5 @@
 import subprocess
 import sys
-from textwrap import dedent
 
 import pytest
 
@@ -383,6 +382,58 @@ class TestHotstring:
         ahk.send("notepad ", level=10)
         ahk.sleep(0)
         assert edit.text == "padnote "
+
+    def test_reset_hotstring(self, request, edit):
+        malaise = ahk.hotstring("malaise", "redacted")
+        request.addfinalizer(malaise.disable)
+        ahk.send("malaise ", level=10)
+        ahk.sleep(0)
+        assert edit.text == "redacted "
+
+        edit.text = ""
+        ahk.send("mala", level=10)
+        ahk.reset_hotstring()
+        ahk.send("ise ", level=10)
+        ahk.sleep(0)
+        assert edit.text == "malaise "
+
+    def test_end_chars(self, request, edit):
+        vivacious = ahk.hotstring("vivacious", "redacted")
+        request.addfinalizer(vivacious.disable)
+        prior_end_chars = ahk.get_hotstring_end_chars()
+        request.addfinalizer(lambda: ahk.set_hotstring_end_chars(prior_end_chars))
+        ahk.set_hotstring_end_chars(".")
+        assert ahk.get_hotstring_end_chars() == "."
+
+        ahk.send("vivacious ", level=10)
+        ahk.sleep(0)
+        assert edit.text == "vivacious "
+
+        edit.text = ""
+        ahk.send("vivacious.", level=10)
+        ahk.sleep(0)
+        assert edit.text == "redacted."
+
+    def test_mouse_reset(self, request, edit):
+        ferret = ahk.hotstring("ferret", "redacted")
+        request.addfinalizer(ferret.disable)
+        prior_mouse_reset = ahk.get_hotstring_mouse_reset()
+        request.addfinalizer(lambda: ahk.set_hotstring_mouse_reset(prior_mouse_reset))
+
+        ahk.send("fer", level=10)
+        _ahk.call("Click", 0, 0)  # TODO: Replace with a Python function.
+        ahk.send("ret ", level=10)
+        ahk.sleep(0)
+        assert edit.text == "ferret "
+
+        edit.text = ""
+        ahk.set_hotstring_mouse_reset(False)
+        ahk.get_hotstring_mouse_reset() is False
+        ahk.send("fer", level=10)
+        _ahk.call("Click", 0, 0)  # TODO: Replace with a Python function.
+        ahk.send("ret ", level=10)
+        ahk.sleep(0)
+        assert edit.text == "redacted "
 
 
 def test_hotkey_context(child_ahk):

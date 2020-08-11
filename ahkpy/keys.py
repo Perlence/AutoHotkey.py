@@ -12,19 +12,23 @@ __all__ = [
     "HotkeyContext",
     "Hotstring",
     "SendMode",
+    "get_hotstring_end_chars",
+    "get_hotstring_mouse_reset",
     "get_key_state",
     "get_physical_key_state",
     "hotkey",
     "hotstring",
     "is_key_toggled",
-    "wait_key_pressed",
-    "wait_key_released",
     "remap_key",
     "reset_hotstring",
     "send",
     "set_caps_lock_state",
+    "set_hotstring_end_chars",
+    "set_hotstring_mouse_reset",
     "set_num_lock_state",
     "set_scroll_lock_state",
+    "wait_key_pressed",
+    "wait_key_released",
 ]
 
 
@@ -143,7 +147,6 @@ class BaseHotkeyContext:
         key_delay=-1,
         reset_recognizer=False,
     ):
-        # TODO: Implement setting global options.
         def hotstring_decorator(replacement):
             hs = Hotstring(string, case_sensitive, replace_inside_word, context=self)
             hs.update(
@@ -393,7 +396,20 @@ def reset_hotstring():
     ahk_call("Hotstring", "Reset")
 
 
-# TODO: Implement Hotstring, MouseReset and Hotstring, EndChars.
+def get_hotstring_end_chars():
+    return ahk_call("Hotstring", "EndChars")
+
+
+def set_hotstring_end_chars(chars):
+    ahk_call("Hotstring", "EndChars", str(chars))
+
+
+def get_hotstring_mouse_reset():
+    return ahk_call("Hotstring", "MouseReset")
+
+
+def set_hotstring_mouse_reset(value):
+    ahk_call("Hotstring", "MouseReset", bool(value))
 
 
 def wait_key_pressed(key_name, logical_state=False, timeout=None) -> bool:
