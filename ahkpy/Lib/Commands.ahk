@@ -173,10 +173,6 @@ _GroupDeactivate(GroupName,R="") {
     GroupDeactivate %GroupName%,%R%
 }
 
-; _Gui(Subcommand,Param2="",Param3="",Param4="") {
-;     Gui %Subcommand%,%Param2%,%Param3%,%Param4%
-; }
-
 _GuiControl(Subcommand,ControlID,Param3="") {
     GuiControl %Subcommand%,%ControlID%,%Param3%
 }
@@ -243,23 +239,6 @@ _ListHotkeys() {
     ListHotkeys
 }
 
-/**
- * Implementation: Major change.
- * "LV_GetText" is special because it outputs 2 variables (a return value and a ByRef).
- * The migrated function has two modes:
- * 		1) the default mode (Advanced=0) is to return the retrieved text. Note that this behavior differs from the one in AHK.
- *		2) the advanced mode (Advanced non-empty) returns an object with 2 properties: Text, Success.
- */
-_LV_GetText(RowNumber,ColumnNumber=1,Advanced=0) {
-    if (Advanced) {
-        Success := LV_GetText(Text, RowNumber, ColumnNumber)
-        return JS.Object("Text",Text, "Success",Success)
-    } else {
-        LV_GetText(OutputVar, RowNumber, ColumnNumber)
-        return OutputVar
-    }
-}
-
 _Menu(MenuName,Cmd,P3="",P4="",P5="") {
     Menu %MenuName%,%Cmd%,%P3%,%P4%,%P5%
 }
@@ -296,19 +275,6 @@ _MsgBox(Params*) {
     }
 }
 
-/**
- * Implementation: Minor change (target label becomes closure).
- * "OnExit" is special because it uses labels.
- * The migrated function uses instead closures.
- */
-_OnExit(Closure="") {
-    closures["OnExit"] := Closure
-}
-
-_OutputDebug(Text) {
-    OutputDebug %Text%
-}
-
 _Pause(State="",OperateOnUnderlyingThread="") {
     Pause %State%,%OperateOnUnderlyingThread%
 }
@@ -338,22 +304,6 @@ _Progress(ProgressParam1,SubText="",MainText="",WinTitle="",FontName="") {
 
 _Reload() {
     Reload
-}
-
-/**
- * Implementation: Addition.
- * "Require" is similar to "#Include", but it differs in one crucial way:
- * "Require" evaluates the script in the window scope, while "#Include"
- * evaluates the script in the local scope ("as though the specified file's
- * contents are present at this exact position").
- * Notes:
- *      ● The evaluation takes place instantly (synchronous)
- *      ● "Require" could also be written as "window.eval(FileRead(path))"
- *      ● "#Include" could also be written as "eval(FileRead(path))"
- */
-_Require(path) {
-    FileRead, content, %path%
-    window.eval(content) ; seems to work ok in IE8 at this point
 }
 
 _Run(Target, WorkingDir="", Flags="") {
@@ -532,23 +482,6 @@ _ToolTip(Text="",X="",Y="",WhichToolTip="") {
 
 _TrayTip(Title="",Text="",Seconds="",Options="") {
     TrayTip %Title%,%Text%,%Seconds%,%Options%
-}
-
-/**
- * Implementation: Major change.
- * "TV_GetText" is special because it outputs 2 variables (a return value and a ByRef)
- * The migrated function has two modes:
- * 		1) the default mode (Advanced=0) is to return the retrieved text. Note that this behavior differs from the one in AHK.
- *		2) the advanced mode (Advanced non-empty) returns an object with 2 properties: Text, Success.
- */
-_TV_GetText(ItemID, Advanced=0) {
-    if (Advanced) {
-        Success := TV_GetText(OutputVar, ItemID)
-        return JS.Object("Text", OutputVar, "Success",Success)
-    } else {
-        TV_GetText(OutputVar, ItemID)
-        return OutputVar
-    }
 }
 
 _WinActivate(WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
