@@ -177,23 +177,6 @@ def test_pyw(tmpdir):
     assert res.returncode == 0
 
 
-def test_close(child_ahk):
-    def code():
-        import sys
-        import ahkpy as ahk
-        ahk.hotkey('F24', sys.exit)
-        print("ok00")
-
-    proc = child_ahk.popen_code(code)
-    child_ahk.wait(0)
-
-    proc.send_signal(signal.CTRL_BREAK_EVENT)
-    proc.wait(timeout=1)
-    assert proc.stderr.read() == ""
-    assert proc.stdout.read() == ""
-    assert proc.returncode == 3221225786
-
-
 def test_interactive_mode(request):
     from winpty import PtyProcess
 
