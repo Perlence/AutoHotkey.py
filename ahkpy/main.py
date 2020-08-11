@@ -102,38 +102,39 @@ def run_from_args():
         if cwd not in sys.path:
             sys.path.insert(0, cwd)
         run_module(args[0])
-    elif (
-        args and args[0] == "-" or
-        # TODO: Write a test for non-interactive stdin.
-        not args and sys.stdin and not sys.stdin.isatty()
-    ):
-        sys.argv[:] = ["-", *args[1:]]
-        code = sys.stdin.read()
-        run_source(code)
+    elif sys.stdin and (not args or args[0] == "-"):
+        if args:
+            sys.argv[:] = ["-", *args[1:]]
+        else:
+            sys.argv[:] = [""]
+        if sys.stdin.isatty():
+            import code
+            import ahkpy
+            quiet = True
+            ahkpy.coop(
+                code.interact,
+                readfunc=interactive_input,
+                exitmsg="",
+                local={
+                    "ahkpy": ahkpy,
+                    "ahk": ahkpy,
+                },
+            )
+        else:
+            code = sys.stdin.read()
+            run_source(code)
     elif args and args[0]:
         sys.argv[:] = args
         script_dir = os.path.abspath(os.path.dirname(args[0]))
         if script_dir not in sys.path:
             sys.path.insert(0, script_dir)
         run_path(args[0])
-    elif sys.stderr is None:
-        usage = parser.format_usage()
-        gui.message_box(usage)
-        sys.exit(2)
     else:
-        import code
-        import ahkpy
-        quiet = True
-        sys.argv[:] = [""]
-        ahkpy.coop(
-            code.interact,
-            readfunc=interactive_input,
-            exitmsg="",
-            local={
-                "ahkpy": ahkpy,
-                "ahk": ahkpy,
-            },
-        )
+        usage = parser.format_usage()
+        print(usage, file=sys.stderr)
+        if sys.stderr is None:
+            gui.message_box(usage)
+        sys.exit(2)
 
 
 def interactive_input(prompt=""):
