@@ -523,7 +523,7 @@ PrintErrorOrExit() {
 End(message) {
     message .= "`nThe application will now exit."
     MsgBox, % message
-    ExitApp
+    ExitApp, 1
 }
 
 GuiContextMenu:
