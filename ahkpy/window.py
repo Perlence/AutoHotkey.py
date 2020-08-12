@@ -3,6 +3,7 @@ import enum
 
 from . import colors
 from . import keys
+from .converters import default, optional_ms
 from .exceptions import Error
 from .flow import ahk_call, global_ahk_lock
 
@@ -23,13 +24,13 @@ __all__ = [
 
 
 def detect_hidden_text(value):
-    # TODO: Make this setting thread-local.
+    # TODO: Make this function a Windows.filter() parameter.
     value = "On" if value else "Off"
     ahk_call("DetectHiddenText", value)
 
 
 def set_title_match_mode(mode=None, speed=None):
-    # TODO: Make this setting thread-local.
+    # TODO: Make this function a Windows.filter() parameter.
     if mode is not None:
         match_modes = {
             "startswith": "1",
@@ -53,12 +54,8 @@ def set_title_match_mode(mode=None, speed=None):
 
 
 def set_win_delay(value):
-    # TODO: Make this setting thread-local.
-    if value is None:
-        value = -1
-    else:
-        value *= 1000
-    ahk_call("SetWinDelay", value)
+    # TODO: Should this function be a context manager?
+    ahk_call("SetWinDelay", optional_ms(value))
 
 
 @dc.dataclass(frozen=True)
@@ -297,6 +294,7 @@ class Windows:
         return WindowHotkeyContext(cmd, *self._include())
 
     def send(self, keys, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
+        # TODO: Implement SetKeyDelay parameters.
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
         control = ""
         self._call("ControlSend", control, str(keys), *self._query())
@@ -729,6 +727,7 @@ class Window(_Window):
         return not timed_out
 
     def send(self, keys):
+        # TODO: Implement SetKeyDelay parameters.
         control = ""
         self._call("ControlSend", control, str(keys), *self._include())
 
@@ -846,15 +845,3 @@ class ExWindowStyle(enum.IntFlag):
     RTLREADING = 0x00002000
     STATICEDGE = 0x00020000
     TRANSPARENT = 0x00000020
-
-
-def identity(a):
-    return a
-
-
-def default(a, b, func=identity):
-    if func is not identity:
-        func, a, b = a, b, func
-    if a is not None:
-        return func(a)
-    return b

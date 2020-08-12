@@ -4,6 +4,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Callable, Union
 
+from .converters import optional_ms
 from .exceptions import Error
 from .flow import ahk_call, global_ahk_lock
 
@@ -22,6 +23,9 @@ __all__ = [
     "remap_key",
     "reset_hotstring",
     "send",
+    "send_event",
+    "send_input",
+    "send_play",
     "set_caps_lock_state",
     "set_hotstring_end_chars",
     "set_hotstring_mouse_reset",
@@ -432,17 +436,17 @@ def _key_wait(key_name, down=False, logical_state=False, timeout=None) -> bool:
     return not timed_out
 
 
-def remap_key(origin_key, destination_key):
+def remap_key(origin_key, destination_key, *, mode=SendMode.INPUT, level=0):
     # TODO: Handle LCtrl as the origin key.
     # TODO: Handle remapping keyboard key to a mouse button.
     # TODO: Implement context-specific remapping.
     @hotkey(f"*{origin_key}")
     def wildcard_origin():
-        send("{Blind}{%s DownR}" % destination_key)
+        send("{Blind}{%s DownR}" % destination_key, mode=mode, level=level)
 
     @hotkey(f"*{origin_key} Up")
     def wildcard_origin_up():
-        send("{Blind}{%s Up}" % destination_key)
+        send("{Blind}{%s Up}" % destination_key, mode=mode, level=level)
 
     return RemappedKey(wildcard_origin, wildcard_origin_up)
 
@@ -469,21 +473,39 @@ class RemappedKey:
 def send(keys, *, mode=SendMode.INPUT, level=0):
     # TODO: Sending "{U+0009}" and "\u0009" gives different results depending on
     # how tabs are handled in the application.
-
     if isinstance(mode, str):
         mode = SendMode(mode.lower())
     if mode is SendMode.INPUT:
-        cmd = "SendInput"
+        send_func = send_input
     elif mode is SendMode.PLAY:
-        cmd = "SendPlay"
+        send_func = send_play
     elif mode is SendMode.EVENT:
-        cmd = "SendEvent"
+        send_func = send_event
     else:
         raise ValueError(f"unknown send mode: {mode!r}")
 
+    send_func(keys, level=level)
+
+
+def send_input(keys, *, level=0):
     with global_ahk_lock:
         _send_level(level)
-        ahk_call(cmd, keys)
+        ahk_call("SendInput", keys)
+
+
+def send_event(keys, *, level=0, delay=0.01, duration=None):
+    with global_ahk_lock:
+        _send_level(level)
+        # XXX: Should set_key_delay() be a context manager?
+        ahk_call("SetKeyDelay", optional_ms(delay), optional_ms(duration))
+        ahk_call("SendEvent", keys)
+
+
+def send_play(keys, *, level=0, delay=None, duration=None):
+    with global_ahk_lock:
+        _send_level(level)
+        ahk_call("SetKeyDelay", optional_ms(delay), optional_ms(duration), "Play")
+        ahk_call("SendPlay", keys)
 
 
 def _send_level(level: int):
