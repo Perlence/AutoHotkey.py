@@ -5,7 +5,7 @@ import queue
 import threading
 from typing import Callable
 
-import _ahk  # noqa
+import _ahk
 
 __all__ = [
     "Timer",

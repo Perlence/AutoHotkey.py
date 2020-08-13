@@ -3,7 +3,7 @@ import sys
 
 import pytest
 
-import _ahk  # noqa
+import _ahk
 import ahkpy as ahk
 
 
@@ -32,8 +32,8 @@ def test_is_key_toggled():
 
 
 def test_hotkey_refcounts():
-    func1 = lambda: None  # noqa
-    func2 = lambda: None  # noqa
+    func1 = lambda: None  # noqa: E731
+    func2 = lambda: None  # noqa: E731
     func1_refcount = sys.getrefcount(func1)
     func2_refcount = sys.getrefcount(func2)
 

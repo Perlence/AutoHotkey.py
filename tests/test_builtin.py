@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-import _ahk  # noqa
+import _ahk
 import ahkpy as ahk
 
 

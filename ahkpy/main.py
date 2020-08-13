@@ -7,7 +7,7 @@ import traceback
 from functools import partial
 
 from . import gui
-from .exceptions import Error  # noqa, used in Python.ahk
+from .exceptions import Error  # noqa: F401, used in Python.ahk
 
 
 quiet = False
@@ -206,7 +206,7 @@ def run_code(code, filename):
             exec(code, globs)
     except SystemExit:
         raise
-    except:  # noqa
+    except:  # noqa: E722
         show_traceback()
         sys.exit(1)
 
@@ -216,7 +216,7 @@ def run_module(mod_name):
         runpy.run_module(mod_name, run_name="__main__", alter_sys=True)
     except SystemExit:
         raise
-    except:  # noqa
+    except:  # noqa: E722
         show_traceback()
         sys.exit(1)
 

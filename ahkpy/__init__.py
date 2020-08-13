@@ -1,5 +1,5 @@
 try:
-    from _ahk import script_full_path  # noqa
+    from _ahk import script_full_path  # noqa: F401
 except ModuleNotFoundError:
     import sys as _sys
 
@@ -17,12 +17,12 @@ except ModuleNotFoundError:
     _sys.modules['_ahk'] = _shim()
     del _shim
 
-from .clipboard import *  # noqa
-from .exceptions import *  # noqa
-from .flow import *  # noqa
-from .gui import *  # noqa
-from .keys import *  # noqa
-from .settings import *  # noqa
-from .window import *  # noqa
+from .clipboard import *  # noqa: F401 F403
+from .exceptions import *  # noqa: F401 F403
+from .flow import *  # noqa: F401 F403
+from .gui import *  # noqa: F401 F403
+from .keys import *  # noqa: F401 F403
+from .settings import *  # noqa: F401 F403
+from .window import *  # noqa: F401 F403
 
 __version__ = "0.1.dev"
