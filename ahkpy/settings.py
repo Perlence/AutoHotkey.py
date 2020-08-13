@@ -23,6 +23,9 @@ class Settings:
     send_mode: str = "input"
     win_delay: float = 0.1
 
+    def __delattr__(self, name):
+        raise AttributeError(f"{name} cannot be deleted")
+
 
 def get_settings() -> Settings:
     try:
