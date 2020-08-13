@@ -437,7 +437,7 @@ def _key_wait(key_name, down=False, logical_state=False, timeout=None) -> bool:
     return not timed_out
 
 
-def remap_key(origin_key, destination_key, *, mode=SendMode.INPUT, level=None):
+def remap_key(origin_key, destination_key, *, mode=None, level=None):
     # TODO: Handle LCtrl as the origin key.
     # TODO: Handle remapping keyboard key to a mouse button.
     # TODO: Implement context-specific remapping.
@@ -471,9 +471,11 @@ class RemappedKey:
         self.wildcard_origin_up.toggle()
 
 
-def send(keys, *, mode=SendMode.INPUT, level=None):
+def send(keys, mode=None, *, level=None):
     # TODO: Sending "{U+0009}" and "\u0009" gives different results depending on
     # how tabs are handled in the application.
+    if mode is None:
+        mode = get_settings().send_mode
     if isinstance(mode, str):
         mode = SendMode(mode.lower())
     if mode is SendMode.INPUT:

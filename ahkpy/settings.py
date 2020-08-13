@@ -20,6 +20,7 @@ class Settings:
     key_delay_play: float = -1
     key_duration_play: float = -1
     send_level: int = 0
+    send_mode: str = "input"
     win_delay: float = 0.1
 
 
