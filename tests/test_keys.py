@@ -161,11 +161,9 @@ class TestHotkey:
 
 
 class TestHotstring:
-    @pytest.fixture(scope="class", autouse=True)
-    def send_level(self):
-        with ahk.local_settings() as settings:
-            settings.send_level = 10
-            yield
+    @pytest.fixture(autouse=True)
+    def send_level(self, settings):
+        settings.send_level = 10
 
     @pytest.fixture(scope="class")
     def notepad(self, request):

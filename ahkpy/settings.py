@@ -15,10 +15,14 @@ _current_settings = contextvars.ContextVar('script_settings')
 
 @dc.dataclass
 class Settings:
+    control_delay: float = 0.02  # TODO: Implement control_delay.
     key_delay: float = 0.01
     key_duration: float = -1
     key_delay_play: float = -1
     key_duration_play: float = -1
+    mouse_delay: float = 0.01  # TODO: Implement mouse_delay.
+    mouse_delay_play: float = -1  # TODO: Implement mouse_delay_play.
+    mouse_speed: int = 2  # TODO: Implement mouse_speed.
     send_level: int = 0
     send_mode: str = "input"
     win_delay: float = 0.1

@@ -6,6 +6,7 @@ from . import keys
 from .converters import default, optional_ms
 from .exceptions import Error
 from .flow import ahk_call, global_ahk_lock
+from .settings import get_settings
 
 __all__ = [
     "Control",
@@ -17,7 +18,6 @@ __all__ = [
     "all_windows",
     "detect_hidden_text",
     "set_title_match_mode",
-    "set_win_delay",
     "visible_windows",
     "windows",
 ]
@@ -51,11 +51,6 @@ def set_title_match_mode(mode=None, speed=None):
         if speed.lower() not in speeds:
             raise ValueError(f"unknown speed {speed!r}")
         ahk_call("SetTitleMatchMode", speed)
-
-
-def set_win_delay(value):
-    # TODO: Should this function be a context manager?
-    ahk_call("SetWinDelay", optional_ms(value))
 
 
 @dc.dataclass(frozen=True)
@@ -144,7 +139,7 @@ class Windows:
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
         # WinWaitClose doesn't set Last Found Window, return False if the wait
         # was timed out.
-        timed_out = self._call("WinWaitClose", *self._include(), timeout or "", *self._exclude())
+        timed_out = self._call("WinWaitClose", *self._include(), timeout or "", *self._exclude(), set_delay=True)
         return not timed_out
 
     def _wait(self, cmd, timeout):
@@ -152,7 +147,7 @@ class Windows:
         # Window that is local to the current AHK thread. Let's retrieve it
         # while protecting it from being overwritten by other Python threads.
         with global_ahk_lock:
-            timed_out = self._call(cmd, *self._include(), timeout or "", *self._exclude())
+            timed_out = self._call(cmd, *self._include(), timeout or "", *self._exclude(), set_delay=True)
             if timed_out:
                 return Window(0)
             # Return the Last Found Window.
@@ -160,37 +155,38 @@ class Windows:
 
     def activate(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        self._call("WinActivate", *self._query())
-        if timeout is not None:
-            return self.wait_active(timeout=timeout)
+        with global_ahk_lock:
+            self._call("WinActivate", *self._query(), set_delay=True)
+            if timeout is not None:
+                return self.wait_active(timeout=timeout)
 
     def close(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        self._call("WinClose", *self._include(), timeout, *self._exclude())
+        self._call("WinClose", *self._include(), timeout, *self._exclude(), set_delay=True)
 
     def hide(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        self._call("WinHide", *self._query())
+        self._call("WinHide", *self._query(), set_delay=True)
 
     def kill(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None, timeout=None):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        self._call("WinKill", *self._include(), timeout, *self._exclude())
+        self._call("WinKill", *self._include(), timeout, *self._exclude(), set_delay=True)
 
     def maximize(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        self._call("WinMaximize", *self._query())
+        self._call("WinMaximize", *self._query(), set_delay=True)
 
     def minimize(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        self._call("WinMinimize", *self._query())
+        self._call("WinMinimize", *self._query(), set_delay=True)
 
     def restore(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        self._call("WinRestore", *self._query())
+        self._call("WinRestore", *self._query(), set_delay=True)
 
     def show(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        self._call("WinShow", *self._query())
+        self._call("WinShow", *self._query(), set_delay=True)
 
     def pin_to_top(self, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
@@ -258,14 +254,14 @@ class Windows:
         if self == Windows() and cmd == "WinMinimize":
             # If the filter matches all the windows, minimize everything except
             # the desktop window.
-            self._call("WinMinimizeAll")
+            self._call("WinMinimizeAll", set_delay=True)
             return
 
         query_hash = hash(self)
         query_hash_str = str(query_hash).replace("-", "m")  # AHK doesn't allow "-" in group names
         label = ""
         self._call("GroupAdd", query_hash_str, *self._include(), label, *self._exclude())
-        self._call(cmd, f"ahk_group {query_hash_str}", "", timeout)
+        self._call(cmd, f"ahk_group {query_hash_str}", "", timeout, set_delay=True)
         if timeout is not None:
             return not self.exist()
 
@@ -316,12 +312,14 @@ class Windows:
         ]
         return self.__class__.__qualname__ + f"({', '.join(field_strs)})"
 
-    def _call(self, cmd, *args):
+    def _call(self, cmd, *args, set_delay=False):
         with global_ahk_lock:
             if self.exclude_hidden_windows:
                 ahk_call("DetectHiddenWindows", "Off")
             else:
                 ahk_call("DetectHiddenWindows", "On")
+            if set_delay:
+                ahk_call("SetWinDelay", optional_ms(get_settings().win_delay))
             return ahk_call(cmd, *args)
 
     def _query(self):
@@ -367,7 +365,7 @@ class _Window:
     def __bool__(self):
         return self.id != 0
 
-    def _call(self, cmd, *args, exclude_hidden_windows=False):
+    def _call(self, cmd, *args, exclude_hidden_windows=False, set_delay=True):
         # Call the command only if the window was found previously. This makes
         # optional chaining possible. For example,
         # `ahk.windows.first(class_name="Notepad").close()` doesn't error out
@@ -379,6 +377,8 @@ class _Window:
                 ahk_call("DetectHiddenWindows", "Off")
             else:
                 ahk_call("DetectHiddenWindows", "On")
+            if set_delay:
+                ahk_call("SetWinDelay", optional_ms(get_settings().win_delay))
             return ahk_call(cmd, *args)
 
     def _include(self):
@@ -444,12 +444,15 @@ class Window(_Window):
         self.move(height=new_height)
 
     def move(self, x=None, y=None, width=None, height=None):
-        self._call("WinMove",
-                   *self._include(),
-                   default(int, x, ""),
-                   default(int, y, ""),
-                   default(int, width, ""),
-                   default(int, height, ""))
+        self._call(
+            "WinMove",
+            *self._include(),
+            default(int, x, ""),
+            default(int, y, ""),
+            default(int, width, ""),
+            default(int, height, ""),
+            set_delay=True,
+        )
 
     @property
     def is_active(self):
@@ -652,10 +655,10 @@ class Window(_Window):
         self._set("TransColor", ahk_value)
 
     def hide(self):
-        self._call("WinHide", *self._include())
+        self._call("WinHide", *self._include(), set_delay=True)
 
     def show(self):
-        self._call("WinShow", *self._include())
+        self._call("WinShow", *self._include(), set_delay=True)
 
     @property
     def is_visible(self):
@@ -690,40 +693,40 @@ class Window(_Window):
         return not timed_out
 
     def close(self, timeout=None):
-        self._call("WinClose", *self._include(), timeout)
+        self._call("WinClose", *self._include(), timeout, set_delay=True)
         if timeout is not None:
             # TODO: Test timeout.
             return not self.exists
 
     def kill(self, timeout=None):
-        self._call("WinKill", *self._include(), timeout)
+        self._call("WinKill", *self._include(), timeout, set_delay=True)
         if timeout is not None:
             # TODO: Test timeout.
             return not self.exists
 
     def maximize(self):
-        self._call("WinMaximize", *self._include())
+        self._call("WinMaximize", *self._include(), set_delay=True)
 
     def minimize(self):
-        self._call("WinMinimize", *self._include())
+        self._call("WinMinimize", *self._include(), set_delay=True)
 
     def restore(self):
-        self._call("WinRestore", *self._include())
+        self._call("WinRestore", *self._include(), set_delay=True)
 
     def wait_active(self, timeout=None):
-        timed_out = self._call("WinWaitActive", *self._include(), timeout)
+        timed_out = self._call("WinWaitActive", *self._include(), timeout, set_delay=True)
         return not timed_out
 
     def wait_inactive(self, timeout=None):
-        timed_out = self._call("WinWaitNotActive", *self._include(), timeout)
+        timed_out = self._call("WinWaitNotActive", *self._include(), timeout, set_delay=True)
         return not timed_out
 
     def wait_hidden(self, timeout=None):
-        timed_out = self._call("WinWaitClose", *self._include(), timeout, exclude_hidden_windows=True)
+        timed_out = self._call("WinWaitClose", *self._include(), timeout, exclude_hidden_windows=True, set_delay=True)
         return not timed_out
 
     def wait_close(self, timeout=None):
-        timed_out = self._call("WinWaitClose", *self._include(), timeout)
+        timed_out = self._call("WinWaitClose", *self._include(), timeout, set_delay=True)
         return not timed_out
 
     def send(self, keys):

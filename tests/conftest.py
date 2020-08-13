@@ -90,3 +90,10 @@ class ChildAHK:
 @pytest.fixture(params=range(20))
 def repeat(request):
     return
+
+
+@pytest.fixture()
+def settings():
+    import ahkpy as ahk
+    with ahk.local_settings() as settings:
+        yield settings

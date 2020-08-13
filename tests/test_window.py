@@ -8,7 +8,7 @@ import pytest
 import ahkpy as ahk
 
 
-def test_windows(child_ahk):
+def test_windows(child_ahk, settings):
     def windows():
         import ahkpy as ahk
         import sys
@@ -29,7 +29,7 @@ def test_windows(child_ahk):
     assert ahk.windows.get_active()
 
     child_ahk.popen_code(windows)
-    ahk.set_win_delay(None)
+    settings.win_delay = 0
 
     assert repr(ahk.windows) == "Windows(exclude_hidden_windows=True)"
 
@@ -115,7 +115,7 @@ def test_windows(child_ahk):
     ahk.send("{F24}")
 
 
-def test_window_obj(child_ahk):
+def test_window_obj(child_ahk, settings):
     def window():
         import ahkpy as ahk
         import sys
@@ -124,7 +124,7 @@ def test_window_obj(child_ahk):
         ahk.message_box("win1", title="win1")
 
     child_ahk.popen_code(window)
-    ahk.set_win_delay(None)
+    settings.win_delay = 0
 
     nonexistent_window = ahk.Window(99999)
     assert not nonexistent_window.exists
@@ -242,7 +242,7 @@ def test_status_bar(request):
     notepad_proc.terminate()
 
 
-def test_window_context(child_ahk):
+def test_window_context(child_ahk, settings):
     def code():
         import ahkpy as ahk
         import sys
@@ -254,7 +254,7 @@ def test_window_context(child_ahk):
 
     child_ahk.popen_code(code)
     child_ahk.wait(0)
-    ahk.set_win_delay(None)
+    settings.win_delay = 0
 
     general_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="General")
     context_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Context-specific")
@@ -271,7 +271,7 @@ def test_window_context(child_ahk):
     ahk.send("{F24}")
 
 
-def test_active_window_context(child_ahk):
+def test_active_window_context(child_ahk, settings):
     def code():
         import ahkpy as ahk
         import sys
@@ -283,7 +283,7 @@ def test_active_window_context(child_ahk):
 
     child_ahk.popen_code(code)
     child_ahk.wait(0)
-    ahk.set_win_delay(None)
+    settings.win_delay = 0
 
     general_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="General")
     context_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Context-specific")
@@ -306,7 +306,7 @@ def test_active_window_context(child_ahk):
     ahk.send("{F24}")
 
 
-def test_exclude_window_context(child_ahk):
+def test_exclude_window_context(child_ahk, settings):
     def code():
         import ahkpy as ahk
         import sys
@@ -320,7 +320,7 @@ def test_exclude_window_context(child_ahk):
 
     child_ahk.popen_code(code)
     child_ahk.wait(0)
-    ahk.set_win_delay(None)
+    settings.win_delay = 0
 
     general_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="General")
     non_general_windows = ahk.windows.filter(exe="AutoHotkey.exe").exclude(text="General")
@@ -342,7 +342,7 @@ def test_exclude_window_context(child_ahk):
     ahk.send("{F24}")
 
 
-def test_exclude_active_window_context(child_ahk):
+def test_exclude_active_window_context(child_ahk, settings):
     def code():
         import ahkpy as ahk
         import sys
@@ -356,7 +356,7 @@ def test_exclude_active_window_context(child_ahk):
 
     child_ahk.popen_code(code)
     child_ahk.wait(0)
-    ahk.set_win_delay(None)
+    settings.win_delay = 0
 
     general_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="General")
     non_general_windows = ahk.windows.filter(exe="AutoHotkey.exe").exclude(text="General")

@@ -5,7 +5,7 @@ import pytest
 import ahkpy as ahk
 
 
-def test_message_box(child_ahk):
+def test_message_box(child_ahk, settings):
     def msg_boxes_code():
         import ahkpy as ahk
         ahk.message_box()
@@ -14,7 +14,7 @@ def test_message_box(child_ahk):
         ahk.message_box("Do you want to continue? (Press YES or NO)", options=4)
 
     child_ahk.popen_code(msg_boxes_code)
-    ahk.set_win_delay(None)
+    settings.win_delay = 0
 
     msg_boxes = ahk.windows.filter(exe="AutoHotkey.exe")
 
