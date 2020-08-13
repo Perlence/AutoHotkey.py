@@ -4,9 +4,10 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Callable, Union
 
-from .converters import optional_ms
+from .converters import default, optional_ms
 from .exceptions import Error
 from .flow import ahk_call, global_ahk_lock
+from .settings import get_settings
 
 __all__ = [
     "Hotkey",
@@ -436,7 +437,7 @@ def _key_wait(key_name, down=False, logical_state=False, timeout=None) -> bool:
     return not timed_out
 
 
-def remap_key(origin_key, destination_key, *, mode=SendMode.INPUT, level=0):
+def remap_key(origin_key, destination_key, *, mode=SendMode.INPUT, level=None):
     # TODO: Handle LCtrl as the origin key.
     # TODO: Handle remapping keyboard key to a mouse button.
     # TODO: Implement context-specific remapping.
@@ -470,7 +471,7 @@ class RemappedKey:
         self.wildcard_origin_up.toggle()
 
 
-def send(keys, *, mode=SendMode.INPUT, level=0):
+def send(keys, *, mode=SendMode.INPUT, level=None):
     # TODO: Sending "{U+0009}" and "\u0009" gives different results depending on
     # how tabs are handled in the application.
     if isinstance(mode, str):
@@ -487,28 +488,46 @@ def send(keys, *, mode=SendMode.INPUT, level=0):
     send_func(keys, level=level)
 
 
-def send_input(keys, *, level=0):
+def send_input(keys, *, level=None):
     with global_ahk_lock:
         _send_level(level)
         ahk_call("SendInput", keys)
 
 
-def send_event(keys, *, level=0, delay=0.01, duration=None):
+def send_event(keys, *, level=None, delay=None, duration=None):
     with global_ahk_lock:
         _send_level(level)
-        # XXX: Should set_key_delay() be a context manager?
-        ahk_call("SetKeyDelay", optional_ms(delay), optional_ms(duration))
+        _set_key_delay(delay, duration)
         ahk_call("SendEvent", keys)
 
 
-def send_play(keys, *, level=0, delay=None, duration=None):
+def send_play(keys, *, level=None, delay=None, duration=None):
     with global_ahk_lock:
         _send_level(level)
-        ahk_call("SetKeyDelay", optional_ms(delay), optional_ms(duration), "Play")
+        _set_key_delay(delay, duration, play=True)
         ahk_call("SendPlay", keys)
 
 
-def _send_level(level: int):
-    if not 0 <= level <= 100:
+def _send_level(level):
+    if level is None:
+        level = get_settings().send_level
+    elif not 0 <= level <= 100:
         raise ValueError("level must be between 0 and 100")
     ahk_call("SendLevel", int(level))
+
+
+def _set_key_delay(delay, duration, play=False):
+    settings = get_settings()
+    if play:
+        ahk_call(
+            "SetKeyDelay",
+            optional_ms(default(delay, settings.key_delay_play)),
+            optional_ms(default(duration, settings.key_duration_play)),
+            "Play",
+        )
+    else:
+        ahk_call(
+            "SetKeyDelay",
+            optional_ms(default(delay, settings.key_delay)),
+            optional_ms(default(duration, settings.key_duration)),
+        )

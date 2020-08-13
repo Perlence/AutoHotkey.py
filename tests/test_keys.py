@@ -161,6 +161,12 @@ class TestHotkey:
 
 
 class TestHotstring:
+    @pytest.fixture(scope="class", autouse=True)
+    def send_level(self):
+        with ahk.local_settings() as settings:
+            settings.send_level = 10
+            yield
+
     @pytest.fixture(scope="class")
     def notepad(self, request):
         notepad_proc = subprocess.Popen(["notepad.exe"])
@@ -182,71 +188,71 @@ class TestHotstring:
     def test_simple(self, request, edit):
         dashes = ahk.hotstring("--", "—")
         request.addfinalizer(dashes.disable)
-        ahk.send("--", level=10)
+        ahk.send("--")
         ahk.sleep(0)
         assert edit.text == "--"
-        ahk.send(" ", level=10)
+        ahk.send(" ")
         ahk.sleep(0)
         assert edit.text == "— "
 
     def test_wait_for_and_omit_end_char(self, request, edit):
         jsmith = ahk.hotstring("j@", "jsmith@somedomain.com", wait_for_end_char=False)
         request.addfinalizer(jsmith.disable)
-        ahk.send("j@", level=10)
+        ahk.send("j@")
         ahk.sleep(0)
         assert edit.text == "jsmith@somedomain.com"
 
         edit.text = ""
         jsmith.update(wait_for_end_char=False, omit_end_char=False)
-        ahk.send("j@", level=10)
+        ahk.send("j@")
         ahk.sleep(0)
         assert edit.text == "jsmith@somedomain.com"
 
         edit.text = ""
         jsmith.update(wait_for_end_char=False, omit_end_char=True)
-        ahk.send("j@", level=10)
+        ahk.send("j@")
         ahk.sleep(0)
         assert edit.text == "jsmith@somedomain.com"
 
         edit.text = ""
         jsmith.update(omit_end_char=False)  # wait_for_end_char=False implied
-        ahk.send("j@", level=10)
+        ahk.send("j@")
         ahk.sleep(0)
         assert edit.text == "jsmith@somedomain.com"
 
         edit.text = ""
         jsmith.update(omit_end_char=True)
-        ahk.send("j@", level=10)
+        ahk.send("j@")
         ahk.sleep(0)
         assert edit.text == "j@"
-        ahk.send(" ", level=10)
+        ahk.send(" ")
         ahk.sleep(0)
         assert edit.text == "jsmith@somedomain.com"
 
         edit.text = ""
         jsmith.update(wait_for_end_char=True)  # omit_end_char implied
-        ahk.send("j@", level=10)
+        ahk.send("j@")
         ahk.sleep(0)
         assert edit.text == "j@"
-        ahk.send(" ", level=10)
+        ahk.send(" ")
         ahk.sleep(0)
         assert edit.text == "jsmith@somedomain.com"
 
         edit.text = ""
         jsmith.update(wait_for_end_char=True, omit_end_char=False)
-        ahk.send("j@", level=10)
+        ahk.send("j@")
         ahk.sleep(0)
         assert edit.text == "j@"
-        ahk.send(" ", level=10)
+        ahk.send(" ")
         ahk.sleep(0)
         assert edit.text == "jsmith@somedomain.com "
 
         edit.text = ""
         jsmith.update(wait_for_end_char=True, omit_end_char=True)
-        ahk.send("j@", level=10)
+        ahk.send("j@")
         ahk.sleep(0)
         assert edit.text == "j@"
-        ahk.send(" ", level=10)
+        ahk.send(" ")
         ahk.sleep(0)
         assert edit.text == "jsmith@somedomain.com"
 
@@ -254,124 +260,124 @@ class TestHotstring:
         dashes = ahk.hotstring("--", "—")
         request.addfinalizer(dashes.disable)
         dashes.update(wait_for_end_char=False)
-        ahk.send("--", level=10)
+        ahk.send("--")
         ahk.sleep(0)
         assert edit.text == "—"
 
         edit.text = ""
         dashes.update(wait_for_end_char=True)
-        ahk.send("--", level=10)
+        ahk.send("--")
         ahk.sleep(0)
         assert edit.text == "--"
-        ahk.send(" ", level=10)
+        ahk.send(" ")
         ahk.sleep(0)
         assert edit.text == "— "
 
     def test_on_off(self, request, edit):
         beep = ahk.hotstring("beep", "boop")
         request.addfinalizer(beep.disable)
-        ahk.send("Beep ", level=10)
+        ahk.send("Beep ")
         ahk.sleep(0)
         assert edit.text == "Boop "
 
         edit.text = ""
         beep.disable()
-        ahk.send("Beep ", level=10)
+        ahk.send("Beep ")
         ahk.sleep(0)
         assert edit.text == "Beep "
 
         edit.text = ""
         beep.enable()
-        ahk.send("Beep ", level=10)
+        ahk.send("Beep ")
         ahk.sleep(0)
         assert edit.text == "Boop "
 
         edit.text = ""
         beep.toggle()
-        ahk.send("Beep ", level=10)
+        ahk.send("Beep ")
         ahk.sleep(0)
         assert edit.text == "Beep "
 
     def test_case_sensitive(self, request, edit):
         case = ahk.hotstring("CaSe", "EsAc", case_sensitive=True)
         request.addfinalizer(case.disable)
-        ahk.send("case ", level=10)
+        ahk.send("case ")
         ahk.sleep(0)
         assert edit.text == "case "
-        ahk.send("CaSe ", level=10)
+        ahk.send("CaSe ")
         ahk.sleep(0)
         assert edit.text == "case EsAc "
 
     def test_decorator(self, request, edit):
         @ahk.hotstring("blarp")
         def blarp():
-            ahk.send('boop ', level=10)
+            ahk.send('boop ')
 
         request.addfinalizer(blarp.disable)
-        ahk.send("blarp", level=10)
+        ahk.send("blarp")
         ahk.sleep(0)
         assert edit.text == "blarp"
-        ahk.send(" ", level=10)
+        ahk.send(" ")
         ahk.sleep(0)
         assert edit.text == "boop "
 
     def test_replace_inside_word(self, request, edit):
         airline = ahk.hotstring("al", "airline", replace_inside_word=True)
         request.addfinalizer(airline.disable)
-        ahk.send("practical ", level=10)
+        ahk.send("practical ")
         ahk.sleep(0)
         assert edit.text == "practicairline "
 
     def test_no_backspacing(self, request, edit):
         em = ahk.hotstring("<em>", "</em>{left 5}", wait_for_end_char=False, backspacing=False)
         request.addfinalizer(em.disable)
-        ahk.send("hello <em>world", level=10)
+        ahk.send("hello <em>world")
         ahk.sleep(0)
         assert edit.text == "hello <em>world</em>"
 
     def test_conform_to_case(self, request, edit):
         pillow = ahk.hotstring("pillow", "wollip", conform_to_case=False)
         request.addfinalizer(pillow.disable)
-        ahk.send("pillow ", level=10)
+        ahk.send("pillow ")
         ahk.sleep(0)
         assert edit.text == "wollip "
 
         edit.text = ""
-        ahk.send("PILLOW ", level=10)
+        ahk.send("PILLOW ")
         ahk.sleep(0)
         assert edit.text == "wollip "
 
         edit.text = ""
-        ahk.send("PiLLoW ", level=10)
+        ahk.send("PiLLoW ")
         ahk.sleep(0)
         assert edit.text == "wollip "
 
     def test_reset_recognizer(self, request, edit):
         @ahk.hotstring("11", backspacing=False, wait_for_end_char=False, replace_inside_word=True)
         def eleven():
-            ahk.send("xx")
+            ahk.send("xx", level=0)
 
         request.addfinalizer(eleven.disable)
-        ahk.send("11", level=10)
+        ahk.send("11")
         ahk.sleep(0)
         assert edit.text == "11xx"
-        ahk.send("1 ", level=10)
+        ahk.send("1 ")
         ahk.sleep(0)
         assert edit.text == "11xx1 xx"
 
         edit.text = ""
         eleven.update(reset_recognizer=True)
-        ahk.send("11", level=10)
+        ahk.send("11")
         ahk.sleep(0)
         assert edit.text == "11xx"
-        ahk.send("1 ", level=10)
+        ahk.send("1 ")
         ahk.sleep(0)
         assert edit.text == "11xx1 "
 
     def test_text(self, request, edit):
         gyre = ahk.hotstring("gyre", "{F13}eryg", text=True)
         request.addfinalizer(gyre.disable)
-        ahk.send("gyre ", level=10)
+        ahk.send("gyre ")
         ahk.sleep(0)
         assert edit.text == "{F13}eryg "
 
@@ -379,21 +385,21 @@ class TestHotstring:
         notepad_ctx = ahk.windows.active_window_context(class_name="Notepad")
         padnote = notepad_ctx.hotstring("notepad", "padnote")
         request.addfinalizer(padnote.disable)
-        ahk.send("notepad ", level=10)
+        ahk.send("notepad ")
         ahk.sleep(0)
         assert edit.text == "padnote "
 
     def test_reset_hotstring(self, request, edit):
         malaise = ahk.hotstring("malaise", "redacted")
         request.addfinalizer(malaise.disable)
-        ahk.send("malaise ", level=10)
+        ahk.send("malaise ")
         ahk.sleep(0)
         assert edit.text == "redacted "
 
         edit.text = ""
-        ahk.send("mala", level=10)
+        ahk.send("mala")
         ahk.reset_hotstring()
-        ahk.send("ise ", level=10)
+        ahk.send("ise ")
         ahk.sleep(0)
         assert edit.text == "malaise "
 
@@ -405,12 +411,12 @@ class TestHotstring:
         ahk.set_hotstring_end_chars(".")
         assert ahk.get_hotstring_end_chars() == "."
 
-        ahk.send("vivacious ", level=10)
+        ahk.send("vivacious ")
         ahk.sleep(0)
         assert edit.text == "vivacious "
 
         edit.text = ""
-        ahk.send("vivacious.", level=10)
+        ahk.send("vivacious.")
         ahk.sleep(0)
         assert edit.text == "redacted."
 
@@ -420,18 +426,18 @@ class TestHotstring:
         prior_mouse_reset = ahk.get_hotstring_mouse_reset()
         request.addfinalizer(lambda: ahk.set_hotstring_mouse_reset(prior_mouse_reset))
 
-        ahk.send("fer", level=10)
+        ahk.send("fer")
         _ahk.call("Click", 0, 0)  # TODO: Replace with a Python function.
-        ahk.send("ret ", level=10)
+        ahk.send("ret ")
         ahk.sleep(0)
         assert edit.text == "ferret "
 
         edit.text = ""
         ahk.set_hotstring_mouse_reset(False)
         ahk.get_hotstring_mouse_reset() is False
-        ahk.send("fer", level=10)
+        ahk.send("fer")
         _ahk.call("Click", 0, 0)  # TODO: Replace with a Python function.
-        ahk.send("ret ", level=10)
+        ahk.send("ret ")
         ahk.sleep(0)
         assert edit.text == "redacted "
 

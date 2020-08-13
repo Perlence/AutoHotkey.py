@@ -1,8 +1,8 @@
 import ctypes
+import dataclasses as dc
 import sys
 import queue
 import threading
-from dataclasses import dataclass
 from typing import Callable
 
 import _ahk  # noqa
@@ -18,6 +18,7 @@ __all__ = [
     "suspend",
     "toggle_suspend",
 ]
+
 
 global_ahk_lock = threading.RLock()
 
@@ -45,7 +46,7 @@ def set_timer(func=None, period=0.25, countdown=None, priority=0):
     return set_timer_decorator(func)
 
 
-@dataclass(frozen=True)
+@dc.dataclass(frozen=True)
 class Timer:
     func: Callable
     __slots__ = tuple(__annotations__.keys())

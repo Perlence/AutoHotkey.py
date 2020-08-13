@@ -22,6 +22,7 @@ from .exceptions import *  # noqa
 from .flow import *  # noqa
 from .gui import *  # noqa
 from .keys import *  # noqa
+from .settings import *  # noqa
 from .window import *  # noqa
 
 __version__ = "0.1.dev"
