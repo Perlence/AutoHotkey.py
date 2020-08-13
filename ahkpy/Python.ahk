@@ -330,7 +330,7 @@ PythonArgsToAHK(pyArgs) {
 
 PythonToAHK(pyObject, borrowed:=True) {
     ; TODO: Convert dicts to objects and lists to arrays.
-    if (pyObject == Py_None) {
+    if (pyObject == Py_None or pyObject == Py_EmptyString) {
         return ""
     } else if (PyUnicode_Check(pyObject)) {
         return PyUnicode_AsWideCharString(pyObject)
