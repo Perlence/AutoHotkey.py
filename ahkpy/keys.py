@@ -518,7 +518,7 @@ def _send_level(level):
     ahk_call("SendLevel", int(level))
 
 
-def _set_key_delay(delay, duration, play=False):
+def _set_key_delay(delay=None, duration=None, play=False):
     settings = get_settings()
     if play:
         ahk_call(

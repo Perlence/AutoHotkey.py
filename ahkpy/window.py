@@ -290,10 +290,11 @@ class Windows:
         return WindowHotkeyContext(cmd, *self._include())
 
     def send(self, keys, title=None, *, class_name=None, id=None, pid=None, exe=None, text=None):
-        # TODO: Implement SetKeyDelay parameters.
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        control = ""
-        self._call("ControlSend", control, str(keys), *self._query())
+        with global_ahk_lock:
+            keys._set_key_delay()
+            control = ""
+            self._call("ControlSend", control, str(keys), *self._query())
 
     def __iter__(self):
         """Return matching windows ordered from top to bottom."""
@@ -731,8 +732,10 @@ class Window(_Window):
 
     def send(self, keys):
         # TODO: Implement SetKeyDelay parameters.
-        control = ""
-        self._call("ControlSend", control, str(keys), *self._include())
+        with global_ahk_lock:
+            keys._set_key_delay()
+            control = ""
+            self._call("ControlSend", control, str(keys), *self._include())
 
     def send_message(self, msg, w_param, l_param, timeout=5):
         control = exclude_title = exclude_text = ""
