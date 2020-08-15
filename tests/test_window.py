@@ -126,9 +126,6 @@ def test_window_obj(child_ahk, settings):
     child_ahk.popen_code(window)
     settings.win_delay = 0
 
-    nonexistent_window = ahk.Window(99999)
-    assert not nonexistent_window.exists
-
     win1 = ahk.windows.wait(title="win1", exe="AutoHotkey.exe")
     assert win1
     assert hash(win1) == hash(ahk.Window(win1.id))
@@ -151,15 +148,11 @@ def test_window_obj(child_ahk, settings):
     assert win1.title == "win111"
 
     assert win1.pid > 0
-    assert nonexistent_window.pid is None
 
     assert win1.process_name == "AutoHotkey.exe"
-    assert nonexistent_window.process_name is None
 
     assert win1.process_path.endswith(win1.process_name)
-    assert nonexistent_window.process_path is None
 
-    assert nonexistent_window.opacity is None
     assert win1.opacity is None
     win1.opacity = 128
     assert win1.opacity == 128
@@ -177,10 +170,6 @@ def test_window_obj(child_ahk, settings):
     assert win1.is_visible is False
     win1.show()
     assert win1.is_visible
-
-    assert nonexistent_window.is_minimized is None
-    assert nonexistent_window.is_maximized is None
-    assert nonexistent_window.is_restored is None
 
     win1.maximize()
     assert win1.is_maximized
@@ -210,8 +199,11 @@ def test_window_obj(child_ahk, settings):
     win1.unpin_from_top()
     assert win1.always_on_top is False
 
+    assert win1.get_status_bar_text() is None
+
     assert win1.control_class_names() == ["Button1", "Static1"]
     assert win1.controls() == list(map(win1.get_control, win1.control_class_names()))
+    assert win1.get_control('nooooooooooo') is None
 
     assert isinstance(win1.style, ahk.WindowStyle)
     assert ahk.WindowStyle.POPUPWINDOW in win1.style
@@ -220,6 +212,45 @@ def test_window_obj(child_ahk, settings):
     assert win1.ex_style > 0
 
     ahk.send("{F24}")
+
+
+def test_nonexistent_window():
+    win = ahk.Window(-1)
+    assert win.id == -1
+    assert not win.exists
+    assert not win.is_active
+    assert win.process_path is None
+    assert win.title is None
+    win.title = 'beep'
+    assert win.title is None
+    assert win.class_name is None
+    assert win.pid is None
+    assert win.process_name is None
+    assert win.x is None
+    win.x = 99
+    assert win.x is None
+    assert win.width is None
+    assert win.is_minimized is None
+    assert win.is_maximized is None
+    assert win.is_restored is None
+    assert win.text is None
+    assert win.control_class_names() is None
+    assert win.controls() is None
+    assert win.get_control("nope") is None
+    assert win.always_on_top is None
+    assert win.is_enabled is None
+    assert win.style is None
+    assert win.ex_style is None
+    assert win.opacity is None
+    assert win.transparent_color is None
+    assert win.is_visible is None
+    assert win.get_status_bar_text() is None
+    assert win.wait_status_bar("sus") is None
+    assert win.wait_active(timeout=0.1) is False
+    assert win.wait_inactive(timeout=0.1) is True
+    assert win.wait_hidden(timeout=0.1) is True
+    assert win.wait_close(timeout=0.1) is True
+    assert len(ahk.windows.filter(title=win.title)) == 0
 
 
 def test_status_bar(request):
@@ -236,6 +267,7 @@ def test_status_bar(request):
     assert "Ln 1, Col 2" in notepad_win.get_status_bar_text(2)
 
     ahk.set_timer(partial(notepad_win.send, "q"), countdown=0.5)
+    assert notepad_win.wait_status_bar("  Ln 1, Col x", part=2, timeout=0.1) is False
     assert notepad_win.wait_status_bar("  Ln 1, Col 3", part=2, timeout=1) is True
     assert notepad_win.get_status_bar_text(2) == "  Ln 1, Col 3"
 

@@ -14,7 +14,7 @@ __all__ = [
 ]
 
 
-NOTSET = object()
+UNSET = object()
 
 
 class CoordMode(enum.Enum):
@@ -79,15 +79,15 @@ class ToolTip:
         self.y = y
         self.coord_mode = coord_mode
 
-    def show(self, text=None, x=NOTSET, y=NOTSET, coord_mode=None):
+    def show(self, text=None, x=UNSET, y=UNSET, coord_mode=None):
         if not text and not self.text:
             raise ValueError("text must not be empty")
         elif text:
             self.text = text
 
-        if x is not NOTSET:
+        if x is not UNSET:
             self.x = x
-        if y is not NOTSET:
+        if y is not UNSET:
             self.y = y
         x = self.x if self.x is not None else ""
         y = self.y if self.y is not None else ""

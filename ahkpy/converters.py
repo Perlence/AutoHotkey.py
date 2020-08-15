@@ -2,10 +2,10 @@ def identity(a):
     return a
 
 
-def default(a, b, func=identity):
+def default(a, b, func=identity, *, none=None):
     if func is not identity:
         func, a, b = a, b, func
-    if a is not None:
+    if a is not none:
         return func(a)
     return b
 
