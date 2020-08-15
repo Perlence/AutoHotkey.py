@@ -398,7 +398,10 @@ class Window(_Window):
     @property
     def rect(self):
         result = self._call("WinGetPos", *self._include())
-        x, y, width, height = result["X"], result["Y"], result["Width"], result["Height"]
+        if result is not None:
+            x, y, width, height = result["X"], result["Y"], result["Width"], result["Height"]
+        else:
+            x, y, width, height = None, None, None, None
         return (
             x if x != "" else None,
             y if y != "" else None,
@@ -470,11 +473,11 @@ class Window(_Window):
 
     @property
     def is_active(self):
-        return self._call("WinActive", *self._include()) != 0
+        return bool(self._call("WinActive", *self._include()))
 
     @property
     def exists(self):
-        return self._call("WinExist", *self._include()) != 0
+        return bool(self._call("WinExist", *self._include()))
 
     @property
     def class_name(self):
@@ -778,22 +781,29 @@ class Window(_Window):
 
     def wait_active(self, timeout=None):
         timed_out = self._call("WinWaitActive", *self._include(), timeout, set_delay=True)
+        if timed_out is None:
+            return False
         return not timed_out
 
     def wait_inactive(self, timeout=None):
         timed_out = self._call("WinWaitNotActive", *self._include(), timeout, set_delay=True)
+        if timed_out is None:
+            return True
         return not timed_out
 
     def wait_hidden(self, timeout=None):
         timed_out = self._call("WinWaitClose", *self._include(), timeout, exclude_hidden_windows=True, set_delay=True)
+        if timed_out is None:
+            return True
         return not timed_out
 
     def wait_close(self, timeout=None):
         timed_out = self._call("WinWaitClose", *self._include(), timeout, set_delay=True)
+        if timed_out is None:
+            return True
         return not timed_out
 
     def send(self, keys):
-        # TODO: Implement SetKeyDelay parameters.
         with global_ahk_lock:
             hotkeys._set_key_delay()
             control = ""

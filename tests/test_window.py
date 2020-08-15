@@ -214,6 +214,45 @@ def test_window_obj(child_ahk, settings):
     ahk.send("{F24}")
 
 
+def test_null_window():
+    win = ahk.Window(0)
+    assert win.id == 0
+    assert not win.exists
+    assert not win.is_active
+    assert win.process_path is None
+    assert win.title is None
+    win.title = 'beep'
+    assert win.title is None
+    assert win.class_name is None
+    assert win.pid is None
+    assert win.process_name is None
+    assert win.x is None
+    win.x = 99
+    assert win.x is None
+    assert win.width is None
+    assert win.is_minimized is None
+    assert win.is_maximized is None
+    assert win.is_restored is None
+    assert win.text is None
+    assert win.control_class_names() is None
+    assert win.controls() is None
+    assert win.get_control("nope") is None
+    assert win.always_on_top is None
+    assert win.is_enabled is None
+    assert win.style is None
+    assert win.ex_style is None
+    assert win.opacity is None
+    assert win.transparent_color is None
+    assert win.is_visible is None
+    assert win.get_status_bar_text() is None
+    assert win.wait_status_bar("sus") is None
+    assert win.wait_active(timeout=0.1) is False
+    assert win.wait_inactive(timeout=0.1) is True
+    assert win.wait_hidden(timeout=0.1) is True
+    assert win.wait_close(timeout=0.1) is True
+    assert len(ahk.windows.filter(title=win.title)) == 0
+
+
 def test_nonexistent_window():
     win = ahk.Window(-1)
     assert win.id == -1
