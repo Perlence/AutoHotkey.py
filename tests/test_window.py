@@ -291,6 +291,40 @@ def test_hidden_text():
     assert bar
 
 
+def test_title_match_mode(child_ahk, settings):
+    def code():
+        import ahkpy as ahk
+        import sys
+        ahk.hotkey("F24", sys.exit)
+        ahk.message_box("Hello", title="AutoHotkey")
+
+    child_ahk.popen_code(code)
+    settings.win_delay = 0
+
+    ahk_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Hello")
+
+    assert ahk_windows.wait(timeout=1)
+
+    assert ahk_windows.exist(title="AutoHot")
+    assert ahk_windows.exist(title="AutoHot", match="startswith")
+    assert not ahk_windows.exist(title="utoHot", match="startswith")
+
+    assert ahk_windows.exist(title="AutoHot", match="contains")
+    assert ahk_windows.exist(title="toHot", match="contains")
+
+    assert ahk_windows.exist(title="AutoHotkey", match="exact")
+    assert not ahk_windows.exist(title="AutoHot", match="exact")
+    assert not ahk_windows.exist(title="toHot", match="exact")
+
+    assert ahk_windows.exist(title=r"Hotkey$", match="regex")
+    assert ahk_windows.exist(exe=r"utoHotkey\.exe", match="regex")
+
+    with pytest.raises(ValueError, match="is not a valid TitleMatchMode"):
+        assert ahk_windows.exist(title="AutoHot", match="nooo")
+
+    ahk.send("{F24}")
+
+
 def test_window_context(child_ahk, settings):
     def code():
         import ahkpy as ahk
