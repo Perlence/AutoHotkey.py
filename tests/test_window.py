@@ -431,4 +431,30 @@ def assert_equals_eventually(func, expected, timeout=1):
     assert actual == expected
 
 
+def test_detect_hidden_context(child_ahk, settings):
+    def code():
+        import ahkpy as ahk
+        import sys
+        ahk.hotkey("F24", sys.exit)
+        ctx = ahk.windows.window_context(exe="AutoHotkey.exe")
+        ctx.hotkey("F13", lambda: ahk.message_box("Context-specific"))
+        ahk.Window(-1).exists  # This sets DetectHiddenWindows, On
+        print("ok00")
+
+    child_ahk.popen_code(code)
+    child_ahk.wait(0)
+    settings.win_delay = 0
+
+    ahk_windows = ahk.windows.filter(exe="AutoHotkey.exe")
+    context_windows = ahk_windows.filter(text="Context-specific")
+
+    assert not ahk_windows.exist()
+    assert ahk_windows.exclude(hidden_windows=False).exist()
+    # XXX: Why doesn't child AHK recognize F13 unless the level is set?
+    ahk.send("{F13}", level=10)
+    assert not context_windows.wait(timeout=0.1)
+
+    ahk.send("{F24}")
+
+
 # TODO: Write nonexistent/inactive window context tests.

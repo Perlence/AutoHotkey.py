@@ -12,7 +12,6 @@ __all__ = [
     "Control",
     "ExWindowStyle",
     "Window",
-    "WindowHotkeyContext",
     "Windows",
     "WindowStyle",
     "all_windows",
@@ -265,28 +264,25 @@ class Windows:
             return not self.exist()
 
     def window_context(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET):
+        # Not using Hotkey, IfWinActive/Exist because:
+        #
+        # 1. It doesn't support excluding windows.
+        # 2. It doesn't set DetectHiddenWindows from the given query before
+        #    enumerating the windows.
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        return self._hotkey_context("IfWinExist", lambda: self.exist())
+        return hotkeys.HotkeyContext(lambda: self.exist())
 
     def nonexistent_window_context(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        return self._hotkey_context("IfWinNotExist", lambda: not self.exist())
+        return hotkeys.HotkeyContext(lambda: not self.exist())
 
     def active_window_context(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        return self._hotkey_context("IfWinActive", lambda: self.get_active())
+        return hotkeys.HotkeyContext(lambda: self.get_active())
 
     def inactive_window_context(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
-        return self._hotkey_context("IfWinNotActive", lambda: not self.get_active())
-
-    def _hotkey_context(self, cmd, predicate):
-        if self._exclude() != ("", ""):
-            # The Hotkey, IfWin command doesn't support excluding windows, let's
-            # implement it.
-            return hotkeys.HotkeyContext(predicate)
-
-        return WindowHotkeyContext(cmd, *self._include())
+        return hotkeys.HotkeyContext(lambda: not self.get_active())
 
     def send(self, keys, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text)
@@ -364,7 +360,7 @@ all_windows = Windows(exclude_hidden_windows=False)
 
 @dc.dataclass(frozen=True)
 class _Window:
-    # I'd like the Window and Control class to be hashable, and making the
+    # I'd like the Window and Control classes to be hashable, and making the
     # dataclass frozen also makes it hashable. However, frozen dataclasses
     # cannot have setter properties unless it's a subclass.
 
@@ -848,21 +844,6 @@ class Control(_Window):
         result = self._call("ControlGet", subcmd, value, "", *self._include())
         if result != "":
             return result
-
-
-@dc.dataclass(frozen=True)
-class WindowHotkeyContext(hotkeys.BaseHotkeyContext):
-    # FIXME: Title and text have different modes that depend on global config.
-    # This makes win_title and win_text not enough to identify the context.
-    cmd: str
-    win_title: str
-    win_text: str
-
-    def _enter(self):
-        ahk_call("HotkeyWinContext", self.cmd, self.win_title, self.win_text)
-
-    def _exit(self):
-        ahk_call("HotkeyExitContext")
 
 
 class WindowStyle(enum.IntFlag):

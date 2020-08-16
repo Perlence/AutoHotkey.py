@@ -203,10 +203,6 @@ _HotkeyContext(Predicate) {
     Hotkey, If, %Predicate%
 }
 
-_HotkeyWinContext(Cmd, WinTitle="", WinText="") {
-    Hotkey, %Cmd%,%WinTitle%,%WinText%
-}
-
 _HotkeyExitContext() {
     Hotkey, If
 }
