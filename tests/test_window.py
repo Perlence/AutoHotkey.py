@@ -31,10 +31,10 @@ def test_windows(child_ahk, settings):
     child_ahk.popen_code(windows)
     settings.win_delay = 0
 
-    assert repr(ahk.windows) == "Windows(exclude_hidden_windows=True)"
+    assert repr(ahk.windows) == "Windows()"
 
     msg_boxes = ahk.windows.filter(exe="AutoHotkey.exe")
-    assert repr(msg_boxes) == "Windows(exe='AutoHotkey.exe', exclude_hidden_windows=True)"
+    assert repr(msg_boxes) == "Windows(exe='AutoHotkey.exe')"
 
     wait_result = msg_boxes.wait(timeout=1)
     assert wait_result is not None
@@ -276,6 +276,19 @@ def test_status_bar(request):
     assert notepad_win.get_status_bar_text(2) == "  Ln 1, Col 3"
 
     notepad_proc.terminate()
+
+
+def test_hidden_text():
+    msg = "Type here to search"
+    bar = ahk.windows.first(class_name="Shell_TrayWnd")
+    assert bar
+    assert msg in bar.text
+
+    bar = ahk.windows.first(class_name="Shell_TrayWnd", text=msg)
+    assert not bar
+
+    bar = ahk.windows.exclude(hidden_text=False).first(class_name="Shell_TrayWnd", text=msg)
+    assert bar
 
 
 def test_window_context(child_ahk, settings):

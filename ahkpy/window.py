@@ -15,17 +15,10 @@ __all__ = [
     "Windows",
     "WindowStyle",
     "all_windows",
-    "detect_hidden_text",
     "set_title_match_mode",
     "visible_windows",
     "windows",
 ]
-
-
-def detect_hidden_text(value):
-    # TODO: Make this function a Windows.filter() parameter.
-    value = "On" if value else "Off"
-    ahk_call("DetectHiddenText", value)
 
 
 def set_title_match_mode(mode=None, speed=None):
@@ -65,10 +58,10 @@ class Windows:
     text: str = UNSET
     exclude_title: str = UNSET
     exclude_text: str = UNSET
-    exclude_hidden_windows: bool = True
+    exclude_hidden_windows: bool = UNSET  # True by default
+    exclude_hidden_text: bool = UNSET  # True by default
 
     def filter(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET):
-        # XXX: Consider adding the "detect_hidden_text" parameter.
         # XXX: Consider adding the "title_match_mode" parameter.
         if title is UNSET and class_name is UNSET and id is UNSET and pid is UNSET and exe is UNSET and text is UNSET:
             return self
@@ -82,16 +75,17 @@ class Windows:
             text=default(text, self.text, none=UNSET),
         )
 
-    def exclude(self, title=UNSET, *, text=UNSET, hidden_windows=UNSET):
+    def exclude(self, title=UNSET, *, text=UNSET, hidden_windows=UNSET, hidden_text=UNSET):
         # XXX: Consider implementing class_name, id, pid, and exe exclusion in
         # Python.
-        if title is UNSET and text is UNSET and hidden_windows is UNSET:
+        if title is UNSET and text is UNSET and hidden_windows is UNSET and hidden_text is UNSET:
             return self
         return dc.replace(
             self,
             exclude_title=default(title, self.exclude_title, none=UNSET),
             exclude_text=default(text, self.exclude_text, none=UNSET),
             exclude_hidden_windows=default(hidden_windows, self.exclude_hidden_windows, none=UNSET),
+            exclude_hidden_text=default(hidden_text, self.exclude_hidden_text, none=UNSET),
         )
 
     def exist(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET):
@@ -318,10 +312,15 @@ class Windows:
             # Querying a non-existent window's attributes.
             return
         with global_ahk_lock:
-            if self.exclude_hidden_windows:
+            if self.exclude_hidden_windows:  # Also matches UNSET
                 ahk_call("DetectHiddenWindows", "Off")
             else:
                 ahk_call("DetectHiddenWindows", "On")
+            if self.text is not UNSET:
+                if self.exclude_hidden_text:  # Also matches UNSET
+                    ahk_call("DetectHiddenText", "Off")
+                else:
+                    ahk_call("DetectHiddenText", "On")
             if set_delay:
                 ahk_call("SetWinDelay", optional_ms(get_settings().win_delay))
             return ahk_call(cmd, *args)
