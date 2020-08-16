@@ -187,8 +187,8 @@ _Hotkey(ContextID, KeyName, Func, Options) {
     if (Func) {
         ; TODO: The order of modifier keys doesn't matter in the KeyName.
         oldFunc := CALLBACKS["Hotkey" ContextID " " KeyName]
-        if (oldFunc and oldFunc != "FREE" and Func["pyFunc"] != oldFunc["pyFunc"]) {
-            WRAPPED_PYTHON_FUNCTIONS[oldFunc["pyFunc"]] := "FREE"
+        if (oldFunc and Func["pyFunc"] != oldFunc["pyFunc"]) {
+            WRAPPED_PYTHON_FUNCTIONS[oldFunc["pyFunc"]] := ""
         }
         CALLBACKS["Hotkey" ContextID " " KeyName] := Func
     }

@@ -374,7 +374,7 @@ class WrappedPythonFunction {
 
 FreeWrappedFunctions() {
     for pyFunc, value in WRAPPED_PYTHON_FUNCTIONS {
-        if (value == "FREE") {
+        if (value == "") {
             WRAPPED_PYTHON_FUNCTIONS.Delete(pyFunc)
             Py_DecRef(pyFunc)
         }
