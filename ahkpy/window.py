@@ -29,6 +29,11 @@ class TitleMatchMode(enum.Enum):
     REGEX = "regex"
 
 
+class TextMatchMode(enum.Enum):
+    FAST = "fast"
+    SLOW = "slow"
+
+
 class UnsetType:
     def __repr__(self):
         return "UNSET"
@@ -59,9 +64,8 @@ class Windows:
     exclude_text: str = UNSET
     exclude_hidden_windows: bool = UNSET  # True by default
     exclude_hidden_text: bool = UNSET  # True by default
-    match: str = UNSET  # "startswith" by default
-    # TODO: Implement setting match_speed.
-    match_speed: str = UNSET  # "fast" by default
+    title_mode: str = UNSET  # "startswith" by default
+    text_mode: str = UNSET  # "fast" by default
 
     def filter(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
         if (
@@ -70,7 +74,7 @@ class Windows:
         ):
             return self
 
-        if match is not UNSET and isinstance(match, str):
+        if isinstance(match, str):
             match = TitleMatchMode(match.lower())
 
         return dc.replace(
@@ -81,7 +85,7 @@ class Windows:
             pid=default(pid, self.pid, none=UNSET),
             exe=default(exe, self.exe, none=UNSET),
             text=default(text, self.text, none=UNSET),
-            match=default(match, self.match, none=UNSET),
+            title_mode=default(match, self.title_mode, none=UNSET),
         )
 
     def exclude(self, title=UNSET, *, text=UNSET, hidden_windows=UNSET, hidden_text=UNSET):
@@ -96,6 +100,13 @@ class Windows:
             exclude_hidden_windows=default(hidden_windows, self.exclude_hidden_windows, none=UNSET),
             exclude_hidden_text=default(hidden_text, self.exclude_hidden_text, none=UNSET),
         )
+
+    def match_text_slow(self, is_slow=True):
+        # Not including the parameter in filter() because it's used very rarely.
+        if is_slow:
+            return dc.replace(self, text_mode=TextMatchMode.SLOW)
+        else:
+            return dc.replace(self, text_mode=TextMatchMode.FAST)
 
     @filtering
     def exist(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
@@ -344,16 +355,23 @@ class Windows:
                 else:
                     ahk_call("DetectHiddenText", "On")
 
-            if self.match is TitleMatchMode.STARTSWITH or self.match is UNSET:
+            if self.title_mode is TitleMatchMode.STARTSWITH or self.title_mode is UNSET:
                 ahk_call("SetTitleMatchMode", 1)
-            elif self.match is TitleMatchMode.CONTAINS:
+            elif self.title_mode is TitleMatchMode.CONTAINS:
                 ahk_call("SetTitleMatchMode", 2)
-            elif self.match is TitleMatchMode.EXACT:
+            elif self.title_mode is TitleMatchMode.EXACT:
                 ahk_call("SetTitleMatchMode", 3)
-            elif self.match is TitleMatchMode.REGEX:
+            elif self.title_mode is TitleMatchMode.REGEX:
                 ahk_call("SetTitleMatchMode", "regex")
             else:
-                raise ValueError(f"unknown title match mode: {self.match!r}")
+                raise ValueError(f"unknown title match mode: {self.title_mode!r}")
+
+            if self.text_mode is TextMatchMode.FAST or self.text_mode is UNSET:
+                ahk_call("SetTitleMatchMode", "fast")
+            elif self.text_mode is TextMatchMode.SLOW:
+                ahk_call("SetTitleMatchMode", "slow")
+            else:
+                raise ValueError(f"unknown text match mode: {self.text_mode!r}")
 
             if set_delay:
                 ahk_call("SetWinDelay", optional_ms(get_settings().win_delay))

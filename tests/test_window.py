@@ -325,6 +325,24 @@ def test_title_match_mode(child_ahk, settings):
     ahk.send("{F24}")
 
 
+def test_match_text_slow(request):
+    notepad_proc = subprocess.Popen(["notepad.exe"])
+    request.addfinalizer(notepad_proc.terminate)
+    notepad_win = ahk.windows.wait(pid=notepad_proc.pid)
+    assert notepad_win
+
+    text = "beep boop autohotkey"
+    notepad_win.send("{Text}" + text)
+    ahk.sleep(0.1)
+    assert text in notepad_win.text
+
+    text_filter = ahk.windows.filter(exe="Notepad.exe", text=text)
+    assert not text_filter.exist()
+    assert text_filter.match_text_slow().exist()
+
+    ahk.send("{F24}")
+
+
 def test_window_context(child_ahk, settings):
     def code():
         import ahkpy as ahk
