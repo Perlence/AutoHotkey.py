@@ -285,10 +285,10 @@ def test_hidden_text():
     assert msg in bar.text
 
     bar = ahk.windows.first(class_name="Shell_TrayWnd", text=msg)
-    assert not bar
-
-    bar = ahk.windows.exclude(hidden_text=False).first(class_name="Shell_TrayWnd", text=msg)
     assert bar
+
+    bar = ahk.windows.exclude_hidden_text().first(class_name="Shell_TrayWnd", text=msg)
+    assert not bar
 
 
 def test_title_match_mode(child_ahk, settings):
@@ -514,7 +514,7 @@ def test_detect_hidden_context(child_ahk, settings):
     context_windows = ahk_windows.filter(text="Context-specific")
 
     assert not ahk_windows.exist()
-    assert ahk_windows.exclude(hidden_windows=False).exist()
+    assert ahk_windows.detect_hidden_windows().exist()
     # XXX: Why doesn't child AHK recognize F13 unless the level is set?
     ahk.send("{F13}", level=10)
     assert not context_windows.wait(timeout=0.1)

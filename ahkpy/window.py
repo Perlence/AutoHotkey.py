@@ -35,6 +35,9 @@ class TextMatchMode(enum.Enum):
 
 
 class UnsetType:
+    def __bool__(self):
+        return False
+
     def __repr__(self):
         return "UNSET"
 
@@ -62,8 +65,8 @@ class Windows:
     text: str = UNSET
     exclude_title: str = UNSET
     exclude_text: str = UNSET
-    exclude_hidden_windows: bool = UNSET  # True by default
-    exclude_hidden_text: bool = UNSET  # True by default
+    hidden_windows: bool = UNSET  # False by default
+    hidden_text: bool = UNSET  # True by default
     title_mode: str = UNSET  # "startswith" by default
     text_mode: str = UNSET  # "fast" by default
 
@@ -88,18 +91,28 @@ class Windows:
             title_mode=default(match, self.title_mode, none=UNSET),
         )
 
-    def exclude(self, title=UNSET, *, text=UNSET, hidden_windows=UNSET, hidden_text=UNSET):
+    def exclude(self, title=UNSET, *, text=UNSET):
         # XXX: Consider implementing class_name, id, pid, and exe exclusion in
         # Python.
-        if title is UNSET and text is UNSET and hidden_windows is UNSET and hidden_text is UNSET:
+        if title is UNSET and text is UNSET:
             return self
         return dc.replace(
             self,
             exclude_title=default(title, self.exclude_title, none=UNSET),
             exclude_text=default(text, self.exclude_text, none=UNSET),
-            exclude_hidden_windows=default(hidden_windows, self.exclude_hidden_windows, none=UNSET),
-            exclude_hidden_text=default(hidden_text, self.exclude_hidden_text, none=UNSET),
         )
+
+    def detect_hidden_windows(self, detect=True):
+        return dc.replace(self, hidden_windows=detect)
+
+    def exclude_hidden_windows(self):
+        return dc.replace(self, hidden_windows=False)
+
+    def detect_hidden_text(self, detect=True):
+        return dc.replace(self, hidden_text=detect)
+
+    def exclude_hidden_text(self):
+        return dc.replace(self, hidden_text=False)
 
     def match_text_slow(self, is_slow=True):
         # Not including the parameter in filter() because it's used very rarely.
@@ -344,16 +357,16 @@ class Windows:
             # Querying a non-existent window's attributes.
             return
         with global_ahk_lock:
-            if self.exclude_hidden_windows:  # Also matches UNSET
-                ahk_call("DetectHiddenWindows", "Off")
-            else:
+            if self.hidden_windows:
                 ahk_call("DetectHiddenWindows", "On")
+            else:
+                ahk_call("DetectHiddenWindows", "Off")
 
-            if self.text is not UNSET:
-                if self.exclude_hidden_text:  # Also matches UNSET
-                    ahk_call("DetectHiddenText", "Off")
-                else:
+            if self.text is not UNSET or self.exclude_text is not UNSET:
+                if self.hidden_text or self.hidden_text is UNSET:
                     ahk_call("DetectHiddenText", "On")
+                else:
+                    ahk_call("DetectHiddenText", "Off")
 
             if self.title_mode is TitleMatchMode.STARTSWITH or self.title_mode is UNSET:
                 ahk_call("SetTitleMatchMode", 1)
@@ -407,7 +420,7 @@ class Windows:
 
 
 windows = visible_windows = Windows()
-all_windows = Windows(exclude_hidden_windows=False)
+all_windows = windows.detect_hidden_windows()
 
 
 @dc.dataclass(frozen=True)
@@ -421,7 +434,7 @@ class _Window:
     def __bool__(self):
         return self.id != 0
 
-    def _call(self, cmd, *args, exclude_hidden_windows=False, set_delay=True):
+    def _call(self, cmd, *args, hidden_windows=True, set_delay=True):
         # Call the command only if the window was found previously. This makes
         # optional chaining possible. For example,
         # `ahk.windows.first(class_name="Notepad").close()` doesn't error out
@@ -429,10 +442,10 @@ class _Window:
         if self.id == 0:
             return
         with global_ahk_lock:
-            if exclude_hidden_windows:
-                ahk_call("DetectHiddenWindows", "Off")
-            else:
+            if hidden_windows:
                 ahk_call("DetectHiddenWindows", "On")
+            else:
+                ahk_call("DetectHiddenWindows", "Off")
             if set_delay:
                 ahk_call("SetWinDelay", optional_ms(get_settings().win_delay))
             return ahk_call(cmd, *args)
@@ -840,7 +853,7 @@ class Window(_Window):
         return not timed_out
 
     def wait_hidden(self, timeout=None):
-        timed_out = self._call("WinWaitClose", *self._include(), timeout, exclude_hidden_windows=True, set_delay=True)
+        timed_out = self._call("WinWaitClose", *self._include(), timeout, hidden_windows=False, set_delay=True)
         if timed_out is None:
             return True
         return not timed_out
