@@ -102,14 +102,14 @@ class Windows:
             exclude_text=default(text, self.exclude_text, none=UNSET),
         )
 
-    def detect_hidden_windows(self, detect=True):
-        return dc.replace(self, hidden_windows=detect)
+    def include_hidden_windows(self, include=True):
+        return dc.replace(self, hidden_windows=include)
 
     def exclude_hidden_windows(self):
         return dc.replace(self, hidden_windows=False)
 
-    def detect_hidden_text(self, detect=True):
-        return dc.replace(self, hidden_text=detect)
+    def include_hidden_text(self, include=True):
+        return dc.replace(self, hidden_text=include)
 
     def exclude_hidden_text(self):
         return dc.replace(self, hidden_text=False)
@@ -420,7 +420,7 @@ class Windows:
 
 
 windows = visible_windows = Windows()
-all_windows = windows.detect_hidden_windows()
+all_windows = windows.include_hidden_windows()
 
 
 @dc.dataclass(frozen=True)

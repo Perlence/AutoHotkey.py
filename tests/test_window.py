@@ -496,7 +496,7 @@ def assert_equals_eventually(func, expected, timeout=1):
     assert actual == expected
 
 
-def test_detect_hidden_context(child_ahk, settings):
+def test_include_hidden_context(child_ahk, settings):
     def code():
         import ahkpy as ahk
         import sys
@@ -514,7 +514,7 @@ def test_detect_hidden_context(child_ahk, settings):
     context_windows = ahk_windows.filter(text="Context-specific")
 
     assert not ahk_windows.exist()
-    assert ahk_windows.detect_hidden_windows().exist()
+    assert ahk_windows.include_hidden_windows().exist()
     # XXX: Why doesn't child AHK recognize F13 unless the level is set?
     ahk.send("{F13}", level=10)
     assert not context_windows.wait(timeout=0.1)
