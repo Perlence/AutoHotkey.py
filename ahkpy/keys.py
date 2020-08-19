@@ -1,4 +1,3 @@
-import enum
 import inspect
 from contextlib import contextmanager
 from dataclasses import dataclass
@@ -13,7 +12,6 @@ __all__ = [
     "Hotkey",
     "HotkeyContext",
     "Hotstring",
-    "SendMode",
     "get_hotstring_end_chars",
     "get_hotstring_mouse_reset",
     "get_key_state",
@@ -35,12 +33,6 @@ __all__ = [
     "wait_key_pressed",
     "wait_key_released",
 ]
-
-
-class SendMode(enum.Enum):
-    INPUT = "input"
-    PLAY = "play"
-    EVENT = "event"
 
 
 def get_key_state(key_name):
@@ -376,14 +368,14 @@ class Hotstring:
 
         # TODO: The hotstring is not replaced when the mode is set to Input
         # explicitly.
-        if isinstance(mode, str):
-            mode = SendMode(mode.lower())
-        if mode is SendMode.INPUT:
+        if mode == "input":
             options.append("SI")
-        elif mode is SendMode.PLAY:
+        elif mode == "play":
             options.append("SP")
-        elif mode is SendMode.EVENT:
+        elif mode == "event":
             options.append("SE")
+        elif mode is not None:
+            raise ValueError(f"{mode!r} is not a valid send mode")
 
         if reset_recognizer:
             options.append("Z")
@@ -476,16 +468,14 @@ def send(keys, mode=None, *, level=None):
     # how tabs are handled in the application.
     if mode is None:
         mode = get_settings().send_mode
-    if isinstance(mode, str):
-        mode = SendMode(mode.lower())
-    if mode is SendMode.INPUT:
+    if mode == "input":
         send_func = send_input
-    elif mode is SendMode.PLAY:
+    elif mode == "play":
         send_func = send_play
-    elif mode is SendMode.EVENT:
+    elif mode == "event":
         send_func = send_event
     else:
-        raise ValueError(f"unknown send mode: {mode!r}")
+        raise ValueError(f"{mode!r} is not a valid send mode")
 
     send_func(keys, level=level)
 

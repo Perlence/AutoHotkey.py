@@ -33,15 +33,14 @@ def test_windows(child_ahk, settings):
 
     assert (
         repr(ahk.windows) ==
-        "Windows(hidden_windows=False, hidden_text=True, "
-        "title_mode=<TitleMatchMode.STARTSWITH: 'startswith'>, text_mode=<TextMatchMode.FAST: 'fast'>)"
+        "Windows(hidden_windows=False, hidden_text=True, title_mode='startswith', text_mode='fast')"
     )
 
     msg_boxes = ahk.windows.filter(title="win", exe="AutoHotkey.exe")
     assert (
         repr(msg_boxes) ==
-        "Windows(title='win', exe='AutoHotkey.exe', hidden_windows=False, hidden_text=True, "
-        "title_mode=<TitleMatchMode.STARTSWITH: 'startswith'>, text_mode=<TextMatchMode.FAST: 'fast'>)"
+        "Windows(title='win', exe='AutoHotkey.exe', "
+        "hidden_windows=False, hidden_text=True, title_mode='startswith', text_mode='fast')"
     )
 
     wait_result = msg_boxes.wait(timeout=1)
@@ -327,7 +326,7 @@ def test_title_match_mode(child_ahk, settings):
     assert ahk_windows.exist(title=r"Hotkey$", match="regex")
     assert ahk_windows.exist(exe=r"utoHotkey\.exe", match="regex")
 
-    with pytest.raises(ValueError, match="is not a valid TitleMatchMode"):
+    with pytest.raises(ValueError, match="is not a valid title match mode"):
         assert ahk_windows.exist(title="AutoHot", match="nooo")
 
     ahk.send("{F24}")

@@ -1,12 +1,10 @@
 import dataclasses as dc
-import enum
 import queue
 from typing import Callable
 
 from .flow import ahk_call, global_ahk_lock
 
 __all__ = [
-    "CoordMode",
     "MessageHandler",
     "ToolTip",
     "message_box",
@@ -16,11 +14,7 @@ __all__ = [
 
 UNSET = object()
 
-
-class CoordMode(enum.Enum):
-    SCREEN = 'screen'
-    WINDOW = 'window'
-    CLIENT = 'client'
+COORD_MODES = {'screen', 'window', 'client'}
 
 
 def message_box(text=None, title="", options=0, timeout=None):
@@ -64,7 +58,7 @@ class ToolTip:
     text: str = None
     x: int = None
     y: int = None
-    coord_mode: CoordMode = CoordMode.WINDOW
+    coord_mode: str = "window"
     _id: int = dc.field(default=None, init=False, repr=False)
 
     _pool = queue.LifoQueue(maxsize=20)
@@ -72,11 +66,13 @@ class ToolTip:
         _pool.put(tooltip_id)
     del tooltip_id
 
-    def __init__(self, text=None, x=None, y=None, coord_mode=CoordMode.WINDOW):
+    def __init__(self, text=None, x=None, y=None, coord_mode="window"):
         # Write the __init__ method for code suggestions.
         self.text = text
         self.x = x
         self.y = y
+        if coord_mode not in COORD_MODES:
+            raise ValueError(f"{coord_mode!r} is not a valid coord mode")
         self.coord_mode = coord_mode
 
     def show(self, text=None, x=UNSET, y=UNSET, coord_mode=None):
@@ -93,13 +89,13 @@ class ToolTip:
         y = self.y if self.y is not None else ""
 
         if coord_mode is not None:
-            if isinstance(coord_mode, str):
-                coord_mode = CoordMode(coord_mode.lower())
             self.coord_mode = coord_mode
+        if self.coord_mode not in COORD_MODES:
+            raise ValueError(f"{coord_mode!r} is not a valid coord mode")
 
         tooltip_id = self._acquire()
         with global_ahk_lock:
-            ahk_call("CoordMode", "ToolTip", self.coord_mode.value)
+            ahk_call("CoordMode", "ToolTip", self.coord_mode)
             ahk_call("ToolTip", str(self.text), x, y, tooltip_id)
 
     def hide(self):

@@ -12,7 +12,6 @@ from .settings import get_settings
 __all__ = [
     "Control",
     "ExWindowStyle",
-    "TitleMatchMode",
     "Window",
     "Windows",
     "WindowStyle",
@@ -22,16 +21,8 @@ __all__ = [
 ]
 
 
-class TitleMatchMode(enum.Enum):
-    STARTSWITH = "startswith"
-    CONTAINS = "contains"
-    EXACT = "exact"
-    REGEX = "regex"
-
-
-class TextMatchMode(enum.Enum):
-    FAST = "fast"
-    SLOW = "slow"
+TITLE_MATCH_MODES = {"startswith", "contains", "exact", "regex"}
+TEXT_MATCH_MODES = {"fast", "slow"}
 
 
 class UnsetType:
@@ -67,8 +58,8 @@ class Windows:
     exclude_text: str = UNSET
     hidden_windows: bool = False
     hidden_text: bool = True
-    title_mode: TitleMatchMode = TitleMatchMode.STARTSWITH
-    text_mode: TextMatchMode = TextMatchMode.FAST
+    title_mode: str = "startswith"
+    text_mode: str = "fast"
 
     def filter(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
         if (
@@ -77,8 +68,8 @@ class Windows:
         ):
             return self
 
-        if isinstance(match, str):
-            match = TitleMatchMode(match.lower())
+        if match is not UNSET and match not in TITLE_MATCH_MODES:
+            raise ValueError(f"{match!r} is not a valid title match mode")
 
         return dc.replace(
             self,
@@ -117,9 +108,9 @@ class Windows:
     def match_text_slow(self, is_slow=True):
         # Not including the parameter in filter() because it's used very rarely.
         if is_slow:
-            return dc.replace(self, text_mode=TextMatchMode.SLOW)
+            return dc.replace(self, text_mode="slow")
         else:
-            return dc.replace(self, text_mode=TextMatchMode.FAST)
+            return dc.replace(self, text_mode="fast")
 
     @filtering
     def exist(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
@@ -368,23 +359,23 @@ class Windows:
                 else:
                     ahk_call("DetectHiddenText", "Off")
 
-            if self.title_mode is TitleMatchMode.STARTSWITH:
+            if self.title_mode == "startswith":
                 ahk_call("SetTitleMatchMode", 1)
-            elif self.title_mode is TitleMatchMode.CONTAINS:
+            elif self.title_mode == "contains":
                 ahk_call("SetTitleMatchMode", 2)
-            elif self.title_mode is TitleMatchMode.EXACT:
+            elif self.title_mode == "exact":
                 ahk_call("SetTitleMatchMode", 3)
-            elif self.title_mode is TitleMatchMode.REGEX:
+            elif self.title_mode == "regex":
                 ahk_call("SetTitleMatchMode", "regex")
             else:
-                raise ValueError(f"unknown title match mode: {self.title_mode!r}")
+                raise ValueError(f"{self.title_mode!r} is not a valid title match mode")
 
-            if self.text_mode is TextMatchMode.FAST:
+            if self.text_mode == "fast":
                 ahk_call("SetTitleMatchMode", "fast")
-            elif self.text_mode is TextMatchMode.SLOW:
+            elif self.text_mode == "slow":
                 ahk_call("SetTitleMatchMode", "slow")
             else:
-                raise ValueError(f"unknown text match mode: {self.text_mode!r}")
+                raise ValueError(f"{self.text_mode!r} is not a valid text match mode")
 
             if set_delay:
                 ahk_call("SetWinDelay", optional_ms(get_settings().win_delay))
