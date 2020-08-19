@@ -65,10 +65,10 @@ class Windows:
     text: str = UNSET
     exclude_title: str = UNSET
     exclude_text: str = UNSET
-    hidden_windows: bool = UNSET  # False by default
-    hidden_text: bool = UNSET  # True by default
-    title_mode: str = UNSET  # "startswith" by default
-    text_mode: str = UNSET  # "fast" by default
+    hidden_windows: bool = False
+    hidden_text: bool = True
+    title_mode: TitleMatchMode = TitleMatchMode.STARTSWITH
+    text_mode: TextMatchMode = TextMatchMode.FAST
 
     def filter(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
         if (
@@ -363,12 +363,12 @@ class Windows:
                 ahk_call("DetectHiddenWindows", "Off")
 
             if self.text is not UNSET or self.exclude_text is not UNSET:
-                if self.hidden_text or self.hidden_text is UNSET:
+                if self.hidden_text:
                     ahk_call("DetectHiddenText", "On")
                 else:
                     ahk_call("DetectHiddenText", "Off")
 
-            if self.title_mode is TitleMatchMode.STARTSWITH or self.title_mode is UNSET:
+            if self.title_mode is TitleMatchMode.STARTSWITH:
                 ahk_call("SetTitleMatchMode", 1)
             elif self.title_mode is TitleMatchMode.CONTAINS:
                 ahk_call("SetTitleMatchMode", 2)
@@ -379,7 +379,7 @@ class Windows:
             else:
                 raise ValueError(f"unknown title match mode: {self.title_mode!r}")
 
-            if self.text_mode is TextMatchMode.FAST or self.text_mode is UNSET:
+            if self.text_mode is TextMatchMode.FAST:
                 ahk_call("SetTitleMatchMode", "fast")
             elif self.text_mode is TextMatchMode.SLOW:
                 ahk_call("SetTitleMatchMode", "slow")

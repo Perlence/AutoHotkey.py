@@ -31,10 +31,18 @@ def test_windows(child_ahk, settings):
     child_ahk.popen_code(windows)
     settings.win_delay = 0
 
-    assert repr(ahk.windows) == "Windows()"
+    assert (
+        repr(ahk.windows) ==
+        "Windows(hidden_windows=False, hidden_text=True, "
+        "title_mode=<TitleMatchMode.STARTSWITH: 'startswith'>, text_mode=<TextMatchMode.FAST: 'fast'>)"
+    )
 
-    msg_boxes = ahk.windows.filter(exe="AutoHotkey.exe")
-    assert repr(msg_boxes) == "Windows(exe='AutoHotkey.exe')"
+    msg_boxes = ahk.windows.filter(title="win", exe="AutoHotkey.exe")
+    assert (
+        repr(msg_boxes) ==
+        "Windows(title='win', exe='AutoHotkey.exe', hidden_windows=False, hidden_text=True, "
+        "title_mode=<TitleMatchMode.STARTSWITH: 'startswith'>, text_mode=<TextMatchMode.FAST: 'fast'>)"
+    )
 
     wait_result = msg_boxes.wait(timeout=1)
     assert wait_result is not None
