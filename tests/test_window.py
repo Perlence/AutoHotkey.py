@@ -75,7 +75,7 @@ def test_windows(child_ahk, settings):
 
     win2 = msg_boxes.first(title="win2")
     assert win1.activate(timeout=1)
-    assert not win2.is_active
+    assert win2.is_active is False
 
     assert len(msg_boxes) == 2
     win1.bring_to_top()
@@ -87,27 +87,27 @@ def test_windows(child_ahk, settings):
     assert msg_boxes.first() == win1
 
     msg_boxes.minimize()
-    assert win1.is_minimized
+    assert win1.is_minimized is True
     ahk.sleep(.1)
     assert msg_boxes.activate(timeout=1)
-    assert win2.is_active
+    assert win2.is_active is True
     win1.restore()
     msg_boxes.maximize()
-    assert win1.is_maximized
+    assert win1.is_maximized is True
     win1.restore()
     msg_boxes.hide()
-    assert not win1.is_visible
+    assert win1.is_visible is False
     win1.show()
     msg_boxes.pin_to_top()
-    assert win1.always_on_top
+    assert win1.always_on_top is True
     msg_boxes.unpin_from_top()
-    assert not win1.always_on_top
+    assert win1.always_on_top is False
     msg_boxes.toggle_always_on_top()
-    assert win1.always_on_top
+    assert win1.always_on_top is True
     msg_boxes.disable()
-    assert not win1.is_enabled
+    assert win1.is_enabled is False
     msg_boxes.enable()
-    assert win1.is_enabled
+    assert win1.is_enabled is True
     win1.activate(timeout=1)
     msg_boxes.close()  # Close actually hides this AHK message box
     assert not win1.wait_close(timeout=0.1)
@@ -171,28 +171,28 @@ def test_window_obj(child_ahk, settings):
     win1.transparent_color = None
     assert win1.transparent_color is None
 
-    assert win1.is_visible
+    assert win1.is_visible is True
     win1.hide()
     assert win1.is_visible is False
     win1.show()
-    assert win1.is_visible
+    assert win1.is_visible is True
 
     win1.maximize()
-    assert win1.is_maximized
+    assert win1.is_maximized is True
     win1.restore()
-    assert win1.is_restored
+    assert win1.is_restored is True
     win1.minimize()
-    assert win1.is_minimized
+    assert win1.is_minimized is True
     win1.toggle_minimized()
-    assert win1.is_restored
+    assert win1.is_restored is True
     assert win1.wait_active() is True
     assert win1.wait_close(timeout=0.1) is False
 
-    assert win1.is_enabled
+    assert win1.is_enabled is True
     win1.disable()
     assert win1.is_enabled is False
     win1.enable()
-    assert win1.is_enabled
+    assert win1.is_enabled is True
     win1.redraw()
 
     assert win1.always_on_top is False
@@ -227,8 +227,8 @@ def test_window_obj(child_ahk, settings):
 def test_nonwindow(win_id):
     win = ahk.Window(win_id)
     assert win.id == win_id
-    assert not win.exists
-    assert not win.is_active
+    assert win.exists is False
+    assert win.is_active is False
     assert win.process_path is None
     assert win.title is None
     win.title = 'beep'
