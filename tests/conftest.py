@@ -10,7 +10,7 @@ import pytest
 AHK = sys.executable
 
 
-@pytest.fixture()
+@pytest.fixture(scope="class")
 def child_ahk():
     instance = ChildAHK()
     try:

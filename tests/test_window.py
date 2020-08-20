@@ -121,109 +121,132 @@ def test_windows(child_ahk, settings):
     ahk.send("{F24}")
 
 
-def test_window_obj(child_ahk, settings):
-    def window():
-        import ahkpy as ahk
-        import sys
+class TestWindowObj:
+    @pytest.fixture(scope="class")
+    def win1(self, child_ahk):
+        def window():
+            import ahkpy as ahk
+            import sys
 
-        ahk.hotkey("F24", sys.exit)
-        ahk.message_box("win1", title="win1")
+            ahk.hotkey("F24", sys.exit)
+            ahk.message_box("win1", title="win1")
 
-    child_ahk.popen_code(window)
-    settings.win_delay = 0
+        child_ahk.popen_code(window)
 
-    win1 = ahk.windows.wait(title="win1", exe="AutoHotkey.exe")
-    assert win1
-    assert hash(win1) == hash(ahk.Window(win1.id))
-    with pytest.raises(FrozenInstanceError):
-        win1.id = 0
+        win1 = ahk.windows.wait(title="win1", exe="AutoHotkey.exe")
+        assert win1
 
-    _, _, width, height = win1.rect
-    x, y = win1.position
-    win1.y += 100
-    assert win1.y == y + 100
-    win1.x = win1.y
-    assert win1.x == win1.y
-    win1.height += 100
-    assert win1.height == height + 100
-    win1.height = win1.width
-    assert win1.height == win1.width
+        with ahk.local_settings() as settings:
+            settings.win_delay = 0
+            yield win1
 
-    assert win1.title == "win1"
-    win1.title = "win111"
-    assert win1.title == "win111"
+        ahk.send("{F24}")
 
-    assert win1.pid > 0
+    def test_properties(self, win1):
+        assert hash(win1) == hash(ahk.Window(win1.id))
+        with pytest.raises(FrozenInstanceError):
+            win1.id = 0
 
-    assert win1.process_name == "AutoHotkey.exe"
+    def test_rect(self, win1):
+        _, _, width, height = win1.rect
+        x, y = win1.position
+        win1.y += 100
+        assert win1.y == y + 100
+        win1.x = win1.y
+        assert win1.x == win1.y
+        win1.height += 100
+        assert win1.height == height + 100
+        win1.height = win1.width
+        assert win1.height == win1.width
 
-    assert win1.process_path.endswith(win1.process_name)
+    def test_title(self, win1):
+        assert win1.title == "win1"
+        win1.title = "win111"
+        assert win1.title == "win111"
 
-    assert win1.opacity is None
-    win1.opacity = 128
-    assert win1.opacity == 128
-    win1.opacity = None
-    assert win1.opacity is None
+    def test_pid(self, win1):
+        assert win1.pid > 0
 
-    assert win1.transparent_color is None
-    win1.transparent_color = (255, 255, 255)
-    assert win1.transparent_color == (255, 255, 255)
-    win1.transparent_color = None
-    assert win1.transparent_color is None
+    def test_process_name(self, win1):
+        assert win1.process_name == "AutoHotkey.exe"
 
-    assert win1.is_visible is True
-    win1.hide()
-    assert win1.is_visible is False
-    win1.show()
-    assert win1.is_visible is True
+    def test_process_path(self, win1):
+        assert win1.process_path.endswith(win1.process_name)
 
-    win1.maximize()
-    assert win1.is_maximized is True
-    win1.restore()
-    assert win1.is_restored is True
-    win1.minimize()
-    assert win1.is_minimized is True
-    win1.toggle_minimized()
-    assert win1.is_restored is True
-    assert win1.wait_active() is True
-    assert win1.wait_close(timeout=0.1) is False
+    def test_opacity(self, win1):
+        assert win1.opacity is None
+        win1.opacity = 128
+        assert win1.opacity == 128
+        win1.opacity = None
+        assert win1.opacity is None
 
-    assert win1.is_enabled is True
-    win1.disable()
-    assert win1.is_enabled is False
-    win1.enable()
-    assert win1.is_enabled is True
-    win1.redraw()
+    def test_transparent_color(self, win1):
+        assert win1.transparent_color is None
+        win1.transparent_color = (255, 255, 255)
+        assert win1.transparent_color == (255, 255, 255)
+        win1.transparent_color = None
+        assert win1.transparent_color is None
 
-    assert win1.always_on_top is False
-    win1.toggle_always_on_top()
-    assert win1.always_on_top is True
-    win1.always_on_top = False
-    assert win1.always_on_top is False
-    win1.always_on_top = True
-    assert win1.always_on_top is True
-    win1.unpin_from_top()
-    assert win1.always_on_top is False
+    def test_is_visible(self, win1):
+        assert win1.is_visible is True
+        win1.hide()
+        assert win1.is_visible is False
+        win1.show()
+        assert win1.is_visible is True
 
-    assert win1.get_status_bar_text() is None
+    def test_minmax(self, win1):
+        win1.maximize()
+        assert win1.is_maximized is True
+        win1.restore()
+        assert win1.is_restored is True
+        win1.minimize()
+        assert win1.is_minimized is True
+        win1.toggle_minimized()
+        assert win1.is_restored is True
+        assert win1.wait_active() is True
+        assert win1.wait_close(timeout=0.1) is False
 
-    assert win1.control_classes == ["Button1", "Static1"]
-    assert win1.controls == list(map(win1.get_control, win1.control_classes))
-    assert win1.get_control("nooooooooooo") == ahk.Control(0)
+    def test_is_enabled(self, win1):
+        assert win1.is_enabled is True
+        win1.disable()
+        assert win1.is_enabled is False
+        win1.enable()
+        assert win1.is_enabled is True
+        win1.redraw()
 
-    ok_btn = win1.get_control("Button1")
-    assert ok_btn
-    assert win1.get_control("OK") == ok_btn
-    assert win1.get_control("K", match="contains") == ok_btn
-    assert win1.get_control("^OK$", match="regex") == ok_btn
+    def test_always_on_top(self, win1):
+        assert win1.always_on_top is False
+        win1.toggle_always_on_top()
+        assert win1.always_on_top is True
+        win1.always_on_top = False
+        assert win1.always_on_top is False
+        win1.always_on_top = True
+        assert win1.always_on_top is True
+        win1.unpin_from_top()
+        assert win1.always_on_top is False
 
-    assert isinstance(win1.style, ahk.WindowStyle)
-    assert ahk.WindowStyle.POPUPWINDOW in win1.style
+    def test_get_status_bar_text(self, win1):
+        assert win1.get_status_bar_text() is None
 
-    assert isinstance(win1.ex_style, ahk.ExWindowStyle)
-    assert win1.ex_style > 0
+    def test_controls(self, win1):
+        assert win1.control_classes == ["Button1", "Static1"]
+        assert win1.controls == list(map(win1.get_control, win1.control_classes))
 
-    ahk.send("{F24}")
+    def test_get_control(self, win1):
+        assert win1.get_control("nooooooooooo") == ahk.Control(0)
+
+        ok_btn = win1.get_control("Button1")
+        assert ok_btn
+        assert win1.get_control("OK") == ok_btn
+        assert win1.get_control("K", match="contains") == ok_btn
+        assert win1.get_control("^OK$", match="regex") == ok_btn
+
+    def test_style(self, win1):
+        assert isinstance(win1.style, ahk.WindowStyle)
+        assert ahk.WindowStyle.POPUPWINDOW in win1.style
+
+        assert isinstance(win1.ex_style, ahk.ExWindowStyle)
+        assert win1.ex_style > 0
 
 
 @pytest.mark.parametrize("win_id", [
