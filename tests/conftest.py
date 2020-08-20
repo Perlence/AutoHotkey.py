@@ -97,3 +97,15 @@ def settings():
     import ahkpy as ahk
     with ahk.local_settings() as settings:
         yield settings
+
+
+@pytest.fixture(scope="class")
+def notepad(request):
+    import ahkpy as ahk
+    notepad_proc = subprocess.Popen(["notepad.exe"])
+    try:
+        notepad_win = ahk.windows.wait(pid=notepad_proc.pid)
+        assert notepad_win
+        yield notepad_win
+    finally:
+        notepad_proc.terminate()

@@ -1,4 +1,3 @@
-import subprocess
 import time
 from dataclasses import FrozenInstanceError
 from functools import partial
@@ -264,25 +263,18 @@ def test_nonwindow(win_id):
     assert len(ahk.windows.filter(title=win.title)) == 0
 
 
-def test_status_bar(request):
-    notepad_proc = subprocess.Popen(["notepad.exe"])
-    request.addfinalizer(notepad_proc.terminate)
-    notepad_win = ahk.windows.wait(pid=notepad_proc.pid)
-    assert notepad_win
-
+def test_status_bar(request, notepad):
     ahk.sleep(0.2)
-    assert "Ln 1, Col 1" in notepad_win.get_status_bar_text(2)
+    assert "Ln 1, Col 1" in notepad.get_status_bar_text(2)
 
-    notepad_win.send("q")
+    notepad.send("q")
     ahk.sleep(0)
-    assert "Ln 1, Col 2" in notepad_win.get_status_bar_text(2)
+    assert "Ln 1, Col 2" in notepad.get_status_bar_text(2)
 
-    ahk.set_timer(partial(notepad_win.send, "q"), countdown=0.5)
-    assert notepad_win.wait_status_bar("  Ln 1, Col x", part=2, timeout=0.1) is False
-    assert notepad_win.wait_status_bar("  Ln 1, Col 3", part=2, timeout=1) is True
-    assert notepad_win.get_status_bar_text(2) == "  Ln 1, Col 3"
-
-    notepad_proc.terminate()
+    ahk.set_timer(partial(notepad.send, "q"), countdown=0.5)
+    assert notepad.wait_status_bar("  Ln 1, Col x", part=2, timeout=0.1) is False
+    assert notepad.wait_status_bar("  Ln 1, Col 3", part=2, timeout=1) is True
+    assert notepad.get_status_bar_text(2) == "  Ln 1, Col 3"
 
 
 def test_hidden_text():
@@ -332,16 +324,11 @@ def test_title_match_mode(child_ahk, settings):
     ahk.send("{F24}")
 
 
-def test_match_text_slow(request):
-    notepad_proc = subprocess.Popen(["notepad.exe"])
-    request.addfinalizer(notepad_proc.terminate)
-    notepad_win = ahk.windows.wait(pid=notepad_proc.pid)
-    assert notepad_win
-
+def test_match_text_slow(notepad):
     text = "beep boop autohotkey"
-    notepad_win.send("{Text}" + text)
+    notepad.send("{Text}" + text)
     ahk.sleep(0.1)
-    assert text in notepad_win.text
+    assert text in notepad.text
 
     text_filter = ahk.windows.filter(exe="Notepad.exe", text=text)
     assert not text_filter.exist()

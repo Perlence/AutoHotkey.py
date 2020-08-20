@@ -165,15 +165,6 @@ class TestHotstring:
     def send_level(self, settings):
         settings.send_level = 10
 
-    @pytest.fixture(scope="class")
-    def notepad(self, request):
-        notepad_proc = subprocess.Popen(["notepad.exe"])
-        try:
-            notepad_win = ahk.windows.wait(pid=notepad_proc.pid)
-            yield notepad_win
-        finally:
-            notepad_proc.terminate()
-
     @pytest.fixture
     def edit(self, notepad):
         edit = notepad.get_control("Edit1")
