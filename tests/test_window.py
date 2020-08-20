@@ -209,7 +209,13 @@ def test_window_obj(child_ahk, settings):
 
     assert win1.control_classes == ["Button1", "Static1"]
     assert win1.controls == list(map(win1.get_control, win1.control_classes))
-    assert win1.get_control('nooooooooooo') is None
+    assert win1.get_control("nooooooooooo") == ahk.Control(0)
+
+    ok_btn = win1.get_control("Button1")
+    assert ok_btn
+    assert win1.get_control("OK") == ok_btn
+    assert win1.get_control("K", match="contains") == ok_btn
+    assert win1.get_control("^OK$", match="regex") == ok_btn
 
     assert isinstance(win1.style, ahk.WindowStyle)
     assert ahk.WindowStyle.POPUPWINDOW in win1.style
@@ -246,7 +252,7 @@ def test_nonwindow(win_id):
     assert win.text is None
     assert win.control_classes is None
     assert win.controls is None
-    assert win.get_control("nope") is None
+    assert win.get_control("nope") == ahk.Control(0)
     assert win.always_on_top is None
     assert win.is_enabled is None
     assert win.style is None

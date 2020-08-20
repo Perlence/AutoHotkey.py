@@ -359,16 +359,7 @@ class Windows:
                 else:
                     ahk_call("DetectHiddenText", "Off")
 
-            if self.title_mode == "startswith":
-                ahk_call("SetTitleMatchMode", 1)
-            elif self.title_mode == "contains":
-                ahk_call("SetTitleMatchMode", 2)
-            elif self.title_mode == "exact":
-                ahk_call("SetTitleMatchMode", 3)
-            elif self.title_mode == "regex":
-                ahk_call("SetTitleMatchMode", "regex")
-            else:
-                raise ValueError(f"{self.title_mode!r} is not a valid title match mode")
+            _set_title_match_mode(self.title_mode)
 
             if self.text_mode == "fast":
                 ahk_call("SetTitleMatchMode", "fast")
@@ -425,7 +416,7 @@ class _Window:
     def __bool__(self):
         return self.id != 0
 
-    def _call(self, cmd, *args, hidden_windows=True, set_delay=True):
+    def _call(self, cmd, *args, hidden_windows=True, title_mode=None, set_delay=False):
         # Call the command only if the window was found previously. This makes
         # optional chaining possible. For example,
         # `ahk.windows.first(class_name="Notepad").close()` doesn't error out
@@ -439,8 +430,13 @@ class _Window:
                 ahk_call("DetectHiddenWindows", "On")
             else:
                 ahk_call("DetectHiddenWindows", "Off")
+
+            if title_mode is not None:
+                _set_title_match_mode(title_mode)
+
             if set_delay:
                 ahk_call("SetWinDelay", optional_ms(get_settings().win_delay))
+
             return ahk_call(cmd, *args)
 
     def _include(self):
@@ -638,18 +634,16 @@ class Window(_Window):
             for hwnd in hwnds
         ]
 
-    def get_control(self, class_name):
-        # TODO: ControlGet, Hwnd should also search controls by text, but it
-        # doesn't. Why?
+    def get_control(self, class_or_text, match="startswith"):
         if not self.exists:
-            return None
+            return Control(0)
         try:
-            control_id = self._call("ControlGet", "Hwnd", "", class_name, *self._include())
+            control_id = self._call("ControlGet", "Hwnd", "", class_or_text, *self._include(), title_mode=match)
             return Control(control_id)
         except Error as err:
             if err.message == 1:
                 # Control doesn't exist.
-                return None
+                return Control(0)
             raise
 
     # TODO: Implement WinMenuSelectItem.
@@ -814,7 +808,7 @@ class Window(_Window):
 
     def _status_bar_exists(self):
         status_bar = self.get_control("msctls_statusbar321")
-        return status_bar is not None
+        return bool(status_bar)
 
     def close(self, timeout=None):
         self._call("WinClose", *self._include(), timeout, set_delay=True)
@@ -923,6 +917,19 @@ class Control(_Window):
         result = self._call("ControlGet", subcmd, value, "", *self._include())
         if result != "":
             return result
+
+
+def _set_title_match_mode(title_mode):
+    if title_mode == "startswith":
+        ahk_call("SetTitleMatchMode", 1)
+    elif title_mode == "contains":
+        ahk_call("SetTitleMatchMode", 2)
+    elif title_mode == "exact":
+        ahk_call("SetTitleMatchMode", 3)
+    elif title_mode == "regex":
+        ahk_call("SetTitleMatchMode", "regex")
+    else:
+        raise ValueError(f"{title_mode!r} is not a valid title match mode")
 
 
 class WindowStyle(enum.IntFlag):
