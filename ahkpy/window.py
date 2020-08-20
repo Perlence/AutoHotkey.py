@@ -433,6 +433,8 @@ class _Window:
         if self.id == 0:
             return
         with global_ahk_lock:
+            # XXX: Setting DetectHiddenWindows should not be necessary for
+            # controls.
             if hidden_windows:
                 ahk_call("DetectHiddenWindows", "On")
             else:
@@ -619,14 +621,14 @@ class Window(_Window):
 
     # TODO: Add control methods to Windows
 
-    def control_class_names(self):
-        # XXX: Should the method be a property?
+    @property
+    def control_classes(self):
         names = self._get("ControlList")
         if names is not None:
             return names.splitlines()
 
+    @property
     def controls(self):
-        # XXX: Should the method be a property?
         handles = self._get("ControlListHwnd")
         if handles is None:
             return None

@@ -208,8 +208,8 @@ def test_window_obj(child_ahk, settings):
 
     assert win1.get_status_bar_text() is None
 
-    assert win1.control_class_names() == ["Button1", "Static1"]
-    assert win1.controls() == list(map(win1.get_control, win1.control_class_names()))
+    assert win1.control_classes == ["Button1", "Static1"]
+    assert win1.controls == list(map(win1.get_control, win1.control_classes))
     assert win1.get_control('nooooooooooo') is None
 
     assert isinstance(win1.style, ahk.WindowStyle)
@@ -245,8 +245,8 @@ def test_nonwindow(win_id):
     assert win.is_maximized is None
     assert win.is_restored is None
     assert win.text is None
-    assert win.control_class_names() is None
-    assert win.controls() is None
+    assert win.control_classes is None
+    assert win.controls is None
     assert win.get_control("nope") is None
     assert win.always_on_top is None
     assert win.is_enabled is None
