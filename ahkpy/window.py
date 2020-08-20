@@ -220,7 +220,8 @@ class Windows:
         self._call("WinSet", "AlwaysOnTop", "Off", *self._query())
 
     @filtering
-    def toggle_always_on_top(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
+    def toggle_always_on_top(
+            self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
         self._call("WinSet", "AlwaysOnTop", "Toggle", *self._query())
 
     @filtering
