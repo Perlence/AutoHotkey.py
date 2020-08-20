@@ -639,6 +639,8 @@ class Window(_Window):
         ]
 
     def get_control(self, class_name):
+        # TODO: ControlGet, Hwnd should also search controls by text, but it
+        # doesn't. Why?
         if not self.exists:
             return None
         try:
@@ -649,6 +651,8 @@ class Window(_Window):
                 # Control doesn't exist.
                 return None
             raise
+
+    # TODO: Implement WinMenuSelectItem.
 
     @property
     def always_on_top(self):
@@ -890,6 +894,23 @@ class Window(_Window):
 
 
 class Control(_Window):
+    @property
+    def is_checked(self):
+        return self._get("Checked") == 1
+
+    @is_checked.setter
+    def is_checked(self, value):
+        if value:
+            self.check()
+        else:
+            self.uncheck()
+
+    def check(self):
+        return self._call("Control", "Check", "", "", *self._include())
+
+    def uncheck(self):
+        return self._call("Control", "Uncheck", "", "", *self._include())
+
     @property
     def text(self):
         return self._call("ControlGetText", "", *self._include())

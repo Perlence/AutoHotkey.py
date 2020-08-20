@@ -337,6 +337,17 @@ def test_match_text_slow(notepad):
     ahk.send("{F24}")
 
 
+class TestControl:
+    def test_checked(self, notepad):
+        notepad.send("q")  # Enter some text to enable searching.
+        notepad.send("^f")
+        find_dialog = ahk.windows.wait_active(title="Find", pid=notepad.pid)
+        match_case_button = find_dialog.get_control("Button2")
+        assert match_case_button.is_checked is False
+        match_case_button.is_checked = True
+        assert match_case_button.is_checked is True
+
+
 def test_window_context(child_ahk, settings):
     def code():
         import ahkpy as ahk
