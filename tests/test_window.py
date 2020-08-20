@@ -7,118 +7,160 @@ import pytest
 import ahkpy as ahk
 
 
-def test_windows(child_ahk, settings):
-    def windows():
-        import ahkpy as ahk
-        import sys
+class TestWindows:
+    @pytest.fixture(scope="class")
+    def msg_boxes(self, child_ahk):
+        def windows():
+            import ahkpy as ahk
+            import sys
 
-        ahk.hotkey("F24", sys.exit)
+            ahk.hotkey("F24", sys.exit)
 
-        @ahk.set_timer(countdown=0.1)
-        def win1():
-            ahk.message_box("win1", title="win1")
+            @ahk.set_timer(countdown=0.1)
+            def win1():
+                ahk.message_box("win1", title="win1")
 
-        @ahk.set_timer(countdown=0.2)
-        def win2():
-            ahk.message_box("win2", title="win2")
+            @ahk.set_timer(countdown=0.2)
+            def win2():
+                ahk.message_box("win2", title="win2")
 
-        ahk.sleep(1)
-        sys.exit()
+            ahk.sleep(1)
+            sys.exit()
 
-    assert ahk.windows.get_active()
+        assert ahk.windows.get_active()
 
-    child_ahk.popen_code(windows)
-    settings.win_delay = 0
+        child_ahk.popen_code(windows)
+        msg_boxes = ahk.windows.filter(title="win", exe="AutoHotkey.exe")
 
-    assert (
-        repr(ahk.windows) ==
-        "Windows(hidden_windows=False, hidden_text=True, title_mode='startswith', text_mode='fast')"
-    )
+        with ahk.local_settings() as settings:
+            settings.win_delay = 0
 
-    msg_boxes = ahk.windows.filter(title="win", exe="AutoHotkey.exe")
-    assert (
-        repr(msg_boxes) ==
-        "Windows(title='win', exe='AutoHotkey.exe', "
-        "hidden_windows=False, hidden_text=True, title_mode='startswith', text_mode='fast')"
-    )
+            wait_result = msg_boxes.wait(timeout=1)
+            assert wait_result is not None
+            assert isinstance(wait_result, ahk.Window)
+            yield msg_boxes
 
-    wait_result = msg_boxes.wait(timeout=1)
-    assert wait_result is not None
-    assert isinstance(wait_result, ahk.Window)
-    assert msg_boxes.wait(title="win1", timeout=1).title == "win1"
-    assert msg_boxes.wait(title="win2", timeout=1).title == "win2"
+        ahk.send("{F24}")
 
-    assert len(msg_boxes) == 2
-    ahk_window_list = list(msg_boxes)
-    assert ahk_window_list != []
-    top = msg_boxes.first()
-    assert ahk_window_list[0] == top
-    assert ahk_window_list[-1] == msg_boxes.last()
-    assert repr(top) == f"Window(id={top.id})"
+    @pytest.fixture(scope="class")
+    def win1(self, msg_boxes):
+        win1 = msg_boxes.first(title="win1")
+        assert win1
+        assert win1.exists
+        return win1
 
-    assert len(msg_boxes.filter(title="win2")) == 1
-    assert msg_boxes.filter(title="win2").first().title == "win2"
-    assert len(msg_boxes.exclude(title="win2")) == 1
-    assert msg_boxes.exclude(title="win2").first().title == "win1"
+    @pytest.fixture(scope="class")
+    def win2(self, msg_boxes):
+        win2 = msg_boxes.first(title="win2")
+        assert win2
+        assert win2.exists
+        return win2
 
-    assert all(mb.is_restored for mb in msg_boxes)
-    msg_boxes.minimize_all()
-    assert all(mb.is_minimized for mb in msg_boxes)
-    msg_boxes.maximize_all()
-    assert all(mb.is_maximized for mb in msg_boxes)
-    msg_boxes.restore_all()
-    assert all(mb.is_restored for mb in msg_boxes)
+    def test_repr(self, msg_boxes):
+        assert (
+            repr(ahk.windows) ==
+            "Windows(hidden_windows=False, hidden_text=True, title_mode='startswith', text_mode='fast')"
+        )
 
-    win1 = msg_boxes.first(title="win1")
-    assert win1
-    assert win1.exists
+        msg_boxes = ahk.windows.filter(title="win", exe="AutoHotkey.exe")
+        assert (
+            repr(msg_boxes) ==
+            "Windows(title='win', exe='AutoHotkey.exe', "
+            "hidden_windows=False, hidden_text=True, title_mode='startswith', text_mode='fast')"
+        )
 
-    win2 = msg_boxes.first(title="win2")
-    assert win1.activate(timeout=1)
-    assert win2.is_active is False
+    def test_wait(self, msg_boxes):
+        assert msg_boxes.wait(title="win1", timeout=1).title == "win1"
+        assert msg_boxes.wait(title="win2", timeout=1).title == "win2"
 
-    assert len(msg_boxes) == 2
-    win1.bring_to_top()
-    assert msg_boxes.first() == win1
-    win1.send_to_bottom()
-    ahk.sleep(.1)
-    assert msg_boxes.last() == win1
-    win1.bring_to_top()
-    assert msg_boxes.first() == win1
+    def test_len(self, msg_boxes):
+        assert len(msg_boxes) == 2
 
-    msg_boxes.minimize()
-    assert win1.is_minimized is True
-    ahk.sleep(.1)
-    assert msg_boxes.activate(timeout=1)
-    assert win2.is_active is True
-    win1.restore()
-    msg_boxes.maximize()
-    assert win1.is_maximized is True
-    win1.restore()
-    msg_boxes.hide()
-    assert win1.is_visible is False
-    win1.show()
-    msg_boxes.pin_to_top()
-    assert win1.always_on_top is True
-    msg_boxes.unpin_from_top()
-    assert win1.always_on_top is False
-    msg_boxes.toggle_always_on_top()
-    assert win1.always_on_top is True
-    msg_boxes.disable()
-    assert win1.is_enabled is False
-    msg_boxes.enable()
-    assert win1.is_enabled is True
-    win1.activate(timeout=1)
-    msg_boxes.close()  # Close actually hides this AHK message box
-    assert not win1.wait_close(timeout=0.1)
-    assert win1.wait_hidden(timeout=1)
+    def test_iter(self, msg_boxes):
+        ahk_window_list = list(msg_boxes)
+        assert ahk_window_list != []
 
-    assert msg_boxes.wait_close(timeout=0.1) is False
-    msg_boxes.close_all()
-    assert msg_boxes.wait_close() is True
-    assert not msg_boxes.exist()
+        top = msg_boxes.first()
+        assert ahk_window_list[0] == top
 
-    ahk.send("{F24}")
+        assert ahk_window_list[-1] == msg_boxes.last()
+
+        assert repr(top) == f"Window(id={top.id})"
+
+    def test_filter(self, msg_boxes):
+        assert len(msg_boxes.filter(title="win2")) == 1
+        assert msg_boxes.filter(title="win2").first().title == "win2"
+
+    def test_exclude(self, msg_boxes):
+        assert len(msg_boxes.exclude(title="win2")) == 1
+        assert msg_boxes.exclude(title="win2").first().title == "win1"
+
+    def test_minmax_all(self, msg_boxes):
+        assert all(mb.is_restored for mb in msg_boxes)
+        msg_boxes.minimize_all()
+        assert all(mb.is_minimized for mb in msg_boxes)
+        msg_boxes.maximize_all()
+        assert all(mb.is_maximized for mb in msg_boxes)
+        msg_boxes.restore_all()
+        assert all(mb.is_restored for mb in msg_boxes)
+
+    def test_activate(self, msg_boxes, win1, win2):
+        assert win1.activate(timeout=1)
+        assert win2.is_active is False
+
+    def test_top_bottom(self, msg_boxes, win1):
+        assert len(msg_boxes) == 2
+
+        win1.bring_to_top()
+        assert msg_boxes.first() == win1
+
+        win1.send_to_bottom()
+        ahk.sleep(.1)
+        assert msg_boxes.last() == win1
+
+        win1.bring_to_top()
+        assert msg_boxes.first() == win1
+
+    def test_match_first(self, msg_boxes, win1, win2):
+        msg_boxes.minimize()
+        assert win1.is_minimized is True
+        ahk.sleep(.1)
+
+        assert msg_boxes.activate(timeout=1)
+        assert win2.is_active is True
+        win1.restore()
+
+        msg_boxes.maximize()
+        assert win1.is_maximized is True
+        win1.restore()
+
+        msg_boxes.hide()
+        assert win1.is_visible is False
+        win1.show()
+
+        msg_boxes.pin_to_top()
+        assert win1.always_on_top is True
+        msg_boxes.unpin_from_top()
+        assert win1.always_on_top is False
+        msg_boxes.toggle_always_on_top()
+        assert win1.always_on_top is True
+
+        msg_boxes.disable()
+        assert win1.is_enabled is False
+
+        msg_boxes.enable()
+        assert win1.is_enabled is True
+
+    def test_close(self, msg_boxes, win1):
+        win1.activate(timeout=1)
+        msg_boxes.close()  # Close actually hides this AHK message box
+        assert not win1.wait_close(timeout=0.1)
+        assert win1.wait_hidden(timeout=1)
+
+        assert msg_boxes.wait_close(timeout=0.1) is False
+        msg_boxes.close_all()
+        assert msg_boxes.wait_close() is True
+        assert not msg_boxes.exist()
 
 
 class TestWindowObj:
