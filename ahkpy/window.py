@@ -446,6 +446,8 @@ class _Window:
 
 
 class Window(_Window):
+    __slots__ = ('id',)
+
     @property
     def rect(self):
         result = self._call("WinGetPos", *self._include())
@@ -889,6 +891,8 @@ class Window(_Window):
 
 
 class Control(_Window):
+    __slots__ = ('id',)
+
     @property
     def is_checked(self):
         return self._get("Checked") == 1
