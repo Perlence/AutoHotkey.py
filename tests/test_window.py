@@ -286,6 +286,10 @@ class TestWindowObj:
     def test_style(self, win1):
         assert isinstance(win1.style, ahk.WindowStyle)
         assert ahk.WindowStyle.POPUPWINDOW in win1.style
+        assert ahk.WindowStyle.BORDER in win1.style
+        win1.style ^= ahk.WindowStyle.BORDER
+        assert ahk.WindowStyle.BORDER not in win1.style
+        win1.redraw()
 
         assert isinstance(win1.ex_style, ahk.ExWindowStyle)
         assert win1.ex_style > 0
