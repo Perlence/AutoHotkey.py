@@ -1,6 +1,9 @@
+import ctypes
 import dataclasses as dc
 import enum
 import functools
+from ctypes import windll
+from ctypes.wintypes import DWORD, HWND, RECT
 
 from . import colors
 from . import keys as hotkeys
@@ -650,6 +653,18 @@ class Window(_Window):
                 return Control(0)
             raise
 
+    def get_focused_control(self):
+        if not self.exists:
+            return Control(0)
+        try:
+            class_name = self._call("ControlGetFocus", *self._include())
+        except Error as err:
+            if err.message == 1:
+                # None of window's controls have input focus.
+                return Control(0)
+            raise
+        return self.get_control(class_name)
+
     # TODO: Implement WinMenuSelectItem.
 
     @property
@@ -895,9 +910,17 @@ class Window(_Window):
 class Control(_Window):
     __slots__ = ('id',)
 
+    exists = Window.exists
+    style = Window.style
+    ex_style = Window.ex_style
+    class_name = Window.class_name
+    _set = Window._set
+
     @property
     def is_checked(self):
-        return self._get("Checked") == 1
+        checked = self._get("Checked")
+        if checked is not None:
+            return bool(checked)
 
     @is_checked.setter
     def is_checked(self, value):
@@ -907,23 +930,87 @@ class Control(_Window):
             self.uncheck()
 
     def check(self):
-        return self._call("Control", "Check", "", "", *self._include())
+        # TODO: SetControlDelay.
+        if self.exists:
+            return self._call("Control", "Check", "", "", *self._include())
 
     def uncheck(self):
-        return self._call("Control", "Uncheck", "", "", *self._include())
+        # TODO: SetControlDelay.
+        if self.exists:
+            return self._call("Control", "Uncheck", "", "", *self._include())
+
+    is_enabled = Window.is_enabled
+
+    def enable(self):
+        # TODO: SetControlDelay.
+        return self._call("Control", "Enable", "", "", *self._include())
+
+    def disable(self):
+        # TODO: SetControlDelay.
+        return self._call("Control", "Disable", "", "", *self._include())
+
+    is_visible = Window.is_visible
+
+    def hide(self):
+        # TODO: SetControlDelay.
+        return self._call("Control", "Hide", "", "", *self._include())
+
+    def show(self):
+        # TODO: SetControlDelay.
+        return self._call("Control", "Show", "", "", *self._include())
 
     @property
     def text(self):
-        return self._call("ControlGetText", "", *self._include())
+        try:
+            return self._call("ControlGetText", "", *self._include())
+        except Error as err:
+            if err.message == 1:
+                return None
+            raise
 
     @text.setter
     def text(self, value):
-        return self._call("ControlSetText", "", value, *self._include())
+        # TODO: SetControlDelay.
+        try:
+            return self._call("ControlSetText", "", str(value), *self._include())
+        except Error as err:
+            if err.message == 1:
+                return
+            raise
+
+    @property
+    def is_focused(self):
+        if self.id == 0:
+            return False
+        thread_id = windll.user32.GetWindowThreadProcessId(HWND(self.id), 0)
+        if thread_id == 0:
+            return False
+        gui_thread_info = GUITHREADINFO()
+        gui_thread_info.cbSize = ctypes.sizeof(GUITHREADINFO)
+        windll.user32.GetGUIThreadInfo(thread_id, ctypes.byref(gui_thread_info))
+        result = gui_thread_info.hwndFocus
+        if result == 0:
+            return False
+        return result == self.id
+
+    def focus(self):
+        # TODO: SetControlDelay.
+        try:
+            return self._call("ControlFocus", "", *self._include())
+        except Error as err:
+            if err.message == 1:
+                # Control doesn't exist.
+                return None
+            raise
 
     def _get(self, subcmd, value=""):
-        result = self._call("ControlGet", subcmd, value, "", *self._include())
-        if result != "":
-            return result
+        try:
+            return self._call("ControlGet", subcmd, value, "", *self._include())
+        except Error as err:
+            if err.message == 1:
+                # Control doesn't exist.
+                return None
+            raise
 
 
 def _set_title_match_mode(title_mode):
@@ -937,6 +1024,19 @@ def _set_title_match_mode(title_mode):
         ahk_call("SetTitleMatchMode", "regex")
     else:
         raise ValueError(f"{title_mode!r} is not a valid title match mode")
+
+
+class GUITHREADINFO(ctypes.Structure):
+    cbSize: DWORD
+    flags: DWORD
+    hwndActive: HWND
+    hwndFocus: HWND
+    hwndCapture: HWND
+    hwndMenuOwner: HWND
+    hwndMoveSize: HWND
+    hwndCaret: HWND
+    rcCaret: RECT
+    _fields_ = list(__annotations__.items())
 
 
 class WindowStyle(enum.IntFlag):

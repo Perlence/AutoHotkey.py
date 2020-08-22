@@ -305,6 +305,8 @@ def test_nonwindow(win_id):
     assert win.exists is False
     assert win.is_active is False
     assert win.is_visible is False
+    # assert win.hide() is None  # TODO: Don't raise errors
+    # assert win.show() is None
     assert win.process_path is None
     assert win.title is None
     win.title = 'beep'
@@ -323,10 +325,17 @@ def test_nonwindow(win_id):
     assert win.control_classes == []
     assert win.controls == []
     assert win.get_control("nope") == ahk.Control(0)
+    assert win.get_focused_control() == ahk.Control(0)
     assert win.always_on_top is None
-    assert win.is_enabled is None
+    assert win.is_enabled is None  # XXX: Should it be False?
+    # assert win.enable() is None
+    # assert win.disable() is None
     assert win.style is None
+    # win.style = 0
+    # assert win.style is None
     assert win.ex_style is None
+    # win.ex_style = 0
+    # assert win.ex_style is None
     assert win.opacity is None
     assert win.transparent_color is None
     assert win.get_status_bar_text() is None
@@ -336,6 +345,7 @@ def test_nonwindow(win_id):
     assert win.wait_hidden(timeout=0.1) is True
     assert win.wait_close(timeout=0.1) is True
     assert len(ahk.windows.filter(title=win.title)) == 0
+    win.activate()
 
 
 def test_status_bar(request, notepad):
@@ -413,14 +423,88 @@ def test_match_text_slow(notepad):
 
 
 class TestControl:
-    def test_checked(self, notepad):
-        notepad.send("q")  # Enter some text to enable searching.
+    @pytest.fixture
+    def find_dialog(self, notepad):
+        notepad.send("q")  # Enter some text to enable searching
         notepad.send("^f")
-        find_dialog = ahk.windows.wait_active(title="Find", pid=notepad.pid)
+        find_dialog = ahk.windows.wait_active(title="Find", pid=notepad.pid, timeout=1)
+        assert find_dialog
+        yield find_dialog
+        find_dialog.close()
+        notepad.get_control("Edit1").text = ""
+
+    @pytest.mark.parametrize("control_id", [
+        pytest.param(0, id="null control"),
+        pytest.param(-1, id="nonexistent control"),
+    ])
+    def test_noncontrol(self, control_id):
+        no = ahk.Control(control_id)
+
+        assert no.is_checked is None
+        assert no.check() is None
+        assert no.uncheck() is None
+
+        assert no.is_focused is False
+        assert no.focus() is None
+
+        assert no.text is None
+        no.text = "nooooo"
+        assert no.text is None
+
+    def test_checked(self, find_dialog):
         match_case_button = find_dialog.get_control("Button2")
         assert match_case_button.is_checked is False
         match_case_button.is_checked = True
         assert match_case_button.is_checked is True
+
+        # find_next_button = find_dialog.get_control("Button7")
+        # assert find_next_button.is_checked is False
+        # find_next_button.is_checked = True
+        # assert find_next_button.is_checked is False
+
+    def test_is_enabled(self, notepad):
+        edit = notepad.get_control("Edit1")
+        assert edit.is_enabled is True
+        edit.disable()
+        assert edit.is_enabled is False
+        edit.enable()
+        assert edit.is_enabled is True
+
+    def test_is_visible(self, notepad):
+        edit = notepad.get_control("Edit1")
+        assert edit.is_visible is True
+        edit.hide()
+        assert edit.is_visible is False
+        edit.show()
+        assert edit.is_visible is True
+
+    def test_style(self, notepad):
+        edit = notepad.get_control("Edit1")
+        assert ahk.WindowStyle.VSCROLL in edit.style
+        edit.style ^= ahk.WindowStyle.VSCROLL
+        assert ahk.WindowStyle.VSCROLL not in edit.style
+        notepad.redraw()
+
+    def test_ex_style(self, notepad):
+        edit = notepad.get_control("Edit1")
+        assert edit.ex_style == 0
+        edit.ex_style |= ahk.ExWindowStyle.LEFTSCROLLBAR
+        assert ahk.ExWindowStyle.LEFTSCROLLBAR in edit.ex_style
+        notepad.redraw()
+
+    def test_focus(self, find_dialog):
+        edit = find_dialog.get_control("Edit1")
+        focused_control = find_dialog.get_focused_control()
+        assert focused_control == edit
+        assert focused_control.class_name == "Edit"
+        assert focused_control.is_focused is True
+
+        match_case_button = find_dialog.get_control("Button2")
+        match_case_button.focus()
+        focused_control = find_dialog.get_focused_control()
+        assert focused_control == match_case_button
+        assert match_case_button.is_focused is True
+        assert edit.is_focused is False
 
 
 def test_window_context(child_ahk, settings):
