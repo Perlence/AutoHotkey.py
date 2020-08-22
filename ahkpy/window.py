@@ -623,14 +623,15 @@ class Window(_Window):
     @property
     def control_classes(self):
         names = self._get("ControlList")
-        if names is not None:
-            return names.splitlines()
+        if names is None:
+            return []
+        return names.splitlines()
 
     @property
     def controls(self):
         handles = self._get("ControlListHwnd")
         if handles is None:
-            return None
+            return []
         hwnds = handles.splitlines()
         return [
             Control(int(hwnd, base=16))
@@ -766,8 +767,9 @@ class Window(_Window):
     @property
     def is_visible(self):
         style = self.style
-        if style is not None:
-            return WindowStyle.VISIBLE in style
+        if style is None:
+            return False
+        return WindowStyle.VISIBLE in style
 
     @is_visible.setter
     def is_visible(self, value):

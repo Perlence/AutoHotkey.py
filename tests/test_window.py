@@ -300,6 +300,7 @@ def test_nonwindow(win_id):
     assert win.id == win_id
     assert win.exists is False
     assert win.is_active is False
+    assert win.is_visible is False
     assert win.process_path is None
     assert win.title is None
     win.title = 'beep'
@@ -315,8 +316,8 @@ def test_nonwindow(win_id):
     assert win.is_maximized is None
     assert win.is_restored is None
     assert win.text is None
-    assert win.control_classes is None
-    assert win.controls is None
+    assert win.control_classes == []
+    assert win.controls == []
     assert win.get_control("nope") == ahk.Control(0)
     assert win.always_on_top is None
     assert win.is_enabled is None
@@ -324,7 +325,6 @@ def test_nonwindow(win_id):
     assert win.ex_style is None
     assert win.opacity is None
     assert win.transparent_color is None
-    assert win.is_visible is None
     assert win.get_status_bar_text() is None
     assert win.wait_status_bar("sus") is None
     assert win.wait_active(timeout=0.1) is False
