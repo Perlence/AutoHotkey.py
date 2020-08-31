@@ -416,6 +416,7 @@ class _Window:
     # cannot have setter properties unless it's a subclass.
 
     id: int
+    __slots__ = ("id",)
 
     def __bool__(self):
         return self.id != 0
