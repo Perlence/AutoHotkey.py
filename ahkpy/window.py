@@ -440,9 +440,12 @@ class _Window:
                 _set_title_match_mode(title_mode)
 
             if set_delay:
-                ahk_call("SetWinDelay", optional_ms(get_settings().win_delay))
+                self._set_delay()
 
             return ahk_call(cmd, *args)
+
+    def _set_delay(self):
+        pass
 
     def _include(self):
         win_text = ""
@@ -912,6 +915,9 @@ class Window(_Window):
     def _set(self, subcmd, value=""):
         return self._call("WinSet", subcmd, value, *self._include())
 
+    def _set_delay(self):
+        ahk_call("SetWinDelay", optional_ms(get_settings().win_delay))
+
 
 class Control(_Window):
     __slots__ = ("id",)
@@ -927,14 +933,7 @@ class Control(_Window):
     width = Window.width
     height = Window.height
     move = Window.move
-    _set = Window._set
-
-    def _get_pos(self):
-        return self._call("ControlGetPos", "", *self._include())
-
-    def _move(self, x, y, width, height):
-        # TODO: SetControlDelay.
-        self._call("ControlMove", "", x, y, width, height, *self._include())
+    _set = Window._set  # Used by style and ex_style. Doesn't set control delay.
 
     @property
     def is_checked(self):
@@ -950,34 +949,28 @@ class Control(_Window):
             self.uncheck()
 
     def check(self):
-        # TODO: SetControlDelay.
         if self.exists:
-            return self._call("Control", "Check", "", "", *self._include())
+            return self._call("Control", "Check", "", "", *self._include(), set_delay=True)
 
     def uncheck(self):
-        # TODO: SetControlDelay.
         if self.exists:
-            return self._call("Control", "Uncheck", "", "", *self._include())
+            return self._call("Control", "Uncheck", "", "", *self._include(), set_delay=True)
 
     is_enabled = Window.is_enabled
 
     def enable(self):
-        # TODO: SetControlDelay.
-        return self._call("Control", "Enable", "", "", *self._include())
+        return self._call("Control", "Enable", "", "", *self._include(), set_delay=True)
 
     def disable(self):
-        # TODO: SetControlDelay.
-        return self._call("Control", "Disable", "", "", *self._include())
+        return self._call("Control", "Disable", "", "", *self._include(), set_delay=True)
 
     is_visible = Window.is_visible
 
     def hide(self):
-        # TODO: SetControlDelay.
-        return self._call("Control", "Hide", "", "", *self._include())
+        return self._call("Control", "Hide", "", "", *self._include(), set_delay=True)
 
     def show(self):
-        # TODO: SetControlDelay.
-        return self._call("Control", "Show", "", "", *self._include())
+        return self._call("Control", "Show", "", "", *self._include(), set_delay=True)
 
     @property
     def text(self):
@@ -990,9 +983,8 @@ class Control(_Window):
 
     @text.setter
     def text(self, value):
-        # TODO: SetControlDelay.
         try:
-            return self._call("ControlSetText", "", str(value), *self._include())
+            return self._call("ControlSetText", "", str(value), *self._include(), set_delay=True)
         except Error as err:
             if err.message == 1:
                 return
@@ -1014,14 +1006,19 @@ class Control(_Window):
         return result == self.id
 
     def focus(self):
-        # TODO: SetControlDelay.
         try:
-            return self._call("ControlFocus", "", *self._include())
+            return self._call("ControlFocus", "", *self._include(), set_delay=True)
         except Error as err:
             if err.message == 1:
                 # Control doesn't exist.
                 return None
             raise
+
+    def _get_pos(self):
+        return self._call("ControlGetPos", "", *self._include())
+
+    def _move(self, x, y, width, height):
+        self._call("ControlMove", "", x, y, width, height, *self._include(), set_delay=True)
 
     def _get(self, subcmd, value=""):
         try:
@@ -1031,6 +1028,9 @@ class Control(_Window):
                 # Control doesn't exist.
                 return None
             raise
+
+    def _set_delay(self):
+        ahk_call("SetControlDelay", optional_ms(get_settings().control_delay))
 
 
 def _set_title_match_mode(title_mode):

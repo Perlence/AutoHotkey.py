@@ -15,7 +15,7 @@ _current_settings = contextvars.ContextVar("script_settings")
 
 @dc.dataclass
 class Settings:
-    control_delay: float = 0.02  # TODO: Implement control_delay.
+    control_delay: float = 0.02
     key_delay: float = 0.01
     key_duration: float = -1
     key_delay_play: float = -1
