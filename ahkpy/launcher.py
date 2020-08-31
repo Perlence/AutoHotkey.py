@@ -13,7 +13,7 @@ EXIT_CODE_RELOAD = 65530
 def main():
     os.environ["PYTHONUNBUFFERED"] = "1"
     os.environ["PYTHONNOUSERSITE"] = "1"
-    os.environ["PYTHONFULLPATH"] = ';'.join(sys.path)
+    os.environ["PYTHONFULLPATH"] = ";".join(sys.path)
     os.environ["PYTHONDLL"] = python_dll_path()
 
     python_ahk_path = Path(__file__).parent / "Python.ahk"

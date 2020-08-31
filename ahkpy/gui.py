@@ -14,7 +14,7 @@ __all__ = [
 
 UNSET = object()
 
-COORD_MODES = {'screen', 'window', 'client'}
+COORD_MODES = {"screen", "window", "client"}
 
 
 def message_box(text=None, title="", options=0, timeout=None):

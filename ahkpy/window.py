@@ -449,7 +449,7 @@ class _Window:
 
 
 class Window(_Window):
-    __slots__ = ('id',)
+    __slots__ = ("id",)
 
     @property
     def rect(self):
@@ -908,7 +908,7 @@ class Window(_Window):
 
 
 class Control(_Window):
-    __slots__ = ('id',)
+    __slots__ = ("id",)
 
     exists = Window.exists
     style = Window.style

@@ -300,7 +300,7 @@ class TestHotstring:
     def test_decorator(self, request, edit):
         @ahk.hotstring("blarp")
         def blarp():
-            ahk.send('boop ')
+            ahk.send("boop ")
 
         request.addfinalizer(blarp.disable)
         ahk.send("blarp")

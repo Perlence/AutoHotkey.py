@@ -10,7 +10,7 @@ __all__ = [
 ]
 
 
-_current_settings = contextvars.ContextVar('script_settings')
+_current_settings = contextvars.ContextVar("script_settings")
 
 
 @dc.dataclass

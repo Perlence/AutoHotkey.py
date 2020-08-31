@@ -14,7 +14,7 @@ except ModuleNotFoundError:
             )
 
     # TODO: Write a test for this.
-    _sys.modules['_ahk'] = _shim()
+    _sys.modules["_ahk"] = _shim()
     del _shim
 
 from .clipboard import *  # noqa: F401 F403

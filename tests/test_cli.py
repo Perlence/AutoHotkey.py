@@ -12,7 +12,7 @@ def test_stdin(child_ahk):
     assert res.stdout == "__main__ <stdin> ['-']\n"
     assert res.returncode == 0
 
-    res = child_ahk.run(['-', 'script.py', '2', '3'], input=code)
+    res = child_ahk.run(["-", "script.py", "2", "3"], input=code)
     assert res.stdout == "__main__ <stdin> ['-', 'script.py', '2', '3']\n"
     assert res.returncode == 0
 
@@ -146,7 +146,7 @@ def test_tracebacks(tmpdir, child_ahk):
     assert res.returncode == 1
 
     beep = tmpdir / "beep.py"
-    beep.write('import boop')
+    beep.write("import boop")
     boop = tmpdir / "boop.py"
     boop.write("import")
     res = child_ahk.run(["-q", str(beep)])
@@ -185,7 +185,7 @@ def test_interactive_mode(request):
 
     assert "Python 3" in proc.readline()
     assert 'Type "help"' in proc.readline()
-    assert '(InteractiveConsole)' in proc.readline()
+    assert "(InteractiveConsole)" in proc.readline()
     assert proc.read(3) == ">>>"
 
     proc.write("import sys; sys.argv\r\n")

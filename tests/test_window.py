@@ -309,7 +309,7 @@ def test_nonwindow(win_id):
     # assert win.show() is None
     assert win.process_path is None
     assert win.title is None
-    win.title = 'beep'
+    win.title = "beep"
     assert win.title is None
     assert win.class_name is None
     assert win.pid is None

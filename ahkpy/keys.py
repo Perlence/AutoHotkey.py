@@ -268,7 +268,7 @@ class Hotkey:
             options.append("B0")
 
         if priority is not None:
-            options.append(f'P{priority}')
+            options.append(f"P{priority}")
 
         if max_threads is not None:
             options.append(f"T{max_threads}")
@@ -299,7 +299,7 @@ class Hotstring:
     #     C1 <-- C --> C0
 
     def __post_init__(self):
-        if hasattr(self.string, 'lower') and not self.case_sensitive:
+        if hasattr(self.string, "lower") and not self.case_sensitive:
             object.__setattr__(self, "string", self.string.lower())
 
     def disable(self):

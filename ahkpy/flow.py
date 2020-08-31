@@ -94,13 +94,13 @@ def reload():
     sys.exit(launcher.EXIT_CODE_RELOAD)
 
 
-def output_debug(*objs, sep=' '):
+def output_debug(*objs, sep=" "):
     if sep is None:
         # Python documentation for the print() function:
         #
         # > Both *sep* and *end* must be strings; they can also be `None`, which
         # > means to use the default values.
-        sep = ' '
+        sep = " "
     debug_str = sep.join(map(str, objs))
     ctypes.windll.kernel32.OutputDebugStringW(debug_str)
 

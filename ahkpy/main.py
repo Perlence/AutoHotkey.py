@@ -161,8 +161,8 @@ def run_path(filename):
         from pkgutil import get_importer, read_code
         importer = get_importer(filename)
         is_NullImporter = False
-        if type(importer).__module__ == 'imp':
-            if type(importer).__name__ == 'NullImporter':
+        if type(importer).__module__ == "imp":
+            if type(importer).__name__ == "NullImporter":
                 is_NullImporter = True
         if isinstance(importer, type(None)) or is_NullImporter:
             # runpy._get_code_from_file:
