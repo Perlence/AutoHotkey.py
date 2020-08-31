@@ -14,7 +14,7 @@ quiet = False
 
 
 def main():
-    sys.excepthook = excepthook
+    sys.excepthook = sys.__excepthook__ = excepthook
 
     if sys.stdout:
         sys.stdout.reconfigure(encoding="utf-8")

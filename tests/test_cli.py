@@ -197,9 +197,15 @@ def test_interactive_mode(request):
     assert "nonexistent" in proc.readline()
     assert "Traceback" in proc.readline()
     assert "  File" in proc.readline()
-    assert "    exec" in proc.readline()
-    assert "  File" in proc.readline()
     assert "NameError: name 'nonexistent' is not defined" in proc.readline()
+    assert proc.read(3) == ">>>"
+
+    proc.write("!\r\n")
+    assert "!" in proc.readline()
+    assert '  File "<console>"' in proc.readline()
+    assert "    !" in proc.readline()
+    assert "    ^" in proc.readline()
+    assert "SyntaxError: invalid syntax" in proc.readline()
     assert proc.read(3) == ">>>"
 
     proc.write("exit()\r\n")
