@@ -451,6 +451,15 @@ class TestControl:
         no.text = "nooooo"
         assert no.text is None
 
+    def test_rect(self, notepad):
+        edit = notepad.get_control("Edit1")
+        _, _, width, height = edit.x, edit.y, edit.width, edit.height
+        assert 0 < width <= notepad.width
+        assert 0 < height <= notepad.height
+        edit.width /= 2
+        edit.height /= 2
+        notepad.redraw()
+
     def test_checked(self, find_dialog):
         match_case_button = find_dialog.get_control("Button2")
         assert match_case_button.is_checked is False

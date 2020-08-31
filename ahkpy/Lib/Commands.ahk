@@ -554,8 +554,8 @@ _WinMinimizeAllUndo() {
     WinMinimizeAllUndo
 }
 
-_WinMove(Param1,Param2,X="",Y="",Width="",Height="",ExcludeTitle="",ExcludeText="") {
-    WinMove %Param1%,%Param2%,%X%,%Y%,%Width%,%Height%,%ExcludeTitle%,%ExcludeText%
+_WinMove(WinTitle,WinText,X,Y,Width="",Height="",ExcludeTitle="",ExcludeText="") {
+    WinMove %WinTitle%,%WinText%,%X%,%Y%,%Width%,%Height%,%ExcludeTitle%,%ExcludeText%
 }
 
 _WinRestore(WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
@@ -566,8 +566,8 @@ _WinSet(Attribute,Value,WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
     WinSet %Attribute%,%Value%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
 }
 
-_WinSetTitle(Param1,WinText,NewTitle,ExcludeTitle="",ExcludeText="") {
-    WinSetTitle %Param1%,%WinText%,%NewTitle%,%ExcludeTitle%,%ExcludeText%
+_WinSetTitle(WinTitle,WinText,NewTitle,ExcludeTitle="",ExcludeText="") {
+    WinSetTitle %WinTitle%,%WinText%,%NewTitle%,%ExcludeTitle%,%ExcludeText%
 }
 
 _WinShow(WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {

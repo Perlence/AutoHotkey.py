@@ -454,7 +454,7 @@ class Window(_Window):
 
     @property
     def rect(self):
-        result = self._call("WinGetPos", *self._include())
+        result = self._get_pos()
         if result is not None:
             x, y, width, height = result["X"], result["Y"], result["Width"], result["Height"]
         else:
@@ -470,6 +470,9 @@ class Window(_Window):
     def rect(self, new_rect):
         x, y, width, height = new_rect
         self.move(x, y, width, height)
+
+    def _get_pos(self):
+        return self._call("WinGetPos", *self._include())
 
     @property
     def position(self):
@@ -518,15 +521,15 @@ class Window(_Window):
         self.move(height=new_height)
 
     def move(self, x=None, y=None, width=None, height=None):
-        self._call(
-            "WinMove",
-            *self._include(),
+        self._move(
             default(int, x, ""),
             default(int, y, ""),
             default(int, width, ""),
             default(int, height, ""),
-            set_delay=True,
         )
+
+    def _move(self, x, y, width, height):
+        self._call("WinMove", *self._include(), x, y, width, height, set_delay=True)
 
     @property
     def is_active(self):
@@ -915,7 +918,21 @@ class Control(_Window):
     style = Window.style
     ex_style = Window.ex_style
     class_name = Window.class_name
+    rect = Window.rect
+    position = Window.position
+    x = Window.x
+    y = Window.y
+    width = Window.width
+    height = Window.height
+    move = Window.move
     _set = Window._set
+
+    def _get_pos(self):
+        return self._call("ControlGetPos", "", *self._include())
+
+    def _move(self, x, y, width, height):
+        # TODO: SetControlDelay.
+        self._call("ControlMove", "", x, y, width, height, *self._include())
 
     @property
     def is_checked(self):
