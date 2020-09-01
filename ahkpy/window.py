@@ -445,15 +445,50 @@ class _Window:
             return ahk_call(cmd, *args)
 
     def _set_delay(self):
-        pass
+        raise NotImplementedError
 
     def _include(self):
         win_text = ""
         return f"ahk_id {self.id}", win_text
 
 
-class Window(_Window):
+class BaseWindow(_Window):
+    """Base window class that is inherited by Window and Control classes."""
+
     __slots__ = ("id",)
+
+    @property
+    def exists(self):
+        return bool(self._call("WinExist", *self._include()))
+
+    @property
+    def style(self):
+        style = self._get("Style")
+        if style is not None:
+            return WindowStyle(style)
+
+    @style.setter
+    def style(self, value):
+        self._set("Style", int(value))
+
+    @property
+    def ex_style(self):
+        ex_style = self._get("ExStyle")
+        if ex_style is not None:
+            return ExWindowStyle(ex_style)
+
+    @ex_style.setter
+    def ex_style(self, value):
+        self._set("ExStyle", int(value))
+
+    @property
+    def class_name(self):
+        class_name = self._call("WinGetClass", *self._include())
+        if class_name != "":
+            # Windows API doesn't allow the class name to be an empty string. If
+            # the window doesn't exist or there was a problem getting the class
+            # name, AHK returns an empty string.
+            return class_name
 
     @property
     def rect(self):
@@ -473,9 +508,6 @@ class Window(_Window):
     def rect(self, new_rect):
         x, y, width, height = new_rect
         self.move(x, y, width, height)
-
-    def _get_pos(self):
-        return self._call("WinGetPos", *self._include())
 
     @property
     def position(self):
@@ -531,25 +563,74 @@ class Window(_Window):
             default(int, height, ""),
         )
 
+    @property
+    def is_enabled(self):
+        style = self.style
+        if style is not None:
+            return WindowStyle.DISABLED not in style
+
+    @is_enabled.setter
+    def is_enabled(self, value):
+        if value:
+            self.enable()
+        else:
+            self.disable()
+
+    def enable(self):
+        raise NotImplementedError
+
+    def disable(self):
+        raise NotImplementedError
+
+    @property
+    def is_visible(self):
+        style = self.style
+        if style is None:
+            return False
+        return WindowStyle.VISIBLE in style
+
+    @is_visible.setter
+    def is_visible(self, value):
+        if value:
+            self.show()
+        else:
+            self.hide()
+
+    def show(self):
+        raise NotImplementedError
+
+    def hide(self):
+        raise NotImplementedError
+
+    def send(self, keys):
+        with global_ahk_lock:
+            hotkeys._set_key_delay()
+            control = ""
+            self._call("ControlSend", control, str(keys), *self._include())
+
+    def _get_pos(self):
+        raise NotImplementedError
+
     def _move(self, x, y, width, height):
-        self._call("WinMove", *self._include(), x, y, width, height, set_delay=True)
+        raise NotImplementedError
+
+    def _get(self, subcmd):
+        raise NotImplementedError
+
+    def _set(self, subcmd, value=""):
+        # Used mainly by Window. Also used by Control for style and ex_style
+        # properties. It's OK to use 'WinSet' for controls because control delay
+        # has no effect on the 'Control, Style' command and they essentially do
+        # the same.
+        return self._call("WinSet", subcmd, value, *self._include())
+
+
+class Window(BaseWindow):
+    __slots__ = ("id",)
 
     @property
     def is_active(self):
         return bool(self._call("WinActive", *self._include()))
-
-    @property
-    def exists(self):
-        return bool(self._call("WinExist", *self._include()))
-
-    @property
-    def class_name(self):
-        class_name = self._call("WinGetClass", *self._include())
-        if class_name != "":
-            # Windows API doesn't allow the class name to be an empty string. If
-            # the window doesn't exist or there was a problem getting the class
-            # name, AHK returns an empty string.
-            return class_name
 
     @property
     def text(self):
@@ -707,19 +788,6 @@ class Window(_Window):
     def enable(self):
         self._set("Enable")
 
-    @property
-    def is_enabled(self):
-        style = self.style
-        if style is not None:
-            return WindowStyle.DISABLED not in style
-
-    @is_enabled.setter
-    def is_enabled(self, value):
-        if value:
-            self.enable()
-        else:
-            self.disable()
-
     def redraw(self):
         self._set("Redraw")
 
@@ -729,26 +797,6 @@ class Window(_Window):
 
     def reset_region(self):
         self._set("Region", "")
-
-    @property
-    def style(self):
-        style = self._get("Style")
-        if style is not None:
-            return WindowStyle(style)
-
-    @style.setter
-    def style(self, value):
-        self._set("Style", int(value))
-
-    @property
-    def ex_style(self):
-        ex_style = self._get("ExStyle")
-        if ex_style is not None:
-            return ExWindowStyle(ex_style)
-
-    @ex_style.setter
-    def ex_style(self, value):
-        self._set("ExStyle", int(value))
 
     @property
     def opacity(self):
@@ -785,20 +833,6 @@ class Window(_Window):
 
     def show(self):
         self._call("WinShow", *self._include(), set_delay=True)
-
-    @property
-    def is_visible(self):
-        style = self.style
-        if style is None:
-            return False
-        return WindowStyle.VISIBLE in style
-
-    @is_visible.setter
-    def is_visible(self, value):
-        if value:
-            self.show()
-        else:
-            self.hide()
 
     def activate(self, timeout=None):
         self._call("WinActivate", *self._include())
@@ -882,12 +916,6 @@ class Window(_Window):
             return True
         return not timed_out
 
-    def send(self, keys):
-        with global_ahk_lock:
-            hotkeys._set_key_delay()
-            control = ""
-            self._call("ControlSend", control, str(keys), *self._include())
-
     # TODO: Add send_message and post_message to Windows.
 
     def send_message(self, msg, w_param=0, l_param=0, timeout=5):
@@ -907,33 +935,23 @@ class Window(_Window):
         err = self._call("PostMessage", int(msg), int(w_param), int(l_param), control, *self._include())
         return not err
 
+    def _move(self, x, y, width, height):
+        self._call("WinMove", *self._include(), x, y, width, height, set_delay=True)
+
+    def _get_pos(self):
+        return self._call("WinGetPos", *self._include())
+
     def _get(self, subcmd):
         result = self._call("WinGet", subcmd, *self._include())
         if result != "":
             return result
 
-    def _set(self, subcmd, value=""):
-        return self._call("WinSet", subcmd, value, *self._include())
-
     def _set_delay(self):
         ahk_call("SetWinDelay", optional_ms(get_settings().win_delay))
 
 
-class Control(_Window):
+class Control(BaseWindow):
     __slots__ = ("id",)
-
-    exists = Window.exists
-    style = Window.style
-    ex_style = Window.ex_style
-    class_name = Window.class_name
-    rect = Window.rect
-    position = Window.position
-    x = Window.x
-    y = Window.y
-    width = Window.width
-    height = Window.height
-    move = Window.move
-    _set = Window._set  # Used by style and ex_style. Doesn't set control delay.
 
     @property
     def is_checked(self):
@@ -956,15 +974,11 @@ class Control(_Window):
         if self.exists:
             return self._call("Control", "Uncheck", "", "", *self._include(), set_delay=True)
 
-    is_enabled = Window.is_enabled
-
     def enable(self):
         return self._call("Control", "Enable", "", "", *self._include(), set_delay=True)
 
     def disable(self):
         return self._call("Control", "Disable", "", "", *self._include(), set_delay=True)
-
-    is_visible = Window.is_visible
 
     def hide(self):
         return self._call("Control", "Hide", "", "", *self._include(), set_delay=True)
