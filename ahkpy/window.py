@@ -410,7 +410,7 @@ all_windows = windows.include_hidden_windows()
 
 
 @dc.dataclass(frozen=True)
-class _Window:
+class WindowHandle:
     # I'd like the Window and Control classes to be hashable, and making the
     # dataclass frozen also makes it hashable. However, frozen dataclasses
     # cannot have setter properties unless it's a subclass.
@@ -431,6 +431,9 @@ class _Window:
         with global_ahk_lock:
             # XXX: Setting DetectHiddenWindows should not be necessary for
             # controls.
+            # > Control's HWND can be used directly as an ahk_id WinTitle (this
+            # > also works on hidden controls even when DetectHiddenWindows is
+            # > Off).
             if hidden_windows:
                 ahk_call("DetectHiddenWindows", "On")
             else:
@@ -452,7 +455,7 @@ class _Window:
         return f"ahk_id {self.id}", win_text
 
 
-class BaseWindow(_Window):
+class BaseWindow(WindowHandle):
     """Base window class that is inherited by Window and Control classes."""
 
     __slots__ = ("id",)
