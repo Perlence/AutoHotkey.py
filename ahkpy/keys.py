@@ -44,7 +44,7 @@ def get_physical_key_state(key_name):
 
 
 def is_key_toggled(key_name):
-    if key_name.lower() not in ("capslock", "numlock", "scrolllock", "insert", "ins"):
+    if key_name.lower() not in {"capslock", "numlock", "scrolllock", "insert", "ins"}:
         raise ValueError("key_name must be one of CapsLock, NumLock, ScrollLock, or Insert")
     return _get_key_state(key_name, "T")
 
@@ -69,9 +69,9 @@ def set_scroll_lock_state(state):
 
 
 def _set_key_state(cmd, state):
-    if isinstance(state, str) and state.lower() in ("always_on", "alwayson"):
+    if isinstance(state, str) and state.lower() in {"always_on", "alwayson"}:
         state = "AlwaysOn"
-    elif isinstance(state, str) and state.lower() in ("always_off", "alwaysoff"):
+    elif isinstance(state, str) and state.lower() in {"always_off", "alwaysoff"}:
         state = "AlwaysOff"
     elif state:
         state = "On"
