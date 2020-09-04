@@ -608,6 +608,25 @@ class BaseWindow(_Window):
             control = ""
             self._call("ControlSend", control, str(keys), *self._include())
 
+    # TODO: Add send_message and post_message to Windows.
+
+    def send_message(self, msg, w_param=0, l_param=0, timeout=5):
+        control = exclude_title = exclude_text = ""
+        try:
+            result = self._call(
+                "SendMessage", int(msg), int(w_param), int(l_param), control,
+                *self._include(), exclude_title, exclude_text,
+                int(timeout * 1000),
+            )
+        except Error:
+            raise RuntimeError("there was a problem sending message or response timed out") from None
+        return result
+
+    def post_message(self, msg, w_param=0, l_param=0):
+        control = ""
+        err = self._call("PostMessage", int(msg), int(w_param), int(l_param), control, *self._include())
+        return not err
+
     def _get_pos(self):
         raise NotImplementedError
 
@@ -915,25 +934,6 @@ class Window(BaseWindow):
         if timed_out is None:
             return True
         return not timed_out
-
-    # TODO: Add send_message and post_message to Windows.
-
-    def send_message(self, msg, w_param=0, l_param=0, timeout=5):
-        control = exclude_title = exclude_text = ""
-        try:
-            result = self._call(
-                "SendMessage", int(msg), int(w_param), int(l_param), control,
-                *self._include(), exclude_title, exclude_text,
-                int(timeout * 1000),
-            )
-        except Error:
-            raise RuntimeError("there was a problem sending message or response timed out") from None
-        return result
-
-    def post_message(self, msg, w_param=0, l_param=0):
-        control = ""
-        err = self._call("PostMessage", int(msg), int(w_param), int(l_param), control, *self._include())
-        return not err
 
     def _move(self, x, y, width, height):
         self._call("WinMove", *self._include(), x, y, width, height, set_delay=True)
