@@ -547,15 +547,44 @@ class TestControl:
         cb = ahk.get_clipboard()
         assert cb != text
 
-    def test_line_count(self, edit):
+    def test_line_stuff(self, edit):
         edit.text = ""
         assert edit.line_count == 1
 
-        edit.text = "1\n2"
+        edit.text = "0\r\n1"
         assert edit.line_count == 2
 
-        edit.text = "1\n2\n"
+        edit.text = "0\r\n1\r\n"
         assert edit.line_count == 3
+
+        assert edit.current_line_number == 0
+        assert edit.current_column == 0
+
+        edit.send("{Right}")
+        assert edit.current_column == 1
+
+        assert edit.current_line == "0"
+
+        edit.send("{Down}")
+        assert edit.current_line_number == 1
+        assert edit.current_line == "1"
+        assert edit.current_column == 1
+
+        edit.send("{Left}")
+        assert edit.current_column == 0
+
+        assert edit.get_line(0) == "0"
+        assert edit.get_line(1) == "1"
+        assert edit.get_line(2) == ""
+        assert edit.get_line(3) is None
+
+        assert edit.selected_text == ""
+
+        edit.send("+{Right}")
+        assert edit.selected_text == "1"
+
+        edit.send("^a")
+        assert edit.selected_text == "0\r\n1\r\n"
 
 
 def test_window_context(child_ahk, settings):

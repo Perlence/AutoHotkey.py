@@ -1049,6 +1049,61 @@ class Control(BaseWindow):
         """
         return self._get("LineCount")
 
+    @property
+    def current_line_number(self):
+        """Retrieve the line number in an Edit control where the caret (insert
+        point) resides.
+
+        The first line is 0. If there is text selected in the control, the
+        result is set to the line number where the selection begins.
+        """
+        return self._get("CurrentLine") - 1
+
+    @property
+    def current_column(self):
+        """Retrieve the column number in an Edit control where the caret (text
+        insertion point) resides.
+
+        The first column is 0. If there is text selected in the control,
+        the result is set to the column number where the selection begins.
+        """
+        return self._get("CurrentCol") - 1
+
+    def get_line(self, lineno):
+        """Retrieve the text of line *lineno* in an Edit control.
+
+        Line 0 is the first line. If the specified line number is blank or does
+        not exist, the result is ``None``.
+        """
+        try:
+            return str(self._get("Line", int(lineno) + 1))
+        except Error as err:
+            if err.message == 1:
+                if int(lineno) + 1 == self.line_count:
+                    return ""
+                return None
+            raise
+
+    @property
+    def current_line(self):
+        """Retrieve the text of the line in an Edit control where the caret
+        (insert point) resides.
+
+        If there is text selected in the control, the result is set to the line
+        number where the selection begins.
+        """
+        return self.get_line(self.current_line_number)
+
+    @property
+    def selected_text(self):
+        """Retrieve the selected text in an Edit control.
+
+        If no text is selected, the result is an empty string. Certain types of
+        controls, such as RichEdit20A, might not produce the correct text in
+        some cases (e.g. Metapad).
+        """
+        return str(self._get("Selected"))
+
     def _get_pos(self):
         return self._call("ControlGetPos", "", *self._include())
 
@@ -1068,7 +1123,6 @@ class Control(BaseWindow):
             if err.message == 1:
                 if not super().exists:
                     return None
-                err.message = f"there was a problem calling {cmd}{args!r}"
             raise
 
 
