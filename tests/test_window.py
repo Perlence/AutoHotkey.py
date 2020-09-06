@@ -423,13 +423,14 @@ def test_match_text_slow(notepad):
 
 
 class TestControl:
-    @pytest.fixture(autouse=True)
-    def setup_clear_edit(self, notepad):
+    @pytest.fixture
+    def edit(self, notepad):
         edit = notepad.get_control("Edit1")
         edit.text = ""
+        return edit
 
     @pytest.fixture
-    def find_dialog(self, notepad, setup_clear_edit):
+    def find_dialog(self, notepad, edit):
         notepad.send("q")  # Enter some text to enable searching
         notepad.send("^f")
         find_dialog = ahk.windows.wait_active(title="Find", pid=notepad.pid, timeout=1)
@@ -474,8 +475,7 @@ class TestControl:
 
         assert ctl.paste("beep") is None
 
-    def test_rect(self, notepad):
-        edit = notepad.get_control("Edit1")
+    def test_rect(self, notepad, edit):
         _, _, width, height = edit.x, edit.y, edit.width, edit.height
         assert 0 < width <= notepad.width
         assert 0 < height <= notepad.height
@@ -495,31 +495,27 @@ class TestControl:
         # find_next_button.is_checked = True
         # assert find_next_button.is_checked is False
 
-    def test_is_enabled(self, notepad):
-        edit = notepad.get_control("Edit1")
+    def test_is_enabled(self, edit):
         assert edit.is_enabled is True
         edit.disable()
         assert edit.is_enabled is False
         edit.enable()
         assert edit.is_enabled is True
 
-    def test_is_visible(self, notepad):
-        edit = notepad.get_control("Edit1")
+    def test_is_visible(self, edit):
         assert edit.is_visible is True
         edit.hide()
         assert edit.is_visible is False
         edit.show()
         assert edit.is_visible is True
 
-    def test_style(self, notepad):
-        edit = notepad.get_control("Edit1")
+    def test_style(self, notepad, edit):
         assert ahk.WindowStyle.VSCROLL in edit.style
         edit.style ^= ahk.WindowStyle.VSCROLL
         assert ahk.WindowStyle.VSCROLL not in edit.style
         notepad.redraw()
 
-    def test_ex_style(self, notepad):
-        edit = notepad.get_control("Edit1")
+    def test_ex_style(self, notepad, edit):
         assert edit.ex_style == 0
         edit.ex_style |= ahk.ExWindowStyle.LEFTSCROLLBAR
         assert ahk.ExWindowStyle.LEFTSCROLLBAR in edit.ex_style
@@ -539,9 +535,8 @@ class TestControl:
         assert match_case_button.is_focused is True
         assert edit.is_focused is False
 
-    def test_paste(self, notepad):
+    def test_paste(self, edit):
         import uuid
-        edit = notepad.get_control("Edit1")
         text = str(uuid.uuid4())
         edit.paste(text)
         assert edit.text == text
