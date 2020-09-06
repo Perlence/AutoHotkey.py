@@ -345,7 +345,10 @@ def test_nonwindow(win_id):
     assert win.wait_hidden(timeout=0.1) is True
     assert win.wait_close(timeout=0.1) is True
     assert len(ahk.windows.filter(title=win.title)) == 0
-    win.activate()
+    assert win.activate() is None
+    assert win.send("^r") is None
+    assert win.send_message(9000) is None
+    assert win.post_message(9000) is None
 
 
 def test_status_bar(request, notepad):

@@ -609,7 +609,13 @@ class BaseWindow(WindowHandle):
         with global_ahk_lock:
             hotkeys._set_key_delay()
             control = ""
-            self._call("ControlSend", control, str(keys), *self._include())
+            try:
+                self._call("ControlSend", control, str(keys), *self._include())
+            except Error as err:
+                if err.message == 1:
+                    # Control doesn't exist.
+                    return
+                raise
 
     # TODO: Add send_message and post_message to Windows.
 
@@ -622,18 +628,26 @@ class BaseWindow(WindowHandle):
                 int(timeout * 1000),
             )
         except Error as err:
-            if not self.exists:
-                return None
-            err.message = "there was a problem sending message or response timed out"
+            if err.message == "FAIL":
+                if not self.exists:
+                    return None
+                err.message = "there was a problem sending message or response timed out"
             raise
         return result
 
     def post_message(self, msg, w_param=0, l_param=0):
         control = ""
-        err = self._call("PostMessage", int(msg), int(w_param), int(l_param), control, *self._include())
-        if err is None:
-            return None
-        return not err
+        try:
+            err = self._call("PostMessage", int(msg), int(w_param), int(l_param), control, *self._include())
+            if err is None:
+                return None
+            return not err
+        except Error as err:
+            if err.message == 1:
+                if not self.exists:
+                    return None
+                err.message = "there was a problem posting message"
+            raise
 
     def _get_pos(self):
         raise NotImplementedError
@@ -664,10 +678,10 @@ class Window(BaseWindow):
         try:
             return self._call("WinGetText", *self._include())
         except Error as err:
-            # If target window doesn't exist or there was a problem getting the
-            # text, AHK raises an error.
             if err.message == 1:
-                return None
+                if not self.exists:
+                    return None
+                err.message = "there was a problem getting the text"
             raise
 
     @property
@@ -757,10 +771,10 @@ class Window(BaseWindow):
         ]
 
     def get_control(self, class_or_text, match="startswith"):
-        if not self.exists:
-            return Control(0)
         try:
             control_id = self._call("ControlGet", "Hwnd", "", class_or_text, *self._include(), title_mode=match)
+            if control_id is None:
+                return Control(0)
             return Control(control_id)
         except Error as err:
             if err.message == 1:
@@ -769,10 +783,10 @@ class Window(BaseWindow):
             raise
 
     def get_focused_control(self):
-        if not self.exists:
-            return Control(0)
         try:
             class_name = self._call("ControlGetFocus", *self._include())
+            if class_name is None:
+                return Control(0)
         except Error as err:
             if err.message == 1:
                 # None of window's controls have input focus.
@@ -867,18 +881,16 @@ class Window(BaseWindow):
             return self.wait_active(timeout=timeout)
 
     def get_status_bar_text(self, part=1):
-        if not self._status_bar_exists():
-            return None
         try:
             return self._call("StatusBarGetText", int(part), *self._include())
         except Error as err:
             if err.message == 1:
+                if not self._status_bar_exists():
+                    return None
                 err.message = "status bar cannot be accessed"
             raise
 
     def wait_status_bar(self, bar_text="", timeout=None, part=1, interval=0.05):
-        if not self._status_bar_exists():
-            return None
         try:
             timed_out = self._call(
                 "StatusBarWait",
@@ -888,9 +900,13 @@ class Window(BaseWindow):
                 *self._include(),
                 interval * 1000,
             )
+            if timed_out is None:
+                return None
             return not timed_out
         except Error as err:
             if err.message == 2:
+                if not self._status_bar_exists():
+                    return None
                 err.message = "status bar cannot be accessed"
             raise
 
@@ -975,12 +991,10 @@ class Control(BaseWindow):
             self.uncheck()
 
     def check(self):
-        if self.exists:
-            return self._call("Control", "Check", "", "", *self._include(), set_delay=True)
+        return self._call("Control", "Check", "", "", *self._include(), set_delay=True)
 
     def uncheck(self):
-        if self.exists:
-            return self._call("Control", "Uncheck", "", "", *self._include(), set_delay=True)
+        return self._call("Control", "Uncheck", "", "", *self._include(), set_delay=True)
 
     def enable(self):
         return self._call("Control", "Enable", "", "", *self._include(), set_delay=True)
