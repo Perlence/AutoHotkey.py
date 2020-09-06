@@ -639,9 +639,8 @@ class BaseWindow(WindowHandle):
         control = ""
         try:
             err = self._call("PostMessage", int(msg), int(w_param), int(l_param), control, *self._include())
-            if err is None:
-                return None
-            return not err
+            if err is not None:
+                return not err
         except Error as err:
             if err.message == 1:
                 if not self.exists:
@@ -676,12 +675,14 @@ class Window(BaseWindow):
     @property
     def text(self):
         try:
-            return self._call("WinGetText", *self._include())
+            text = self._call("WinGetText", *self._include())
+            if text is not None:
+                return str(text)
         except Error as err:
             if err.message == 1:
                 if not self.exists:
                     return None
-                err.message = "there was a problem getting the text"
+                err.message = "there was a problem getting the window text"
             raise
 
     @property
@@ -690,7 +691,7 @@ class Window(BaseWindow):
         # If the window doesn't exist, AHK returns an empty string. Check that
         # the window exists.
         if self.exists:
-            return title
+            return str(title)
 
     @title.setter
     def title(self, new_title):
@@ -882,7 +883,9 @@ class Window(BaseWindow):
 
     def get_status_bar_text(self, part=1):
         try:
-            return self._call("StatusBarGetText", int(part), *self._include())
+            text = self._call("StatusBarGetText", int(part), *self._include())
+            if text is not None:
+                return str(text)
         except Error as err:
             if err.message == 1:
                 if not self._status_bar_exists():
@@ -900,9 +903,8 @@ class Window(BaseWindow):
                 *self._include(),
                 interval * 1000,
             )
-            if timed_out is None:
-                return None
-            return not timed_out
+            if timed_out is not None:
+                return not timed_out
         except Error as err:
             if err.message == 2:
                 if not self._status_bar_exists():
@@ -1010,7 +1012,9 @@ class Control(BaseWindow):
 
     @property
     def text(self):
-        return self._call("ControlGetText", "", *self._include())
+        text = self._call("ControlGetText", "", *self._include())
+        if text is not None:
+            return str(text)
 
     @text.setter
     def text(self, value):

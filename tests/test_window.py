@@ -206,6 +206,9 @@ class TestWindowObj:
         win1.title = "win111"
         assert win1.title == "win111"
 
+        win1.title = "123"
+        assert win1.title == "123"
+
     def test_pid(self, win1):
         assert win1.pid > 0
 
@@ -537,6 +540,10 @@ class TestControl:
         assert focused_control == match_case_button
         assert match_case_button.is_focused is True
         assert edit.is_focused is False
+
+    def test_text(self, edit):
+        edit.text = "123"
+        assert edit.text == "123"
 
     def test_paste(self, edit):
         import uuid
