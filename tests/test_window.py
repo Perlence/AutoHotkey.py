@@ -544,6 +544,16 @@ class TestControl:
         cb = ahk.get_clipboard()
         assert cb != text
 
+    def test_line_count(self, edit):
+        edit.text = ""
+        assert edit.line_count == 1
+
+        edit.text = "1\n2"
+        assert edit.line_count == 2
+
+        edit.text = "1\n2\n"
+        assert edit.line_count == 3
+
 
 def test_window_context(child_ahk, settings):
     def code():

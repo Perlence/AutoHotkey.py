@@ -1027,6 +1027,14 @@ class Control(BaseWindow):
         """
         self._call("Control", "EditPaste", str(text), "", *self._include(), set_delay=True)
 
+    @property
+    def line_count(self):
+        """Retrieve the number of lines in an Edit control.
+
+        All Edit controls have at least 1 line, even if the control is empty.
+        """
+        return self._get("LineCount")
+
     def _get_pos(self):
         return self._call("ControlGetPos", "", *self._include())
 
