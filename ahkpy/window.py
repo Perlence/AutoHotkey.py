@@ -1020,6 +1020,13 @@ class Control(BaseWindow):
     def focus(self):
         return self._call("ControlFocus", "", *self._include(), set_delay=True)
 
+    def paste(self, text):
+        """Paste *text* at the caret/insert position in an Edit control.
+
+        This does not affect the contents of the clipboard.
+        """
+        self._call("Control", "EditPaste", str(text), "", *self._include(), set_delay=True)
+
     def _get_pos(self):
         return self._call("ControlGetPos", "", *self._include())
 

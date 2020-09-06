@@ -472,6 +472,8 @@ class TestControl:
         ctl.text = "nooooo"
         assert ctl.text is None
 
+        assert ctl.paste("beep") is None
+
     def test_rect(self, notepad):
         edit = notepad.get_control("Edit1")
         _, _, width, height = edit.x, edit.y, edit.width, edit.height
@@ -536,6 +538,16 @@ class TestControl:
         assert focused_control == match_case_button
         assert match_case_button.is_focused is True
         assert edit.is_focused is False
+
+    def test_paste(self, notepad):
+        import uuid
+        edit = notepad.get_control("Edit1")
+        text = str(uuid.uuid4())
+        edit.paste(text)
+        assert edit.text == text
+
+        cb = ahk.get_clipboard()
+        assert cb != text
 
 
 def test_window_context(child_ahk, settings):
