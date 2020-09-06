@@ -621,13 +621,18 @@ class BaseWindow(WindowHandle):
                 *self._include(), exclude_title, exclude_text,
                 int(timeout * 1000),
             )
-        except Error:
-            raise RuntimeError("there was a problem sending message or response timed out") from None
+        except Error as err:
+            if not self.exists:
+                return None
+            err.message = "there was a problem sending message or response timed out"
+            raise
         return result
 
     def post_message(self, msg, w_param=0, l_param=0):
         control = ""
         err = self._call("PostMessage", int(msg), int(w_param), int(l_param), control, *self._include())
+        if err is None:
+            return None
         return not err
 
     def _get_pos(self):
@@ -991,21 +996,11 @@ class Control(BaseWindow):
 
     @property
     def text(self):
-        try:
-            return self._call("ControlGetText", "", *self._include())
-        except Error as err:
-            if err.message == 1:
-                return None
-            raise
+        return self._call("ControlGetText", "", *self._include())
 
     @text.setter
     def text(self, value):
-        try:
-            return self._call("ControlSetText", "", str(value), *self._include(), set_delay=True)
-        except Error as err:
-            if err.message == 1:
-                return
-            raise
+        return self._call("ControlSetText", "", str(value), *self._include(), set_delay=True)
 
     @property
     def is_focused(self):
@@ -1023,13 +1018,7 @@ class Control(BaseWindow):
         return result == self.id
 
     def focus(self):
-        try:
-            return self._call("ControlFocus", "", *self._include(), set_delay=True)
-        except Error as err:
-            if err.message == 1:
-                # Control doesn't exist.
-                return None
-            raise
+        return self._call("ControlFocus", "", *self._include(), set_delay=True)
 
     def _get_pos(self):
         return self._call("ControlGetPos", "", *self._include())
@@ -1038,16 +1027,20 @@ class Control(BaseWindow):
         self._call("ControlMove", "", x, y, width, height, *self._include(), set_delay=True)
 
     def _get(self, subcmd, value=""):
-        try:
-            return self._call("ControlGet", subcmd, value, "", *self._include())
-        except Error as err:
-            if err.message == 1:
-                # Control doesn't exist.
-                return None
-            raise
+        return self._call("ControlGet", subcmd, value, "", *self._include())
 
     def _set_delay(self):
         ahk_call("SetControlDelay", optional_ms(get_settings().control_delay))
+
+    def _call(self, cmd, *args, hidden_windows=True, title_mode=None, set_delay=False):
+        try:
+            return super()._call(cmd, *args, hidden_windows=hidden_windows, title_mode=title_mode, set_delay=set_delay)
+        except Error as err:
+            if err.message == 1:
+                if not super().exists:
+                    return None
+                err.message = f"there was a problem calling {cmd}{args!r}"
+            raise
 
 
 def _set_title_match_mode(title_mode):

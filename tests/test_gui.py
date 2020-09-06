@@ -38,11 +38,6 @@ def test_message_box(child_ahk, settings):
 
 
 def test_on_message(request):
-    not_win = ahk.Window(99999)
-    assert not not_win.exists
-    with pytest.raises(RuntimeError, match="there was a problem sending message"):
-        not_win.send_message(0x5555, 0, 99)
-
     args = ()
 
     @ahk.on_message(0x5555)
@@ -99,7 +94,7 @@ def test_on_message_timeout(child_ahk):
     ahk_pid = int(proc.stdout.readline().strip())
 
     win = ahk.all_windows.first(pid=ahk_pid)
-    with pytest.raises(RuntimeError, match="response timed out"):
+    with pytest.raises(ahk.Error, match="response timed out"):
         win.send_message(0x5555, 0, 99, timeout=0.1)
 
     ahk.send("{F24}")

@@ -423,8 +423,13 @@ def test_match_text_slow(notepad):
 
 
 class TestControl:
+    @pytest.fixture(autouse=True)
+    def setup_clear_edit(self, notepad):
+        edit = notepad.get_control("Edit1")
+        edit.text = ""
+
     @pytest.fixture
-    def find_dialog(self, notepad):
+    def find_dialog(self, notepad, setup_clear_edit):
         notepad.send("q")  # Enter some text to enable searching
         notepad.send("^f")
         find_dialog = ahk.windows.wait_active(title="Find", pid=notepad.pid, timeout=1)
@@ -438,18 +443,34 @@ class TestControl:
         pytest.param(-1, id="nonexistent control"),
     ])
     def test_noncontrol(self, control_id):
-        no = ahk.Control(control_id)
+        ctl = ahk.Control(control_id)
 
-        assert no.is_checked is None
-        assert no.check() is None
-        assert no.uncheck() is None
+        assert ctl.x is None
+        ctl.x = 99
+        assert ctl.x is None
 
-        assert no.is_focused is False
-        assert no.focus() is None
+        assert ctl.is_checked is None
+        assert ctl.check() is None
+        assert ctl.uncheck() is None
 
-        assert no.text is None
-        no.text = "nooooo"
-        assert no.text is None
+        assert ctl.is_enabled is None
+        assert ctl.enable() is None
+        assert ctl.disable() is None
+
+        assert ctl.is_visible is False
+        assert ctl.show() is None
+        assert ctl.hide() is None
+
+        assert ctl.is_focused is False
+        assert ctl.focus() is None
+
+        assert ctl.send("^r") is None
+        assert ctl.send_message(9000) is None
+        assert ctl.post_message(9000) is None
+
+        assert ctl.text is None
+        ctl.text = "nooooo"
+        assert ctl.text is None
 
     def test_rect(self, notepad):
         edit = notepad.get_control("Edit1")
@@ -464,6 +485,7 @@ class TestControl:
         match_case_button = find_dialog.get_control("Button2")
         assert match_case_button.is_checked is False
         match_case_button.is_checked = True
+        ahk.sleep(0)
         assert match_case_button.is_checked is True
 
         # find_next_button = find_dialog.get_control("Button7")

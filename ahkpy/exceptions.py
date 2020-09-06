@@ -7,3 +7,11 @@ class Error(Exception):
         self.extra = extra
         self.file = file
         self.line = line
+
+    def __setattr__(self, name, value):
+        if name == "message":
+            super().__setattr__("message", value)
+            super().__setattr__("args", (value,))
+            return
+
+        super().__setattr__(name, value)
