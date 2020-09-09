@@ -1108,6 +1108,122 @@ class Control(BaseWindow):
         """
         return str(self._get("Selected"))
 
+    @property
+    def list_items(self):
+        """Retrieves a list of items from a ListView, ListBox, ComboBox, or
+        DropDownList.
+        """
+        try:
+            items = self._get("List")
+        except Error as err:
+            if err.message == 1:
+                err.message = "there was a problem getting list items"
+            raise
+        if items is not None:
+            # AHK separates list items with a '\n' character. Also, in case
+            # of ListViews the items may have multiple columns that are
+            # separated by a '\t' character. Unfortunately, AHK does not
+            # escape the '\n' and '\t' characters in the list items and
+            # columns, so there's no guaranteed way to split and get the
+            # correct values. However, the '\n' and '\t' characters are rare
+            # in these controls, so the convenience of working on a list of
+            # strings is more valuable than potential corner cases.
+            if "syslistview32" in self.class_name.lower():
+                return self._split_list_items(items)
+            return items.split("\n")
+
+    @property
+    def selected_list_items(self):
+        """Retrieve only the selected (highlighted) rows in a ListView control.
+        """
+        return self.get_list_items(selected=True)
+
+    @property
+    def focused_list_item(self):
+        """Retrieve only the focused row in a ListView control."""
+        return self.get_list_items(focused=True)
+
+    def get_list_items(self, selected=False, focused=False, column=None):
+        """Retrieve items from a ListView control.
+
+        :param selected: If ``True``, returns only selected rows.
+        :param focused: If ``True``, returns only the focused row.
+        :param column: return rows with only the given column, indexed by its
+            number. Supports negative indexing.
+        :type column: int
+        """
+        options = []
+        if selected:
+            options.append("Selected")
+        if focused:
+            options.append("Focused")
+        if column is not None:
+            if column < 0:
+                column = self.column_count + column
+            options.append(f"Col{column + 1}")
+        str_options = " ".join(options)
+        try:
+            items = self._get("List", str_options)
+            if items is not None:
+                if column is not None:
+                    return items.split('\n')
+                else:
+                    return self._split_list_items(items)
+        except Error as err:
+            if err.message == 1:
+                if "syslistview32" not in self.class_name.lower():
+                    return None
+                if column is not None and column + 1 > self.column_count:
+                    err.message = "column index out of range"
+                else:
+                    err.message = "there was a problem getting list items"
+            raise err
+
+    def _split_list_items(self, string):
+        if string == "":
+            return []
+        return [item.split("\t") for item in string.split("\n")]
+
+    @property
+    def list_item_count(self):
+        """Retrieve a single number that is the total number of rows in a
+        ListView control.
+        """
+        return self._count_list_items()
+
+    @property
+    def selected_list_item_count(self):
+        """Retrieve the number of selected (highlighted) rows in a ListView
+        control.
+        """
+        return self._count_list_items("Selected")
+
+    @property
+    def focused_list_item_number(self):
+        """Retrieve the row number (position) of the focused row (-1 if none)
+        in a ListView control.
+        """
+        count = self._count_list_items("Focused")
+        if count is not None:
+            return count - 1
+
+    @property
+    def column_count(self):
+        """Retrieve the number of columns in a ListView control (or -1 if the
+        count cannot be determined).
+        """
+        return self._count_list_items("Col")
+
+    def _count_list_items(self, option=""):
+        try:
+            return self._get("List", f"Count {option}")
+        except Error as err:
+            if err.message == 1:
+                if "syslistview32" not in self.class_name.lower():
+                    return None
+                err.message = "there was a problem getting list items"
+            raise err
+
     def _get_pos(self):
         return self._call("ControlGetPos", "", *self._include())
 

@@ -432,6 +432,7 @@ class TestControl:
     @pytest.fixture
     def edit(self, notepad):
         edit = notepad.get_control("Edit1")
+        assert edit
         edit.text = ""
         return edit
 
@@ -480,6 +481,15 @@ class TestControl:
         assert ctl.text is None
 
         assert ctl.paste("beep") is None
+
+        assert ctl.list_items is None
+        assert ctl.selected_list_items is None
+        assert ctl.focused_list_item is None
+        assert ctl.get_list_items(column=0) is None
+        assert ctl.list_item_count is None
+        assert ctl.selected_list_item_count is None
+        assert ctl.focused_list_item_number is None
+        assert ctl.column_count is None
 
     def test_rect(self, notepad, edit):
         _, _, width, height = edit.x, edit.y, edit.width, edit.height
@@ -592,6 +602,74 @@ class TestControl:
 
         edit.send("^a")
         assert edit.selected_text == "0\r\n1\r\n"
+
+    @pytest.fixture(scope="class")
+    def list_playground(self, request):
+        import subprocess
+        import sys
+
+        proc = subprocess.Popen([sys.executable, '*'], stdin=subprocess.PIPE, encoding='utf-8')
+        request.addfinalizer(proc.terminate)
+        proc.stdin.write("""\
+            Gui, Add, ComboBox, vColorChoice, Red|Green|Blue|Black|White
+
+            Gui, Add, ListView,, Col1|Col2
+            LV_Add("", "Hello", "0")
+            LV_Add("", "Hello wow", "1")
+            LV_Add("", "Hello world", "2")
+            LV_ModifyCol()
+
+            Gui, Show
+            return
+
+            GuiClose:
+                ExitApp
+        """)
+        proc.stdin.close()
+
+        win = ahk.windows.wait(pid=proc.pid)
+        assert win
+
+        yield win
+
+        win.close(timeout=1)
+
+    @pytest.fixture
+    def list_view(self, list_playground):
+        list_view = list_playground.get_control("SysListView321")
+        assert list_view
+        return list_view
+
+    @pytest.fixture
+    def combobox(self, list_playground):
+        combobox = list_playground.get_control("ComboBox1")
+        assert combobox
+        return combobox
+
+    def test_list_items(self, combobox):
+        assert combobox.list_items == ["Red", "Green", "Blue", "Black", "White"]
+
+    def test_list_view_items(self, list_view: ahk.Control):
+        assert list_view.list_items == [["Hello", "0"], ["Hello wow", "1"], ["Hello world", "2"]]
+        assert list_view.selected_list_items == []
+        assert list_view.focused_list_item == []
+        assert list_view.list_item_count == 3
+        assert list_view.selected_list_item_count == 0
+        assert list_view.focused_list_item_number == -1
+        assert list_view.column_count == 2
+        assert list_view.get_list_items(column=0) == ["Hello", "Hello wow", "Hello world"]
+        assert list_view.get_list_items(column=-1) == ["0", "1", "2"]
+        with pytest.raises(ahk.Error, match="column index out of range"):
+            assert list_view.get_list_items(column=99)
+        assert list_view.get_list_items(selected=True, focused=True) == []
+
+        list_view.focus()
+        list_view.send("+{Down 2}")
+        assert list_view.selected_list_items == [["Hello", "0"], ["Hello wow", "1"]]
+        assert list_view.focused_list_item == [["Hello wow", "1"]]
+        assert list_view.selected_list_item_count == 2
+        assert list_view.focused_list_item_number == 1
+        assert list_view.get_list_items(selected=True, focused=True) == [["Hello wow", "1"]]
 
 
 def test_window_context(child_ahk, settings):
