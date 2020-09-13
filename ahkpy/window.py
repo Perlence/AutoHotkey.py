@@ -1159,7 +1159,7 @@ class Control(BaseWindow):
             options.append("Focused")
         if column is not None:
             if column < 0:
-                column = self.column_count + column
+                column = self.list_view_column_count + column
             options.append(f"Col{column + 1}")
         str_options = " ".join(options)
         try:
@@ -1173,7 +1173,7 @@ class Control(BaseWindow):
             if err.message == 1:
                 if "syslistview32" not in self.class_name.lower():
                     return None
-                if column is not None and column + 1 > self.column_count:
+                if column is not None and column + 1 > self.list_view_column_count:
                     err.message = "column index out of range"
                 else:
                     err.message = "there was a problem getting list items"
@@ -1208,7 +1208,7 @@ class Control(BaseWindow):
             return count - 1
 
     @property
-    def column_count(self):
+    def list_view_column_count(self):
         """Retrieve the number of columns in a ListView control (or -1 if the
         count cannot be determined).
         """
