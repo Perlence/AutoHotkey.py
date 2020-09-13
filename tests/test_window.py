@@ -488,7 +488,7 @@ class TestControl:
         assert ctl.get_list_items(column=0) is None
         assert ctl.list_item_count is None
         assert ctl.selected_list_item_count is None
-        assert ctl.focused_list_item_number is None
+        assert ctl.focused_list_item_index is None
         assert ctl.column_count is None
 
     def test_rect(self, notepad, edit):
@@ -655,8 +655,8 @@ class TestControl:
         assert list_view.focused_list_item == []
         assert list_view.list_item_count == 3
         assert list_view.selected_list_item_count == 0
-        assert list_view.focused_list_item_number == -1
         assert list_view.column_count == 2
+        assert list_view.focused_list_item_index == -1
         assert list_view.get_list_items(column=0) == ["Hello", "Hello wow", "Hello world"]
         assert list_view.get_list_items(column=-1) == ["0", "1", "2"]
         with pytest.raises(ahk.Error, match="column index out of range"):
@@ -668,7 +668,7 @@ class TestControl:
         assert list_view.selected_list_items == [["Hello", "0"], ["Hello wow", "1"]]
         assert list_view.focused_list_item == [["Hello wow", "1"]]
         assert list_view.selected_list_item_count == 2
-        assert list_view.focused_list_item_number == 1
+        assert list_view.focused_list_item_index == 1
         assert list_view.get_list_items(selected=True, focused=True) == [["Hello wow", "1"]]
 
 

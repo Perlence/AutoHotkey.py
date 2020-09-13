@@ -1199,7 +1199,7 @@ class Control(BaseWindow):
         return self._count_list_items("Selected")
 
     @property
-    def focused_list_item_number(self):
+    def focused_list_item_index(self):
         """Retrieve the row number (position) of the focused row (-1 if none)
         in a ListView control.
         """
