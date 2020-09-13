@@ -1109,8 +1109,72 @@ class Control(BaseWindow):
         return str(self._get("Selected"))
 
     @property
+    def list_choice(self):
+        """Retrieve the name of the currently selected entry in a ListBox or
+        ComboBox.
+        """
+        try:
+            choice = self._get("Choice")
+            if choice is not None:
+                return str(choice)
+        except Error as err:
+            if err.message == 1 and self.list_choice_index == -1:
+                return None
+            raise
+
+    @property
+    def list_choice_index(self):
+        """Retrieve the index of the currently selected entry in a ListBox or
+        ComboBox.
+        """
+        class_name = self.class_name
+        if class_name is None:
+            return None
+
+        class_name_lower = class_name.lower()
+        if "combo" in class_name_lower:
+            getcursel = 0x147  # CB_GETCURSEL
+        elif "list" in class_name_lower:
+            getcursel = 0x188  # LB_GETCURSEL
+        else:
+            return None
+
+        result = self.send_message(getcursel, timeout=5)
+        if result is not None:
+            return result
+
+    def list_item_index(self, value):
+        """Retrieve the entry number of a ListBox or ComboBox that is a case
+        insensitive match for *value*.
+        """
+        # Let's implement this in Python because in AHK there's no difference
+        # between "an error trying to find the string" and "no such string
+        # found".
+        class_name = self.class_name
+        if class_name is None:
+            return None
+
+        class_name_lower = class_name.lower()
+        if "combo" in class_name_lower:
+            find_string_exact = 0x158  # CB_FINDSTRINGEXACT
+        elif "list" in class_name_lower:
+            find_string_exact = 0x1A2  # LB_FINDSTRINGEXACT
+        else:
+            return None
+
+        value_buffer = ctypes.create_unicode_buffer(value)
+        result = self.send_message(
+            msg=find_string_exact,
+            w_param=-1,
+            l_param=ctypes.addressof(value_buffer),
+            timeout=5,
+        )
+        if result is not None:
+            return result
+
+    @property
     def list_items(self):
-        """Retrieves a list of items from a ListView, ListBox, ComboBox, or
+        """Retrieve a list of items from a ListView, ListBox, ComboBox, or
         DropDownList.
         """
         try:

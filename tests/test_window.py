@@ -482,6 +482,9 @@ class TestControl:
 
         assert ctl.paste("beep") is None
 
+        assert ctl.list_choice is None
+        assert ctl.list_choice_index is None
+        assert ctl.list_item_index("huh") is None
         assert ctl.list_items is None
         assert ctl.selected_list_items is None
         assert ctl.focused_list_item is None
@@ -608,10 +611,12 @@ class TestControl:
         import subprocess
         import sys
 
-        proc = subprocess.Popen([sys.executable, '*'], stdin=subprocess.PIPE, encoding='utf-8')
+        proc = subprocess.Popen([sys.executable, "/CP65001", "*"], stdin=subprocess.PIPE, encoding='utf-8')
         request.addfinalizer(proc.terminate)
         proc.stdin.write("""\
-            Gui, Add, ComboBox, vColorChoice, Red|Green|Blue|Black|White
+            Gui, Add, ComboBox, vColorChoice, Red|Green|Синий|Black|White
+
+            Gui, Add, ListBox, r5 vColorChoiceList, Red|Green|Синий|Black|White
 
             Gui, Add, ListView,, Col1|Col2
             LV_Add("", "Hello", "0")
@@ -646,8 +651,26 @@ class TestControl:
         assert combobox
         return combobox
 
-    def test_list_items(self, combobox):
-        assert combobox.list_items == ["Red", "Green", "Blue", "Black", "White"]
+    @pytest.fixture
+    def listbox(self, list_playground):
+        listbox = list_playground.get_control("ListBox1")
+        assert listbox
+        return listbox
+
+    @pytest.mark.parametrize("list_control_str", ["combobox", "listbox"])
+    def test_list_items(self, request, list_control_str):
+        list_control = request.getfixturevalue(list_control_str)
+
+        assert list_control.list_items == ["Red", "Green", "Синий", "Black", "White"]
+        assert list_control.list_choice_index == -1
+        assert list_control.list_choice is None
+
+        list_control.send("{Down}")
+        assert list_control.list_choice_index == 0
+        assert list_control.list_choice == "Red"
+
+        assert list_control.list_item_index("Синий") == 2
+        assert list_control.list_item_index("Nooo") == -1
 
     def test_list_view_items(self, list_view: ahk.Control):
         assert list_view.list_items == [["Hello", "0"], ["Hello wow", "1"], ["Hello world", "2"]]
