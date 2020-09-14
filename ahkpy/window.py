@@ -176,6 +176,13 @@ class Windows:
             # Return the Last Found Window.
             return windows.first()
 
+    # The following methods are there because the user might want to do
+    # something with a window that may not exist. For example, the following
+    # will just do nothing if there are no Notepad windows:
+    #
+    #     notepad = ahk.windows.filter(class_name="Notepad")  # Windows instance
+    #     notepad.activate()  # Won't do anything unless Notepad exists
+
     @filtering
     def activate(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET,
                  timeout=None):
@@ -1133,15 +1140,40 @@ class Control(BaseWindow):
 
         class_name_lower = class_name.lower()
         if "combo" in class_name_lower:
-            getcursel = 0x147  # CB_GETCURSEL
+            getcursel = CB_GETCURSEL
         elif "list" in class_name_lower:
-            getcursel = 0x188  # LB_GETCURSEL
+            getcursel = LB_GETCURSEL
         else:
             return None
 
         result = self.send_message(getcursel, timeout=5)
         if result is not None:
             return result
+
+    def choose_item_index(self, index):
+        """Set the selection in a ListBox or ComboBox to be the Nth entry."""
+        index = int(index)
+        if index < 0:
+            index = self.list_item_count + index
+        try:
+            self._call("Control", "Choose", index + 1, set_delay=True)
+        except Error as err:
+            if err.message == 1:
+                if self.list_item_count < index + 1:
+                    raise
+            raise
+
+    def choose_item(self, value):
+        """Set the selection (choice) in a ListBox or ComboBox to be the first
+        entry whose leading part matches *value*.
+        """
+        value = str(value)
+        try:
+            self._call("Control", "ChooseString", value, set_delay=True)
+        except Error as err:
+            if err.message == 1 and self.list_item_index(value) == -1:
+                err.message = f"list item {value!r} doesn't exist"
+            raise
 
     def list_item_index(self, value):
         """Retrieve the entry number of a ListBox or ComboBox that is a case
@@ -1156,9 +1188,9 @@ class Control(BaseWindow):
 
         class_name_lower = class_name.lower()
         if "combo" in class_name_lower:
-            find_string_exact = 0x158  # CB_FINDSTRINGEXACT
+            find_string_exact = CB_FINDSTRINGEXACT
         elif "list" in class_name_lower:
-            find_string_exact = 0x1A2  # LB_FINDSTRINGEXACT
+            find_string_exact = LB_FINDSTRINGEXACT
         else:
             return None
 
@@ -1237,7 +1269,7 @@ class Control(BaseWindow):
             if err.message == 1:
                 if "syslistview32" not in self.class_name.lower():
                     return None
-                if column is not None and column + 1 > self.list_view_column_count:
+                if column is not None and self.list_view_column_count < column + 1:
                     err.message = "column index out of range"
                 else:
                     err.message = "there was a problem getting list items"
@@ -1251,9 +1283,26 @@ class Control(BaseWindow):
     @property
     def list_item_count(self):
         """Retrieve a single number that is the total number of rows in a
-        ListView control.
+        ListBox, ComboBox, or ListView control.
         """
-        return self._count_list_items()
+        class_name = self.class_name
+        if class_name is None:
+            return None
+
+        class_name_lower = class_name.lower()
+        if "syslistview32" in class_name_lower:
+            return self._count_list_items()
+
+        if "combo" in class_name_lower:
+            get_count = CB_GETCOUNT
+        elif "list" in class_name_lower:
+            get_count = LB_GETCOUNT
+        else:
+            return None
+
+        result = self.send_message(get_count, timeout=5)
+        if result is not None:
+            return result
 
     @property
     def selected_list_item_count(self):
@@ -1394,3 +1443,11 @@ class ExWindowStyle(enum.IntFlag):
     WINDOWEDGE = 0x00000100
     OVERLAPPEDWINDOW = (WINDOWEDGE | CLIENTEDGE)
     PALETTEWINDOW = (WINDOWEDGE | TOOLWINDOW | TOPMOST)
+
+
+CB_FINDSTRINGEXACT = 0x158
+CB_GETCOUNT = 0x146
+CB_GETCURSEL = 0x147
+LB_FINDSTRINGEXACT = 0x1A2
+LB_GETCOUNT = 0x18B
+LB_GETCURSEL = 0x188

@@ -484,6 +484,8 @@ class TestControl:
 
         assert ctl.list_choice is None
         assert ctl.list_choice_index is None
+        assert ctl.choose_item("huh") is None
+        assert ctl.choose_item_index(4) is None
         assert ctl.list_item_index("huh") is None
         assert ctl.list_items is None
         assert ctl.selected_list_items is None
@@ -657,20 +659,34 @@ class TestControl:
         assert listbox
         return listbox
 
-    @pytest.mark.parametrize("list_control_str", ["combobox", "listbox"])
-    def test_list_items(self, request, list_control_str):
-        list_control = request.getfixturevalue(list_control_str)
+    @pytest.fixture(params=["combobox", "listbox"])
+    def list_ctl(self, request):
+        return request.getfixturevalue(request.param)
 
-        assert list_control.list_items == ["Red", "Green", "Синий", "Black", "White"]
-        assert list_control.list_choice_index == -1
-        assert list_control.list_choice is None
+    def test_list_items(self, request, list_ctl):
+        assert list_ctl.list_items == ["Red", "Green", "Синий", "Black", "White"]
+        assert list_ctl.list_choice_index == -1
+        assert list_ctl.list_choice is None
 
-        list_control.send("{Down}")
-        assert list_control.list_choice_index == 0
-        assert list_control.list_choice == "Red"
+        list_ctl.send("{Down}")
+        assert list_ctl.list_choice_index == 0
+        assert list_ctl.list_choice == "Red"
 
-        assert list_control.list_item_index("Синий") == 2
-        assert list_control.list_item_index("Nooo") == -1
+        assert list_ctl.list_item_index("Синий") == 2
+        assert list_ctl.list_item_index("Nooo") == -1
+
+        list_ctl.choose_item("Black")
+        assert list_ctl.list_choice_index == 3
+
+        with pytest.raises(ahk.Error, match="doesn't exist"):
+            list_ctl.choose_item("Nooo")
+        assert list_ctl.list_choice_index == 3
+
+        list_ctl.choose_item_index(0)
+        assert list_ctl.list_choice_index == 0
+
+        list_ctl.choose_item_index(-2)
+        assert list_ctl.list_choice_index == 3
 
     def test_list_view_items(self, list_view: ahk.Control):
         assert list_view.list_items == [["Hello", "0"], ["Hello wow", "1"], ["Hello world", "2"]]
