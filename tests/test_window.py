@@ -480,6 +480,12 @@ class TestControl:
         ctl.text = "nooooo"
         assert ctl.text is None
 
+        assert ctl.line_count is None
+        assert ctl.current_line_number is None
+        assert ctl.current_column is None
+        assert ctl.get_line(1) is None
+        assert ctl.current_line is None
+        assert ctl.selected_text is None
         assert ctl.paste("beep") is None
 
         assert ctl.list_choice is None

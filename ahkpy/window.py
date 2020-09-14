@@ -1068,7 +1068,9 @@ class Control(BaseWindow):
         The first line is 0. If there is text selected in the control, the
         result is set to the line number where the selection begins.
         """
-        return self._get("CurrentLine") - 1
+        result = self._get("CurrentLine")
+        if result is not None:
+            return result - 1
 
     @property
     def current_column(self):
@@ -1078,7 +1080,9 @@ class Control(BaseWindow):
         The first column is 0. If there is text selected in the control,
         the result is set to the column number where the selection begins.
         """
-        return self._get("CurrentCol") - 1
+        result = self._get("CurrentCol")
+        if result is not None:
+            return result - 1
 
     def get_line(self, lineno):
         """Retrieve the text of line *lineno* in an Edit control.
@@ -1087,7 +1091,9 @@ class Control(BaseWindow):
         not exist, the result is ``None``.
         """
         try:
-            return str(self._get("Line", int(lineno) + 1))
+            result = self._get("Line", int(lineno) + 1)
+            if result is not None:
+                return str(result)
         except Error as err:
             if err.message == 1:
                 if int(lineno) + 1 == self.line_count:
@@ -1103,7 +1109,9 @@ class Control(BaseWindow):
         If there is text selected in the control, the result is set to the line
         number where the selection begins.
         """
-        return self.get_line(self.current_line_number)
+        lineno = self.current_line_number
+        if lineno is not None:
+            return self.get_line(lineno)
 
     @property
     def selected_text(self):
@@ -1113,7 +1121,9 @@ class Control(BaseWindow):
         controls, such as RichEdit20A, might not produce the correct text in
         some cases (e.g. Metapad).
         """
-        return str(self._get("Selected"))
+        result = self._get("Selected")
+        if result is not None:
+            return str(result)
 
     @property
     def list_choice(self):
