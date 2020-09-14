@@ -298,13 +298,8 @@ class TestWindowObj:
         assert win1.ex_style > 0
 
 
-@pytest.mark.parametrize("win_id", [
-    pytest.param(0, id="null window"),
-    pytest.param(-1, id="nonexistent window"),
-])
-def test_nonwindow(win_id):
-    win = ahk.Window(win_id)
-    assert win.id == win_id
+def test_nonwindow():
+    win = ahk.Window(0)
     assert win.exists is False
     assert win.is_active is False
     assert win.is_visible is False
@@ -446,12 +441,8 @@ class TestControl:
         find_dialog.close()
         notepad.get_control("Edit1").text = ""
 
-    @pytest.mark.parametrize("control_id", [
-        pytest.param(0, id="null control"),
-        pytest.param(-1, id="nonexistent control"),
-    ])
-    def test_noncontrol(self, control_id):
-        ctl = ahk.Control(control_id)
+    def test_noncontrol(self):
+        ctl = ahk.Control(0)
 
         assert ctl.x is None
         ctl.x = 99

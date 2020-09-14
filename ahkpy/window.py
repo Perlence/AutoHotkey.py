@@ -429,12 +429,6 @@ class WindowHandle:
         return self.id != 0
 
     def _call(self, cmd, *args, hidden_windows=True, title_mode=None, set_delay=False):
-        # Call the command only if the window was found previously. This makes
-        # optional chaining possible. For example,
-        # `ahk.windows.first(class_name="Notepad").close()` doesn't error out
-        # when there are no Notepad windows.
-        if self.id == 0:
-            return
         with global_ahk_lock:
             # XXX: Setting DetectHiddenWindows should not be necessary for
             # controls.
@@ -629,7 +623,7 @@ class BaseWindow(WindowHandle):
     def send_message(self, msg, w_param=0, l_param=0, timeout=5):
         control = exclude_title = exclude_text = ""
         try:
-            result = self._call(
+            return self._call(
                 "SendMessage", int(msg), int(w_param), int(l_param), control,
                 *self._include(), exclude_title, exclude_text,
                 int(timeout * 1000),
@@ -640,7 +634,6 @@ class BaseWindow(WindowHandle):
                     return None
                 err.message = "there was a problem sending message or response timed out"
             raise
-        return result
 
     def post_message(self, msg, w_param=0, l_param=0):
         control = ""
@@ -683,8 +676,7 @@ class Window(BaseWindow):
     def text(self):
         try:
             text = self._call("WinGetText", *self._include())
-            if text is not None:
-                return str(text)
+            return str(text)
         except Error as err:
             if err.message == 1:
                 if not self.exists:
@@ -781,8 +773,6 @@ class Window(BaseWindow):
     def get_control(self, class_or_text, match="startswith"):
         try:
             control_id = self._call("ControlGet", "Hwnd", "", class_or_text, *self._include(), title_mode=match)
-            if control_id is None:
-                return Control(0)
             return Control(control_id)
         except Error as err:
             if err.message == 1:
@@ -793,8 +783,6 @@ class Window(BaseWindow):
     def get_focused_control(self):
         try:
             class_name = self._call("ControlGetFocus", *self._include())
-            if class_name is None:
-                return Control(0)
         except Error as err:
             if err.message == 1:
                 # None of window's controls have input focus.
@@ -891,8 +879,7 @@ class Window(BaseWindow):
     def get_status_bar_text(self, part=1):
         try:
             text = self._call("StatusBarGetText", int(part), *self._include())
-            if text is not None:
-                return str(text)
+            return str(text)
         except Error as err:
             if err.message == 1:
                 if not self._status_bar_exists():
@@ -910,8 +897,7 @@ class Window(BaseWindow):
                 *self._include(),
                 interval * 1000,
             )
-            if timed_out is not None:
-                return not timed_out
+            return not timed_out
         except Error as err:
             if err.message == 2:
                 if not self._status_bar_exists():
@@ -946,26 +932,18 @@ class Window(BaseWindow):
 
     def wait_active(self, timeout=None):
         timed_out = self._call("WinWaitActive", *self._include(), timeout, set_delay=True)
-        if timed_out is None:
-            return False
         return not timed_out
 
     def wait_inactive(self, timeout=None):
         timed_out = self._call("WinWaitNotActive", *self._include(), timeout, set_delay=True)
-        if timed_out is None:
-            return True
         return not timed_out
 
     def wait_hidden(self, timeout=None):
         timed_out = self._call("WinWaitClose", *self._include(), timeout, hidden_windows=False, set_delay=True)
-        if timed_out is None:
-            return True
         return not timed_out
 
     def wait_close(self, timeout=None):
         timed_out = self._call("WinWaitClose", *self._include(), timeout, set_delay=True)
-        if timed_out is None:
-            return True
         return not timed_out
 
     def _move(self, x, y, width, height):
@@ -1363,9 +1341,8 @@ class Control(BaseWindow):
         try:
             return super()._call(cmd, *args, hidden_windows=hidden_windows, title_mode=title_mode, set_delay=set_delay)
         except Error as err:
-            if err.message == 1:
-                if not super().exists:
-                    return None
+            if err.message == 1 and not super().exists:
+                return None
             raise
 
 
