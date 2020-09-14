@@ -458,10 +458,12 @@ def test_hotkey_context(child_ahk):
     ahk.send("{F24}")
 
 
-def test_failing_hotkey_context(child_ahk):
+def test_only_hotkey_context(child_ahk, settings):
     def code():
+        import sys
         import ahkpy as ahk
-        ctx = ahk.HotkeyContext(lambda: ahk.windows.get_active(class_name="Shell_TrayWnd"))
+        ahk.hotkey("F24", sys.exit)
+        ctx = ahk.HotkeyContext(lambda: True)
         ctx.hotkey("F13", lambda: ahk.message_box("Boop"))
         print("ok00")
 
@@ -470,13 +472,12 @@ def test_failing_hotkey_context(child_ahk):
 
     boop_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Boop")
 
-    ahk.send("{F13}")
-    assert not boop_windows.wait(timeout=0.1)
+    # A context-specific hotkey without a general counterpart requires a higher
+    # send level to be triggered?
+    settings.send_level = 10
 
-    ahk.windows.activate(class_name="Shell_TrayWnd")
     ahk.send("{F13}")
-    with pytest.xfail():
-        assert boop_windows.wait(timeout=1)
+    assert boop_windows.wait(timeout=1)
 
     ahk.send("{F24}")
 
