@@ -121,39 +121,9 @@ class TestWindows:
         win1.bring_to_top()
         assert msg_boxes.first() == win1
 
-    def test_match_first(self, msg_boxes, win1, win2):
-        msg_boxes.minimize()
-        assert win1.is_minimized is True
-        ahk.sleep(.1)
-
-        assert msg_boxes.activate(timeout=1)
-        assert win2.is_active is True
-        win1.restore()
-
-        msg_boxes.maximize()
-        assert win1.is_maximized is True
-        win1.restore()
-
-        msg_boxes.hide()
-        assert win1.is_visible is False
-        win1.show()
-
-        msg_boxes.pin_to_top()
-        assert win1.always_on_top is True
-        msg_boxes.unpin_from_top()
-        assert win1.always_on_top is False
-        msg_boxes.toggle_always_on_top()
-        assert win1.always_on_top is True
-
-        msg_boxes.disable()
-        assert win1.is_enabled is False
-
-        msg_boxes.enable()
-        assert win1.is_enabled is True
-
     def test_close(self, msg_boxes, win1):
         win1.activate(timeout=1)
-        msg_boxes.close()  # Close actually hides this AHK message box
+        msg_boxes.first().close()  # Close actually hides this AHK message box
         assert not win1.wait_close(timeout=0.1)
         assert win1.wait_hidden(timeout=1)
 
@@ -845,7 +815,7 @@ def test_exclude_active_window_context(child_ahk, settings):
     assert context_windows.wait(timeout=1)
 
     assert context_windows.close_all(timeout=1)
-    assert general_windows.activate(timeout=1)
+    assert general_windows.first().activate(timeout=1)
     assert non_general_windows.exist()
     assert not non_general_windows.get_active()
     ahk.send("{F13}")
