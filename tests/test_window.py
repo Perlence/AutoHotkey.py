@@ -274,8 +274,8 @@ def test_nonexistent_window():
     assert win.exists is False
     assert win.is_active is False
     assert win.is_visible is False
-    # assert win.hide() is None  # TODO: Don't raise errors
-    # assert win.show() is None
+    assert win.hide() is None
+    assert win.show() is None
     assert win.process_path is None
     assert win.title is None
     win.title = "beep"
@@ -299,14 +299,14 @@ def test_nonexistent_window():
     assert win.maybe_get_focused_control() == ahk.Control(None)
     assert win.always_on_top is None
     assert win.is_enabled is None  # XXX: Should it be False?
-    # assert win.enable() is None
-    # assert win.disable() is None
+    assert win.enable() is None
+    assert win.disable() is None
     assert win.style is None
-    # win.style = 0
-    # assert win.style is None
+    win.style = 0
+    assert win.style is None
     assert win.ex_style is None
-    # win.ex_style = 0
-    # assert win.ex_style is None
+    win.ex_style = 0
+    assert win.ex_style is None
     assert win.opacity is None
     assert win.transparent_color is None
     assert win.get_status_bar_text() is None

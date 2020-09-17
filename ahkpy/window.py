@@ -614,7 +614,12 @@ class BaseWindow(WindowHandle):
         # properties. It's OK to use 'WinSet' for controls because control delay
         # has no effect on the 'Control, Style' command and they essentially do
         # the same.
-        return self._call("WinSet", subcmd, value, *self._include())
+        try:
+            super()._call("WinSet", subcmd, value, *self._include())
+        except Error as err:
+            if err.message == 1 and not super().exists:
+                return
+            raise
 
 
 class Window(BaseWindow):
