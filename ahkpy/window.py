@@ -117,18 +117,40 @@ class Windows:
 
     @filtering
     def exist(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
+        """Return the window handle of the first matching window or return
+        ``None`` if there's no such windows.
+        """
         win_id = self._call("WinExist", *self._query()) or 0
-        return Window(win_id)
+        # Return None if no windows exist.
+        if win_id > 0:
+            return Window(win_id)
+
+    @filtering
+    def maybe_exist(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
+        """Return the window handle of the first matching window or return
+        a dummy window object if there's no such windows.
+        """
+        win = self.exist()
+        return win if win is not None else Window(None)
 
     first = exist
     top = exist
+    maybe_first = maybe_exist
+    maybe_top = maybe_exist
 
     @filtering
     def last(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
         win_id = self._call("WinGet", "IDLast", *self._query()) or 0
-        return Window(win_id)
+        if win_id > 0:
+            return Window(win_id)
+
+    @filtering
+    def maybe_last(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
+        win = self.last()
+        return win if win is not None else Window(None)
 
     bottom = last
+    maybe_bottom = maybe_last
 
     @filtering
     def get_active(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
@@ -136,7 +158,14 @@ class Windows:
         if query == ("", "", "", ""):
             query = ("A", "", "", "")
         win_id = self._call("WinActive", *query) or 0
-        return Window(win_id)
+        if win_id > 0:
+            return Window(win_id)
+
+    @filtering
+    def maybe_get_active(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET,
+                         match=UNSET):
+        win = self.get_active()
+        return win if win is not None else Window(None)
 
     @filtering
     def wait(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET,
@@ -172,7 +201,7 @@ class Windows:
             timed_out = self._call(cmd, *self._include(), timeout or "", *self._exclude(), set_delay=True)
             if timed_out is None or timed_out:
                 # timed_out may be None if some of the query parameters is None.
-                return Window(0)
+                return None
             # Return the Last Found Window.
             return windows.first()
 
@@ -338,7 +367,8 @@ class Windows:
         if win_ids is None:
             return
         for win_id in win_ids.values():
-            yield Window(win_id)
+            if win_id > 0:
+                yield Window(win_id)
 
     def __len__(self):
         return self._call("WinGet", "Count", *self._query()) or 0
@@ -426,7 +456,11 @@ class WindowHandle:
     __slots__ = ("id",)
 
     def __bool__(self):
-        return self.id != 0
+        return bool(self.id) and self.exists
+
+    @property
+    def exists(self):
+        return bool(self._call("WinExist", *self._include()))
 
     def _call(self, cmd, *args, hidden_windows=True, title_mode=None, set_delay=False):
         with global_ahk_lock:
@@ -453,17 +487,13 @@ class WindowHandle:
 
     def _include(self):
         win_text = ""
-        return f"ahk_id {self.id}", win_text
+        return f"ahk_id {self.id or 0}", win_text
 
 
 class BaseWindow(WindowHandle):
     """Base window class that is inherited by Window and Control classes."""
 
     __slots__ = ("id",)
-
-    @property
-    def exists(self):
-        return bool(self._call("WinExist", *self._include()))
 
     @property
     def style(self):
@@ -755,15 +785,14 @@ class Window(BaseWindow):
     @property
     def control_classes(self):
         names = self._get("ControlList")
-        if names is None:
-            return []
-        return names.splitlines()
+        if names is not None:
+            return names.splitlines()
 
     @property
     def controls(self):
         handles = self._get("ControlListHwnd")
         if handles is None:
-            return []
+            return None
         hwnds = handles.splitlines()
         return [
             Control(int(hwnd, base=16))
@@ -777,8 +806,12 @@ class Window(BaseWindow):
         except Error as err:
             if err.message == 1:
                 # Control doesn't exist.
-                return Control(0)
+                return None
             raise
+
+    def maybe_get_control(self, class_or_text, match="startswith"):
+        ctl = self.get_control(class_or_text, match)
+        return ctl if ctl is not None else Control(None)
 
     def get_focused_control(self):
         try:
@@ -786,9 +819,13 @@ class Window(BaseWindow):
         except Error as err:
             if err.message == 1:
                 # None of window's controls have input focus.
-                return Control(0)
+                return None
             raise
         return self.get_control(class_name)
+
+    def maybe_get_focused_control(self):
+        ctl = self.get_focused_control()
+        return ctl if ctl is not None else Control(None)
 
     # TODO: Implement WinMenuSelectItem.
 
@@ -1007,7 +1044,7 @@ class Control(BaseWindow):
 
     @property
     def is_focused(self):
-        if self.id == 0:
+        if not self.id:
             return False
         thread_id = windll.user32.GetWindowThreadProcessId(HWND(self.id), 0)
         if thread_id == 0:

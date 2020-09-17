@@ -278,7 +278,8 @@ class TestWindowObj:
         assert win1.controls == list(map(win1.get_control, win1.control_classes))
 
     def test_get_control(self, win1):
-        assert win1.get_control("nooooooooooo") == ahk.Control(0)
+        assert win1.get_control("nooooooooooo") is None
+        assert win1.maybe_get_control("nooooooooooo") == ahk.Control(None)
 
         ok_btn = win1.get_control("Button1")
         assert ok_btn
@@ -298,8 +299,8 @@ class TestWindowObj:
         assert win1.ex_style > 0
 
 
-def test_nonwindow():
-    win = ahk.Window(0)
+def test_nonexistent_window():
+    win = ahk.Window(None)
     assert win.exists is False
     assert win.is_active is False
     assert win.is_visible is False
@@ -320,10 +321,12 @@ def test_nonwindow():
     assert win.is_maximized is None
     assert win.is_restored is None
     assert win.text is None
-    assert win.control_classes == []
-    assert win.controls == []
-    assert win.get_control("nope") == ahk.Control(0)
-    assert win.get_focused_control() == ahk.Control(0)
+    assert win.control_classes is None
+    assert win.controls is None
+    assert win.get_control("nope") is None
+    assert win.get_focused_control() is None
+    assert win.maybe_get_control("nope") == ahk.Control(None)
+    assert win.maybe_get_focused_control() == ahk.Control(None)
     assert win.always_on_top is None
     assert win.is_enabled is None  # XXX: Should it be False?
     # assert win.enable() is None
@@ -441,8 +444,8 @@ class TestControl:
         find_dialog.close()
         notepad.get_control("Edit1").text = ""
 
-    def test_noncontrol(self):
-        ctl = ahk.Control(0)
+    def test_nonexistent_control(self):
+        ctl = ahk.Control(None)
 
         assert ctl.x is None
         ctl.x = 99
