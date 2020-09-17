@@ -1,12 +1,6 @@
-def identity(a):
-    return a
-
-
-def default(a, b, func=identity, *, none=None):
-    if func is not identity:
-        func, a, b = a, b, func
-    if a is not none:
-        return func(a)
+def default(a, b):
+    if a is not None:
+        return a
     return b
 
 

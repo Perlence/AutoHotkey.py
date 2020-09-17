@@ -76,13 +76,13 @@ class Windows:
 
         return dc.replace(
             self,
-            title=default(title, self.title, none=UNSET),
-            class_name=default(class_name, self.class_name, none=UNSET),
-            id=default(id, self.id, none=UNSET),
-            pid=default(pid, self.pid, none=UNSET),
-            exe=default(exe, self.exe, none=UNSET),
-            text=default(text, self.text, none=UNSET),
-            title_mode=default(match, self.title_mode, none=UNSET),
+            title=title if title is not UNSET else self.title,
+            class_name=class_name if class_name is not UNSET else self.class_name,
+            id=id if id is not UNSET else self.id,
+            pid=pid if pid is not UNSET else self.pid,
+            exe=exe if exe is not UNSET else self.exe,
+            text=text if text is not UNSET else self.text,
+            title_mode=match if match is not UNSET else self.title_mode,
         )
 
     def exclude(self, title=UNSET, *, text=UNSET):
@@ -92,8 +92,8 @@ class Windows:
             return self
         return dc.replace(
             self,
-            exclude_title=default(title, self.exclude_title, none=UNSET),
-            exclude_text=default(text, self.exclude_text, none=UNSET),
+            exclude_title=title if title is not UNSET else self.exclude_title,
+            exclude_text=text if text is not UNSET else self.exclude_text,
         )
 
     def include_hidden_windows(self, include=True):
@@ -354,13 +354,13 @@ class Windows:
 
         return (
             " ".join(parts),
-            default(str, self.text, "", none=UNSET),
+            str(self.text) if self.text is not UNSET else "",
         )
 
     def _exclude(self):
         return (
-            default(str, self.exclude_title, "", none=UNSET),
-            default(str, self.exclude_text, "", none=UNSET),
+            str(self.exclude_title) if self.exclude_title is not UNSET else "",
+            str(self.exclude_text) if self.exclude_text is not UNSET else "",
         )
 
 
@@ -513,10 +513,10 @@ class BaseWindow(WindowHandle):
 
     def move(self, x=None, y=None, width=None, height=None):
         self._move(
-            default(int, x, ""),
-            default(int, y, ""),
-            default(int, width, ""),
-            default(int, height, ""),
+            int(x) if x is not None else "",
+            int(y) if y is not None else "",
+            int(width) if width is not None else "",
+            int(height) if height is not None else "",
         )
 
     @property
@@ -856,7 +856,7 @@ class Window(BaseWindow):
             timed_out = self._call(
                 "StatusBarWait",
                 bar_text,
-                default(timeout, ""),
+                timeout if timeout is not None else "",
                 part,
                 *self._include(),
                 interval * 1000,
