@@ -248,8 +248,7 @@ class TestWindowObj:
         assert win1.controls == list(map(win1.get_control, win1.control_classes))
 
     def test_get_control(self, win1):
-        assert win1.get_control("nooooooooooo") is None
-        assert win1.maybe_get_control("nooooooooooo") == ahk.Control(None)
+        assert win1.get_control("nooooooooooo") == ahk.Control(None)
 
         ok_btn = win1.get_control("Button1")
         assert ok_btn
@@ -293,10 +292,8 @@ def test_nonexistent_window():
     assert win.text is None
     assert win.control_classes is None
     assert win.controls is None
-    assert win.get_control("nope") is None
-    assert win.get_focused_control() is None
-    assert win.maybe_get_control("nope") == ahk.Control(None)
-    assert win.maybe_get_focused_control() == ahk.Control(None)
+    assert win.get_control("nope") == ahk.Control(None)
+    assert win.get_focused_control() == ahk.Control(None)
     assert win.always_on_top is None
     assert win.is_enabled is None  # XXX: Should it be False?
     assert win.enable() is None

@@ -118,39 +118,24 @@ class Windows:
     @filtering
     def exist(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
         """Return the window handle of the first matching window or return
-        ``None`` if there's no such windows.
+        a dummy window object if there are no such windows.
         """
         win_id = self._call("WinExist", *self._query()) or 0
-        # Return None if no windows exist.
-        if win_id > 0:
-            return Window(win_id)
-
-    @filtering
-    def maybe_exist(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
-        """Return the window handle of the first matching window or return
-        a dummy window object if there's no such windows.
-        """
-        win = self.exist()
-        return win if win is not None else Window(None)
+        if win_id == 0:
+            return Window(None)
+        return Window(win_id)
 
     first = exist
     top = exist
-    maybe_first = maybe_exist
-    maybe_top = maybe_exist
 
     @filtering
     def last(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
         win_id = self._call("WinGet", "IDLast", *self._query()) or 0
-        if win_id > 0:
-            return Window(win_id)
-
-    @filtering
-    def maybe_last(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
-        win = self.last()
-        return win if win is not None else Window(None)
+        if win_id == 0:
+            return Window(None)
+        return Window(win_id)
 
     bottom = last
-    maybe_bottom = maybe_last
 
     @filtering
     def get_active(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
@@ -158,14 +143,9 @@ class Windows:
         if query == ("", "", "", ""):
             query = ("A", "", "", "")
         win_id = self._call("WinActive", *query) or 0
-        if win_id > 0:
-            return Window(win_id)
-
-    @filtering
-    def maybe_get_active(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET,
-                         match=UNSET):
-        win = self.get_active()
-        return win if win is not None else Window(None)
+        if win_id == 0:
+            return Window(None)
+        return Window(win_id)
 
     @filtering
     def wait(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET,
@@ -201,7 +181,7 @@ class Windows:
             timed_out = self._call(cmd, *self._include(), timeout or "", *self._exclude(), set_delay=True)
             if timed_out is None or timed_out:
                 # timed_out may be None if some of the query parameters is None.
-                return None
+                return Window(None)
             # Return the Last Found Window.
             return windows.first()
 
@@ -733,12 +713,8 @@ class Window(BaseWindow):
         except Error as err:
             if err.message == 1:
                 # Control doesn't exist.
-                return None
+                return Control(None)
             raise
-
-    def maybe_get_control(self, class_or_text, match="startswith"):
-        ctl = self.get_control(class_or_text, match)
-        return ctl if ctl is not None else Control(None)
 
     def get_focused_control(self):
         try:
@@ -746,13 +722,9 @@ class Window(BaseWindow):
         except Error as err:
             if err.message == 1:
                 # None of window's controls have input focus.
-                return None
+                return Control(None)
             raise
         return self.get_control(class_name)
-
-    def maybe_get_focused_control(self):
-        ctl = self.get_focused_control()
-        return ctl if ctl is not None else Control(None)
 
     # TODO: Implement WinMenuSelectItem.
 
