@@ -4,10 +4,11 @@ import enum
 import functools
 from ctypes import windll
 from ctypes.wintypes import DWORD, HWND, RECT
+from typing import List, Optional, Tuple, Union
 
 from . import colors
 from . import keys as hotkeys
-from .converters import default, optional_ms
+from .converters import optional_ms
 from .exceptions import Error
 from .flow import ahk_call, global_ahk_lock
 from .settings import get_settings
@@ -51,14 +52,14 @@ def filtering(func):
 
 @dc.dataclass(frozen=True)
 class Windows:
-    title: str = UNSET
-    class_name: str = UNSET
-    id: int = UNSET
-    pid: int = UNSET
-    exe: str = UNSET
-    text: str = UNSET
-    exclude_title: str = UNSET
-    exclude_text: str = UNSET
+    title: Union[str, UnsetType] = UNSET
+    class_name: Union[str, UnsetType] = UNSET
+    id: Union[int, UnsetType] = UNSET
+    pid: Union[int, UnsetType] = UNSET
+    exe: Union[str, UnsetType] = UNSET
+    text: Union[str, UnsetType] = UNSET
+    exclude_title: Union[str, UnsetType] = UNSET
+    exclude_text: Union[str, UnsetType] = UNSET
     hidden_windows: bool = False
     hidden_text: bool = True
     title_mode: str = "startswith"
@@ -354,14 +355,14 @@ class WindowHandle:
     # dataclass frozen also makes it hashable. However, frozen dataclasses
     # cannot have setter properties unless it's a subclass.
 
-    id: int
+    id: Optional[int]
     __slots__ = ("id",)
 
     def __bool__(self):
         return bool(self.id) and self.exists
 
     @property
-    def exists(self):
+    def exists(self) -> bool:
         return bool(self._call("WinExist", *self._include()))
 
     def _call(self, cmd, *args, hidden_windows=True, title_mode=None, set_delay=False):
@@ -398,41 +399,43 @@ class BaseWindow(WindowHandle):
     __slots__ = ("id",)
 
     @property
-    def style(self):
+    def style(self) -> Optional["WindowStyle"]:
         style = self._get("Style")
-        if style is not None:
-            return WindowStyle(style)
+        if style is None:
+            return None
+        return WindowStyle(style)
 
     @style.setter
     def style(self, value):
         self._set("Style", int(value))
 
     @property
-    def ex_style(self):
+    def ex_style(self) -> Optional["ExWindowStyle"]:
         ex_style = self._get("ExStyle")
-        if ex_style is not None:
-            return ExWindowStyle(ex_style)
+        if ex_style is None:
+            return None
+        return ExWindowStyle(ex_style)
 
     @ex_style.setter
     def ex_style(self, value):
         self._set("ExStyle", int(value))
 
     @property
-    def class_name(self):
+    def class_name(self) -> Optional[str]:
         class_name = self._call("WinGetClass", *self._include())
-        if class_name != "":
+        if class_name == "":
             # Windows API doesn't allow the class name to be an empty string. If
             # the window doesn't exist or there was a problem getting the class
             # name, AHK returns an empty string.
-            return class_name
+            return None
+        return class_name
 
     @property
-    def rect(self):
+    def rect(self) -> Optional[Tuple[int, int, int, int]]:
         result = self._get_pos()
-        if result is not None:
-            x, y, width, height = result["X"], result["Y"], result["Width"], result["Height"]
-        else:
-            x, y, width, height = None, None, None, None
+        if result is None:
+            return None
+        x, y, width, height = result["X"], result["Y"], result["Width"], result["Height"]
         return (
             x if x != "" else None,
             y if y != "" else None,
@@ -447,7 +450,10 @@ class BaseWindow(WindowHandle):
 
     @property
     def position(self):
-        x, y, _, _ = self.rect
+        rect = self.rect
+        if rect is None:
+            return None
+        x, y, _, _ = rect
         return x, y
 
     @position.setter
@@ -457,7 +463,10 @@ class BaseWindow(WindowHandle):
 
     @property
     def x(self):
-        x, _, _, _ = self.rect
+        rect = self.rect
+        if rect is None:
+            return None
+        x, _, _, _ = rect
         return x
 
     @x.setter
@@ -466,7 +475,10 @@ class BaseWindow(WindowHandle):
 
     @property
     def y(self):
-        _, y, _, _ = self.rect
+        rect = self.rect
+        if rect is None:
+            return None
+        _, y, _, _ = rect
         return y
 
     @y.setter
@@ -474,8 +486,24 @@ class BaseWindow(WindowHandle):
         self.move(y=new_y)
 
     @property
+    def size(self):
+        rect = self.rect
+        if rect is None:
+            return None
+        _, _, width, height = rect
+        return width, height
+
+    @size.setter
+    def size(self, new_size):
+        width, height = new_size
+        self.move(width, height)
+
+    @property
     def width(self):
-        _, _, width, _ = self.rect
+        rect = self.rect
+        if rect is None:
+            return None
+        _, _, width, _ = rect
         return width
 
     @width.setter
@@ -484,7 +512,10 @@ class BaseWindow(WindowHandle):
 
     @property
     def height(self):
-        _, _, _, height = self.rect
+        rect = self.rect
+        if rect is None:
+            return None
+        _, _, _, height = rect
         return height
 
     @height.setter
@@ -552,7 +583,7 @@ class BaseWindow(WindowHandle):
 
     # TODO: Add send_message and post_message to Windows.
 
-    def send_message(self, msg, w_param=0, l_param=0, timeout=5):
+    def send_message(self, msg, w_param=0, l_param=0, timeout=5) -> Optional[int]:
         control = exclude_title = exclude_text = ""
         try:
             return self._call(
@@ -567,12 +598,13 @@ class BaseWindow(WindowHandle):
                 err.message = "there was a problem sending message or response timed out"
             raise
 
-    def post_message(self, msg, w_param=0, l_param=0):
+    def post_message(self, msg, w_param=0, l_param=0) -> Optional[bool]:
         control = ""
         try:
             err = self._call("PostMessage", int(msg), int(w_param), int(l_param), control, *self._include())
-            if err is not None:
-                return not err
+            if err is None:
+                return None
+            return not err
         except Error as err:
             if err.message == 1:
                 if not self.exists:
@@ -606,11 +638,11 @@ class Window(BaseWindow):
     __slots__ = ("id",)
 
     @property
-    def is_active(self):
+    def is_active(self) -> bool:
         return bool(self._call("WinActive", *self._include()))
 
     @property
-    def text(self):
+    def text(self) -> Optional[str]:
         try:
             text = self._call("WinGetText", *self._include())
             return str(text)
@@ -622,34 +654,36 @@ class Window(BaseWindow):
             raise
 
     @property
-    def title(self):
+    def title(self) -> Optional[str]:
         title = self._call("WinGetTitle", *self._include())
         # If the window doesn't exist, AHK returns an empty string. Check that
         # the window exists.
-        if self.exists:
-            return str(title)
+        if not self.exists:
+            return None
+        return str(title)
 
     @title.setter
     def title(self, new_title):
         return self._call("WinSetTitle", *self._include(), str(new_title))
 
     @property
-    def pid(self):
+    def pid(self) -> Optional[int]:
         return self._get("PID")
 
     @property
-    def process_name(self):
+    def process_name(self) -> Optional[str]:
         return self._get("ProcessName")
 
     @property
-    def process_path(self):
+    def process_path(self) -> Optional[str]:
         return self._get("ProcessPath")
 
     @property
-    def is_minimized(self):
+    def is_minimized(self) -> Optional[bool]:
         min_max = self._get("MinMax")
-        if min_max is not None:
-            return min_max == -1
+        if min_max is None:
+            return None
+        return min_max == -1
 
     @is_minimized.setter
     def is_minimized(self, value):
@@ -664,16 +698,18 @@ class Window(BaseWindow):
             self.is_minimized = not is_minimized
 
     @property
-    def is_restored(self):
+    def is_restored(self) -> Optional[bool]:
         min_max = self._get("MinMax")
-        if min_max is not None:
-            return min_max == 0
+        if min_max is None:
+            return None
+        return min_max == 0
 
     @property
-    def is_maximized(self):
+    def is_maximized(self) -> Optional[bool]:
         min_max = self._get("MinMax")
-        if min_max is not None:
-            return min_max == 1
+        if min_max is None:
+            return None
+        return min_max == 1
 
     @is_maximized.setter
     def is_maximized(self, value):
@@ -690,13 +726,14 @@ class Window(BaseWindow):
     # TODO: Add control methods to Windows
 
     @property
-    def control_classes(self):
+    def control_classes(self) -> Optional[List[str]]:
         names = self._get("ControlList")
-        if names is not None:
-            return names.splitlines()
+        if names is None:
+            return None
+        return names.splitlines()
 
     @property
-    def controls(self):
+    def controls(self) -> Optional[List["Control"]]:
         handles = self._get("ControlListHwnd")
         if handles is None:
             return None
@@ -706,7 +743,7 @@ class Window(BaseWindow):
             for hwnd in hwnds
         ]
 
-    def get_control(self, class_or_text, match="startswith"):
+    def get_control(self, class_or_text, match="startswith") -> "Control":
         try:
             control_id = self._call("ControlGet", "Hwnd", "", class_or_text, *self._include(), title_mode=match)
             return Control(control_id)
@@ -716,7 +753,7 @@ class Window(BaseWindow):
                 return Control(None)
             raise
 
-    def get_focused_control(self):
+    def get_focused_control(self) -> "Control":
         try:
             class_name = self._call("ControlGetFocus", *self._include())
         except Error as err:
@@ -729,9 +766,11 @@ class Window(BaseWindow):
     # TODO: Implement WinMenuSelectItem.
 
     @property
-    def always_on_top(self):
-        if self.ex_style is not None:
-            return ExWindowStyle.TOPMOST in self.ex_style
+    def always_on_top(self) -> Optional[bool]:
+        ex_style = self.ex_style
+        if ex_style is None:
+            return None
+        return ExWindowStyle.TOPMOST in ex_style
 
     @always_on_top.setter
     def always_on_top(self, value):
@@ -772,7 +811,7 @@ class Window(BaseWindow):
         self._set("Region", "")
 
     @property
-    def opacity(self):
+    def opacity(self) -> Optional[int]:
         return self._get("Transparent")
 
     @opacity.setter
@@ -786,11 +825,12 @@ class Window(BaseWindow):
         self._set("Transparent", ahk_value)
 
     @property
-    def transparent_color(self):
+    def transparent_color(self) -> Optional[Tuple[int, int, int]]:
         result = self._get("TransColor")
-        if result is not None:
-            hex_color = hex(result)[2:]
-            return colors.to_tuple(hex_color)
+        if result is None:
+            return None
+        hex_color = hex(result)[2:]
+        return colors.to_tuple(hex_color)
 
     @transparent_color.setter
     def transparent_color(self, value):
@@ -812,7 +852,7 @@ class Window(BaseWindow):
         if timeout is not None:
             return self.wait_active(timeout=timeout)
 
-    def get_status_bar_text(self, part=1):
+    def get_status_bar_text(self, part=1) -> Optional[str]:
         try:
             text = self._call("StatusBarGetText", int(part), *self._include())
             return str(text)
@@ -823,7 +863,7 @@ class Window(BaseWindow):
                 err.message = "status bar cannot be accessed"
             raise
 
-    def wait_status_bar(self, bar_text="", timeout=None, part=1, interval=0.05):
+    def wait_status_bar(self, bar_text="", timeout=None, part=1, interval=0.05) -> Optional[bool]:
         try:
             timed_out = self._call(
                 "StatusBarWait",
@@ -845,17 +885,19 @@ class Window(BaseWindow):
         status_bar = self.get_control("msctls_statusbar321")
         return bool(status_bar)
 
-    def close(self, timeout=None):
+    def close(self, timeout=None) -> Optional[bool]:
         self._call("WinClose", *self._include(), timeout, set_delay=True)
-        if timeout is not None:
-            # TODO: Test timeout.
-            return not self.exists
+        if timeout is None:
+            return None
+        # TODO: Test timeout.
+        return not self.exists
 
-    def kill(self, timeout=None):
+    def kill(self, timeout=None) -> Optional[bool]:
         self._call("WinKill", *self._include(), timeout, set_delay=True)
-        if timeout is not None:
-            # TODO: Test timeout.
-            return not self.exists
+        if timeout is None:
+            return None
+        # TODO: Test timeout.
+        return not self.exists
 
     def maximize(self):
         self._call("WinMaximize", *self._include(), set_delay=True)
@@ -866,19 +908,19 @@ class Window(BaseWindow):
     def restore(self):
         self._call("WinRestore", *self._include(), set_delay=True)
 
-    def wait_active(self, timeout=None):
+    def wait_active(self, timeout=None) -> bool:
         timed_out = self._call("WinWaitActive", *self._include(), timeout, set_delay=True)
         return not timed_out
 
-    def wait_inactive(self, timeout=None):
+    def wait_inactive(self, timeout=None) -> bool:
         timed_out = self._call("WinWaitNotActive", *self._include(), timeout, set_delay=True)
         return not timed_out
 
-    def wait_hidden(self, timeout=None):
+    def wait_hidden(self, timeout=None) -> bool:
         timed_out = self._call("WinWaitClose", *self._include(), timeout, hidden_windows=False, set_delay=True)
         return not timed_out
 
-    def wait_close(self, timeout=None):
+    def wait_close(self, timeout=None) -> bool:
         timed_out = self._call("WinWaitClose", *self._include(), timeout, set_delay=True)
         return not timed_out
 
@@ -890,8 +932,9 @@ class Window(BaseWindow):
 
     def _get(self, subcmd):
         result = self._call("WinGet", subcmd, *self._include())
-        if result != "":
-            return result
+        if result == "":
+            return None
+        return result
 
     def _set_delay(self):
         ahk_call("SetWinDelay", optional_ms(get_settings().win_delay))
@@ -901,10 +944,11 @@ class Control(BaseWindow):
     __slots__ = ("id",)
 
     @property
-    def is_checked(self):
+    def is_checked(self) -> Optional[bool]:
         checked = self._get("Checked")
-        if checked is not None:
-            return bool(checked)
+        if checked is None:
+            return None
+        return bool(checked)
 
     @is_checked.setter
     def is_checked(self, value):
@@ -932,17 +976,18 @@ class Control(BaseWindow):
         return self._call("Control", "Show", "", "", *self._include(), set_delay=True)
 
     @property
-    def text(self):
+    def text(self) -> Optional[str]:
         text = self._call("ControlGetText", "", *self._include())
-        if text is not None:
-            return str(text)
+        if text is None:
+            return None
+        return str(text)
 
     @text.setter
     def text(self, value):
         return self._call("ControlSetText", "", str(value), *self._include(), set_delay=True)
 
     @property
-    def is_focused(self):
+    def is_focused(self) -> bool:
         if not self.id:
             return False
         thread_id = windll.user32.GetWindowThreadProcessId(HWND(self.id), 0)
@@ -967,7 +1012,7 @@ class Control(BaseWindow):
         self._call("Control", "EditPaste", str(text), "", *self._include(), set_delay=True)
 
     @property
-    def line_count(self):
+    def line_count(self) -> Optional[int]:
         """Retrieve the number of lines in an Edit control.
 
         All Edit controls have at least 1 line, even if the control is empty.
@@ -975,7 +1020,7 @@ class Control(BaseWindow):
         return self._get("LineCount")
 
     @property
-    def current_line_number(self):
+    def current_line_number(self) -> Optional[int]:
         """Retrieve the line number in an Edit control where the caret (insert
         point) resides.
 
@@ -983,11 +1028,12 @@ class Control(BaseWindow):
         result is set to the line number where the selection begins.
         """
         result = self._get("CurrentLine")
-        if result is not None:
-            return result - 1
+        if result is None:
+            return None
+        return result - 1
 
     @property
-    def current_column(self):
+    def current_column(self) -> Optional[int]:
         """Retrieve the column number in an Edit control where the caret (text
         insertion point) resides.
 
@@ -995,10 +1041,11 @@ class Control(BaseWindow):
         the result is set to the column number where the selection begins.
         """
         result = self._get("CurrentCol")
-        if result is not None:
-            return result - 1
+        if result is None:
+            return None
+        return result - 1
 
-    def get_line(self, lineno):
+    def get_line(self, lineno) -> Optional[str]:
         """Retrieve the text of line *lineno* in an Edit control.
 
         Line 0 is the first line. If the specified line number is blank or does
@@ -1006,8 +1053,9 @@ class Control(BaseWindow):
         """
         try:
             result = self._get("Line", int(lineno) + 1)
-            if result is not None:
-                return str(result)
+            if result is None:
+                return None
+            return str(result)
         except Error as err:
             if err.message == 1:
                 if int(lineno) + 1 == self.line_count:
@@ -1016,7 +1064,7 @@ class Control(BaseWindow):
             raise
 
     @property
-    def current_line(self):
+    def current_line(self) -> Optional[str]:
         """Retrieve the text of the line in an Edit control where the caret
         (insert point) resides.
 
@@ -1024,11 +1072,12 @@ class Control(BaseWindow):
         number where the selection begins.
         """
         lineno = self.current_line_number
-        if lineno is not None:
-            return self.get_line(lineno)
+        if lineno is None:
+            return None
+        return self.get_line(lineno)
 
     @property
-    def selected_text(self):
+    def selected_text(self) -> Optional[str]:
         """Retrieve the selected text in an Edit control.
 
         If no text is selected, the result is an empty string. Certain types of
@@ -1036,25 +1085,27 @@ class Control(BaseWindow):
         some cases (e.g. Metapad).
         """
         result = self._get("Selected")
-        if result is not None:
-            return str(result)
+        if result is None:
+            return None
+        return str(result)
 
     @property
-    def list_choice(self):
+    def list_choice(self) -> Optional[str]:
         """Retrieve the name of the currently selected entry in a ListBox or
         ComboBox.
         """
         try:
             choice = self._get("Choice")
-            if choice is not None:
-                return str(choice)
+            if choice is None:
+                return None
+            return str(choice)
         except Error as err:
             if err.message == 1 and self.list_choice_index == -1:
                 return None
             raise
 
     @property
-    def list_choice_index(self):
+    def list_choice_index(self) -> Optional[int]:
         """Retrieve the index of the currently selected entry in a ListBox or
         ComboBox.
         """
@@ -1071,8 +1122,9 @@ class Control(BaseWindow):
             return None
 
         result = self.send_message(getcursel, timeout=5)
-        if result is not None:
-            return result
+        if result is None:
+            return None
+        return result
 
     def choose_item_index(self, index):
         """Set the selection in a ListBox or ComboBox to be the Nth entry."""
@@ -1099,7 +1151,7 @@ class Control(BaseWindow):
                 err.message = f"list item {value!r} doesn't exist"
             raise
 
-    def list_item_index(self, value):
+    def list_item_index(self, value) -> Optional[int]:
         """Retrieve the entry number of a ListBox or ComboBox that is a case
         insensitive match for *value*.
         """
@@ -1125,11 +1177,12 @@ class Control(BaseWindow):
             l_param=ctypes.addressof(value_buffer),
             timeout=5,
         )
-        if result is not None:
-            return result
+        if result is None:
+            return None
+        return result
 
     @property
-    def list_items(self):
+    def list_items(self) -> Optional[list]:
         """Retrieve a list of items from a ListView, ListBox, ComboBox, or
         DropDownList.
         """
@@ -1139,31 +1192,38 @@ class Control(BaseWindow):
             if err.message == 1:
                 err.message = "there was a problem getting list items"
             raise
-        if items is not None:
-            # AHK separates list items with a '\n' character. Also, in case
-            # of ListViews the items may have multiple columns that are
-            # separated by a '\t' character. Unfortunately, AHK does not
-            # escape the '\n' and '\t' characters in the list items and
-            # columns, so there's no guaranteed way to split and get the
-            # correct values. However, the '\n' and '\t' characters are rare
-            # in these controls, so the convenience of working on a list of
-            # strings is more valuable than potential corner cases.
-            if "syslistview32" in self.class_name.lower():
-                return self._split_list_items(items)
-            return items.split("\n")
+        if items is None:
+            return None
+        # AHK separates list items with a '\n' character. Also, in case
+        # of ListViews the items may have multiple columns that are
+        # separated by a '\t' character. Unfortunately, AHK does not
+        # escape the '\n' and '\t' characters in the list items and
+        # columns, so there's no guaranteed way to split and get the
+        # correct values. However, the '\n' and '\t' characters are rare
+        # in these controls, so the convenience of working on a list of
+        # strings is more valuable than potential corner cases.
+        class_name = self.class_name
+        if class_name is None:
+            return None
+        if "syslistview32" in class_name.lower():
+            return self._split_list_items(items)
+        return items.split("\n")
 
     @property
-    def selected_list_items(self):
+    def selected_list_items(self) -> Optional[List[List[str]]]:
         """Retrieve only the selected (highlighted) rows in a ListView control.
         """
         return self.get_list_items(selected=True)
 
     @property
-    def focused_list_item(self):
+    def focused_list_item(self) -> Optional[List[str]]:
         """Retrieve only the focused row in a ListView control."""
-        return self.get_list_items(focused=True)
+        items = self.get_list_items(focused=True)
+        if items is None or len(items) == 0:
+            return None
+        return items[0]
 
-    def get_list_items(self, selected=False, focused=False, column=None):
+    def get_list_items(self, selected=False, focused=False, column: int = None) -> Optional[list]:
         """Retrieve items from a ListView control.
 
         :param selected: If ``True``, returns only selected rows.
@@ -1177,23 +1237,29 @@ class Control(BaseWindow):
             options.append("Selected")
         if focused:
             options.append("Focused")
+        column_count = self.list_view_column_count
+        if column_count is None:
+            return None
         if column is not None:
             if column < 0:
-                column = self.list_view_column_count + column
+                column = column_count + column
             options.append(f"Col{column + 1}")
         str_options = " ".join(options)
         try:
             items = self._get("List", str_options)
-            if items is not None:
-                if column is not None:
-                    return items.split('\n')
-                else:
-                    return self._split_list_items(items)
+            if items is None:
+                return None
+            if column is not None:
+                return items.split('\n')
+            return self._split_list_items(items)
         except Error as err:
             if err.message == 1:
-                if "syslistview32" not in self.class_name.lower():
+                class_name = self.class_name
+                if class_name is None:
                     return None
-                if column is not None and self.list_view_column_count < column + 1:
+                if "syslistview32" not in class_name.lower():
+                    return None
+                if column is not None and column_count < column + 1:
                     err.message = "column index out of range"
                 else:
                     err.message = "there was a problem getting list items"
@@ -1205,7 +1271,7 @@ class Control(BaseWindow):
         return [item.split("\t") for item in string.split("\n")]
 
     @property
-    def list_item_count(self):
+    def list_item_count(self) -> Optional[int]:
         """Retrieve a single number that is the total number of rows in a
         ListBox, ComboBox, or ListView control.
         """
@@ -1225,38 +1291,43 @@ class Control(BaseWindow):
             return None
 
         result = self.send_message(get_count, timeout=5)
-        if result is not None:
-            return result
+        if result is None:
+            return None
+        return result
 
     @property
-    def selected_list_item_count(self):
+    def selected_list_item_count(self) -> Optional[int]:
         """Retrieve the number of selected (highlighted) rows in a ListView
         control.
         """
         return self._count_list_items("Selected")
 
     @property
-    def focused_list_item_index(self):
+    def focused_list_item_index(self) -> Optional[int]:
         """Retrieve the row number (position) of the focused row (-1 if none)
         in a ListView control.
         """
         count = self._count_list_items("Focused")
-        if count is not None:
-            return count - 1
+        if count is None:
+            return None
+        return count - 1
 
     @property
-    def list_view_column_count(self):
+    def list_view_column_count(self) -> Optional[int]:
         """Retrieve the number of columns in a ListView control (or -1 if the
         count cannot be determined).
         """
         return self._count_list_items("Col")
 
-    def _count_list_items(self, option=""):
+    def _count_list_items(self, option="") -> Optional[int]:
         try:
             return self._get("List", f"Count {option}")
         except Error as err:
             if err.message == 1:
-                if "syslistview32" not in self.class_name.lower():
+                class_name = self.class_name
+                if class_name is None:
+                    return None
+                if "syslistview32" not in class_name.lower():
                     return None
                 err.message = "there was a problem getting list items"
             raise err

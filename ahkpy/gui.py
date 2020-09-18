@@ -1,6 +1,6 @@
 import dataclasses as dc
 import queue
-from typing import Callable
+from typing import Callable, Optional
 
 from .flow import ahk_call, global_ahk_lock
 
@@ -55,11 +55,11 @@ class MessageHandler:
 
 @dc.dataclass
 class ToolTip:
-    text: str = None
-    x: int = None
-    y: int = None
+    text: Optional[str] = None
+    x: Optional[int] = None
+    y: Optional[int] = None
     coord_mode: str = "window"
-    _id: int = dc.field(default=None, init=False, repr=False)
+    _id: Optional[int] = dc.field(default=None, init=False, repr=False)
 
     _pool = queue.LifoQueue(maxsize=20)
     for tooltip_id in range(20, 0, -1):

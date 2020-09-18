@@ -658,7 +658,7 @@ class TestControl:
     def test_list_view_items(self, list_view: ahk.Control):
         assert list_view.list_items == [["Hello", "0"], ["Hello wow", "1"], ["Hello world", "2"]]
         assert list_view.selected_list_items == []
-        assert list_view.focused_list_item == []
+        assert list_view.focused_list_item is None
         assert list_view.list_item_count == 3
         assert list_view.selected_list_item_count == 0
         assert list_view.focused_list_item_index == -1
@@ -672,7 +672,7 @@ class TestControl:
         list_view.focus()
         list_view.send("+{Down 2}")
         assert list_view.selected_list_items == [["Hello", "0"], ["Hello wow", "1"]]
-        assert list_view.focused_list_item == [["Hello wow", "1"]]
+        assert list_view.focused_list_item == ["Hello wow", "1"]
         assert list_view.selected_list_item_count == 2
         assert list_view.focused_list_item_index == 1
         assert list_view.get_list_items(selected=True, focused=True) == [["Hello wow", "1"]]
