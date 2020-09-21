@@ -57,7 +57,7 @@ def _clipboard_handler(func, typ):
 @dataclass(frozen=True)
 class ClipboardHandler:
     func: Callable
-    __slots__ = tuple(__annotations__.keys())
+    __slots__ = ("func",)
 
     def unregister(self):
         # TODO: Remove self.func from CALLBACKS and WRAPPED_PYTHON_FUNCTIONS in AHK.

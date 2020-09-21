@@ -46,7 +46,7 @@ def on_message(msg_number, func=None, *, max_threads=1, prepend_handler=False):
 class MessageHandler:
     msg_number: int
     func: Callable
-    __slots__ = tuple(__annotations__.keys())
+    __slots__ = ("msg_number", "func")
 
     def unregister(self):
         # TODO: Remove self.func from CALLBACKS and WRAPPED_PYTHON_FUNCTIONS in AHK.

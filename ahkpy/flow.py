@@ -49,7 +49,7 @@ def set_timer(func=None, period=0.25, countdown=None, priority=0):
 @dc.dataclass(frozen=True)
 class Timer:
     func: Callable
-    __slots__ = tuple(__annotations__.keys())
+    __slots__ = ("func",)
 
     def start(self):
         ahk_call("SetTimer", self.func, "On")
