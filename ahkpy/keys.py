@@ -6,12 +6,14 @@ from typing import Callable, Union
 from .converters import default, optional_ms
 from .exceptions import Error
 from .flow import ahk_call, global_ahk_lock
-from .settings import get_settings
+from .settings import COORD_MODES, get_settings
 
 __all__ = [
     "Hotkey",
     "HotkeyContext",
     "Hotstring",
+    "click",
+    "double_click",
     "get_hotstring_end_chars",
     "get_hotstring_mouse_reset",
     "get_key_state",
@@ -19,12 +21,16 @@ __all__ = [
     "hotkey",
     "hotstring",
     "is_key_toggled",
+    "mouse_press",
+    "mouse_release",
+    "mouse_scroll",
     "remap_key",
     "reset_hotstring",
-    "send",
+    "right_click",
     "send_event",
     "send_input",
     "send_play",
+    "send",
     "set_caps_lock_state",
     "set_hotstring_end_chars",
     "set_hotstring_mouse_reset",
@@ -33,6 +39,11 @@ __all__ = [
     "wait_key_pressed",
     "wait_key_released",
 ]
+
+
+KEY_DOWN = 0
+KEY_UP = 1
+KEY_DOWN_AND_UP = 2
 
 
 def get_key_state(key_name):
@@ -523,3 +534,64 @@ def _set_key_delay(delay=None, duration=None, play=False):
             optional_ms(default(delay, settings.key_delay)),
             optional_ms(default(duration, settings.key_duration)),
         )
+
+
+def click(button="left", *, times=1, x=None, y=None, relative_to="window"):
+    _click(button, times, KEY_DOWN_AND_UP, x, y, relative_to)
+
+
+def right_click(*, times=1, x=None, y=None, relative_to="window"):
+    _click("right", times, KEY_DOWN_AND_UP, x, y, relative_to)
+
+
+def double_click(button="left", *, x=None, y=None, relative_to="window"):
+    _click(button, 2, KEY_DOWN_AND_UP, x, y, relative_to)
+
+
+def mouse_press(button="left", *, times=1, x=None, y=None, relative_to="window"):
+    _click(button, times, KEY_DOWN, x, y, relative_to)
+
+
+def mouse_release(button="left", *, times=1, x=None, y=None, relative_to="window"):
+    _click(button, times, KEY_UP, x, y, relative_to)
+
+
+def _click(button, times, event_type, x, y, relative_to):
+    # TODO: Write tests.
+    x = x if x is not None else ""
+    y = y if y is not None else ""
+
+    if button not in {"left", "right", "middle", "x1", "x2"}:
+        raise ValueError(f"{button!r} is not a valid mouse button")
+
+    if event_type == KEY_DOWN:
+        event_type = "down"
+    elif event_type == KEY_UP:
+        event_type = "up"
+    elif event_type == KEY_DOWN_AND_UP:
+        event_type = ""
+    else:
+        raise ValueError(f"{event_type!r} is not a valid event type")
+
+    if times < 0:
+        raise ValueError("times must be positive")
+
+    offset = ""
+    if relative_to == "pointer":
+        offset = "r"
+    elif relative_to not in COORD_MODES:
+        raise ValueError(f"{relative_to!r} is not a valid coord mode")
+
+    with global_ahk_lock:
+        if relative_to in COORD_MODES:
+            ahk_call("CoordMode", "Mouse", relative_to)
+        ahk_call("Click", x, y, button, times, event_type, offset)
+
+
+def mouse_scroll(direction, times=1):
+    # TODO: Write tests.
+    if direction not in {"up", "down", "left", "right"}:
+        raise ValueError(f"{direction!r} is not a valid mouse scroll direction")
+    if times < 0:
+        raise ValueError("times must be positive")
+    ahk_call("Click", "wheel"+direction, times)
