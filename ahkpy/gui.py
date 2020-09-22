@@ -58,7 +58,7 @@ class ToolTip:
     text: Optional[str] = None
     x: Optional[int] = None
     y: Optional[int] = None
-    coord_mode: str = "window"
+    relative_to: str = "window"
     _id: Optional[int] = dc.field(default=None, init=False, repr=False)
 
     _pool = queue.LifoQueue(maxsize=20)
@@ -66,16 +66,16 @@ class ToolTip:
         _pool.put(tooltip_id)
     del tooltip_id
 
-    def __init__(self, text=None, x=None, y=None, coord_mode="window"):
+    def __init__(self, text=None, x=None, y=None, relative_to="window"):
         # Write the __init__ method for code suggestions.
         self.text = text
         self.x = x
         self.y = y
-        if coord_mode not in COORD_MODES:
-            raise ValueError(f"{coord_mode!r} is not a valid coord mode")
-        self.coord_mode = coord_mode
+        if relative_to not in COORD_MODES:
+            raise ValueError(f"{relative_to!r} is not a valid coord mode")
+        self.relative_to = relative_to
 
-    def show(self, text=None, x=UNSET, y=UNSET, coord_mode=None):
+    def show(self, text=None, x=UNSET, y=UNSET, relative_to=None):
         if not text and not self.text:
             raise ValueError("text must not be empty")
         elif text:
@@ -88,14 +88,14 @@ class ToolTip:
         x = self.x if self.x is not None else ""
         y = self.y if self.y is not None else ""
 
-        if coord_mode is not None:
-            self.coord_mode = coord_mode
-        if self.coord_mode not in COORD_MODES:
-            raise ValueError(f"{coord_mode!r} is not a valid coord mode")
+        if relative_to is not None:
+            self.relative_to = relative_to
+        if self.relative_to not in COORD_MODES:
+            raise ValueError(f"{relative_to!r} is not a valid coord mode")
 
         tooltip_id = self._acquire()
         with global_ahk_lock:
-            ahk_call("CoordMode", "ToolTip", self.coord_mode)
+            ahk_call("CoordMode", "ToolTip", self.relative_to)
             ahk_call("ToolTip", str(self.text), x, y, tooltip_id)
 
     def hide(self):

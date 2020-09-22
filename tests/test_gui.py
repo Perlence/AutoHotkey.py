@@ -121,10 +121,13 @@ class TestTooltip:
         with pytest.raises(ValueError, match="text must not be empty"):
             ahk.ToolTip().show()
 
+        with pytest.raises(ValueError, match="is not a valid coord mode"):
+            ahk.ToolTip(relative_to="nooo")
+
     def test_too_many_tooltips(self, request):
         tooltips = []
         for i in range(1, 21):
-            t = ahk.ToolTip(i)
+            t = ahk.ToolTip(i, relative_to="screen")
             request.addfinalizer(t.hide)
             t.show(x=50*i, y=50*i)
             tooltips.append(t)
