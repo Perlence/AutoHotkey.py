@@ -10,6 +10,8 @@ __all__ = [
 ]
 
 
+COORD_MODES = {"screen", "window", "client"}
+
 _current_settings = contextvars.ContextVar("script_settings")
 
 

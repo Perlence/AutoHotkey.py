@@ -3,6 +3,7 @@ import queue
 from typing import Callable, Optional
 
 from .flow import ahk_call, global_ahk_lock
+from .settings import COORD_MODES
 
 __all__ = [
     "MessageHandler",
@@ -13,8 +14,6 @@ __all__ = [
 
 
 UNSET = object()
-
-COORD_MODES = {"screen", "window", "client"}
 
 
 def message_box(text=None, title="", options=0, timeout=None):
