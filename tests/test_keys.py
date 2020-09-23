@@ -1,3 +1,4 @@
+from ahkpy.settings import local_settings
 import subprocess
 import sys
 
@@ -558,3 +559,45 @@ def test_remap_key(child_ahk):
     remap.disable()
 
     ahk.send("{F24}", level=10)
+
+
+class TestMouse:
+    def test_click(self, child_ahk, settings):
+        def hotkeys():
+            import ahkpy as ahk
+            import sys
+            ahk.hotkey("F24", sys.exit)
+
+            @ahk.hotkey("LButton")
+            def left():
+                print("ok01")
+
+            @ahk.hotkey("RButton")
+            def right():
+                print("ok02")
+
+            print("ok00")
+
+        child_ahk.popen_code(hotkeys)
+        child_ahk.wait(0)
+
+        settings.send_level = 10
+
+        ahk.click()
+        child_ahk.wait(1)
+
+        ahk.click("right")
+        child_ahk.wait(2)
+
+        ahk.right_click()
+        child_ahk.wait(2)
+
+        ahk.click(times=2)
+        child_ahk.wait(1)
+        child_ahk.wait(1)
+
+        ahk.double_click()
+        child_ahk.wait(1)
+        child_ahk.wait(1)
+
+        ahk.send("{F24}")

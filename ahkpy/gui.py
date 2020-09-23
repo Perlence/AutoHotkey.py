@@ -4,6 +4,7 @@ from typing import Callable, Optional
 
 from .flow import ahk_call, global_ahk_lock
 from .settings import COORD_MODES
+from .unset import UNSET
 
 __all__ = [
     "MessageHandler",
@@ -11,9 +12,6 @@ __all__ = [
     "message_box",
     "on_message",
 ]
-
-
-UNSET = object()
 
 
 def message_box(text=None, title="", options=0, timeout=None):

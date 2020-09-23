@@ -22,8 +22,8 @@ class Settings:
     key_duration: float = -1
     key_delay_play: float = -1
     key_duration_play: float = -1
-    mouse_delay: float = 0.01  # TODO: Implement mouse_delay.
-    mouse_delay_play: float = -1  # TODO: Implement mouse_delay_play.
+    mouse_delay: float = 0.01
+    mouse_delay_play: float = -1
     mouse_speed: int = 2  # TODO: Implement mouse_speed.
     send_level: int = 0
     send_mode: str = "input"

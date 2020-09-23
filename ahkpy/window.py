@@ -11,6 +11,7 @@ from .converters import optional_ms
 from .exceptions import Error
 from .flow import ahk_call, global_ahk_lock
 from .settings import get_settings
+from .unset import UNSET, UnsetType
 
 __all__ = [
     "Control",
@@ -26,17 +27,6 @@ __all__ = [
 
 TITLE_MATCH_MODES = {"startswith", "contains", "exact", "regex"}
 TEXT_MATCH_MODES = {"fast", "slow"}
-
-
-class UnsetType:
-    def __bool__(self):
-        return False
-
-    def __repr__(self):
-        return "UNSET"
-
-
-UNSET = UnsetType()
 
 
 @dc.dataclass(frozen=True)
@@ -252,7 +242,7 @@ class Windows:
     def send(self, keys, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text, match=match)
         with global_ahk_lock:
-            hotkeys._set_key_delay()
+            hotkeys._set_delay()
             control = ""
             self._call("ControlSend", control, str(keys), *self._query())
 
@@ -563,7 +553,9 @@ class BaseWindow(WindowHandle):
 
     def send(self, keys):
         with global_ahk_lock:
-            hotkeys._set_key_delay()
+            # Unlike the Send command, mouse clicks cannot be sent by
+            # ControlSend. Thus, no need to set mouse_delay.
+            hotkeys._set_delay(mouse_delay=UNSET)
             control = ""
             try:
                 self._call("ControlSend", control, str(keys), *self._include())
@@ -573,6 +565,7 @@ class BaseWindow(WindowHandle):
                     return
                 raise
 
+    # TODO: Implement ControlClick.
     # TODO: Add send_message and post_message to Windows.
 
     def send_message(self, msg, w_param=0, l_param=0, timeout=5) -> Optional[int]:

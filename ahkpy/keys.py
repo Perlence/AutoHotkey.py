@@ -3,10 +3,11 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Callable, Union
 
-from .converters import default, optional_ms
+from .converters import optional_ms
 from .exceptions import Error
 from .flow import ahk_call, global_ahk_lock
 from .settings import COORD_MODES, get_settings
+from .unset import UNSET
 
 __all__ = [
     "Hotkey",
@@ -474,41 +475,44 @@ class RemappedKey:
         self.wildcard_origin_up.toggle()
 
 
-def send(keys, mode=None, *, level=None):
+def send(keys, mode=None, *, level=None, key_delay=None, key_duration=None, mouse_delay=None):
     # TODO: Sending "{U+0009}" and "\u0009" gives different results depending on
     # how tabs are handled in the application.
-    if mode is None:
-        mode = get_settings().send_mode
-    if mode == "input":
-        send_func = send_input
-    elif mode == "play":
-        send_func = send_play
-    elif mode == "event":
-        send_func = send_event
-    else:
-        raise ValueError(f"{mode!r} is not a valid send mode")
-
-    send_func(keys, level=level)
+    send_func = _send_func(mode)
+    send_func(keys, level=level, key_delay=key_delay, key_duration=key_duration, mouse_delay=mouse_delay)
 
 
-def send_input(keys, *, level=None):
+def send_input(keys, *, level=None, key_delay=None, key_duration=None, mouse_delay=None):
     with global_ahk_lock:
         _send_level(level)
         ahk_call("SendInput", keys)
 
 
-def send_event(keys, *, level=None, delay=None, duration=None):
+def send_event(keys, *, level=None, key_delay=None, key_duration=None, mouse_delay=None):
     with global_ahk_lock:
         _send_level(level)
-        _set_key_delay(delay, duration)
+        _set_delay(key_delay, key_duration, mouse_delay)
         ahk_call("SendEvent", keys)
 
 
-def send_play(keys, *, level=None, delay=None, duration=None):
+def send_play(keys, *, level=None, key_delay=None, key_duration=None, mouse_delay=None):
     with global_ahk_lock:
         _send_level(level)
-        _set_key_delay(delay, duration, play=True)
+        _set_delay(key_delay, key_duration, mouse_delay, play=True)
         ahk_call("SendPlay", keys)
+
+
+def _send_func(mode):
+    if mode is None:
+        mode = get_settings().send_mode
+    if mode == "input":
+        return send_input
+    elif mode == "play":
+        return send_play
+    elif mode == "event":
+        return send_event
+    else:
+        raise ValueError(f"{mode!r} is not a valid send mode")
 
 
 def _send_level(level):
@@ -519,79 +523,108 @@ def _send_level(level):
     ahk_call("SendLevel", int(level))
 
 
-def _set_key_delay(delay=None, duration=None, play=False):
+def _set_delay(key_delay=None, key_duration=None, mouse_delay=None, play=False):
     settings = get_settings()
     if play:
-        ahk_call(
-            "SetKeyDelay",
-            optional_ms(default(delay, settings.key_delay_play)),
-            optional_ms(default(duration, settings.key_duration_play)),
-            "Play",
-        )
+        if key_delay is not UNSET and key_duration is not UNSET:
+            ahk_call(
+                "SetKeyDelay",
+                optional_ms(key_delay if key_delay is not None else settings.key_delay_play),
+                optional_ms(key_duration if key_duration is not None else settings.key_duration_play),
+                "Play",
+            )
+        if mouse_delay is not UNSET:
+            ahk_call(
+                "SetMouseDelay",
+                optional_ms(mouse_delay if mouse_delay is not None else settings.mouse_delay_play),
+                "Play",
+            )
     else:
-        ahk_call(
-            "SetKeyDelay",
-            optional_ms(default(delay, settings.key_delay)),
-            optional_ms(default(duration, settings.key_duration)),
-        )
+        if key_delay is not UNSET and key_duration is not UNSET:
+            ahk_call(
+                "SetKeyDelay",
+                optional_ms(key_delay if key_delay is not None else settings.key_delay),
+                optional_ms(key_duration if key_duration is not None else settings.key_duration),
+            )
+        if mouse_delay is not UNSET:
+            ahk_call(
+                "SetMouseDelay",
+                optional_ms(mouse_delay if mouse_delay is not None else settings.mouse_delay),
+            )
 
 
-def click(button="left", *, times=1, x=None, y=None, relative_to="window"):
-    _click(button, times, KEY_DOWN_AND_UP, x, y, relative_to)
+def click(button="left", *, times=1, x=None, y=None, relative_to="window", mode=None, level=None, delay=None):
+    # XXX: Consider adding *modifier* argument.
+    _click(button, times, KEY_DOWN_AND_UP, x, y, relative_to, mode, level, delay)
 
 
-def right_click(*, times=1, x=None, y=None, relative_to="window"):
-    _click("right", times, KEY_DOWN_AND_UP, x, y, relative_to)
+def right_click(*, times=1, x=None, y=None, relative_to="window", mode=None, level=None, delay=None):
+    _click("right", times, KEY_DOWN_AND_UP, x, y, relative_to, mode, level, delay)
 
 
-def double_click(button="left", *, x=None, y=None, relative_to="window"):
-    _click(button, 2, KEY_DOWN_AND_UP, x, y, relative_to)
+def double_click(button="left", *, x=None, y=None, relative_to="window", mode=None, level=None, delay=None):
+    _click(button, 2, KEY_DOWN_AND_UP, x, y, relative_to, mode, level, delay)
 
 
-def mouse_press(button="left", *, times=1, x=None, y=None, relative_to="window"):
-    _click(button, times, KEY_DOWN, x, y, relative_to)
+def mouse_press(button="left", *, times=1, x=None, y=None, relative_to="window", mode=None, level=None, delay=None):
+    _click(button, times, KEY_DOWN, x, y, relative_to, mode, level, delay)
 
 
-def mouse_release(button="left", *, times=1, x=None, y=None, relative_to="window"):
-    _click(button, times, KEY_UP, x, y, relative_to)
+def mouse_release(button="left", *, times=1, x=None, y=None, relative_to="window", mode=None, level=None, delay=None):
+    _click(button, times, KEY_UP, x, y, relative_to, mode, level, delay)
 
 
-def _click(button, times, event_type, x, y, relative_to):
-    # TODO: Write tests.
-    x = x if x is not None else ""
-    y = y if y is not None else ""
+def _click(button, times, event_type, x=None, y=None, relative_to="window", mode=None, level=None, delay=None):
+    args = []
+
+    if x is not None:
+        args.append(str(int(x)))
+    if y is not None:
+        args.append(str(int(y)))
 
     if button not in {"left", "right", "middle", "x1", "x2"}:
         raise ValueError(f"{button!r} is not a valid mouse button")
+    args.append(button)
 
     if event_type == KEY_DOWN:
-        event_type = "down"
+        args.append("down")
     elif event_type == KEY_UP:
-        event_type = "up"
+        args.append("up")
     elif event_type == KEY_DOWN_AND_UP:
-        event_type = ""
+        pass
     else:
         raise ValueError(f"{event_type!r} is not a valid event type")
 
     if times < 0:
         raise ValueError("times must be positive")
+    args.append(str(times))
 
-    offset = ""
     if relative_to == "pointer":
-        offset = "r"
+        args.append("relative")
     elif relative_to not in COORD_MODES:
         raise ValueError(f"{relative_to!r} is not a valid coord mode")
 
     with global_ahk_lock:
         if relative_to in COORD_MODES:
             ahk_call("CoordMode", "Mouse", relative_to)
-        ahk_call("Click", x, y, button, times, event_type, offset)
+        _send_click(*args, mode=mode, level=level, delay=delay)
 
 
-def mouse_scroll(direction, times=1):
+def mouse_scroll(direction, times=1, *, mode=None, level=None):
     # TODO: Write tests.
     if direction not in {"up", "down", "left", "right"}:
         raise ValueError(f"{direction!r} is not a valid mouse scroll direction")
     if times < 0:
         raise ValueError("times must be positive")
-    ahk_call("Click", "wheel"+direction, times)
+    _send_click("wheel"+direction, str(times), mode=mode, level=level, delay=UNSET)
+
+
+def _send_click(*args, mode=None, level=None, delay=None):
+    send_func = _send_func(mode)
+    send_func(
+        "{Click, %s}" % ",".join(args),
+        level=level,
+        key_delay=UNSET,
+        key_duration=UNSET,
+        mouse_delay=delay,
+    )
