@@ -475,7 +475,7 @@ class RemappedKey:
         self.wildcard_origin_up.toggle()
 
 
-def send(keys, mode=None, *, level=None, key_delay=None, key_duration=None, mouse_delay=None):
+def send(keys, *, mode=None, level=None, key_delay=None, key_duration=None, mouse_delay=None):
     # TODO: Sending "{U+0009}" and "\u0009" gives different results depending on
     # how tabs are handled in the application.
     send_func = _send_func(mode)
@@ -553,28 +553,60 @@ def _set_delay(key_delay=None, key_duration=None, mouse_delay=None, play=False):
             )
 
 
-def click(button="left", *, times=1, x=None, y=None, relative_to="window", mode=None, level=None, delay=None):
-    # XXX: Consider adding *modifier* argument.
-    _click(button, times, KEY_DOWN_AND_UP, x, y, relative_to, mode, level, delay)
+def click(
+    button="left", *, times=1, modifier: str = None, blind=True,
+    x=None, y=None, relative_to="window", mode=None, level=None, delay=None,
+):
+    _click(
+        button, times, KEY_DOWN_AND_UP, modifier=modifier, blind=blind,
+        x=x, y=y, relative_to=relative_to, mode=mode, level=level, delay=delay,
+    )
 
 
-def right_click(*, times=1, x=None, y=None, relative_to="window", mode=None, level=None, delay=None):
-    _click("right", times, KEY_DOWN_AND_UP, x, y, relative_to, mode, level, delay)
+def right_click(
+    *, times=1, modifier: str = None, blind=True,
+    x=None, y=None, relative_to="window", mode=None, level=None, delay=None,
+):
+    _click(
+        "right", times, KEY_DOWN_AND_UP, modifier=modifier, blind=blind,
+        x=x, y=y, relative_to=relative_to, mode=mode, level=level, delay=delay,
+    )
 
 
-def double_click(button="left", *, x=None, y=None, relative_to="window", mode=None, level=None, delay=None):
-    _click(button, 2, KEY_DOWN_AND_UP, x, y, relative_to, mode, level, delay)
+def double_click(
+    button="left", *, modifier: str = None, blind=True,
+    x=None, y=None, relative_to="window", mode=None, level=None, delay=None,
+):
+    _click(
+        button, 2, KEY_DOWN_AND_UP, modifier=modifier, blind=blind,
+        x=x, y=y, relative_to=relative_to, mode=mode, level=level, delay=delay,
+    )
 
 
-def mouse_press(button="left", *, times=1, x=None, y=None, relative_to="window", mode=None, level=None, delay=None):
-    _click(button, times, KEY_DOWN, x, y, relative_to, mode, level, delay)
+def mouse_press(
+    button="left", *, times=1, modifier: str = None, blind=True,
+    x=None, y=None, relative_to="window", mode=None, level=None, delay=None,
+):
+    _click(
+        button, times, KEY_DOWN, modifier=modifier, blind=blind,
+        x=x, y=y, relative_to=relative_to, mode=mode, level=level, delay=delay,
+    )
 
 
-def mouse_release(button="left", *, times=1, x=None, y=None, relative_to="window", mode=None, level=None, delay=None):
-    _click(button, times, KEY_UP, x, y, relative_to, mode, level, delay)
+def mouse_release(
+    button="left", *, times=1, modifier: str = None, blind=True,
+    x=None, y=None, relative_to="window", mode=None, level=None, delay=None,
+):
+    _click(
+        button, times, KEY_UP, modifier=modifier, blind=blind,
+        x=x, y=y, relative_to=relative_to, mode=mode, level=level, delay=delay,
+    )
 
 
-def _click(button, times, event_type, x=None, y=None, relative_to="window", mode=None, level=None, delay=None):
+def _click(
+    button, times, event_type, modifier: str = None, blind=True,
+    x=None, y=None, relative_to="window", mode=None, level=None, delay=None,
+):
     args = []
 
     if x is not None:
@@ -607,22 +639,31 @@ def _click(button, times, event_type, x=None, y=None, relative_to="window", mode
     with global_ahk_lock:
         if relative_to in COORD_MODES:
             ahk_call("CoordMode", "Mouse", relative_to)
-        _send_click(*args, mode=mode, level=level, delay=delay)
+        _send_click(*args, modifier=modifier, blind=blind, mode=mode, level=level, delay=delay)
 
 
-def mouse_scroll(direction, times=1, *, mode=None, level=None):
+def mouse_scroll(direction, times=1, *, modifier: str = None, blind=True, mode=None, level=None):
     # TODO: Write tests.
     if direction not in {"up", "down", "left", "right"}:
         raise ValueError(f"{direction!r} is not a valid mouse scroll direction")
     if times < 0:
         raise ValueError("times must be positive")
-    _send_click("wheel"+direction, str(times), mode=mode, level=level, delay=UNSET)
+    _send_click("wheel"+direction, str(times), modifier=modifier, blind=blind, mode=mode, level=level, delay=UNSET)
 
 
-def _send_click(*args, mode=None, level=None, delay=None):
+def _send_click(*args, modifier: str = None, blind=True, mode=None, level=None, delay=None):
+    if modifier is not None:
+        unknown_modifiers = set(modifier) - set("!+^#")
+        if unknown_modifiers:
+            raise ValueError(f"{''.join(unknown_modifiers)!r} is not a valid modifier")
+    else:
+        modifier = ""
+
+    blind_str = "{Blind}" if blind else ""
+
     send_func = _send_func(mode)
     send_func(
-        "{Click, %s}" % ",".join(args),
+        "%s%s{Click, %s}" % (blind_str, modifier, ",".join(args)),
         level=level,
         key_delay=UNSET,
         key_duration=UNSET,

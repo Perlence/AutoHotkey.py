@@ -542,11 +542,7 @@ def test_remap_key(child_ahk):
         import ahkpy as ahk
         import sys
         ahk.hotkey("F24", sys.exit)
-
-        @ahk.hotkey("F14")
-        def trigger():
-            ahk.message_box("F14 pressed")
-
+        ahk.hotkey("F14", lambda: ahk.message_box("F14 pressed"))
         print("ok00")
 
     child_ahk.popen_code(hotkeys)
@@ -562,20 +558,30 @@ def test_remap_key(child_ahk):
 
 
 class TestMouse:
+    def test_click_validation(self):
+        with pytest.raises(TypeError, match=r"int\(\) argument must be a string"):
+            ahk.click(x=[])
+        with pytest.raises(TypeError, match=r"int\(\) argument must be a string"):
+            ahk.click(y=[])
+        with pytest.raises(ValueError, match="'nooo' is not a valid mouse button"):
+            ahk.click("nooo")
+        with pytest.raises(TypeError, match="'<' not supported"):
+            ahk.click(times=[])
+        with pytest.raises(ValueError, match="must be positive"):
+            ahk.click(times=-1)
+        with pytest.raises(ValueError, match="'nooo' is not a valid coord mode"):
+            ahk.click(relative_to="nooo")
+        with pytest.raises(ValueError, match=r"'[$@%]{3}' is not a valid modifier"):
+            ahk.click(modifier="!@#$%")
+
     def test_click(self, child_ahk, settings):
         def hotkeys():
             import ahkpy as ahk
             import sys
             ahk.hotkey("F24", sys.exit)
-
-            @ahk.hotkey("LButton")
-            def left():
-                print("ok01")
-
-            @ahk.hotkey("RButton")
-            def right():
-                print("ok02")
-
+            ahk.hotkey("LButton", lambda: print("ok01"))
+            ahk.hotkey("RButton", lambda: print("ok02"))
+            ahk.hotkey("+LButton", lambda: print("ok03"))
             print("ok00")
 
         child_ahk.popen_code(hotkeys)
@@ -599,5 +605,13 @@ class TestMouse:
         ahk.double_click()
         child_ahk.wait(1)
         child_ahk.wait(1)
+
+        ahk.click("left", modifier="+")
+        child_ahk.wait(3)
+
+        ahk.send("{Shift Down}")
+        ahk.click("left")
+        child_ahk.wait(3)
+        ahk.send("{Shift Up}")
 
         ahk.send("{F24}")
