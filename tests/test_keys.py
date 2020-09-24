@@ -1,6 +1,5 @@
-from ahkpy.settings import local_settings
-import subprocess
 import sys
+import time
 
 import pytest
 
@@ -176,14 +175,14 @@ class TestHotstring:
         assert edit.text == ""
 
     def test_simple(self, request, edit):
-        dashes = ahk.hotstring("--", "—")
+        dashes = ahk.hotstring("nepotism", "msitopen")
         request.addfinalizer(dashes.disable)
-        ahk.send("--")
+        ahk.send("nepotism")
         ahk.sleep(0)
-        assert edit.text == "--"
+        assert edit.text == "nepotism"
         ahk.send(" ")
         ahk.sleep(0)
-        assert edit.text == "— "
+        assert edit.text == "msitopen "
 
     def test_wait_for_and_omit_end_char(self, request, edit):
         jsmith = ahk.hotstring("j@", "jsmith@somedomain.com", wait_for_end_char=False)
@@ -247,21 +246,21 @@ class TestHotstring:
         assert edit.text == "jsmith@somedomain.com"
 
         edit.text = ""
-        dashes = ahk.hotstring("--", "—")
+        dashes = ahk.hotstring("crabwise", "esiwbarc")
         request.addfinalizer(dashes.disable)
         dashes.update(wait_for_end_char=False)
-        ahk.send("--")
+        ahk.send("crabwise")
         ahk.sleep(0)
-        assert edit.text == "—"
+        assert edit.text == "esiwbarc"
 
         edit.text = ""
         dashes.update(wait_for_end_char=True)
-        ahk.send("--")
+        ahk.send("crabwise")
         ahk.sleep(0)
-        assert edit.text == "--"
+        assert edit.text == "crabwise"
         ahk.send(" ")
         ahk.sleep(0)
-        assert edit.text == "— "
+        assert edit.text == "esiwbarc "
 
     def test_on_off(self, request, edit):
         beep = ahk.hotstring("beep", "boop")
@@ -555,6 +554,13 @@ def test_remap_key(child_ahk):
     remap.disable()
 
     ahk.send("{F24}", level=10)
+
+
+def test_fallback_to_send_event_on_delay(notepad):
+    start = time.perf_counter()
+    ahk.send("abcdef", key_delay=0.01)
+    end = time.perf_counter()
+    assert end - start >= 6 * 0.01
 
 
 class TestMouse:

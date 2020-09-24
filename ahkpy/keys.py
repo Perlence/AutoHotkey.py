@@ -478,7 +478,7 @@ class RemappedKey:
 def send(keys, *, mode=None, level=None, key_delay=None, key_duration=None, mouse_delay=None):
     # TODO: Sending "{U+0009}" and "\u0009" gives different results depending on
     # how tabs are handled in the application.
-    send_func = _send_func(mode)
+    send_func = _send_func(mode, key_delay, key_duration, mouse_delay)
     send_func(keys, level=level, key_delay=key_delay, key_duration=key_duration, mouse_delay=mouse_delay)
 
 
@@ -502,9 +502,15 @@ def send_play(keys, *, level=None, key_delay=None, key_duration=None, mouse_dela
         ahk_call("SendPlay", keys)
 
 
-def _send_func(mode):
+def _send_func(mode, key_delay=None, key_duration=None, mouse_delay=None):
     if mode is None:
         mode = get_settings().send_mode
+        if mode == "input" and (
+            key_delay not in {None, UNSET} or
+            key_duration not in {None, UNSET} or
+            mouse_delay not in {None, UNSET}
+        ):
+            return send_event
     if mode == "input":
         return send_input
     elif mode == "play":
@@ -661,7 +667,7 @@ def _send_click(*args, modifier: str = None, blind=True, mode=None, level=None, 
 
     blind_str = "{Blind}" if blind else ""
 
-    send_func = _send_func(mode)
+    send_func = _send_func(mode, mouse_delay=delay)
     send_func(
         "%s%s{Click, %s}" % (blind_str, modifier, ",".join(args)),
         level=level,

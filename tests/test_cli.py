@@ -1,8 +1,5 @@
-import signal
 import subprocess
 from textwrap import dedent
-
-import pytest
 
 
 def test_stdin(child_ahk):
