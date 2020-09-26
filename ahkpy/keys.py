@@ -1,11 +1,12 @@
 import inspect
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Callable, Union
+from typing import Callable, Tuple, Union
 
 from .exceptions import Error
 from .flow import ahk_call, global_ahk_lock
 from .settings import get_settings, optional_ms, _set_coord_mode
+from .window import Control, Window
 from .unset import UNSET
 
 __all__ = [
@@ -21,6 +22,9 @@ __all__ = [
     "hotkey",
     "hotstring",
     "is_key_toggled",
+    "mouse_get_control",
+    "mouse_get_pos",
+    "mouse_get_window",
     "mouse_press",
     "mouse_release",
     "mouse_scroll",
@@ -667,3 +671,28 @@ def _send_click(*args, modifier: str = None, blind=True, mode=None, level=None, 
         key_duration=UNSET,
         mouse_delay=delay,
     )
+
+
+def mouse_get_pos(relative_to="window") -> Tuple[int, int]:
+    # TODO: Write tests.
+    with global_ahk_lock:
+        _set_coord_mode("mouse", relative_to)
+        result = ahk_call("MouseGetPos")
+    return (result["X"], result["Y"])
+
+
+def mouse_get_window():
+    # TODO: Write tests.
+    win_id = ahk_call("MouseGetWin")
+    if not win_id:
+        return Window(0)
+    return Window(win_id)
+
+
+def mouse_get_control(simple=False):
+    # TODO: Write tests.
+    flag = 2 if not simple else 3
+    win_id = ahk_call("MouseGetControl", flag)
+    if not win_id:
+        return Control(0)
+    return Control(win_id)

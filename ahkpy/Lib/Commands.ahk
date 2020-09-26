@@ -247,9 +247,19 @@ _MouseClickDrag(WhichButton,X1,Y1,X2,Y2,Speed="",R="") {
     MouseClickDrag %WhichButton%,%X1%,%Y1%,%X2%,%Y2%,%Speed%,%R%
 }
 
-_MouseGetPos(Flag="") {
-    MouseGetPos X, Y, Win, Control, %Flag%
-    return {X: X, Y: Y, Win: Win+0, Control: Control}
+_MouseGetPos() {
+    MouseGetPos X, Y
+    return {X: X, Y: Y}
+}
+
+_MouseGetWin() {
+    MouseGetPos,,, Win
+    return Win+0
+}
+
+_MouseGetControl(Flag) {
+    MouseGetPos,,,, Control, %Flag%
+    return Control
 }
 
 _MouseMove(X,Y,Speed="",R="") {
