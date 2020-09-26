@@ -151,7 +151,7 @@ def get_window_under_mouse():
     # TODO: Write tests.
     win_id = ahk_call("MouseGetWin")
     if not win_id:
-        return Window(0)
+        return Window(None)
     return Window(win_id)
 
 
@@ -160,5 +160,5 @@ def get_control_under_mouse(simple=False):
     flag = 2 if not simple else 3
     win_id = ahk_call("MouseGetControl", flag)
     if not win_id:
-        return Control(0)
+        return Control(None)
     return Control(win_id)

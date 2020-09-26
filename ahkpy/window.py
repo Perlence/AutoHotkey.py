@@ -102,8 +102,8 @@ class Windows:
         a dummy window object if there are no such windows.
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
-        win_id = self._call("WinExist", *self._query()) or 0
-        if win_id == 0:
+        win_id = self._call("WinExist", *self._query())
+        if not win_id:
             return Window(None)
         return Window(win_id)
 
@@ -112,8 +112,8 @@ class Windows:
 
     def last(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
         self = self._filter(title, class_name, id, pid, exe, text, match)
-        win_id = self._call("WinGet", "IDLast", *self._query()) or 0
-        if win_id == 0:
+        win_id = self._call("WinGet", "IDLast", *self._query())
+        if not win_id:
             return Window(None)
         return Window(win_id)
 
@@ -124,8 +124,8 @@ class Windows:
         query = self._query()
         if query == ("", "", "", ""):
             query = ("A", "", "", "")
-        win_id = self._call("WinActive", *query) or 0
-        if win_id == 0:
+        win_id = self._call("WinActive", *query)
+        if not win_id:
             return Window(None)
         return Window(win_id)
 
