@@ -24,6 +24,10 @@ global_ahk_lock = threading.RLock()
 
 
 def ahk_call(cmd, *args):
+    # AHK callbacks are not reentrant. While the main thread is busy executing
+    # an AHK function, trying to call another AHK function from another thread
+    # leads to unpredictable results like program crash. The following lock
+    # allows only one system thread to call AHK.
     with global_ahk_lock:
         return _ahk.call(cmd, *args)
 
