@@ -645,7 +645,6 @@ def _click(
 
 
 def mouse_scroll(direction, times=1, *, modifier: str = None, blind=True, mode=None, level=None):
-    # TODO: Write tests.
     if direction not in {"up", "down", "left", "right"}:
         raise ValueError(f"{direction!r} is not a valid mouse scroll direction")
     if times < 0:

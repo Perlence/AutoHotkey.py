@@ -588,6 +588,8 @@ class TestMouse:
             ahk.hotkey("LButton", lambda: print("ok01"))
             ahk.hotkey("RButton", lambda: print("ok02"))
             ahk.hotkey("+LButton", lambda: print("ok03"))
+            ahk.hotkey("WheelDown", lambda: print("ok04"))
+            ahk.hotkey("WheelLeft", lambda: print("ok05"))
             print("ok00")
 
         child_ahk.popen_code(hotkeys)
@@ -619,5 +621,15 @@ class TestMouse:
         ahk.click("left")
         child_ahk.wait(3)
         ahk.send("{Shift Up}")
+
+        ahk.mouse_scroll("down")
+        child_ahk.wait(4)
+
+        ahk.mouse_scroll("down", 2)
+        child_ahk.wait(4)
+        child_ahk.wait(4)
+
+        ahk.mouse_scroll("left")
+        child_ahk.wait(5)
 
         ahk.send("{F24}")
