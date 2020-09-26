@@ -3,10 +3,9 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Callable, Union
 
-from .converters import optional_ms
 from .exceptions import Error
 from .flow import ahk_call, global_ahk_lock
-from .settings import COORD_MODES, get_settings
+from .settings import get_settings, optional_ms, _set_coord_mode
 from .unset import UNSET
 
 __all__ = [
@@ -635,12 +634,10 @@ def _click(
 
     if relative_to == "pointer":
         args.append("relative")
-    elif relative_to not in COORD_MODES:
-        raise ValueError(f"{relative_to!r} is not a valid coord mode")
 
     with global_ahk_lock:
-        if relative_to in COORD_MODES:
-            ahk_call("CoordMode", "Mouse", relative_to)
+        if relative_to != "pointer":
+            _set_coord_mode("mouse", relative_to)
         _send_click(*args, modifier=modifier, blind=blind, mode=mode, level=level, delay=delay)
 
 

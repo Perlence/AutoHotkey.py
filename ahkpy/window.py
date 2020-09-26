@@ -7,10 +7,9 @@ from typing import List, Optional, Tuple, Union
 
 from . import colors
 from . import keys as hotkeys
-from .converters import optional_ms
 from .exceptions import Error
 from .flow import ahk_call, global_ahk_lock
-from .settings import get_settings
+from .settings import get_settings, optional_ms
 from .unset import UNSET, UnsetType
 
 __all__ = [

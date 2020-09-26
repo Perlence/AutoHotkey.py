@@ -3,7 +3,7 @@ import queue
 from typing import Callable, Optional
 
 from .flow import ahk_call, global_ahk_lock
-from .settings import COORD_MODES
+from .settings import COORD_MODES, _set_coord_mode
 from .unset import UNSET
 
 __all__ = [
@@ -87,12 +87,10 @@ class ToolTip:
 
         if relative_to is not None:
             self.relative_to = relative_to
-        if self.relative_to not in COORD_MODES:
-            raise ValueError(f"{relative_to!r} is not a valid coord mode")
 
         tooltip_id = self._acquire()
         with global_ahk_lock:
-            ahk_call("CoordMode", "ToolTip", self.relative_to)
+            _set_coord_mode("tooltip", self.relative_to)
             ahk_call("ToolTip", str(self.text), x, y, tooltip_id)
 
     def hide(self):

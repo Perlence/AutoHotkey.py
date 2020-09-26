@@ -2,6 +2,8 @@ import dataclasses as dc
 import contextvars
 from typing import ContextManager
 
+from .flow import ahk_call
+
 __all__ = [
     "Settings",
     "get_settings",
@@ -9,8 +11,6 @@ __all__ = [
     "set_settings",
 ]
 
-
-COORD_MODES = {"screen", "window", "client"}
 
 _current_settings = contextvars.ContextVar("script_settings")
 
@@ -28,6 +28,15 @@ class Settings:
     send_level: int = 0
     send_mode: str = "input"
     win_delay: float = 0.1
+
+    # Should CoordMode also be here? I don't think so, because the above
+    # settings change only some aspects like speed and delay and don't change
+    # the overall behavior. For example, the function that moves the mouse
+    # pointer or types a word is expected to mostly do the same regardless of
+    # these settings.
+    #
+    # CoordMode on the other hand completely changes the behavior of the
+    # affected functions.
 
     def __delattr__(self, name):
         raise AttributeError(f"{name} cannot be deleted")
@@ -68,3 +77,22 @@ class _SettingsManager:
 
     def __exit__(self, t, v, tb):
         set_settings(self.prior_settings)
+
+
+def optional_ms(value):
+    if value is None or value < 0:
+        return -1
+    else:
+        return int(value * 1000)
+
+
+COORD_TARGETS = {"tooltip", "pixel", "mouse", "caret", "menu"}
+COORD_MODES = {"screen", "window", "client"}
+
+
+def _set_coord_mode(target, relative_to):
+    if target not in COORD_TARGETS:
+        raise ValueError(f"{target!r} is not a valid coord target")
+    if relative_to not in COORD_MODES:
+        raise ValueError(f"{relative_to!r} is not a valid coord mode")
+    ahk_call("CoordMode", target, relative_to)
