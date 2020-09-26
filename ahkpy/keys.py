@@ -478,7 +478,22 @@ class RemappedKey:
 def send(keys, *, mode=None, level=None, key_delay=None, key_duration=None, mouse_delay=None):
     # TODO: Sending "{U+0009}" and "\u0009" gives different results depending on
     # how tabs are handled in the application.
-    send_func = _send_func(mode, key_delay, key_duration, mouse_delay)
+    if mode is None:
+        mode = get_settings().send_mode
+        if mode == "input" and (
+            key_delay not in {None, UNSET} or
+            key_duration not in {None, UNSET} or
+            mouse_delay not in {None, UNSET}
+        ):
+            mode = "event"
+    if mode == "input":
+        send_func = send_input
+    elif mode == "play":
+        send_func = send_play
+    elif mode == "event":
+        send_func = send_event
+    else:
+        raise ValueError(f"{mode!r} is not a valid send mode")
     send_func(keys, level=level, key_delay=key_delay, key_duration=key_duration, mouse_delay=mouse_delay)
 
 
@@ -500,25 +515,6 @@ def send_play(keys, *, level=None, key_delay=None, key_duration=None, mouse_dela
         _send_level(level)
         _set_delay(key_delay, key_duration, mouse_delay, play=True)
         ahk_call("SendPlay", keys)
-
-
-def _send_func(mode, key_delay=None, key_duration=None, mouse_delay=None):
-    if mode is None:
-        mode = get_settings().send_mode
-        if mode == "input" and (
-            key_delay not in {None, UNSET} or
-            key_duration not in {None, UNSET} or
-            mouse_delay not in {None, UNSET}
-        ):
-            return send_event
-    if mode == "input":
-        return send_input
-    elif mode == "play":
-        return send_play
-    elif mode == "event":
-        return send_event
-    else:
-        raise ValueError(f"{mode!r} is not a valid send mode")
 
 
 def _send_level(level):
@@ -667,9 +663,9 @@ def _send_click(*args, modifier: str = None, blind=True, mode=None, level=None, 
 
     blind_str = "{Blind}" if blind else ""
 
-    send_func = _send_func(mode, mouse_delay=delay)
-    send_func(
+    send(
         "%s%s{Click, %s}" % (blind_str, modifier, ",".join(args)),
+        mode=mode,
         level=level,
         key_delay=UNSET,
         key_duration=UNSET,
