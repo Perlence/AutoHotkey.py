@@ -22,6 +22,7 @@ from .exceptions import *  # noqa: F401 F403
 from .flow import *  # noqa: F401 F403
 from .gui import *  # noqa: F401 F403
 from .keys import *  # noqa: F401 F403
+from .mouse import *  # noqa: F401 F403
 from .settings import *  # noqa: F401 F403
 from .window import *  # noqa: F401 F403
 
