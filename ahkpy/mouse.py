@@ -9,9 +9,9 @@ from .unset import UNSET
 __all__ = [
     "click",
     "double_click",
-    "mouse_get_control",
-    "mouse_get_pos",
-    "mouse_get_window",
+    "get_control_under_mouse",
+    "get_mouse_pos",
+    "get_window_under_mouse",
     "mouse_press",
     "mouse_release",
     "mouse_scroll",
@@ -139,7 +139,7 @@ def _send_click(*args, modifier: str = None, blind=True, mode=None, level=None, 
     )
 
 
-def mouse_get_pos(relative_to="window") -> Tuple[int, int]:
+def get_mouse_pos(relative_to="window") -> Tuple[int, int]:
     # TODO: Write tests.
     with global_ahk_lock:
         _set_coord_mode("mouse", relative_to)
@@ -147,7 +147,7 @@ def mouse_get_pos(relative_to="window") -> Tuple[int, int]:
     return (result["X"], result["Y"])
 
 
-def mouse_get_window():
+def get_window_under_mouse():
     # TODO: Write tests.
     win_id = ahk_call("MouseGetWin")
     if not win_id:
@@ -155,7 +155,7 @@ def mouse_get_window():
     return Window(win_id)
 
 
-def mouse_get_control(simple=False):
+def get_control_under_mouse(simple=False):
     # TODO: Write tests.
     flag = 2 if not simple else 3
     win_id = ahk_call("MouseGetControl", flag)
