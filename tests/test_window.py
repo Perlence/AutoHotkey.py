@@ -1,10 +1,10 @@
-import time
 from dataclasses import FrozenInstanceError
 from functools import partial
 
 import pytest
 
 import ahkpy as ahk
+from .conftest import assert_equals_eventually
 
 
 class TestWindows:
@@ -819,16 +819,6 @@ def test_exclude_active_window_context(child_ahk, settings):
     assert_equals_eventually(general_windows.__len__, 2)
 
     ahk.send("{F24}")
-
-
-def assert_equals_eventually(func, expected, timeout=1):
-    stop = time.perf_counter() + timeout
-    while time.perf_counter() < stop:
-        actual = func()
-        if actual == expected:
-            return
-        ahk.sleep(0.01)
-    assert actual == expected
 
 
 def test_include_hidden_context(child_ahk, settings):

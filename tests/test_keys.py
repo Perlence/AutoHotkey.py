@@ -5,6 +5,7 @@ import pytest
 
 import _ahk
 import ahkpy as ahk
+from .conftest import assert_equals_eventually
 
 
 def test_get_key_state(child_ahk):
@@ -164,6 +165,9 @@ class TestHotstring:
     @pytest.fixture(autouse=True)
     def send_level(self, settings):
         settings.send_level = 10
+        # Typing via the default "input" mode doesn't seem to trigger
+        # hotstrings in the same AHK.
+        settings.send_mode = "event"
 
     @pytest.fixture
     def edit(self, notepad):
@@ -178,124 +182,101 @@ class TestHotstring:
         dashes = ahk.hotstring("nepotism", "msitopen")
         request.addfinalizer(dashes.disable)
         ahk.send("nepotism")
-        ahk.sleep(0)
-        assert edit.text == "nepotism"
+        assert_equals_eventually(lambda: edit.text, "nepotism")
         ahk.send(" ")
-        ahk.sleep(0)
-        assert edit.text == "msitopen "
+        assert_equals_eventually(lambda: edit.text, "msitopen ")
 
     def test_wait_for_and_omit_end_char(self, request, edit):
         jsmith = ahk.hotstring("j@", "jsmith@somedomain.com", wait_for_end_char=False)
         request.addfinalizer(jsmith.disable)
         ahk.send("j@")
-        ahk.sleep(0)
-        assert edit.text == "jsmith@somedomain.com"
+        assert_equals_eventually(lambda: edit.text, "jsmith@somedomain.com")
 
         edit.text = ""
         jsmith.update(wait_for_end_char=False, omit_end_char=False)
         ahk.send("j@")
-        ahk.sleep(0)
-        assert edit.text == "jsmith@somedomain.com"
+        assert_equals_eventually(lambda: edit.text, "jsmith@somedomain.com")
 
         edit.text = ""
         jsmith.update(wait_for_end_char=False, omit_end_char=True)
         ahk.send("j@")
-        ahk.sleep(0)
-        assert edit.text == "jsmith@somedomain.com"
+        assert_equals_eventually(lambda: edit.text, "jsmith@somedomain.com")
 
         edit.text = ""
         jsmith.update(omit_end_char=False)  # wait_for_end_char=False implied
         ahk.send("j@")
-        ahk.sleep(0)
-        assert edit.text == "jsmith@somedomain.com"
+        assert_equals_eventually(lambda: edit.text, "jsmith@somedomain.com")
 
         edit.text = ""
         jsmith.update(omit_end_char=True)
         ahk.send("j@")
-        ahk.sleep(0)
-        assert edit.text == "j@"
+        assert_equals_eventually(lambda: edit.text, "j@")
         ahk.send(" ")
-        ahk.sleep(0)
-        assert edit.text == "jsmith@somedomain.com"
+        assert_equals_eventually(lambda: edit.text, "jsmith@somedomain.com")
 
         edit.text = ""
         jsmith.update(wait_for_end_char=True)  # omit_end_char implied
         ahk.send("j@")
-        ahk.sleep(0)
-        assert edit.text == "j@"
+        assert_equals_eventually(lambda: edit.text, "j@")
         ahk.send(" ")
-        ahk.sleep(0)
-        assert edit.text == "jsmith@somedomain.com"
+        assert_equals_eventually(lambda: edit.text, "jsmith@somedomain.com")
 
         edit.text = ""
         jsmith.update(wait_for_end_char=True, omit_end_char=False)
         ahk.send("j@")
-        ahk.sleep(0)
-        assert edit.text == "j@"
+        assert_equals_eventually(lambda: edit.text, "j@")
         ahk.send(" ")
-        ahk.sleep(0)
-        assert edit.text == "jsmith@somedomain.com "
+        assert_equals_eventually(lambda: edit.text, "jsmith@somedomain.com ")
 
         edit.text = ""
         jsmith.update(wait_for_end_char=True, omit_end_char=True)
         ahk.send("j@")
-        ahk.sleep(0)
-        assert edit.text == "j@"
+        assert_equals_eventually(lambda: edit.text, "j@")
         ahk.send(" ")
-        ahk.sleep(0)
-        assert edit.text == "jsmith@somedomain.com"
+        assert_equals_eventually(lambda: edit.text, "jsmith@somedomain.com")
 
         edit.text = ""
         dashes = ahk.hotstring("crabwise", "esiwbarc")
         request.addfinalizer(dashes.disable)
         dashes.update(wait_for_end_char=False)
         ahk.send("crabwise")
-        ahk.sleep(0)
-        assert edit.text == "esiwbarc"
+        assert_equals_eventually(lambda: edit.text, "esiwbarc")
 
         edit.text = ""
         dashes.update(wait_for_end_char=True)
         ahk.send("crabwise")
-        ahk.sleep(0)
-        assert edit.text == "crabwise"
+        assert_equals_eventually(lambda: edit.text, "crabwise")
         ahk.send(" ")
-        ahk.sleep(0)
-        assert edit.text == "esiwbarc "
+        assert_equals_eventually(lambda: edit.text, "esiwbarc ")
 
     def test_on_off(self, request, edit):
         beep = ahk.hotstring("beep", "boop")
         request.addfinalizer(beep.disable)
         ahk.send("Beep ")
-        ahk.sleep(0)
-        assert edit.text == "Boop "
+        assert_equals_eventually(lambda: edit.text, "Boop ")
 
         edit.text = ""
         beep.disable()
         ahk.send("Beep ")
-        ahk.sleep(0)
-        assert edit.text == "Beep "
+        assert_equals_eventually(lambda: edit.text, "Beep ")
 
         edit.text = ""
         beep.enable()
         ahk.send("Beep ")
-        ahk.sleep(0)
-        assert edit.text == "Boop "
+        assert_equals_eventually(lambda: edit.text, "Boop ")
 
         edit.text = ""
         beep.toggle()
         ahk.send("Beep ")
-        ahk.sleep(0)
-        assert edit.text == "Beep "
+        assert_equals_eventually(lambda: edit.text, "Beep ")
 
     def test_case_sensitive(self, request, edit):
         case = ahk.hotstring("CaSe", "EsAc", case_sensitive=True)
         request.addfinalizer(case.disable)
         ahk.send("case ")
-        ahk.sleep(0)
-        assert edit.text == "case "
+        assert_equals_eventually(lambda: edit.text, "case ")
         ahk.send("CaSe ")
-        ahk.sleep(0)
-        assert edit.text == "case EsAc "
+        assert_equals_eventually(lambda: edit.text, "case EsAc ")
 
     def test_decorator(self, request, edit):
         @ahk.hotstring("blarp")
@@ -304,42 +285,35 @@ class TestHotstring:
 
         request.addfinalizer(blarp.disable)
         ahk.send("blarp")
-        ahk.sleep(0)
-        assert edit.text == "blarp"
+        assert_equals_eventually(lambda: edit.text, "blarp")
         ahk.send(" ")
-        ahk.sleep(0)
-        assert edit.text == "boop "
+        assert_equals_eventually(lambda: edit.text, "boop ")
 
     def test_replace_inside_word(self, request, edit):
         airline = ahk.hotstring("al", "airline", replace_inside_word=True)
         request.addfinalizer(airline.disable)
         ahk.send("practical ")
-        ahk.sleep(0)
-        assert edit.text == "practicairline "
+        assert_equals_eventually(lambda: edit.text, "practicairline ")
 
     def test_no_backspacing(self, request, edit):
         em = ahk.hotstring("<em>", "</em>{left 5}", wait_for_end_char=False, backspacing=False)
         request.addfinalizer(em.disable)
         ahk.send("hello <em>world")
-        ahk.sleep(0)
-        assert edit.text == "hello <em>world</em>"
+        assert_equals_eventually(lambda: edit.text, "hello <em>world</em>")
 
     def test_conform_to_case(self, request, edit):
         pillow = ahk.hotstring("pillow", "wollip", conform_to_case=False)
         request.addfinalizer(pillow.disable)
         ahk.send("pillow ")
-        ahk.sleep(0)
-        assert edit.text == "wollip "
+        assert_equals_eventually(lambda: edit.text, "wollip ")
 
         edit.text = ""
         ahk.send("PILLOW ")
-        ahk.sleep(0)
-        assert edit.text == "wollip "
+        assert_equals_eventually(lambda: edit.text, "wollip ")
 
         edit.text = ""
         ahk.send("PiLLoW ")
-        ahk.sleep(0)
-        assert edit.text == "wollip "
+        assert_equals_eventually(lambda: edit.text, "wollip ")
 
     def test_reset_recognizer(self, request, edit):
         @ahk.hotstring("11", backspacing=False, wait_for_end_char=False, replace_inside_word=True)
@@ -348,49 +322,41 @@ class TestHotstring:
 
         request.addfinalizer(eleven.disable)
         ahk.send("11")
-        ahk.sleep(0)
-        assert edit.text == "11xx"
+        assert_equals_eventually(lambda: edit.text, "11xx")
         ahk.send("1 ")
-        ahk.sleep(0)
-        assert edit.text == "11xx1 xx"
+        assert_equals_eventually(lambda: edit.text, "11xx1 xx")
 
         edit.text = ""
         eleven.update(reset_recognizer=True)
         ahk.send("11")
-        ahk.sleep(0)
-        assert edit.text == "11xx"
+        assert_equals_eventually(lambda: edit.text, "11xx")
         ahk.send("1 ")
-        ahk.sleep(0)
-        assert edit.text == "11xx1 "
+        assert_equals_eventually(lambda: edit.text, "11xx1 ")
 
     def test_text(self, request, edit):
         gyre = ahk.hotstring("gyre", "{F13}eryg", text=True)
         request.addfinalizer(gyre.disable)
         ahk.send("gyre ")
-        ahk.sleep(0)
-        assert edit.text == "{F13}eryg "
+        assert_equals_eventually(lambda: edit.text, "{F13}eryg ")
 
     def test_active_window_context(self, request, edit):
         notepad_ctx = ahk.windows.active_window_context(class_name="Notepad")
         padnote = notepad_ctx.hotstring("notepad", "padnote")
         request.addfinalizer(padnote.disable)
         ahk.send("notepad ")
-        ahk.sleep(0)
-        assert edit.text == "padnote "
+        assert_equals_eventually(lambda: edit.text, "padnote ")
 
     def test_reset_hotstring(self, request, edit):
         malaise = ahk.hotstring("malaise", "redacted")
         request.addfinalizer(malaise.disable)
         ahk.send("malaise ")
-        ahk.sleep(0)
-        assert edit.text == "redacted "
+        assert_equals_eventually(lambda: edit.text, "redacted ")
 
         edit.text = ""
         ahk.send("mala")
         ahk.reset_hotstring()
         ahk.send("ise ")
-        ahk.sleep(0)
-        assert edit.text == "malaise "
+        assert_equals_eventually(lambda: edit.text, "malaise ")
 
     def test_end_chars(self, request, edit):
         vivacious = ahk.hotstring("vivacious", "redacted")
@@ -401,13 +367,11 @@ class TestHotstring:
         assert ahk.get_hotstring_end_chars() == "."
 
         ahk.send("vivacious ")
-        ahk.sleep(0)
-        assert edit.text == "vivacious "
+        assert_equals_eventually(lambda: edit.text, "vivacious ")
 
         edit.text = ""
         ahk.send("vivacious.")
-        ahk.sleep(0)
-        assert edit.text == "redacted."
+        assert_equals_eventually(lambda: edit.text, "redacted.")
 
     def test_mouse_reset(self, request, edit):
         ferret = ahk.hotstring("ferret", "redacted")
@@ -416,19 +380,17 @@ class TestHotstring:
         request.addfinalizer(lambda: ahk.set_hotstring_mouse_reset(prior_mouse_reset))
 
         ahk.send("fer")
-        _ahk.call("Click", 0, 0)  # TODO: Replace with a Python function.
+        ahk.click(x=0, y=0)
         ahk.send("ret ")
-        ahk.sleep(0)
-        assert edit.text == "ferret "
+        assert_equals_eventually(lambda: edit.text, "ferret ")
 
         edit.text = ""
         ahk.set_hotstring_mouse_reset(False)
         ahk.get_hotstring_mouse_reset() is False
         ahk.send("fer")
-        _ahk.call("Click", 0, 0)  # TODO: Replace with a Python function.
+        ahk.click(x=0, y=0)
         ahk.send("ret ")
-        ahk.sleep(0)
-        assert edit.text == "redacted "
+        assert_equals_eventually(lambda: edit.text, "redacted ")
 
 
 def test_hotkey_context(child_ahk):

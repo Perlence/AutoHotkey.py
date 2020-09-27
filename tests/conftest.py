@@ -2,9 +2,12 @@ import inspect
 import signal
 import subprocess
 import sys
+import time
 from textwrap import dedent
 
 import pytest
+
+import ahkpy as ahk
 
 
 AHK = sys.executable
@@ -109,3 +112,13 @@ def notepad(request):
         yield notepad_win
     finally:
         notepad_proc.terminate()
+
+
+def assert_equals_eventually(func, expected, timeout=1):
+    stop = time.perf_counter() + timeout
+    while time.perf_counter() < stop:
+        actual = func()
+        if actual == expected:
+            return
+        ahk.sleep(0.01)
+    assert actual == expected
