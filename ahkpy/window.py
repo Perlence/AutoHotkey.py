@@ -1029,22 +1029,30 @@ class Control(BaseWindow):
             return None
         return result - 1
 
-    def get_line(self, lineno) -> Optional[str]:
+    def get_line(self, lineno: int) -> Optional[str]:
         """Retrieve the text of line *lineno* in an Edit control.
 
-        Line 0 is the first line. If the specified line number is blank or does
-        not exist, the result is ``None``.
+        Line 0 is the first line. If the specified line number does not exist,
+        an ahkpy.Error is raised.
         """
+        line_count = self.line_count
+        if line_count is None:
+            return None
+        if lineno < 0:
+            lineno = line_count + lineno
+        out_of_range_err = "line number out of range"
+        if not 0 <= lineno < line_count:
+            raise Error(out_of_range_err)
+
         try:
-            result = self._get("Line", int(lineno) + 1)
+            result = self._get("Line", lineno + 1)
             if result is None:
                 return None
             return str(result)
         except Error as err:
             if err.message == 1:
-                if int(lineno) + 1 == self.line_count:
-                    return ""
-                return None
+                if self.line_count <= lineno:
+                    err.message = out_of_range_err
             raise
 
     @property

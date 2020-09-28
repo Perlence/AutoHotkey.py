@@ -536,7 +536,7 @@ class TestControl:
         cb = ahk.get_clipboard()
         assert cb != text
 
-    def test_line_stuff(self, edit):
+    def test_line_stuff(self, edit: ahk.Control):
         edit.text = ""
         assert edit.line_count == 1
 
@@ -565,7 +565,15 @@ class TestControl:
         assert edit.get_line(0) == "0"
         assert edit.get_line(1) == "1"
         assert edit.get_line(2) == ""
-        assert edit.get_line(3) is None
+        assert edit.get_line(-1) == ""
+        assert edit.get_line(-2) == "1"
+        assert edit.get_line(-3) == "0"
+        with pytest.raises(ahk.Error, match="line number out of range"):
+            assert edit.get_line(3)
+        with pytest.raises(ahk.Error, match="line number out of range"):
+            assert edit.get_line(4)
+        with pytest.raises(ahk.Error, match="line number out of range"):
+            assert edit.get_line(-5)
 
         assert edit.selected_text == ""
 
