@@ -403,8 +403,9 @@ class TestControl:
 
     @pytest.fixture
     def find_dialog(self, notepad, edit):
-        notepad.send("q")  # Enter some text to enable searching
-        notepad.send("^f")
+        edit.text = "q"  # Enter some text to enable searching
+        assert ahk.windows.get_active().id == notepad.id
+        ahk.send("^f")
         find_dialog = ahk.windows.wait_active(title="Find", pid=notepad.pid, timeout=1)
         assert find_dialog
         yield find_dialog
@@ -475,8 +476,7 @@ class TestControl:
         match_case_button = find_dialog.get_control("Button2")
         assert match_case_button.is_checked is False
         match_case_button.is_checked = True
-        ahk.sleep(0)
-        assert match_case_button.is_checked is True
+        assert_equals_eventually(lambda: match_case_button.is_checked, True)
 
         # find_next_button = find_dialog.get_control("Button7")
         # assert find_next_button.is_checked is False
@@ -536,7 +536,7 @@ class TestControl:
         cb = ahk.get_clipboard()
         assert cb != text
 
-    def test_line_stuff(self, edit: ahk.Control):
+    def test_line_stuff(self, notepad, edit: ahk.Control):
         edit.text = ""
         assert edit.line_count == 1
 
@@ -577,11 +577,12 @@ class TestControl:
 
         assert edit.selected_text == ""
 
-        edit.send("+{Right}")
+        assert ahk.windows.get_active().id == notepad.id
+        ahk.send("+{Right}")
         assert edit.selected_text == "1"
 
-        edit.send("^a")
-        assert edit.selected_text == "0\r\n1\r\n"
+        ahk.send("^a")
+        assert_equals_eventually(lambda: edit.selected_text, "0\r\n1\r\n")
 
     @pytest.fixture(scope="class")
     def list_playground(self, request):
