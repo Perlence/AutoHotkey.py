@@ -3,7 +3,6 @@ import time
 
 import pytest
 
-import _ahk
 import ahkpy as ahk
 from .conftest import assert_equals_eventually
 
@@ -165,8 +164,9 @@ class TestHotstring:
     @pytest.fixture(autouse=True)
     def send_level(self, settings):
         settings.send_level = 10
-        # Typing via the default "input" mode doesn't seem to trigger
-        # hotstrings in the same AHK.
+        # Typing via the default "input" mode doesn't trigger hotstrings because
+        # hotstrings use keyboard hook to monitor key strokes and SendInput
+        # temporarily deactivates that hook.
         settings.send_mode = "event"
 
     @pytest.fixture
@@ -489,11 +489,13 @@ def test_send_level(child_ahk):
         nonlocal called
         called = True
 
-    ahk.send("{F15}")
+    # Use SendEvent here because hotkeys with input_level > 0 use keyboard hook
+    # and SendInput temporarily disables that hook.
+    ahk.send_event("{F15}")
     ahk.sleep(0)  # Let AHK process the hotkey.
     assert not called
 
-    ahk.send("{F15}", level=20)
+    ahk.send_event("{F15}", level=20)
     ahk.sleep(0)
     assert called
 
@@ -510,7 +512,9 @@ def test_remap_key(child_ahk):
     child_ahk.wait(0)
 
     remap = ahk.remap_key("F13", "F14")
-    ahk.send("{F13}", level=10)
+    # Use SendEvent here because remapping uses wildcard hotkeys that install
+    # keyboard hook and SendInput temporarily disables that hook.
+    ahk.send_event("{F13}", level=10)
     assert ahk.windows.wait(exe="AutoHotkey.exe", text="F14 pressed", timeout=1)
 
     remap.disable()

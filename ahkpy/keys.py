@@ -95,6 +95,8 @@ class BaseHotkeyContext:
         max_threads=1,
         input_level=0,
     ):
+        # XXX: Consider adding arguments for '*', '~', and '$' prefix hotkey
+        # modifiers.
         if key_name == "":
             raise Error("invalid key name")
 

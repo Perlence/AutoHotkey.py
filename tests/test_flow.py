@@ -153,7 +153,6 @@ def test_reload(child_ahk, tmpdir):
     assert ahk.windows.wait(title="Python.ahk", text="ok00", timeout=1)
 
     ahk.send("{F13}")
-    # ahk.sleep(0)
     assert ahk.windows.wait_close(title="Python.ahk", text="ok00", timeout=1)
     assert ahk.windows.wait(title="Python.ahk", text="ok00", timeout=1)
 
