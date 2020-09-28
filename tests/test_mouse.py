@@ -73,3 +73,18 @@ def test_click(child_ahk, settings):
     child_ahk.wait(5)
 
     ahk.send("{F24}")
+
+
+def test_get_mouse_pos(notepad):
+    ahk.click(x=0, y=0, relative_to="window")
+    x, y = ahk.get_mouse_pos(relative_to="screen")
+    assert notepad.x == x
+    assert notepad.y == y
+
+    win = ahk.get_window_under_mouse()
+    assert win == notepad
+
+    ahk.click(x=100, y=100, relative_to="window")
+    ctl = ahk.get_control_under_mouse()
+    assert ctl
+    assert ctl.class_name == "Edit"

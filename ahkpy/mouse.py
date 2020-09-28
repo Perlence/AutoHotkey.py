@@ -140,7 +140,6 @@ def _send_click(*args, modifier: str = None, blind=True, mode=None, level=None, 
 
 
 def get_mouse_pos(relative_to="window") -> Tuple[int, int]:
-    # TODO: Write tests.
     with global_ahk_lock:
         _set_coord_mode("mouse", relative_to)
         result = ahk_call("MouseGetPos")
@@ -148,7 +147,6 @@ def get_mouse_pos(relative_to="window") -> Tuple[int, int]:
 
 
 def get_window_under_mouse():
-    # TODO: Write tests.
     win_id = ahk_call("MouseGetWin")
     if not win_id:
         return Window(None)
@@ -156,7 +154,6 @@ def get_window_under_mouse():
 
 
 def get_control_under_mouse(simple=False):
-    # TODO: Write tests.
     flag = 2 if not simple else 3
     win_id = ahk_call("MouseGetControl", flag)
     if not win_id:
