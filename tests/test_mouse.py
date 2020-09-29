@@ -4,18 +4,12 @@ import ahkpy as ahk
 
 
 def test_click_validation():
-    with pytest.raises(TypeError, match=r"int\(\) argument must be a string"):
-        ahk.click(x=[])
-    with pytest.raises(TypeError, match=r"int\(\) argument must be a string"):
-        ahk.click(y=[])
     with pytest.raises(ValueError, match="'nooo' is not a valid mouse button"):
         ahk.click("nooo")
     with pytest.raises(TypeError, match="'<' not supported"):
         ahk.click(times=[])
     with pytest.raises(ValueError, match="must be positive"):
         ahk.click(times=-1)
-    with pytest.raises(ValueError, match="'nooo' is not a valid coord mode"):
-        ahk.click(relative_to="nooo")
     with pytest.raises(ValueError, match=r"'[$@%]{3}' is not a valid modifier"):
         ahk.click(modifier="!@#$%")
 
@@ -75,8 +69,13 @@ def test_click(child_ahk, settings):
     ahk.send("{F24}")
 
 
+def test_move():
+    with pytest.raises(ValueError, match="'nooo' is not a valid coord mode"):
+        ahk.mouse_move(0, 0, relative_to="nooo")
+
+
 def test_get_mouse_pos(notepad):
-    ahk.click(x=0, y=0, relative_to="window")
+    ahk.mouse_move(x=0, y=0, relative_to="window")
     x, y = ahk.get_mouse_pos(relative_to="screen")
     assert notepad.x == x
     assert notepad.y == y
@@ -84,7 +83,8 @@ def test_get_mouse_pos(notepad):
     win = ahk.get_window_under_mouse()
     assert win == notepad
 
-    ahk.click(x=100, y=100, relative_to="window")
+    ahk.mouse_move(x=100, y=100, relative_to="window")
+    ahk.click()
     ctl = ahk.get_control_under_mouse()
     assert ctl
     assert ctl.class_name == "Edit"

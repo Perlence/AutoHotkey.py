@@ -380,7 +380,8 @@ class TestHotstring:
         request.addfinalizer(lambda: ahk.set_hotstring_mouse_reset(prior_mouse_reset))
 
         ahk.send("fer")
-        ahk.click(x=0, y=0)
+        ahk.mouse_move(x=0, y=0)
+        ahk.click()
         ahk.send("ret ")
         assert_equals_eventually(lambda: edit.text, "ferret ")
 
@@ -388,7 +389,8 @@ class TestHotstring:
         ahk.set_hotstring_mouse_reset(False)
         ahk.get_hotstring_mouse_reset() is False
         ahk.send("fer")
-        ahk.click(x=0, y=0)
+        ahk.mouse_move(x=0, y=0)
+        ahk.click()
         ahk.send("ret ")
         assert_equals_eventually(lambda: edit.text, "redacted ")
 

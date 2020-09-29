@@ -2,7 +2,7 @@ from typing import Tuple
 
 from .flow import ahk_call, global_ahk_lock
 from .keys import send
-from .settings import _set_coord_mode
+from .settings import _set_coord_mode, get_settings
 from .window import Control, Window
 from .unset import UNSET
 
@@ -12,6 +12,7 @@ __all__ = [
     "get_control_under_mouse",
     "get_mouse_pos",
     "get_window_under_mouse",
+    "mouse_move",
     "mouse_press",
     "mouse_release",
     "mouse_scroll",
@@ -24,66 +25,28 @@ KEY_UP = 1
 KEY_DOWN_AND_UP = 2
 
 
-def click(
-    button="left", *, times=1, modifier: str = None, blind=True,
-    x=None, y=None, relative_to="window", mode=None, level=None, delay=None,
-):
-    _click(
-        button, times, KEY_DOWN_AND_UP, modifier=modifier, blind=blind,
-        x=x, y=y, relative_to=relative_to, mode=mode, level=level, delay=delay,
-    )
+def click(button="left", *, times=1, modifier: str = None, blind=True, mode=None, level=None, delay=None):
+    _click(button, times, KEY_DOWN_AND_UP, modifier=modifier, blind=blind, mode=mode, level=level, delay=delay)
 
 
-def right_click(
-    *, times=1, modifier: str = None, blind=True,
-    x=None, y=None, relative_to="window", mode=None, level=None, delay=None,
-):
-    _click(
-        "right", times, KEY_DOWN_AND_UP, modifier=modifier, blind=blind,
-        x=x, y=y, relative_to=relative_to, mode=mode, level=level, delay=delay,
-    )
+def right_click(*, times=1, modifier: str = None, blind=True, mode=None, level=None, delay=None):
+    _click("right", times, KEY_DOWN_AND_UP, modifier=modifier, blind=blind, mode=mode, level=level, delay=delay)
 
 
-def double_click(
-    button="left", *, modifier: str = None, blind=True,
-    x=None, y=None, relative_to="window", mode=None, level=None, delay=None,
-):
-    _click(
-        button, 2, KEY_DOWN_AND_UP, modifier=modifier, blind=blind,
-        x=x, y=y, relative_to=relative_to, mode=mode, level=level, delay=delay,
-    )
+def double_click(button="left", *, modifier: str = None, blind=True, mode=None, level=None, delay=None):
+    _click(button, 2, KEY_DOWN_AND_UP, modifier=modifier, blind=blind, mode=mode, level=level, delay=delay)
 
 
-def mouse_press(
-    button="left", *, times=1, modifier: str = None, blind=True,
-    x=None, y=None, relative_to="window", mode=None, level=None, delay=None,
-):
-    _click(
-        button, times, KEY_DOWN, modifier=modifier, blind=blind,
-        x=x, y=y, relative_to=relative_to, mode=mode, level=level, delay=delay,
-    )
+def mouse_press(button="left", *, times=1, modifier: str = None, blind=True, mode=None, level=None, delay=None):
+    _click(button, times, KEY_DOWN, modifier=modifier, blind=blind, mode=mode, level=level, delay=delay)
 
 
-def mouse_release(
-    button="left", *, times=1, modifier: str = None, blind=True,
-    x=None, y=None, relative_to="window", mode=None, level=None, delay=None,
-):
-    _click(
-        button, times, KEY_UP, modifier=modifier, blind=blind,
-        x=x, y=y, relative_to=relative_to, mode=mode, level=level, delay=delay,
-    )
+def mouse_release(button="left", *, times=1, modifier: str = None, blind=True, mode=None, level=None, delay=None):
+    _click(button, times, KEY_UP, modifier=modifier, blind=blind, mode=mode, level=level, delay=delay)
 
 
-def _click(
-    button, times, event_type, modifier: str = None, blind=True,
-    x=None, y=None, relative_to="window", mode=None, level=None, delay=None,
-):
+def _click(button, times, event_type, modifier: str = None, blind=True, mode=None, level=None, delay=None):
     args = []
-
-    if x is not None:
-        args.append(str(int(x)))
-    if y is not None:
-        args.append(str(int(y)))
 
     if button not in {"left", "right", "middle", "x1", "x2"}:
         raise ValueError(f"{button!r} is not a valid mouse button")
@@ -102,12 +65,7 @@ def _click(
         raise ValueError("times must be positive")
     args.append(str(times))
 
-    if relative_to == "pointer":
-        args.append("relative")
-
     with global_ahk_lock:
-        if relative_to != "pointer":
-            _set_coord_mode("mouse", relative_to)
         _send_click(*args, modifier=modifier, blind=blind, mode=mode, level=level, delay=delay)
 
 
@@ -117,6 +75,32 @@ def mouse_scroll(direction, times=1, *, modifier: str = None, blind=True, mode=N
     if times < 0:
         raise ValueError("times must be positive")
     _send_click("wheel"+direction, str(times), modifier=modifier, blind=blind, mode=mode, level=level, delay=UNSET)
+
+
+def mouse_move(x, y, *, relative_to="window", mode=None, speed=None, delay=None):
+    if speed is not None:
+        if mode is None:
+            # Force SendEvent if speed is given.
+            mode = "event"
+    else:
+        speed = get_settings().mouse_speed
+    if not 0 <= speed <= 100:
+        raise ValueError("speed must be between 0 and 100")
+
+    offset = ""
+    if relative_to == "pointer":
+        offset = "relative"
+
+    # To move the mouse without clicking, specify 0 after the coordinates.
+    no_click = "0"
+
+    with global_ahk_lock:
+        if relative_to != "pointer":
+            _set_coord_mode("mouse", relative_to)
+        ahk_call("SetDefaultMouseSpeed", speed)
+        # I use 'Send {Click ...}' here instead of MouseMove because it lets me
+        # reuse the _send_click() function.
+        _send_click(str(int(x)), str(int(y)), no_click, offset, mode=mode, delay=delay)
 
 
 def _send_click(*args, modifier: str = None, blind=True, mode=None, level=None, delay=None):
