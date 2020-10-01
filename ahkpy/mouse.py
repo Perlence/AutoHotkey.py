@@ -3,8 +3,8 @@ from typing import Tuple
 from .flow import ahk_call, global_ahk_lock
 from .keys import send
 from .settings import _set_coord_mode, get_settings
-from .window import Control, Window
 from .unset import UNSET
+from .window import Control, Window
 
 __all__ = [
     "click",
@@ -18,6 +18,21 @@ __all__ = [
     "mouse_scroll",
     "right_click",
 ]
+
+# Not implementing MouseClickDrag and passing coordinates in Click because it
+# complicates the signature. Use separate commands instead.
+#
+# MouseClickDrag:
+#
+#     ahkpy.mouse_move(x=x1, y=y1)
+#     ahkpy.mouse_press(which_button)
+#     ahkpy.mouse_move(x=x2, y=y2, speed=speed, relative_to=...)
+#     ahkpy.mouse_release()
+#
+# Click with coordinates:
+#
+#     ahkpy.mouse_move(x=x, y=y, speed=speed)
+#     ahkpy.click()
 
 
 KEY_DOWN = 0
