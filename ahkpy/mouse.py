@@ -103,14 +103,14 @@ def mouse_move(x, y, *, relative_to="window", mode=None, speed=None, delay=None)
         raise ValueError("speed must be between 0 and 100")
 
     offset = ""
-    if relative_to == "pointer":
+    if relative_to == "cursor":
         offset = "relative"
 
     # To move the mouse without clicking, specify 0 after the coordinates.
     no_click = "0"
 
     with global_ahk_lock:
-        if relative_to != "pointer":
+        if relative_to != "cursor":
             _set_coord_mode("mouse", relative_to)
         ahk_call("SetDefaultMouseSpeed", speed)
         # I use 'Send {Click ...}' here instead of MouseMove because it lets me

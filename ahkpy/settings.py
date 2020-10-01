@@ -32,7 +32,7 @@ class Settings:
     # Should CoordMode also be here? I don't think so, because the above
     # settings change only some aspects like speed and delay and don't change
     # the overall behavior. For example, the function that moves the mouse
-    # pointer or types a word is expected to mostly do the same regardless of
+    # cursor or types a word is expected to mostly do the same regardless of
     # these settings.
     #
     # CoordMode on the other hand completely changes the behavior of the
