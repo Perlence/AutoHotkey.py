@@ -1,7 +1,7 @@
 import ctypes
 import dataclasses as dc
-import sys
 import queue
+import sys
 import threading
 from typing import Callable
 

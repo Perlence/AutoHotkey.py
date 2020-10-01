@@ -1,5 +1,5 @@
-import dataclasses as dc
 import contextvars
+import dataclasses as dc
 from typing import ContextManager
 
 from .flow import ahk_call
