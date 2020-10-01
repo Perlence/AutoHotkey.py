@@ -1,16 +1,12 @@
 import inspect
 import signal
 import subprocess
-import sys
 import time
 from textwrap import dedent
 
 import pytest
 
 import ahkpy as ahk
-
-
-AHK = sys.executable
 
 
 @pytest.fixture(scope="class")

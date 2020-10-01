@@ -12,6 +12,9 @@ __all__ = [
     "Hotkey",
     "HotkeyContext",
     "Hotstring",
+    "block_input_while_sending",
+    "block_input",
+    "block_mouse_move",
     "get_hotstring_end_chars",
     "get_hotstring_mouse_reset",
     "get_key_state",
@@ -543,3 +546,31 @@ def _set_delay(key_delay=None, key_duration=None, mouse_delay=None, play=False):
                 "SetMouseDelay",
                 optional_ms(mouse_delay if mouse_delay is not None else settings.mouse_delay),
             )
+
+
+@contextmanager
+def block_input():
+    """Block all user input unconditionally."""
+    ahk_call("BlockInput", "On")
+    yield
+    ahk_call("BlockInput", "Off")
+
+
+@contextmanager
+def block_input_while_sending():
+    """Block user input while a Send command is in progress.
+
+    This also blocks user input during mouse automation because mouse clicks and
+    movements are implemented via the Send command.
+    """
+    ahk_call("BlockInput", "Send")
+    yield
+    ahk_call("BlockInput", "Default")
+
+
+@contextmanager
+def block_mouse_move():
+    """Block the mouse cursor movement."""
+    ahk_call("BlockInput", "MouseMove")
+    yield
+    ahk_call("BlockInput", "MouseMoveOff")
