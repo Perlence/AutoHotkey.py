@@ -17,7 +17,10 @@ __all__ = [
     "block_mouse_move",
     "get_hotstring_end_chars",
     "get_hotstring_mouse_reset",
+    "get_key_name",
+    "get_key_sc",
     "get_key_state",
+    "get_key_vk",
     "get_physical_key_state",
     "hotkey",
     "hotstring",
@@ -81,6 +84,28 @@ def _set_key_state(cmd, state):
     else:
         state = "Off"
     ahk_call(cmd, state)
+
+
+def get_key_name(key):
+    """Return the name of a key."""
+    return str(_get_key("GetKeyName", key))
+
+
+def get_key_vk(key):
+    """Return the virtual key code of a key."""
+    return _get_key("GetKeyVK", key)
+
+
+def get_key_sc(key):
+    """Return the scan code of a key."""
+    return _get_key("GetKeySC", key)
+
+
+def _get_key(cmd, key):
+    result = ahk_call(cmd, str(key))
+    if not result:
+        raise ValueError(f"{key!r} is not a valid key")
+    return result
 
 
 @dataclass(frozen=True)

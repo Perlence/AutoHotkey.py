@@ -538,6 +538,20 @@ def test_fallback_to_send_event_on_delay(notepad):
     assert end - start >= 6 * 0.01
 
 
+def test_get_key():
+    key = "LWin"
+    assert ahk.get_key_name(key) == "LWin"
+    assert ahk.get_key_vk(key) == 0x5b
+    assert ahk.get_key_sc(key) == 0x15b
+    assert ahk.get_key_name("vk5b") == "LWin"
+    assert ahk.get_key_name("sc15b") == "LWin"
+
+    assert ahk.get_key_name(1) == "1"
+
+    with pytest.raises(ValueError, match="is not a valid key"):
+        ahk.get_key_vk("noooo")
+
+
 @skip_unless_admin
 def test_block_input(child_ahk):
     def hotkeys():
