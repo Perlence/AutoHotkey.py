@@ -16,13 +16,13 @@ skip_unless_admin = pytest.mark.skipif(
 
 def test_get_key_state(child_ahk):
     with pytest.raises(ValueError, match="key_name is invalid or the state of the key could not be determined"):
-        ahk.get_key_state("beep")
+        ahk.is_key_pressed("beep")
 
-    assert ahk.get_key_state("F13") is False
+    assert ahk.is_key_pressed("F13") is False
     ahk.send("{F13 Down}")
-    assert ahk.get_key_state("F13") is True
+    assert ahk.is_key_pressed("F13") is True
     ahk.send("{F13 Up}")
-    assert ahk.get_key_state("F13") is False
+    assert ahk.is_key_pressed("F13") is False
 
 
 def test_is_key_toggled():

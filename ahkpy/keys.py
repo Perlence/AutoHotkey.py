@@ -19,11 +19,11 @@ __all__ = [
     "get_hotstring_mouse_reset",
     "get_key_name",
     "get_key_sc",
-    "get_key_state",
     "get_key_vk",
-    "get_physical_key_state",
     "hotkey",
     "hotstring",
+    "is_key_pressed_physical",
+    "is_key_pressed",
     "is_key_toggled",
     "remap_key",
     "reset_hotstring",
@@ -41,24 +41,24 @@ __all__ = [
 ]
 
 
-def get_key_state(key_name):
+def is_key_pressed(key_name):
     return _get_key_state(key_name)
 
 
-def get_physical_key_state(key_name):
+def is_key_pressed_physical(key_name):
     return _get_key_state(key_name, "P")
 
 
 def is_key_toggled(key_name):
     if key_name.lower() not in {"capslock", "numlock", "scrolllock", "insert", "ins"}:
-        raise ValueError("key_name must be one of CapsLock, NumLock, ScrollLock, or Insert")
+        raise ValueError(f"{key_name!r} is not a valid key; expected CapsLock, NumLock, ScrollLock, or Insert")
     return _get_key_state(key_name, "T")
 
 
 def _get_key_state(key_name, mode=None):
     result = ahk_call("GetKeyState", key_name, mode)
     if result == "":
-        raise ValueError("key_name is invalid or the state of the key could not be determined")
+        raise ValueError(f"{key_name!r} is not a valid key or the state of the key could not be determined")
     return bool(result)
 
 
