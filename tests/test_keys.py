@@ -532,7 +532,17 @@ def test_remap_key(request, child_ahk):
     ctx_remap = win_f14.active_window_context().remap_key("F13", "F15")
     request.addfinalizer(ctx_remap.disable)
     ahk.send_event("{F13}", level=10)
-    assert ahk.windows.wait(exe="AutoHotkey.exe", text="F15 pressed", timeout=1)
+    win_f15 = ahk.windows.filter(exe="AutoHotkey.exe", text="F15 pressed")
+    assert win_f15.wait(timeout=1)
+
+    assert win_f15.close_all(timeout=1)
+    assert win_f14.close_all(timeout=1)
+
+    remap_mouse = ahk.remap_key("LButton", "F14")
+    request.addfinalizer(remap_mouse.disable)
+    ahk.send_event("{LButton}", level=10)
+    assert win_f14.wait(timeout=1)
+    assert win_f14.close_all(timeout=1)
 
     ahk.send("{F24}", level=10)
 

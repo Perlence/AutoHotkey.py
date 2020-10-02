@@ -157,16 +157,36 @@ class BaseHotkeyContext:
         return hotkey_decorator(func)
 
     def remap_key(self, origin_key, destination_key, *, mode=None, level=None):
-        # TODO: Handle LCtrl as the origin key.
-        # TODO: Handle remapping keyboard key to a mouse button.
-        @self.hotkey(f"*{origin_key}")
-        def wildcard_origin():
-            send("{Blind}{%s DownR}" % destination_key, mode=mode, level=level)
+        mouse = destination_key.lower() in {"lbutton", "rbutton", "mbutton", "xbutton1", "xbutton2"}
+        if mouse:
+            def wildcard_origin():
+                if not is_key_pressed(destination_key):
+                    send("{Blind}{%s DownR}" % destination_key, mode=mode, level=level, mouse_delay=-1)
 
-        @self.hotkey(f"*{origin_key} Up")
-        def wildcard_origin_up():
-            send("{Blind}{%s Up}" % destination_key, mode=mode, level=level)
+            def wildcard_origin_up():
+                send("{Blind}{%s Up}" % destination_key, mode=mode, level=level, mouse_delay=-1)
+        else:
+            ctrl_to_alt = (
+                origin_key.lower() in {"ctrl", "lctrl", "rctrl"} and
+                destination_key.lower() in {"alt", "lalt", "ralt"}
+            )
+            if ctrl_to_alt:
+                def wildcard_origin():
+                    send(
+                        "{Blind}{%s Up}{%s DownR}" % (origin_key, destination_key),
+                        mode=mode,
+                        level=level,
+                        key_delay=-1,
+                    )
+            else:
+                def wildcard_origin():
+                    send("{Blind}{%s DownR}" % destination_key, mode=mode, level=level, key_delay=-1)
 
+            def wildcard_origin_up():
+                send("{Blind}{%s Up}" % destination_key, mode=mode, level=level, key_delay=-1)
+
+        wildcard_origin = self.hotkey(f"*{origin_key}", wildcard_origin)
+        wildcard_origin_up = self.hotkey(f"*{origin_key} Up", wildcard_origin_up)
         return RemappedKey(wildcard_origin, wildcard_origin_up)
 
     def hotstring(
@@ -497,9 +517,9 @@ def send(keys, *, mode=None, level=None, key_delay=None, key_duration=None, mous
     if mode is None:
         mode = get_settings().send_mode
         if mode == "input" and (
-            key_delay not in {None, UNSET} or
-            key_duration not in {None, UNSET} or
-            mouse_delay not in {None, UNSET}
+            isinstance(key_delay, (int, float)) and key_delay >= 0 or
+            isinstance(key_duration, (int, float)) and key_duration >= 0 or
+            isinstance(mouse_delay, (int, float)) and mouse_delay >= 0
         ):
             mode = "event"
     if mode == "input":
