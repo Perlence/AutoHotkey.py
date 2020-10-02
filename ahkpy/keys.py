@@ -153,7 +153,6 @@ class BaseHotkeyContext:
             return hotkey_decorator
 
         # TODO: Handle case when func == "AltTab" or other substitutes.
-        # TODO: Hotkey command may set ErrorLevel. Raise an exception.
 
         return hotkey_decorator(func)
 
