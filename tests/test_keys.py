@@ -509,24 +509,30 @@ def test_send_level(child_ahk):
     assert called
 
 
-def test_remap_key(child_ahk):
+def test_remap_key(request, child_ahk):
     def hotkeys():
         import ahkpy as ahk
         import sys
         ahk.hotkey("F24", sys.exit)
         ahk.hotkey("F14", lambda: ahk.message_box("F14 pressed"))
+        ahk.hotkey("F15", lambda: ahk.message_box("F15 pressed"))
         print("ok00")
 
     child_ahk.popen_code(hotkeys)
     child_ahk.wait(0)
 
     remap = ahk.remap_key("F13", "F14")
+    request.addfinalizer(remap.disable)
     # Use SendEvent here because remapping uses wildcard hotkeys that install
     # keyboard hook and SendInput temporarily disables that hook.
     ahk.send_event("{F13}", level=10)
-    assert ahk.windows.wait(exe="AutoHotkey.exe", text="F14 pressed", timeout=1)
+    win_f14 = ahk.windows.filter(exe="AutoHotkey.exe", text="F14 pressed")
+    assert win_f14.wait(timeout=1)
 
-    remap.disable()
+    ctx_remap = win_f14.active_window_context().remap_key("F13", "F15")
+    request.addfinalizer(ctx_remap.disable)
+    ahk.send_event("{F13}", level=10)
+    assert ahk.windows.wait(exe="AutoHotkey.exe", text="F15 pressed", timeout=1)
 
     ahk.send("{F24}", level=10)
 

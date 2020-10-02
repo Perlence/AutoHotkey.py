@@ -156,6 +156,19 @@ class BaseHotkeyContext:
 
         return hotkey_decorator(func)
 
+    def remap_key(self, origin_key, destination_key, *, mode=None, level=None):
+        # TODO: Handle LCtrl as the origin key.
+        # TODO: Handle remapping keyboard key to a mouse button.
+        @self.hotkey(f"*{origin_key}")
+        def wildcard_origin():
+            send("{Blind}{%s DownR}" % destination_key, mode=mode, level=level)
+
+        @self.hotkey(f"*{origin_key} Up")
+        def wildcard_origin_up():
+            send("{Blind}{%s Up}" % destination_key, mode=mode, level=level)
+
+        return RemappedKey(wildcard_origin, wildcard_origin_up)
+
     def hotstring(
         self,
         string: str,
@@ -234,6 +247,7 @@ class BaseHotkeyContext:
 
 default_context = BaseHotkeyContext()
 hotkey = default_context.hotkey
+remap_key = default_context.remap_key
 hotstring = default_context.hotstring
 
 
@@ -456,21 +470,6 @@ def _key_wait(key_name, down=False, logical_state=False, timeout=None) -> bool:
         options.append(f"T{timeout}")
     timed_out = ahk_call("KeyWait", str(key_name), "".join(options))
     return not timed_out
-
-
-def remap_key(origin_key, destination_key, *, mode=None, level=None):
-    # TODO: Handle LCtrl as the origin key.
-    # TODO: Handle remapping keyboard key to a mouse button.
-    # TODO: Implement context-specific remapping.
-    @hotkey(f"*{origin_key}")
-    def wildcard_origin():
-        send("{Blind}{%s DownR}" % destination_key, mode=mode, level=level)
-
-    @hotkey(f"*{origin_key} Up")
-    def wildcard_origin_up():
-        send("{Blind}{%s Up}" % destination_key, mode=mode, level=level)
-
-    return RemappedKey(wildcard_origin, wildcard_origin_up)
 
 
 @dataclass(frozen=True)
