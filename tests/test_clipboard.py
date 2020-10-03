@@ -1,3 +1,5 @@
+import sys
+
 import ahkpy as ahk
 
 
@@ -64,7 +66,11 @@ def test_on_clipboard_change(request):
     assert history == ["YAY", "yay", "yay!!"]
 
     history.clear()
+    handler_func = handler.func
+    handler_func_refcount = sys.getrefcount(handler_func)
     handler.unregister()
+    assert sys.getrefcount(handler_func) == handler_func_refcount - 1
+
     ahk.set_clipboard("hello again")
     ahk.sleep(0.1)
     assert history == ["HELLO AGAIN", "hello again!!"]

@@ -46,7 +46,6 @@ class MessageHandler:
     __slots__ = ("msg_number", "func")
 
     def unregister(self):
-        # TODO: Remove self.func from CALLBACKS and WRAPPED_PYTHON_FUNCTIONS in AHK.
         ahk_call("OnMessage", self.msg_number, self.func, 0)
 
 

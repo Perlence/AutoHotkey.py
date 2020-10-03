@@ -60,7 +60,6 @@ class ClipboardHandler:
     __slots__ = ("func",)
 
     def unregister(self):
-        # TODO: Remove self.func from CALLBACKS and WRAPPED_PYTHON_FUNCTIONS in AHK.
         ahk_call("OnClipboardChange", self.func, 0)
 
 

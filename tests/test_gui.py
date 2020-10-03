@@ -1,4 +1,5 @@
 import os
+import sys
 
 import pytest
 
@@ -70,7 +71,11 @@ def test_on_message(request):
     result = win.post_message(0x5556, 0, 99)
     assert result is True
 
+    handler_func = handler.func
+    handler_func_refcount = sys.getrefcount(handler_func)
     handler.unregister()
+    assert sys.getrefcount(handler_func) == handler_func_refcount - 1
+
     result = win.send_message(0x5555, 0, 99)
     assert result == 0
 
