@@ -182,16 +182,8 @@ _GuiControlGet(Subcommand="",ControlID="",Param4="") {
     return OutputVar
 }
 
-_Hotkey(ContextID, KeyName, Func, Options) {
+_Hotkey(KeyName, Func, Options) {
     StringLower, KeyName, KeyName
-    if (Func) {
-        ; TODO: The order of modifier keys doesn't matter in the KeyName.
-        oldFunc := CALLBACKS["Hotkey" ContextID " " KeyName]
-        if (oldFunc and Func["pyFunc"] != oldFunc["pyFunc"]) {
-            WRAPPED_PYTHON_FUNCTIONS[oldFunc["pyFunc"]] := ""
-        }
-        CALLBACKS["Hotkey" ContextID " " KeyName] := Func
-    }
     Hotkey, %KeyName%,%Func%,%Options%
 }
 

@@ -42,7 +42,6 @@ def set_timer(func=None, period=0.25, countdown=None, priority=0):
 
     def set_timer_decorator(func):
         ahk_call("SetTimer", func, period, priority)
-        # TODO: Remove func from CALLBACKS after its execution if *countdown* is set.
         return Timer(func)
 
     if func is None:
@@ -62,7 +61,6 @@ class Timer:
         ahk_call("SetTimer", self.func, "Off")
 
     def cancel(self):
-        # TODO: Remove self.func from CALLBACKS and WRAPPED_PYTHON_FUNCTIONS in AHK.
         ahk_call("SetTimer", self.func, "Delete")
 
     def set_priority(self, priority):

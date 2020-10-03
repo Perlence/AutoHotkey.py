@@ -291,12 +291,10 @@ _AHKCall(self, args) {
         result := %funcRef%(ahkArgs*)
     } catch e {
         PyEval_RestoreThread(save)
-        FreeWrappedFunctions()
         PyErr_SetAHKError(e)
         return NULL
     }
     PyEval_RestoreThread(save)
-    FreeWrappedFunctions()
 
     return AHKToPython(result)
 }
@@ -328,7 +326,7 @@ PythonArgsToAHK(pyArgs) {
     return ahkArgs
 }
 
-PythonToAHK(pyObject, borrowed:=True) {
+PythonToAHK(pyObject, borrowed:=true) {
     ; TODO: Convert dicts to objects and lists to arrays.
     if (pyObject == Py_None or pyObject == Py_EmptyString) {
         return ""
@@ -339,16 +337,7 @@ PythonToAHK(pyObject, borrowed:=True) {
     } else if (PyFloat_Check(pyObject)) {
         return PyFloat_AsDouble(pyObject)
     } else if (PyCallable_Check(pyObject)) {
-        ahkFunc := WRAPPED_PYTHON_FUNCTIONS[pyObject]
-        if (not ahkFunc) {
-            if (borrowed) {
-                Py_IncRef(pyObject)
-            }
-            ahkFunc := new WrappedPythonFunction(pyObject)
-            WRAPPED_PYTHON_FUNCTIONS[pyObject] := ahkFunc
-        }
-        ; TODO: Pass A_ThisHotkey to hotkey callback.
-        return ahkFunc
+        return WrappedPythonFunction.GetOrWrap(pyObject, borrowed)
     } else {
         pyRepr := PyObject_Repr(pyObject)
         if (PyUnicode_Check(pyRepr)) {
@@ -363,21 +352,55 @@ PythonToAHK(pyObject, borrowed:=True) {
 }
 
 class WrappedPythonFunction {
+    ; I need a global registry of Python callables (WRAPPED_PYTHON_FUNCTIONS) to
+    ; avoid creating new callable AHK wrappers. Keeping exactly one wrapper for
+    ; each Python callable is important for SetTimer calls that modify existing
+    ; timers.
+    ;
+    ; When the user replaces the callback of an existing hotkey or when a timer
+    ; is cancelled, AHK decrefs the callable AHK object passed as the callback.
+    ; I want to know when the AHK wrapper is no longer needed so I could DecRef
+    ; the wrapped Python callable. For this purpose I use the __Delete()
+    ; meta-function.
+    ;
+    ; However, while I store the AHK wrapper in the global registry its refcount
+    ; will never reach zero. So instead I store the "weakref", that is,
+    ; wrapper's address (&ahkFunc) and dereference it when needed
+    ; (Object(ahkFuncRef)).
+
     __New(pyFunc) {
         this.pyFunc := pyFunc
+    }
+
+    GetOrWrap(pyObject, borrowed:=true) {
+        ; Get a Python callable wrapped in a callable AHK wrappers or create
+        ; one.
+        ;
+        ; This is a static "constructor" method.
+
+        ahkFuncRef := WRAPPED_PYTHON_FUNCTIONS[pyObject]
+        if (ahkFuncRef) {
+            return Object(ahkFuncRef)
+        }
+        if (borrowed) {
+            Py_IncRef(pyObject)
+        }
+        ahkFunc := new WrappedPythonFunction(pyObject)
+        WRAPPED_PYTHON_FUNCTIONS[pyObject] := &ahkFunc
+        ; TODO: Pass A_ThisHotkey to hotkey callback.
+        return ahkFunc
     }
 
     __Call(method, args*) {
         return PyCall(this.pyFunc, args*)
     }
-}
 
-FreeWrappedFunctions() {
-    for pyFunc, value in WRAPPED_PYTHON_FUNCTIONS {
-        if (value == "") {
-            WRAPPED_PYTHON_FUNCTIONS.Delete(pyFunc)
-            Py_DecRef(pyFunc)
-        }
+    __Delete() {
+        ; MsgBox, % "freeing " this.pyFunc
+        WRAPPED_PYTHON_FUNCTIONS.Delete(this.pyFunc)
+        gstate := PyGILState_Ensure()
+        Py_DecRef(this.pyFunc)
+        PyGILState_Release(gstate)
     }
 }
 

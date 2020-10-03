@@ -1,4 +1,5 @@
 import subprocess
+import sys
 from dataclasses import FrozenInstanceError
 
 import pytest
@@ -36,12 +37,20 @@ def test_sleep(child_ahk):
 
 
 def test_timer(child_ahk):
-    timer = ahk.set_timer(lambda: None, countdown=1)
+    func = lambda: None  # noqa: E731
+    timer = ahk.set_timer(func, countdown=1)
     with pytest.raises(FrozenInstanceError, match="cannot assign to field"):
         timer.func = None
 
+    func_refcount = sys.getrefcount(func)
     timer.cancel()
-    del timer
+    assert sys.getrefcount(func) == func_refcount - 1
+    # del timer
+
+    timer = ahk.set_timer(func, countdown=0.01)
+    func_refcount = sys.getrefcount(func)
+    ahk.sleep(0.01)
+    assert sys.getrefcount(func) == func_refcount - 1
 
     def code():
         import ahkpy as ahk
@@ -61,6 +70,8 @@ def test_timer(child_ahk):
     assert res.stdout == "Ding!\nDong!\n"
     assert res.returncode == 0
 
+
+def test_timer_stop(child_ahk):
     def code():
         import ahkpy as ahk
         import sys

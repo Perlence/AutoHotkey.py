@@ -36,13 +36,14 @@ def test_lock_state(request):
     assert ahk.get_caps_lock_state() is False
 
 
-def test_hotkey_refcounts():
+def test_hotkey_refcounts(request):
     func1 = lambda: None  # noqa: E731
     func2 = lambda: None  # noqa: E731
     func1_refcount = sys.getrefcount(func1)
     func2_refcount = sys.getrefcount(func2)
 
     hk = ahk.hotkey("F13", func1)
+    request.addfinalizer(hk.disable)
     assert hk.key_name == "F13"
     assert sys.getrefcount(func1) == func1_refcount + 1
     assert sys.getrefcount(func2) == func2_refcount
@@ -58,6 +59,15 @@ def test_hotkey_refcounts():
     hk.update(func=func1)
     assert sys.getrefcount(func1) == func1_refcount + 1
     assert sys.getrefcount(func2) == func2_refcount
+
+    hk2 = ahk.hotkey("F14", func1)
+    request.addfinalizer(hk2.disable)
+    assert sys.getrefcount(func1) == func1_refcount + 1
+    assert sys.getrefcount(func2) == func2_refcount
+
+    hk2.update(func=func2)
+    assert sys.getrefcount(func1) == func1_refcount + 1
+    assert sys.getrefcount(func2) == func2_refcount + 1
 
 
 class TestHotkey:

@@ -352,9 +352,8 @@ class Hotkey:
 
         option_str = "".join(options)
 
-        context_hash = hash(self.context)
         with self.context._manager():
-            ahk_call("Hotkey", context_hash, self.key_name, func or "", option_str)
+            ahk_call("Hotkey", self.key_name, func or "", option_str)
 
 
 @dataclass(frozen=True)
