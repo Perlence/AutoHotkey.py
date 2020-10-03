@@ -15,16 +15,19 @@ __all__ = [
     "block_input_while_sending",
     "block_input",
     "block_mouse_move",
+    "get_caps_lock_state",
     "get_hotstring_end_chars",
     "get_hotstring_mouse_reset",
+    "get_insert_state",
     "get_key_name",
     "get_key_sc",
     "get_key_vk",
+    "get_num_lock_state",
+    "get_scroll_lock_state",
     "hotkey",
     "hotstring",
     "is_key_pressed_physical",
     "is_key_pressed",
-    "is_key_toggled",
     "remap_key",
     "reset_hotstring",
     "send_event",
@@ -49,10 +52,20 @@ def is_key_pressed_physical(key_name):
     return _get_key_state(key_name, "P")
 
 
-def is_key_toggled(key_name):
-    if key_name.lower() not in {"capslock", "numlock", "scrolllock", "insert", "ins"}:
-        raise ValueError(f"{key_name!r} is not a valid key; expected CapsLock, NumLock, ScrollLock, or Insert")
-    return _get_key_state(key_name, "T")
+def get_caps_lock_state():
+    return _get_key_state("CapsLock", "T")
+
+
+def get_num_lock_state():
+    return _get_key_state("NumLock", "T")
+
+
+def get_scroll_lock_state():
+    return _get_key_state("ScrollLock", "T")
+
+
+def get_insert_state():
+    return _get_key_state("Insert", "T")
 
 
 def _get_key_state(key_name, mode=None):

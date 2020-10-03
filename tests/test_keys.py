@@ -15,7 +15,7 @@ skip_unless_admin = pytest.mark.skipif(
 
 
 def test_get_key_state(child_ahk):
-    with pytest.raises(ValueError, match="key_name is invalid or the state of the key could not be determined"):
+    with pytest.raises(ValueError, match="'beep' is not a valid key or the state of the key could not be determined"):
         ahk.is_key_pressed("beep")
 
     assert ahk.is_key_pressed("F13") is False
@@ -25,17 +25,15 @@ def test_get_key_state(child_ahk):
     assert ahk.is_key_pressed("F13") is False
 
 
-def test_is_key_toggled():
-    with pytest.raises(ValueError, match="key_name must be one of"):
-        ahk.is_key_toggled("F13")
-
-    initial_state = ahk.is_key_toggled("CapsLock")
+def test_lock_state(request):
+    initial_state = ahk.get_caps_lock_state()
     assert isinstance(initial_state, bool)
+    request.addfinalizer(lambda: ahk.set_caps_lock_state(initial_state))
+
     ahk.set_caps_lock_state(True)
-    assert ahk.is_key_toggled("CapsLock") is True
+    assert ahk.get_caps_lock_state() is True
     ahk.set_caps_lock_state(False)
-    assert ahk.is_key_toggled("CapsLock") is False
-    ahk.set_caps_lock_state(initial_state)
+    assert ahk.get_caps_lock_state() is False
 
 
 def test_hotkey_refcounts():
