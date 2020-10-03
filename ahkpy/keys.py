@@ -75,27 +75,25 @@ def _get_key_state(key_name, mode=None):
     return bool(result)
 
 
-def set_caps_lock_state(state):
-    _set_key_state("SetCapsLockState", state)
+def set_caps_lock_state(state: bool, always=False):
+    _set_key_state("SetCapsLockState", state, always)
 
 
-def set_num_lock_state(state):
-    _set_key_state("SetNumLockState", state)
+def set_num_lock_state(state: bool, always=False):
+    _set_key_state("SetNumLockState", state, always)
 
 
-def set_scroll_lock_state(state):
-    _set_key_state("SetScrollLockState", state)
+def set_scroll_lock_state(state: bool, always=False):
+    _set_key_state("SetScrollLockState", state, always)
 
 
-def _set_key_state(cmd, state):
-    if isinstance(state, str) and state.lower() in {"always_on", "alwayson"}:
-        state = "AlwaysOn"
-    elif isinstance(state, str) and state.lower() in {"always_off", "alwaysoff"}:
-        state = "AlwaysOff"
-    elif state:
+def _set_key_state(cmd, state, always):
+    if state:
         state = "On"
     else:
         state = "Off"
+    if always:
+        state = f"Always{state}"
     ahk_call(cmd, state)
 
 
