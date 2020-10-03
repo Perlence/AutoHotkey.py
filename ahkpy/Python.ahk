@@ -18,7 +18,6 @@ global Py_TPFLAGS_LONG_SUBCLASS := 1 << 24
 global Py_TPFLAGS_UNICODE_SUBCLASS := 1 << 28
 global Py_TPFLAGS_BASE_EXC_SUBCLASS := 1 << 30
 
-global CALLBACKS := {}
 global WRAPPED_PYTHON_FUNCTIONS := {}
 
 global AHKMethods
@@ -549,21 +548,11 @@ End(message) {
     ExitApp, 1
 }
 
-GuiContextMenu:
-GuiDropFiles:
-GuiEscape:
-GuiSize:
-    PyCall(CALLBACKS[A_ThisLabel])
-    return
-
 GuiClose:
     OnExitFunc("Close", 0, A_ThisLabel)
     return
 
 OnExitFunc(reason, code, label:="OnExit") {
-    if (PyCall(CALLBACKS[label]) == 0) {
-        return
-    }
     if (Py_FinalizeEx() < 0) {
         code := 120
     }
