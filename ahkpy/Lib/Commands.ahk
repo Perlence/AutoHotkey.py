@@ -173,15 +173,6 @@ _GroupDeactivate(GroupName,R="") {
     GroupDeactivate %GroupName%,%R%
 }
 
-_GuiControl(Subcommand,ControlID,Param3="") {
-    GuiControl %Subcommand%,%ControlID%,%Param3%
-}
-
-_GuiControlGet(Subcommand="",ControlID="",Param4="") {
-    GuiControlGet OutputVar,%Subcommand%,%ControlID%,%Param4%
-    return OutputVar
-}
-
 _Hotkey(KeyName, Func, Options) {
     StringLower, KeyName, KeyName
     Hotkey, %KeyName%,%Func%,%Options%
