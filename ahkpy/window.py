@@ -137,6 +137,9 @@ class Windows:
     def wait_active(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET,
                     timeout=None):
         self = self._filter(title, class_name, id, pid, exe, text, match)
+        query = self._query()
+        if query == ("", "", "", ""):
+            self = dc.replace(self, title="A")
         return self._wait("WinWaitActive", timeout)
 
     def wait_inactive(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET,

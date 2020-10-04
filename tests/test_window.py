@@ -27,7 +27,7 @@ class TestWindows:
             ahk.sleep(1)
             sys.exit()
 
-        assert ahk.windows.get_active()
+        assert ahk.windows.wait_active()
 
         child_ahk.popen_code(windows)
         msg_boxes = ahk.windows.filter(title="win", exe="AutoHotkey.exe")
