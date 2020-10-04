@@ -1054,8 +1054,9 @@ class Control(BaseWindow):
             return str(result)
         except Error as err:
             if err.message == 1:
-                if self.line_count <= lineno:
-                    err.message = out_of_range_err
+                if lineno < self.line_count:
+                    return ""
+                err.message = out_of_range_err
             raise
 
     @property
