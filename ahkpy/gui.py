@@ -72,25 +72,26 @@ class ToolTip:
         self.relative_to = relative_to
 
     def show(self, text=None, x=UNSET, y=UNSET, relative_to=None):
+        # TODO: Consider adding timeout argument.
         if not text and not self.text:
             raise ValueError("text must not be empty")
-        elif text:
-            self.text = text
+        elif not text:
+            text = self.text
 
-        if x is not UNSET:
-            self.x = x
-        if y is not UNSET:
-            self.y = y
-        x = self.x if self.x is not None else ""
-        y = self.y if self.y is not None else ""
+        if x is UNSET:
+            x = self.x
+        if y is UNSET:
+            y = self.y
+        x = x if x is not None else ""
+        y = y if y is not None else ""
 
-        if relative_to is not None:
-            self.relative_to = relative_to
+        if relative_to is None:
+            relative_to = self.relative_to
 
         tooltip_id = self._acquire()
         with global_ahk_lock:
-            _set_coord_mode("tooltip", self.relative_to)
-            ahk_call("ToolTip", str(self.text), x, y, tooltip_id)
+            _set_coord_mode("tooltip", relative_to)
+            ahk_call("ToolTip", str(text), x, y, tooltip_id)
 
     def hide(self):
         if self._id is None:
