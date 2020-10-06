@@ -1,8 +1,6 @@
 import ctypes
 import dataclasses as dc
 import enum
-from ctypes import windll
-from ctypes.wintypes import DWORD, HWND, RECT
 from typing import List, Optional, Tuple, Union
 
 from . import colors
@@ -975,18 +973,12 @@ class Control(BaseWindow):
 
     @property
     def is_focused(self) -> bool:
-        if not self.id:
+        if not self:
             return False
-        thread_id = windll.user32.GetWindowThreadProcessId(HWND(self.id), 0)
-        if thread_id == 0:
+        focused_control = windows.get_active().get_focused_control()
+        if not focused_control:
             return False
-        gui_thread_info = GUITHREADINFO()
-        gui_thread_info.cbSize = ctypes.sizeof(GUITHREADINFO)
-        windll.user32.GetGUIThreadInfo(thread_id, ctypes.byref(gui_thread_info))
-        result = gui_thread_info.hwndFocus
-        if result == 0:
-            return False
-        return result == self.id
+        return self == focused_control
 
     def focus(self):
         return self._call("ControlFocus", "", *self._include(), set_delay=True)
@@ -1360,19 +1352,6 @@ def _set_title_match_mode(title_mode):
         ahk_call("SetTitleMatchMode", "regex")
     else:
         raise ValueError(f"{title_mode!r} is not a valid title match mode")
-
-
-class GUITHREADINFO(ctypes.Structure):
-    cbSize: DWORD
-    flags: DWORD
-    hwndActive: HWND
-    hwndFocus: HWND
-    hwndCapture: HWND
-    hwndMenuOwner: HWND
-    hwndMoveSize: HWND
-    hwndCaret: HWND
-    rcCaret: RECT
-    _fields_ = list(__annotations__.items())
 
 
 class WindowStyle(enum.IntFlag):
