@@ -36,61 +36,72 @@ def test_sleep(child_ahk):
     assert proc.returncode == 0
 
 
-def test_timer(child_ahk):
-    func = lambda: None  # noqa: E731
-    timer = ahk.set_timer(func, countdown=1)
-    with pytest.raises(FrozenInstanceError, match="cannot assign to field"):
-        timer.func = None
+class TestTimer:
+    def test_timer(self, child_ahk):
+        func = lambda: None  # noqa: E731
+        timer = ahk.set_timer(func, countdown=1)
+        with pytest.raises(FrozenInstanceError, match="cannot assign to field"):
+            timer.func = None
 
-    func_refcount = sys.getrefcount(func)
-    timer.cancel()
-    assert sys.getrefcount(func) == func_refcount - 1
-    # del timer
+        func_refcount = sys.getrefcount(func)
+        timer.cancel()
+        assert sys.getrefcount(func) == func_refcount - 1
+        # del timer
 
-    timer = ahk.set_timer(func, countdown=0.01)
-    func_refcount = sys.getrefcount(func)
-    ahk.sleep(0.01)
-    assert sys.getrefcount(func) == func_refcount - 1
+        timer = ahk.set_timer(func, countdown=0.01)
+        func_refcount = sys.getrefcount(func)
+        ahk.sleep(0.01)
+        assert sys.getrefcount(func) == func_refcount - 1
 
-    def code():
-        import ahkpy as ahk
-        import sys
+        def code():
+            import ahkpy as ahk
+            import sys
 
-        ahk.hotkey("F24", lambda: None)  # Make the script persistent
+            ahk.hotkey("F24", lambda: None)  # Make the script persistent
 
-        @ahk.set_timer(countdown=0.1)
-        def dong():
-            print("Dong!")
-            sys.exit()
+            @ahk.set_timer(countdown=0.1)
+            def dong():
+                print("Dong!")
+                sys.exit()
 
-        print("Ding!")
-
-    res = child_ahk.run_code(code)
-    assert res.stderr == ""
-    assert res.stdout == "Ding!\nDong!\n"
-    assert res.returncode == 0
-
-
-def test_timer_stop(child_ahk):
-    def code():
-        import ahkpy as ahk
-        import sys
-
-        ahk.hotkey("F24", lambda: None)  # Make the script persistent
-
-        @ahk.set_timer(period=0.1)
-        def ding():
             print("Ding!")
-            ding.stop()
 
-        @ahk.set_timer(countdown=0.5)
-        def exit():
-            sys.exit()
+        res = child_ahk.run_code(code)
+        assert res.stderr == ""
+        assert res.stdout == "Ding!\nDong!\n"
+        assert res.returncode == 0
 
-    res = child_ahk.run_code(code)
-    assert res.stderr == ""
-    assert res.stdout == "Ding!\n"
-    assert res.returncode == 0
+    def test_timer_stop(self, child_ahk):
+        def code():
+            import ahkpy as ahk
+            import sys
+
+            ahk.hotkey("F24", lambda: None)  # Make the script persistent
+
+            @ahk.set_timer(period=0.1)
+            def ding():
+                print("Ding!")
+                ding.stop()
+
+            @ahk.set_timer(countdown=0.5)
+            def exit():
+                sys.exit()
+
+        res = child_ahk.run_code(code)
+        assert res.stderr == ""
+        assert res.stdout == "Ding!\n"
+        assert res.returncode == 0
+
+    def test_timer_update(self, request):
+        times = []
+
+        timer = ahk.set_timer(lambda: times.append(1), period=1)
+        request.addfinalizer(timer.cancel)
+
+        timer.update(period=0.1)
+        ahk.sleep(0.59)
+        timer.cancel()
+        assert len(times) == 5
 
 
 def test_suspend(child_ahk):

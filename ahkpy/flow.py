@@ -33,7 +33,7 @@ def ahk_call(cmd, *args):
 
 
 def set_timer(func=None, period=0.25, countdown=None, priority=0):
-    # XXX: Should this be threading.Timer?
+    # TODO: Separate one-time and periodic timers into two different functions.
     if countdown is not None:
         if countdown < 0:
             raise ValueError("countdown must be positive")
@@ -55,6 +55,10 @@ class Timer:
     __slots__ = ("func",)
 
     def start(self):
+        # FIXME: start() resets a finished one-time timer and makes it periodic
+        # with the default 0.25 second period. This happens because AHK recycles
+        # the function reference after the countdown, so it's no longer in
+        # WRAPPED_PYTHON_FUNCTIONS.
         ahk_call("SetTimer", self.func, "On")
 
     def stop(self):
@@ -65,6 +69,17 @@ class Timer:
 
     def set_priority(self, priority):
         ahk_call("SetTimer", self.func, "", priority)
+
+    def update(self, period=None, countdown=None, priority=None):
+        if period is None and countdown is None and priority is None:
+            return
+        if countdown is not None:
+            if countdown < 0:
+                raise ValueError("countdown must be positive")
+            period = -countdown
+        period = int(period*1000) if period is not None else ""
+        priority = priority if priority is not None else ""
+        ahk_call("SetTimer", self.func, period, priority)
 
 
 def sleep(secs):
