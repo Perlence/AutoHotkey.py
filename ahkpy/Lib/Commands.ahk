@@ -262,6 +262,26 @@ _MsgBox(Params*) {
         timeout := Params[4]
         MsgBox % options,%title%,%text%,%timeout%
     }
+    IfMsgBox, OK
+        return "ok"
+    IfMsgBox, Yes
+        return "yes"
+    IfMsgBox, No
+        return "no"
+    IfMsgBox, Cancel
+        return "cancel"
+    IfMsgBox, Abort
+        return "abort"
+    IfMsgBox, Ignore
+        return "ignore"
+    IfMsgBox, Retry
+        return "retry"
+    IfMsgBox, Continue
+        return "continue"
+    IfMsgBox, TryAgain
+        return "try_again"
+    IfMsgBox, Timeout
+        return "timeout"
 }
 
 _Pause(State="",OperateOnUnderlyingThread="") {

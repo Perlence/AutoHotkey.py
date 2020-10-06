@@ -1,4 +1,5 @@
 import dataclasses as dc
+import functools
 import queue
 from typing import Callable, Optional
 
@@ -7,6 +8,7 @@ from .settings import COORD_MODES, _set_coord_mode
 from .unset import UNSET
 
 __all__ = [
+    "MessageBox",
     "MessageHandler",
     "ToolTip",
     "message_box",
@@ -14,13 +16,159 @@ __all__ = [
 ]
 
 
-def message_box(text=None, title="", options=0, timeout=None):
-    if text is None:
-        # Show "Press OK to continue."
-        return ahk_call("MsgBox")
+MESSAGE_BOX_BUTTONS = {
+    "ok": 0x00000000,
+    "ok_cancel": 0x00000001,
+    "abort_retry_ignore": 0x00000002,
+    "yes_no_cancel": 0x00000003,
+    "yes_no": 0x00000004,
+    "retry_cancel": 0x00000005,
+    "cancel_try_continue": 0x00000006,
+}
 
-    return ahk_call("MsgBox", options, title, str(text), timeout)
-    # XXX: Return result of IfMsgBox?
+MESSAGE_BOX_ICON = {
+    None: 0x00000000,
+    "hand": 0x00000010,
+    "question": 0x00000020,
+    "exclamation": 0x00000030,
+    "asterisk": 0x00000040,
+    "warning": 0x00000030,  # exclamation
+    "error": 0x00000010,  # hand
+    "information": 0x00000040,  # asterisk
+    "info": 0x00000040,  # asterisk
+    "stop": 0x00000010,  # hand
+}
+
+MESSAGE_BOX_DEFAULT_BUTTON = {
+    1: 0x00000000,
+    2: 0x00000100,
+    3: 0x00000200,
+}
+
+MESSAGE_BOX_OPTIONS = {
+    "default_desktop_only": 0x00020000,
+    "right": 0x00080000,
+    "rtl_reading": 0x00100000,
+    "service_notification": 0x00200000,
+}
+
+
+@dc.dataclass
+class MessageBox:
+    # Inspired by Python's tkinter.messagebox module and Qt's QMessageBox class.
+
+    text: Optional = None
+    title: Optional = None
+    buttons: str = "ok"
+    icon: Optional[str] = None
+    default_button: int = 1
+    options: list = dc.field(default_factory=list)
+    timeout: Optional[int] = None
+
+    def show(self, text=None, title=None, **attrs):
+        attrs["text"] = text if text is not None else self.text
+        attrs["title"] = title if title is not None else self.title
+        if attrs:
+            self = dc.replace(self, **attrs)
+        # MessageBox().show() must act exactly as message_box().
+        return message_box(
+            self.text,
+            self.title,
+            buttons=self.buttons,
+            icon=self.icon,
+            default_button=self.default_button,
+            options=self.options,
+            timeout=self.timeout,
+        )
+
+    @staticmethod
+    def info(text, title=None, *, buttons="ok", default_button=1, options=[], timeout=None):
+        """Show an info message."""
+        return _message_box(text, title, buttons, "info", default_button, options, timeout)
+
+    @staticmethod
+    def warning(text, title=None, *, buttons="ok", default_button=1, options=[], timeout=None):
+        """Show a warning message."""
+        return _message_box(text, title, buttons, "warning", default_button, options, timeout)
+
+    @staticmethod
+    def error(text, title=None, *, buttons="ok", default_button=1, options=[], timeout=None):
+        """Show an error message."""
+        return _message_box(text, title, buttons, "error", default_button, options, timeout)
+
+    @staticmethod
+    def ok_cancel(text, title=None, *, icon="info", default_button=1, options=[], timeout=None):
+        """Ask if operation should proceed; return True if the answer is ok.
+
+        Not using the "question" icon because it's no longer recommended.
+        https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messagebox
+        """
+        result = _message_box(text, title, "ok_cancel", icon, default_button, options, timeout)
+        if result is None:
+            return None
+        return result == "ok"
+
+    @staticmethod
+    def yes_no(text, title=None, *, icon="info", default_button=1, options=[], timeout=None):
+        """Ask a question; return True if the answer is yes."""
+        result = _message_box(text, title, "yes_no", icon, default_button, options, timeout)
+        if result is None:
+            return None
+        return result == "yes"
+
+    @staticmethod
+    def yes_no_cancel(text, title=None, *, icon="info", default_button=1, options=[], timeout=None):
+        return _message_box(text, title, "yes_no_cancel", icon, default_button, options, timeout)
+
+    @staticmethod
+    def retry_cancel(text, title=None, *, icon="warning", default_button=1, options=[], timeout=None):
+        """Ask if operation should be retried; return True if the answer is yes.
+        """
+        result = _message_box(text, title, "retry_cancel", icon, default_button, options, timeout)
+        if result is None:
+            return None
+        return result == "retry"
+
+    @staticmethod
+    def cancel_try_continue(text, title=None, *, icon="warning", default_button=2, options=[], timeout=None):
+        """Ask if operation should be cancelled, retried, or continued.
+
+        Using "cancel_try_continue" instead of "abort_retry_cancel" because it's
+        more user-friendly.
+        """
+        return _message_box(text, title, "cancel_try_continue", icon, default_button, options, timeout)
+
+
+def message_box(text=None, title=None, *, buttons="ok", icon=None, default_button=1, options=[], timeout=None):
+    if text is None:
+        if buttons == "ok" and icon is None:
+            text = "Press OK to continue."
+        else:
+            text = ""
+
+    return _message_box(text, title, buttons, icon, default_button, options, timeout)
+
+
+def _message_box(text, title=None, buttons="ok", icon=None, default_button=1, options=[], timeout=None):
+    buttons = MESSAGE_BOX_BUTTONS[buttons]
+    icon = MESSAGE_BOX_ICON[icon]
+    default_button = MESSAGE_BOX_DEFAULT_BUTTON[default_button]
+
+    def option_reducer(result, option):
+        return result | MESSAGE_BOX_OPTIONS[option]
+
+    options = functools.reduce(option_reducer, options, 0)
+
+    result = ahk_call(
+        "MsgBox",
+        buttons | icon | default_button | options,
+        str(title) if title is not None else "",
+        str(text),
+        timeout,
+    )
+    if result == "timeout":
+        return None
+    return result
 
 
 def on_message(msg_number, func=None, *, max_threads=1, prepend_handler=False):

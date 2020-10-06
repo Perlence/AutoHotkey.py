@@ -319,7 +319,7 @@ class Hotkey:
     #    store it in Python. Likewise, an option may be stored in Python, but
     #    not set in AHK yet.
     # 3. An option may be changed from the AHK side. In this case the value
-    #    stored in the Python Hotkey object becomes absolete and misleading.
+    #    stored in the Python Hotkey object becomes obsolete and misleading.
 
     def enable(self):
         with self.context._manager():
