@@ -8,11 +8,13 @@ from typing import Callable
 import _ahk
 
 __all__ = [
+    "Countdown",
     "Timer",
     "coop",
     "output_debug",
     "reload",
     "resume",
+    "set_countdown",
     "set_timer",
     "sleep",
     "suspend",
@@ -32,21 +34,38 @@ def ahk_call(cmd, *args):
         return _ahk.call(cmd, *args)
 
 
-def set_timer(func=None, period=0.25, countdown=None, priority=0):
-    # TODO: Separate one-time and periodic timers into two different functions.
-    if countdown is not None:
-        if countdown < 0:
-            raise ValueError("countdown must be positive")
-        period = -countdown
-    period = int(period*1000)
+def set_timer(func=None, interval=0.25, priority=0):
+    if interval < 0:
+        raise ValueError("interval must be positive")
+    interval = int(interval*1000)
+
+    if not -2147483648 <= priority <= 2147483647:
+        raise ValueError("priority must be between -2147483648 and 2147483647")
 
     def set_timer_decorator(func):
-        ahk_call("SetTimer", func, period, priority)
+        ahk_call("SetTimer", func, interval, priority)
         return Timer(func)
 
     if func is None:
         return set_timer_decorator
     return set_timer_decorator(func)
+
+
+def set_countdown(func=None, interval=0.25, priority=0):
+    if interval < 0:
+        raise ValueError("interval must be positive")
+    period = int(interval*1000)
+
+    if not -2147483648 <= priority <= 2147483647:
+        raise ValueError("priority must be between -2147483648 and 2147483647")
+
+    def set_countdown_decorator(func):
+        ahk_call("SetTimer", func, -period, priority)
+        return Countdown(func)
+
+    if func is None:
+        return set_countdown_decorator
+    return set_countdown_decorator(func)
 
 
 @dc.dataclass(frozen=True)
@@ -55,10 +74,6 @@ class Timer:
     __slots__ = ("func",)
 
     def start(self):
-        # FIXME: start() resets a finished one-time timer and makes it periodic
-        # with the default 0.25 second period. This happens because AHK recycles
-        # the function reference after the countdown, so it's no longer in
-        # WRAPPED_PYTHON_FUNCTIONS.
         ahk_call("SetTimer", self.func, "On")
 
     def stop(self):
@@ -67,19 +82,42 @@ class Timer:
     def cancel(self):
         ahk_call("SetTimer", self.func, "Delete")
 
-    def set_priority(self, priority):
-        ahk_call("SetTimer", self.func, "", priority)
-
-    def update(self, period=None, countdown=None, priority=None):
-        if period is None and countdown is None and priority is None:
+    def restart(self, interval=None, priority=None):
+        if interval is None and priority is None:
             return
-        if countdown is not None:
-            if countdown < 0:
-                raise ValueError("countdown must be positive")
-            period = -countdown
-        period = int(period*1000) if period is not None else ""
-        priority = priority if priority is not None else ""
-        ahk_call("SetTimer", self.func, period, priority)
+
+        if interval is not None:
+            if interval < 0:
+                raise ValueError("interval must be positive")
+            interval = int(interval*1000)
+        else:
+            interval = ""
+
+        if priority is not None:
+            if not -2147483648 <= priority <= 2147483647:
+                raise ValueError("priority must be between -2147483648 and 2147483647")
+        else:
+            priority = ""
+
+        ahk_call("SetTimer", self.func, interval, priority)
+
+
+@dc.dataclass(frozen=True)
+class Countdown:
+    func: Callable
+    __slots__ = ("func",)
+
+    def stop(self):
+        ahk_call("SetTimer", self.func, "Off")
+
+    def cancel(self):
+        ahk_call("SetTimer", self.func, "Delete")
+
+    def restart(self, interval=0.25, priority=0):
+        # The timer object is recycled in AHK once it finishes. "Restarting" it
+        # like this actually creates a new timer. This is why interval and
+        # priority must be set explicitly here.
+        set_countdown(self.func, interval, priority)
 
 
 def sleep(secs):

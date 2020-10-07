@@ -10,7 +10,7 @@ import ahkpy as ahk
 def test_sleep(child_ahk):
     def code():
         import ahkpy as ahk
-        ahk.set_timer(lambda: print(1), countdown=0.1)
+        ahk.set_countdown(lambda: print(1), interval=0.1)
         ahk.sleep(0.2)  # sleep longer than the countdown
         print(2)
         # sys.exit()
@@ -25,7 +25,7 @@ def test_sleep(child_ahk):
     def code():
         import ahkpy as ahk
         import threading
-        ahk.set_timer(lambda: print(1), countdown=0.1)
+        ahk.set_countdown(lambda: print(1), interval=0.1)
         threading.Timer(0.2, lambda: print(2)).start()
         ahk.sleep(0.3)
         print(3)
@@ -39,7 +39,7 @@ def test_sleep(child_ahk):
 class TestTimer:
     def test_timer(self, child_ahk):
         func = lambda: None  # noqa: E731
-        timer = ahk.set_timer(func, countdown=1)
+        timer = ahk.set_countdown(func, interval=1)
         with pytest.raises(FrozenInstanceError, match="cannot assign to field"):
             timer.func = None
 
@@ -48,7 +48,7 @@ class TestTimer:
         assert sys.getrefcount(func) == func_refcount - 1
         # del timer
 
-        timer = ahk.set_timer(func, countdown=0.01)
+        timer = ahk.set_countdown(func, interval=0.01)
         func_refcount = sys.getrefcount(func)
         ahk.sleep(0.01)
         assert sys.getrefcount(func) == func_refcount - 1
@@ -59,7 +59,7 @@ class TestTimer:
 
             ahk.hotkey("F24", lambda: None)  # Make the script persistent
 
-            @ahk.set_timer(countdown=0.1)
+            @ahk.set_countdown(interval=0.1)
             def dong():
                 print("Dong!")
                 sys.exit()
@@ -78,12 +78,12 @@ class TestTimer:
 
             ahk.hotkey("F24", lambda: None)  # Make the script persistent
 
-            @ahk.set_timer(period=0.1)
+            @ahk.set_timer(interval=0.1)
             def ding():
                 print("Ding!")
                 ding.stop()
 
-            @ahk.set_timer(countdown=0.5)
+            @ahk.set_countdown(interval=0.5)
             def exit():
                 sys.exit()
 
@@ -92,13 +92,13 @@ class TestTimer:
         assert res.stdout == "Ding!\n"
         assert res.returncode == 0
 
-    def test_timer_update(self, request):
+    def test_timer_restart(self, request):
         times = []
 
-        timer = ahk.set_timer(lambda: times.append(1), period=1)
+        timer = ahk.set_timer(lambda: times.append(1), interval=1)
         request.addfinalizer(timer.cancel)
 
-        timer.update(period=0.1)
+        timer.restart(interval=0.1)
         ahk.sleep(0.59)
         timer.cancel()
         assert len(times) == 5
@@ -116,7 +116,7 @@ def test_suspend(child_ahk):
             ahk.suspend()
             print("ok02")
 
-        ahk.set_timer(sys.exit, countdown=0.5)
+        ahk.set_countdown(sys.exit, interval=0.5)
         print("ok00")
 
     proc = child_ahk.popen_code(code)

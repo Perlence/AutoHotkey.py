@@ -513,7 +513,7 @@ EncodeString(string) {
 
 PrintErrorOrExit() {
     PyExc_SystemExit := CachedProcAddress("PyExc_SystemExit", "PtrP")
-    if (!PyErr_ExceptionMatches(PyExc_SystemExit)) {
+    if (not PyErr_ExceptionMatches(PyExc_SystemExit)) {
         PyErr_Print()
         return
     }
