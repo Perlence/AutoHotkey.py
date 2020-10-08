@@ -140,9 +140,6 @@ class BaseHotkeyContext:
             raise Error("invalid key name")
 
         def hotkey_decorator(func):
-            if not callable(func):
-                raise TypeError(f"object {func!r} must be callable")
-
             hk = Hotkey(key_name, context=self)
             hk.update(
                 func=func,
@@ -334,6 +331,9 @@ class Hotkey:
             ahk_call("HotkeySpecial", self.key_name, "Toggle")
 
     def update(self, *, func=None, buffer=None, priority=None, max_threads=None, input_level=None):
+        if not callable(func):
+            raise TypeError(f"object {func!r} must be callable")
+
         options = []
 
         if buffer:
