@@ -524,6 +524,7 @@ class RemappedKey:
 def send(keys, *, mode=None, level=None, key_delay=None, key_duration=None, mouse_delay=None):
     # TODO: Sending "{U+0009}" and "\u0009" gives different results depending on
     # how tabs are handled in the application.
+    # XXX: Consider adding *blind*, *text*, and *raw* arguments.
     if mode is None:
         mode = get_settings().send_mode
         if mode == "input" and (
@@ -543,7 +544,7 @@ def send(keys, *, mode=None, level=None, key_delay=None, key_duration=None, mous
     send_func(keys, level=level, key_delay=key_delay, key_duration=key_duration, mouse_delay=mouse_delay)
 
 
-def send_input(keys, *, level=None, key_delay=None, key_duration=None, mouse_delay=None):
+def send_input(keys, *, level=None, **rest):
     with global_ahk_lock:
         _send_level(level)
         ahk_call("SendInput", keys)
@@ -556,9 +557,9 @@ def send_event(keys, *, level=None, key_delay=None, key_duration=None, mouse_del
         ahk_call("SendEvent", keys)
 
 
-def send_play(keys, *, level=None, key_delay=None, key_duration=None, mouse_delay=None):
+def send_play(keys, *, key_delay=None, key_duration=None, mouse_delay=None, **rest):
     with global_ahk_lock:
-        _send_level(level)
+        # SendPlay is not affected by SendLevel.
         _set_delay(key_delay, key_duration, mouse_delay, play=True)
         ahk_call("SendPlay", keys)
 
