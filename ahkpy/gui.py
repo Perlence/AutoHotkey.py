@@ -3,7 +3,7 @@ import functools
 import queue
 from typing import Callable, Optional
 
-from .flow import ahk_call, global_ahk_lock
+from .flow import Countdown, ahk_call, global_ahk_lock, set_countdown
 from .settings import COORD_MODES, _set_coord_mode
 from .unset import UNSET
 
@@ -203,7 +203,10 @@ class ToolTip:
     x: Optional[int] = None
     y: Optional[int] = None
     relative_to: str = "window"
+    timeout: Optional[float] = None
+
     _id: Optional[int] = dc.field(default=None, init=False, repr=False)
+    _timer: Optional[Countdown] = dc.field(default=None, init=False, repr=False)
 
     _pool = queue.LifoQueue(maxsize=20)
     for tooltip_id in range(20, 0, -1):
@@ -219,8 +222,7 @@ class ToolTip:
             raise ValueError(f"{relative_to!r} is not a valid coord mode")
         self.relative_to = relative_to
 
-    def show(self, text=None, x=UNSET, y=UNSET, relative_to=None):
-        # TODO: Consider adding timeout argument.
+    def show(self, text=None, x=UNSET, y=UNSET, relative_to=None, timeout=UNSET):
         if not text and not self.text:
             raise ValueError("text must not be empty")
         elif not text:
@@ -241,10 +243,24 @@ class ToolTip:
             _set_coord_mode("tooltip", relative_to)
             ahk_call("ToolTip", str(text), x, y, tooltip_id)
 
+        if timeout is UNSET:
+            timeout = self.timeout
+        if timeout is not None:
+            if self._timer:
+                self._timer.restart(timeout)
+            else:
+                self._timer = set_countdown(self.hide, timeout)
+        elif self._timer:
+            self._timer.cancel()
+            self._timer = None
+
     def hide(self):
         if self._id is None:
             return
         ahk_call("ToolTip", "", "", "", self._id)
+        if self._timer:
+            self._timer.cancel()
+            self._timer = None
         self._release()
 
     def _acquire(self):

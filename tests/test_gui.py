@@ -167,3 +167,35 @@ class TestTooltip:
 
         with pytest.raises(RuntimeError, match="cannot show more than 20 tooltips"):
             ahk.ToolTip().show("21")
+
+    def test_timeout(self, request):
+        t = ahk.ToolTip("test")
+        request.addfinalizer(t.hide)
+
+        tooltips = ahk.windows.filter(class_name="tooltips_class32", pid=os.getpid())
+
+        t.show(timeout=0.1)
+        assert tooltips.exist()
+        ahk.sleep(0.1)
+        assert not tooltips.exist()
+
+        t.show(timeout=0.1)
+        t.show()  # This must cancel the timeout.
+        assert tooltips.exist()
+        ahk.sleep(0.1)
+        assert tooltips.exist()
+
+        t.show()
+        t.show(timeout=0.1)
+        assert tooltips.exist()
+        ahk.sleep(0.1)
+        assert not tooltips.exist()
+
+        t.show(timeout=0.1)
+        ahk.sleep(0.06)
+        t.show(timeout=0.1)  # This must reset the timeout.
+        assert tooltips.exist()
+        ahk.sleep(0.06)
+        assert tooltips.exist()
+        ahk.sleep(0.06)
+        assert not tooltips.exist()

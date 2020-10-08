@@ -54,13 +54,13 @@ def set_timer(func=None, interval=0.25, priority=0):
 def set_countdown(func=None, interval=0.25, priority=0):
     if interval < 0:
         raise ValueError("interval must be positive")
-    period = int(interval*1000)
+    interval = int(interval*1000)
 
     if not -2147483648 <= priority <= 2147483647:
         raise ValueError("priority must be between -2147483648 and 2147483647")
 
     def set_countdown_decorator(func):
-        ahk_call("SetTimer", func, -period, priority)
+        ahk_call("SetTimer", func, -interval, priority)
         return Countdown(func)
 
     if func is None:
@@ -83,7 +83,10 @@ class Timer:
         ahk_call("SetTimer", self.func, "Delete")
 
     def restart(self, interval=None, priority=None):
+        # TODO: It should be possible to change the priority without restarting
+        # the timer.
         if interval is None and priority is None:
+            # FIXME: This is not "restart" if it does nothing.
             return
 
         if interval is not None:
