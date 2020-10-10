@@ -1,6 +1,6 @@
 LoadPython() {
     ; Try loading Python DLL from the path set in the PYTHONDLL environment
-    ; variable. The variable is normally set by AutoHotkey.py.
+    ; variable. The variable is normally set by launcher.py.
     EnvGet, python_dll, PYTHONDLL
     if (python_dll) {
         HPYTHON_DLL := LoadLibraryEx(python_dll, LOAD_WITH_ALTERED_SEARCH_PATH)
@@ -25,7 +25,8 @@ LoadPython() {
     }
 
     ; Try py.exe.
-    cmd := "py.exe -3 -c ""import os, sys; print(os.path.dirname(sys.executable), end='')"""
+    arch := A_PtrSize * 8
+    cmd := "py.exe -3-" arch " -c ""import os, sys; print(os.path.dirname(sys.executable), end='')"""
     pythonDir := StdoutToVar_CreateProcess(cmd)
     exists := FileExist(pythonDir)
     if (pythonDir != "" and FileExist(pythonDir) == "D") {
@@ -108,8 +109,8 @@ Py_TYPE(ob) {
     ; #define Py_TYPE(ob) (_PyObject_CAST(ob)->ob_type)
     ; #define _PyObject_CAST(op) ((PyObject*)(op))
 
-    ; obRefcnt := NumGet(ob, "Int64")
-    return NumGet(ob+8, "UPtr")
+    ; obRefcnt := NumGet(ob, "Ptr") ; Py_ssize_t
+    return NumGet(ob + A_PtrSize, "UPtr")
 }
 
 Py_SetPath(path) {
@@ -296,17 +297,17 @@ PyObject_TypeCheck(ob, tp) {
 
 PyTuple_GetItem(p, pos) {
     ; PyObject* PyTuple_GetItem(PyObject *p, Py_ssize_t pos)
-    return PythonDllCall("PyTuple_GetItem", "Ptr", p, "Int", pos, "Cdecl Ptr")
+    return PythonDllCall("PyTuple_GetItem", "Ptr", p, "Ptr", pos, "Cdecl Ptr")
 }
 
 PyTuple_New(len) {
     ; PyObject* PyTuple_New(Py_ssize_t len)
-    return PythonDllCall("PyTuple_New", "Int", len, "Ptr")
+    return PythonDllCall("PyTuple_New", "Ptr", len, "Cdecl Ptr")
 }
 
 PyTuple_SetItem(p, pos, o) {
     ; int PyTuple_SetItem(PyObject *p, Py_ssize_t pos, PyObject *o)
-    return PythonDllCall("PyTuple_SetItem", "Ptr", p, "Int", pos, "Ptr", o, "Cdecl Int")
+    return PythonDllCall("PyTuple_SetItem", "Ptr", p, "Ptr", pos, "Ptr", o, "Cdecl Int")
 }
 
 PySys_SetArgvEx(argc, argv, updatepath:=1) {
@@ -322,12 +323,12 @@ PyTuple_Pack(n, objects*) {
         dllArgs.Push(obj)
     }
     dllArgs.Push("Cdecl Ptr")
-    return PythonDllCall("PyTuple_Pack", "Int", n, dllArgs*)
+    return PythonDllCall("PyTuple_Pack", "Ptr", n, dllArgs*)
 }
 
 PyTuple_Size(p) {
     ; Py_ssize_t PyTuple_Size(PyObject *p)
-    return PythonDllCall("PyTuple_Size", "Ptr", p, "Cdecl Int")
+    return PythonDllCall("PyTuple_Size", "Ptr", p, "Cdecl Ptr")
 }
 
 PyType_FastSubclass(t, f) {

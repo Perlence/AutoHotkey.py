@@ -568,14 +568,19 @@ class BaseWindow(WindowHandle):
     # TODO: Implement ControlClick.
     # TODO: Add send_message and post_message to Windows.
 
-    def send_message(self, msg, w_param=0, l_param=0, timeout=5) -> Optional[int]:
+    def send_message(self, msg, w_param=0, l_param=0, signed_int32=False, timeout=5) -> Optional[int]:
         control = exclude_title = exclude_text = ""
         try:
-            return self._call(
+            result = self._call(
                 "SendMessage", int(msg), int(w_param), int(l_param), control,
                 *self._include(), exclude_title, exclude_text,
                 int(timeout * 1000),
             )
+            if result is None:
+                return None
+            if signed_int32:
+                return to_signed_int32(result)
+            return result
         except Error as err:
             if err.message == "FAIL":
                 if not self.exists:
@@ -1109,7 +1114,7 @@ class Control(BaseWindow):
         else:
             return None
 
-        result = self.send_message(getcursel, timeout=5)
+        result = self.send_message(getcursel, signed_int32=True, timeout=5)
         if result is None:
             return None
         return result
@@ -1163,6 +1168,7 @@ class Control(BaseWindow):
             msg=find_string_exact,
             w_param=-1,
             l_param=ctypes.addressof(value_buffer),
+            signed_int32=True,
             timeout=5,
         )
         if result is None:
@@ -1352,6 +1358,26 @@ def _set_title_match_mode(title_mode):
         ahk_call("SetTitleMatchMode", "regex")
     else:
         raise ValueError(f"{title_mode!r} is not a valid title match mode")
+
+
+def to_signed_int32(v):
+    """
+    >>> to_signed_int32(1)
+    1
+    >>> to_signed_int32(-1)
+    -1
+    >>> to_signed_int32(4294967295)
+    -1
+    >>> to_signed_int32(4294967296)
+    0
+    >>> to_signed_int32(4294967297)
+    1
+    """
+    maxint32 = (1 << 32) - 1
+    uint32 = v & maxint32
+    has_sign = (uint32 >> 31)
+    int32 = uint32 - has_sign * (maxint32 + 1)
+    return int32
 
 
 class WindowStyle(enum.IntFlag):

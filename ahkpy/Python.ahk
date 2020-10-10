@@ -72,6 +72,8 @@ Main() {
     ; Import the higher-level ahk module to bootstrap the excepthook.
     mainModule := PyImport_ImportModule("ahkpy.main")
     if (mainModule == NULL) {
+        ; FIXME: The main module couldn't be loaded, so the excepthook is not
+        ; set. PyErr_Print won't show a message box.
         PyErr_Print()
         End("Cannot load ahk module.")
     }
@@ -131,14 +133,14 @@ PackBuiltinModule() {
     global AHKModule_name := EncodeString("_ahk")
     global AHKModule
     Pack(AHKModule
-        , "Int64", 1  ; ob_refcnt
+        , "Ptr", 1  ; Py_ssize_t ob_refcnt
         , "Ptr", NULL ; ob_type
         , "Ptr", NULL ; m_init
-        , "Int64", 0  ; m_index
+        , "Ptr", 0  ; Py_ssize_t m_index
         , "Ptr", NULL ; m_copy
         , "Ptr", &AHKModule_name
         , "Ptr", NULL
-        , "Int64", -1
+        , "Ptr", -1 ; Py_ssize_t m_size
         , "Ptr", &AHKMethods
         , "Ptr", NULL
         , "Ptr", NULL
@@ -171,13 +173,13 @@ PackBuiltinMethods() {
         ; code must be able to change AHK's "thread-local" parameters, e.g.
         ; SendLevel.
         , "Ptr", RegisterCallback("AHKCall", "C Fast", 2)
-        , "Int64", METH_VARARGS
+        , "Ptr", METH_VARARGS ; int
         , "Ptr", &AHKMethod_call_doc
 
         ; -- sentinel
         , "Ptr", NULL
         , "Ptr", NULL
-        , "Int64", 0
+        , "Ptr", 0 ; int
         , "Ptr", NULL)
 }
 

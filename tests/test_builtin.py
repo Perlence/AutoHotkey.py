@@ -20,6 +20,10 @@ def test_call():
     temp = _ahk.call("EnvGet", "TEMP")
     assert isinstance(temp, str)
 
+    rnd = _ahk.call("Min", -1, "-1")
+    assert isinstance(rnd, int)
+    assert rnd == -1
+
     rnd = _ahk.call("Min", 42, "42")
     assert isinstance(rnd, int)
     assert rnd == 42

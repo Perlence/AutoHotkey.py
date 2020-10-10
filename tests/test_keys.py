@@ -416,15 +416,15 @@ def test_hotkey_context(child_ahk):
         import sys
         ahk.hotkey("F24", sys.exit)
         ahk.hotkey("F13", lambda: ahk.message_box("Beep"))
-        ctx = ahk.HotkeyContext(lambda: ahk.windows.get_active(exe="AutoHotkey.exe", text="Beep"))
+        ctx = ahk.HotkeyContext(lambda: ahk.windows.get_active(title="Python.ahk", text="Beep"))
         ctx.hotkey("F13", lambda: ahk.message_box("Boop"))
         print("ok00")
 
     child_ahk.popen_code(code)
     child_ahk.wait(0)
 
-    beep_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Beep")
-    boop_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Boop")
+    beep_windows = ahk.windows.filter(title="Python.ahk", text="Beep")
+    boop_windows = ahk.windows.filter(title="Python.ahk", text="Boop")
 
     ahk.send("{F13}")
     assert beep_windows.wait(timeout=1)
@@ -449,7 +449,7 @@ def test_only_hotkey_context(child_ahk, settings):
     child_ahk.popen_code(code)
     child_ahk.wait(0)
 
-    boop_windows = ahk.windows.filter(exe="AutoHotkey.exe", text="Boop")
+    boop_windows = ahk.windows.filter(title="Python.ahk", text="Boop")
 
     # A context-specific hotkey without a general counterpart requires a higher
     # send level to be triggered?
@@ -534,13 +534,13 @@ def test_remap_key(request, child_ahk):
     # Use SendEvent here because remapping uses wildcard hotkeys that install
     # keyboard hook and SendInput temporarily disables that hook.
     ahk.send_event("{F13}", level=10)
-    win_f14 = ahk.windows.filter(exe="AutoHotkey.exe", text="F14 pressed")
+    win_f14 = ahk.windows.filter(title="Python.ahk", text="F14 pressed")
     assert win_f14.wait(timeout=1)
 
     ctx_remap = win_f14.active_window_context().remap_key("F13", "F15")
     request.addfinalizer(ctx_remap.disable)
     ahk.send_event("{F13}", level=10)
-    win_f15 = ahk.windows.filter(exe="AutoHotkey.exe", text="F15 pressed")
+    win_f15 = ahk.windows.filter(title="Python.ahk", text="F15 pressed")
     assert win_f15.wait(timeout=1)
 
     assert win_f15.close_all(timeout=1)

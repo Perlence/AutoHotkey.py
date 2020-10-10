@@ -18,7 +18,7 @@ class TestMessageBox:
         child_ahk.popen_code(msg_boxes_code)
         settings.win_delay = 0
 
-        msg_boxes = ahk.windows.filter(exe="AutoHotkey.exe")
+        msg_boxes = ahk.windows.filter(title="Python.ahk")
 
         msg_box = msg_boxes.wait_active(text="Press OK to continue", timeout=1)
         assert msg_box
@@ -139,7 +139,7 @@ def test_on_message_timeout(child_ahk):
 
 class TestTooltip:
     def test_basic(self, request):
-        tooltip_windows = ahk.windows.filter(class_name="tooltips_class32", exe="AutoHotkey.exe")
+        tooltip_windows = ahk.windows.filter(class_name="tooltips_class32", pid=os.getpid())
         assert not tooltip_windows.exist()
 
         t1 = ahk.ToolTip()

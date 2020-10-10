@@ -211,7 +211,7 @@ def test_coop(child_ahk):
     assert '"GET / HTTP/1.1" 200' in proc.stderr.readline()
 
     ahk.send("{F13}")
-    assert ahk.windows.wait_active(exe="AutoHotkey.exe", text="hello", timeout=1)
+    assert ahk.windows.wait_active(title="Python.ahk", text="hello", timeout=1)
 
     # TODO: Test sending KeyboardInterrupt.
     ahk.send("{F24}")

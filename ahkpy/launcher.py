@@ -1,5 +1,6 @@
 import ctypes
 import os
+import struct
 import subprocess
 import sys
 from ctypes.wintypes import DWORD, HMODULE
@@ -17,7 +18,7 @@ def main():
     os.environ["PYTHONDLL"] = python_dll_path()
 
     python_ahk_path = Path(__file__).parent / "Python.ahk"
-    ahk_exe_path = get_ahk_by_assoc() or AHK
+    ahk_exe_path = fix_ahk_platform(get_ahk_by_assoc() or AHK)
     args = [ahk_exe_path, python_ahk_path] + sys.argv[1:]
 
     while True:
@@ -78,6 +79,15 @@ def get_ahk_by_assoc():
         return ""
 
     ahk_exe_path = out[:out_len.value].rstrip("\x00")
+    return ahk_exe_path
+
+
+def fix_ahk_platform(ahk_exe_path):
+    p = Path(ahk_exe_path)
+    if p.name.lower() == "autohotkey.exe":
+        # Get the AHK binary of the same architecture as the Python interpreter.
+        arch = struct.calcsize("P") * 8
+        return f"{p.parent}\\{p.stem}U{arch}{p.suffix}"
     return ahk_exe_path
 
 
