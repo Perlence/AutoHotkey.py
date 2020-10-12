@@ -566,7 +566,6 @@ class BaseWindow(WindowHandle):
                 raise
 
     # TODO: Implement ControlClick.
-    # TODO: Add send_message and post_message to Windows.
 
     def send_message(self, msg, w_param=0, l_param=0, signed_int32=False, timeout=5) -> Optional[int]:
         control = exclude_title = exclude_text = ""

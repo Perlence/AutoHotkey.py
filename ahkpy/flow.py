@@ -73,8 +73,11 @@ class Timer:
     func: Callable
     __slots__ = ("func",)
 
-    def start(self):
-        ahk_call("SetTimer", self.func, "On")
+    def start(self, interval=None, priority=None):
+        self.update(interval, priority)
+        if interval is None:
+            # Force restart
+            ahk_call("SetTimer", self.func, "On")
 
     def stop(self):
         ahk_call("SetTimer", self.func, "Off")
@@ -82,11 +85,8 @@ class Timer:
     def cancel(self):
         ahk_call("SetTimer", self.func, "Delete")
 
-    def restart(self, interval=None, priority=None):
-        # TODO: It should be possible to change the priority without restarting
-        # the timer.
+    def update(self, interval=None, priority=None):
         if interval is None and priority is None:
-            # FIXME: This is not "restart" if it does nothing.
             return
 
         if interval is not None:
@@ -110,17 +110,21 @@ class Countdown:
     func: Callable
     __slots__ = ("func",)
 
+    def start(self, interval, priority=0):
+        # The timer object is deleted in AHK once it finishes. "Restarting" it
+        # like this actually creates a new timer. This is why interval and
+        # priority must be set explicitly here.
+
+        # Can't change the priority without restarting because we don't know if
+        # the timer is alive. If it's not, passing the priority without the
+        # interval will create a new periodic timer.
+        set_countdown(self.func, interval, priority)
+
     def stop(self):
         ahk_call("SetTimer", self.func, "Off")
 
     def cancel(self):
         ahk_call("SetTimer", self.func, "Delete")
-
-    def restart(self, interval=0.25, priority=0):
-        # The timer object is recycled in AHK once it finishes. "Restarting" it
-        # like this actually creates a new timer. This is why interval and
-        # priority must be set explicitly here.
-        set_countdown(self.func, interval, priority)
 
 
 def sleep(secs):

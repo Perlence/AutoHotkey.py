@@ -92,16 +92,35 @@ class TestTimer:
         assert res.stdout == "Ding!\n"
         assert res.returncode == 0
 
-    def test_timer_restart(self, request):
+    def test_timer_update(self, request):
         times = []
 
         timer = ahk.set_timer(lambda: times.append(1), interval=1)
         request.addfinalizer(timer.cancel)
 
-        timer.restart(interval=0.1)
+        timer.update(interval=0.1)
         ahk.sleep(0.59)
-        timer.cancel()
+        timer.stop()
         assert len(times) == 5
+
+        times = []
+        timer.start()
+        ahk.sleep(0.05)
+        assert len(times) == 0
+
+    def test_countdown_start(self, request):
+        times = []
+
+        timer = ahk.set_countdown(lambda: times.append(1), interval=1)
+        request.addfinalizer(timer.cancel)
+
+        timer.start(interval=0.1)  # Restart a non-finished countdown
+        ahk.sleep(0.1)
+        assert len(times) == 1
+
+        timer.start(interval=0.1)  # Start a finished countdown
+        ahk.sleep(0.1)
+        assert len(times) == 2
 
 
 def test_suspend(child_ahk):

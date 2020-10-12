@@ -205,9 +205,6 @@ class ToolTip:
     relative_to: str = "window"
     timeout: Optional[float] = None
 
-    _id: Optional[int] = dc.field(default=None, init=False, repr=False)
-    _timer: Optional[Countdown] = dc.field(default=None, init=False, repr=False)
-
     _pool = queue.LifoQueue(maxsize=20)
     for tooltip_id in range(20, 0, -1):
         _pool.put(tooltip_id)
@@ -221,6 +218,9 @@ class ToolTip:
         if relative_to not in COORD_MODES:
             raise ValueError(f"{relative_to!r} is not a valid coord mode")
         self.relative_to = relative_to
+
+        self._id: Optional[int] = None
+        self._timer: Optional[Countdown] = None
 
     def show(self, text=None, x=UNSET, y=UNSET, relative_to=None, timeout=UNSET):
         if not text and not self.text:
@@ -247,7 +247,7 @@ class ToolTip:
             timeout = self.timeout
         if timeout is not None:
             if self._timer:
-                self._timer.restart(timeout)
+                self._timer.start(timeout)
             else:
                 self._timer = set_countdown(self.hide, timeout)
         elif self._timer:
