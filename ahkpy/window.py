@@ -579,7 +579,7 @@ class BaseWindow(WindowHandle):
             if result is None:
                 return None
             if signed_int32:
-                return to_signed_int32(result)
+                return ctypes.c_int32(result).value
             return result
         except Error as err:
             if err.message == "FAIL":
@@ -1358,26 +1358,6 @@ def _set_title_match_mode(title_mode):
         ahk_call("SetTitleMatchMode", "regex")
     else:
         raise ValueError(f"{title_mode!r} is not a valid title match mode")
-
-
-def to_signed_int32(v):
-    """
-    >>> to_signed_int32(1)
-    1
-    >>> to_signed_int32(-1)
-    -1
-    >>> to_signed_int32(4294967295)
-    -1
-    >>> to_signed_int32(4294967296)
-    0
-    >>> to_signed_int32(4294967297)
-    1
-    """
-    maxint32 = (1 << 32) - 1
-    uint32 = v & maxint32
-    has_sign = (uint32 >> 31)
-    int32 = uint32 - has_sign * (maxint32 + 1)
-    return int32
 
 
 class WindowStyle(enum.IntFlag):
