@@ -1,9 +1,11 @@
 import ctypes
 import dataclasses as dc
+import functools
 import queue
 import sys
 import threading
-from typing import Callable
+import weakref
+from typing import Callable, Optional
 
 import _ahk
 
@@ -35,16 +37,12 @@ def ahk_call(cmd, *args):
 
 
 def set_timer(func=None, interval=0.25, priority=0):
-    if interval < 0:
-        raise ValueError("interval must be positive")
-    interval = int(interval*1000)
-
-    if not -2147483648 <= priority <= 2147483647:
-        raise ValueError("priority must be between -2147483648 and 2147483647")
+    t = Timer(func, interval, priority)
 
     def set_timer_decorator(func):
-        ahk_call("SetTimer", func, interval, priority)
-        return Timer(func)
+        t.func = func
+        t.start()
+        return t
 
     if func is None:
         return set_timer_decorator
@@ -52,79 +50,98 @@ def set_timer(func=None, interval=0.25, priority=0):
 
 
 def set_countdown(func=None, interval=0.25, priority=0):
-    if interval < 0:
-        raise ValueError("interval must be positive")
-    interval = int(interval*1000)
-
-    if not -2147483648 <= priority <= 2147483647:
-        raise ValueError("priority must be between -2147483648 and 2147483647")
+    t = Countdown(func, interval, priority)
 
     def set_countdown_decorator(func):
-        ahk_call("SetTimer", func, -interval, priority)
-        return Countdown(func)
+        t.func = func
+        t.start()
+        return t
 
     if func is None:
         return set_countdown_decorator
     return set_countdown_decorator(func)
 
 
-@dc.dataclass(frozen=True)
+@dc.dataclass(eq=False)
 class Timer:
     func: Callable
-    __slots__ = ("func",)
+    interval: float = 0.25
+    priority: int = 0
+
+    def __init__(self, func, interval=0.25, priority=0):
+        self.func = func
+
+        if interval < 0:
+            raise ValueError("interval must be positive")
+        self.interval = interval
+
+        if not -2147483648 <= priority <= 2147483647:
+            raise ValueError("priority must be between -2147483648 and 2147483647")
+        self.priority = priority
+
+        self._ref: Optional[weakref.ReferenceType] = None
 
     def start(self, interval=None, priority=None):
-        self.update(interval, priority)
-        if interval is None:
-            # Force restart
-            ahk_call("SetTimer", self.func, "On")
+        force_restart = interval is None
+        self.update(interval=interval, priority=priority, force_restart=force_restart)
 
-    def stop(self):
-        ahk_call("SetTimer", self.func, "Off")
+    def update(self, func=None, interval=None, priority=None, force_restart=False):
+        if func is not None:
+            self.cancel()
+            self.func = func
+            self._ref = None
 
-    def cancel(self):
-        ahk_call("SetTimer", self.func, "Delete")
+        # When AHK timer is deleted it releases the reference to the passed
+        # callback. We can use this to check if the timer is alive.
+        func_wrapper = None
+        if self._ref is not None:
+            func_wrapper = self._ref()
+        if func_wrapper is None:
+            # AHK timer was deleted or never started.
+            if not callable(self.func):
+                raise TypeError("timer callback must be callable")
+            func_wrapper = functools.partial(self.func)
+            self._ref = weakref.ref(func_wrapper)
+            force_restart = True
 
-    def update(self, interval=None, priority=None):
-        if interval is None and priority is None:
+        if interval is None and priority is None and not force_restart:
             return
 
-        if interval is not None:
+        if interval is not None or force_restart:
+            if interval is None:
+                interval = self.interval
             if interval < 0:
                 raise ValueError("interval must be positive")
-            interval = int(interval*1000)
+            self.interval = interval
+            interval = int(interval * 1000)
         else:
             interval = ""
 
-        if priority is not None:
+        if priority is not None or force_restart:
+            if priority is None:
+                priority = self.priority
             if not -2147483648 <= priority <= 2147483647:
                 raise ValueError("priority must be between -2147483648 and 2147483647")
+            self.priority = priority
         else:
             priority = ""
 
-        ahk_call("SetTimer", self.func, interval, priority)
+        self._update(func_wrapper, interval, priority)
 
-
-@dc.dataclass(frozen=True)
-class Countdown:
-    func: Callable
-    __slots__ = ("func",)
-
-    def start(self, interval, priority=0):
-        # The timer object is deleted in AHK once it finishes. "Restarting" it
-        # like this actually creates a new timer. This is why interval and
-        # priority must be set explicitly here.
-
-        # Can't change the priority without restarting because we don't know if
-        # the timer is alive. If it's not, passing the priority without the
-        # interval will create a new periodic timer.
-        set_countdown(self.func, interval, priority)
+    def _update(self, func, interval, priority):
+        ahk_call("SetTimer", func, interval, priority)
 
     def stop(self):
-        ahk_call("SetTimer", self.func, "Off")
+        if not self._ref:
+            return
+        func = self._ref()
+        if func is not None:
+            ahk_call("SetTimer", func, "Delete")
 
-    def cancel(self):
-        ahk_call("SetTimer", self.func, "Delete")
+
+class Countdown(Timer):
+    def _update(self, func, interval, priority):
+        ahk_call("SetTimer", func, -interval, priority)
 
 
 def sleep(secs):

@@ -37,22 +37,19 @@ def test_sleep(child_ahk):
 
 
 class TestTimer:
-    def test_timer(self, child_ahk):
+    def test_refcounts(self):
         func = lambda: None  # noqa: E731
         timer = ahk.set_countdown(func, interval=1)
-        with pytest.raises(FrozenInstanceError, match="cannot assign to field"):
-            timer.func = None
-
         func_refcount = sys.getrefcount(func)
-        timer.cancel()
+        timer.stop()
         assert sys.getrefcount(func) == func_refcount - 1
-        # del timer
 
         timer = ahk.set_countdown(func, interval=0.01)
         func_refcount = sys.getrefcount(func)
         ahk.sleep(0.01)
         assert sys.getrefcount(func) == func_refcount - 1
 
+    def test_timer(self, child_ahk):
         def code():
             import ahkpy as ahk
             import sys
@@ -96,7 +93,7 @@ class TestTimer:
         times = []
 
         timer = ahk.set_timer(lambda: times.append(1), interval=1)
-        request.addfinalizer(timer.cancel)
+        request.addfinalizer(timer.stop)
 
         timer.update(interval=0.1)
         ahk.sleep(0.59)
@@ -104,21 +101,24 @@ class TestTimer:
         assert len(times) == 5
 
         times = []
+        assert timer.interval == 0.1
         timer.start()
-        ahk.sleep(0.05)
-        assert len(times) == 0
+        ahk.sleep(0.06)
+        timer.update(priority=40)  # Updating priority should not restart the timer
+        ahk.sleep(0.06)
+        assert len(times) == 1
 
     def test_countdown_start(self, request):
         times = []
 
         timer = ahk.set_countdown(lambda: times.append(1), interval=1)
-        request.addfinalizer(timer.cancel)
+        request.addfinalizer(timer.stop)
 
         timer.start(interval=0.1)  # Restart a non-finished countdown
         ahk.sleep(0.1)
         assert len(times) == 1
 
-        timer.start(interval=0.1)  # Start a finished countdown
+        timer.start()  # Start a finished countdown with its previous interval
         ahk.sleep(0.1)
         assert len(times) == 2
 

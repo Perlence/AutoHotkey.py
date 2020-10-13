@@ -251,7 +251,7 @@ class ToolTip:
             else:
                 self._timer = set_countdown(self.hide, timeout)
         elif self._timer:
-            self._timer.cancel()
+            self._timer.stop()
             self._timer = None
 
     def hide(self):
@@ -259,7 +259,7 @@ class ToolTip:
             return
         ahk_call("ToolTip", "", "", "", self._id)
         if self._timer:
-            self._timer.cancel()
+            self._timer.stop()
             self._timer = None
         self._release()
 
