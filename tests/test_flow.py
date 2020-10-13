@@ -37,9 +37,10 @@ def test_sleep(child_ahk):
 
 
 class TestTimer:
-    def test_refcounts(self):
+    def test_refcounts(self, request):
         func = lambda: None  # noqa: E731
         timer = ahk.set_countdown(func, interval=1)
+        request.addfinalizer(timer.stop)
         func_refcount = sys.getrefcount(func)
         timer.stop()
         assert sys.getrefcount(func) == func_refcount - 1
@@ -121,6 +122,20 @@ class TestTimer:
         timer.start()  # Start a finished countdown with its previous interval
         ahk.sleep(0.1)
         assert len(times) == 2
+
+    def test_change_periodic(self, request):
+        times = []
+
+        timer = ahk.set_timer(lambda: times.append(1), interval=0.1)
+        request.addfinalizer(timer.stop)
+
+        ahk.sleep(0.29)
+        assert len(times) == 2
+
+        times = []
+        timer.update(periodic=False)
+        ahk.sleep(0.29)
+        assert len(times) == 1
 
 
 def test_suspend(child_ahk):

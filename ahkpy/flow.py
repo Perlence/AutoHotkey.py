@@ -10,7 +10,6 @@ from typing import Callable, Optional
 import _ahk
 
 __all__ = [
-    "Countdown",
     "Timer",
     "coop",
     "output_debug",
@@ -37,7 +36,7 @@ def ahk_call(cmd, *args):
 
 
 def set_timer(func=None, interval=0.25, priority=0):
-    t = Timer(func, interval, priority)
+    t = Timer(func, interval, priority, periodic=True)
 
     def set_timer_decorator(func):
         t.func = func
@@ -50,7 +49,7 @@ def set_timer(func=None, interval=0.25, priority=0):
 
 
 def set_countdown(func=None, interval=0.25, priority=0):
-    t = Countdown(func, interval, priority)
+    t = Timer(func, interval, priority, periodic=False)
 
     def set_countdown_decorator(func):
         t.func = func
@@ -67,8 +66,9 @@ class Timer:
     func: Callable
     interval: float = 0.25
     priority: int = 0
+    periodic: bool = True
 
-    def __init__(self, func, interval=0.25, priority=0):
+    def __init__(self, func, interval=0.25, priority=0, periodic=True):
         self.func = func
 
         if interval < 0:
@@ -79,13 +79,14 @@ class Timer:
             raise ValueError("priority must be between -2147483648 and 2147483647")
         self.priority = priority
 
+        self.periodic = periodic
+
         self._ref: Optional[weakref.ReferenceType] = None
 
-    def start(self, interval=None, priority=None):
-        force_restart = interval is None
-        self.update(interval=interval, priority=priority, force_restart=force_restart)
+    def start(self, interval=None, priority=None, periodic=None):
+        self.update(interval=interval, priority=priority, force_restart=True)
 
-    def update(self, func=None, interval=None, priority=None, force_restart=False):
+    def update(self, func=None, interval=None, priority=None, periodic=None, force_restart=False):
         if func is not None:
             self.cancel()
             self.func = func
@@ -104,16 +105,18 @@ class Timer:
             self._ref = weakref.ref(func_wrapper)
             force_restart = True
 
-        if interval is None and priority is None and not force_restart:
-            return
-
-        if interval is not None or force_restart:
+        if interval is not None or periodic is not None or force_restart:
             if interval is None:
                 interval = self.interval
             if interval < 0:
                 raise ValueError("interval must be positive")
             self.interval = interval
             interval = int(interval * 1000)
+
+            if periodic is not None:
+                self.periodic = bool(periodic)
+            if not self.periodic:
+                interval *= -1
         else:
             interval = ""
 
@@ -126,10 +129,8 @@ class Timer:
         else:
             priority = ""
 
-        self._update(func_wrapper, interval, priority)
-
-    def _update(self, func, interval, priority):
-        ahk_call("SetTimer", func, interval, priority)
+        if interval != "" or priority != "":
+            ahk_call("SetTimer", func_wrapper, interval, priority)
 
     def stop(self):
         if not self._ref:
@@ -137,11 +138,6 @@ class Timer:
         func = self._ref()
         if func is not None:
             ahk_call("SetTimer", func, "Delete")
-
-
-class Countdown(Timer):
-    def _update(self, func, interval, priority):
-        ahk_call("SetTimer", func, -interval, priority)
 
 
 def sleep(secs):

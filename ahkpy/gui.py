@@ -3,7 +3,7 @@ import functools
 import queue
 from typing import Callable, Optional
 
-from .flow import Countdown, ahk_call, global_ahk_lock, set_countdown
+from .flow import Timer, ahk_call, global_ahk_lock, set_countdown
 from .settings import COORD_MODES, _set_coord_mode
 from .unset import UNSET
 
@@ -220,7 +220,7 @@ class ToolTip:
         self.relative_to = relative_to
 
         self._id: Optional[int] = None
-        self._timer: Optional[Countdown] = None
+        self._timer: Optional[Timer] = None
 
     def show(self, text=None, x=UNSET, y=UNSET, relative_to=None, timeout=UNSET):
         if not text and not self.text:
