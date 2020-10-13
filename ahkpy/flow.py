@@ -165,6 +165,7 @@ def toggle_suspend():
 def reload():
     # TODO: If the new script has an error, AHK will show it and quit. Instead,
     # keep the old script running.
+    # TODO: The "Reload This Script" tray menu item is broken.
     from . import launcher
     sys.exit(launcher.EXIT_CODE_RELOAD)
 

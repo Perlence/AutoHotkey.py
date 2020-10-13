@@ -65,7 +65,7 @@ class _SettingsManager:
     """Context manager class to support local_settings().
 
     Sets a copy of the supplied context in __enter__() and restores the previous
-    decimal context in __exit__().
+    settings in __exit__().
     """
     def __init__(self, new_settings):
         self.new_settings = dc.replace(new_settings)

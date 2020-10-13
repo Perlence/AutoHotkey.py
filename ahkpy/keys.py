@@ -458,7 +458,6 @@ class Hotstring:
         option_str = "".join(options)
 
         with self.context._manager():
-            # TODO: Handle changing replacement func.
             ahk_call("Hotstring", f":{option_str}:{self.string}", replacement or "")
 
 

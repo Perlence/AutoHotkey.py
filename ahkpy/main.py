@@ -95,6 +95,7 @@ def run_from_args():
 
     if options.cmd:
         sys.argv[:] = ["-c", *args[1:]]
+        # TODO: Consider importing ahkpy.
         run_source(args[0])
     elif options.module:
         sys.argv[:] = args
