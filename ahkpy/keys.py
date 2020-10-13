@@ -15,6 +15,7 @@ __all__ = [
     "block_input_while_sending",
     "block_input",
     "block_mouse_move",
+    "default_context",
     "get_caps_lock_state",
     "get_hotstring_end_chars",
     "get_hotstring_mouse_reset",
