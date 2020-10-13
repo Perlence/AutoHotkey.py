@@ -66,7 +66,7 @@ class Windows:
         )
 
     def exclude(self, title=UNSET, *, text=UNSET):
-        # XXX: Consider implementing class_name, id, pid, and exe exclusion in
+        # TODO: Consider implementing class_name, id, pid, and exe exclusion in
         # Python.
         if title is UNSET and text is UNSET:
             return self
@@ -349,7 +349,7 @@ class WindowHandle:
 
     def _call(self, cmd, *args, hidden_windows=True, title_mode=None, set_delay=False):
         with global_ahk_lock:
-            # XXX: Setting DetectHiddenWindows should not be necessary for
+            # TODO: Setting DetectHiddenWindows should not be necessary for
             # controls.
             # > Control's HWND can be used directly as an ahk_id WinTitle (this
             # > also works on hidden controls even when DetectHiddenWindows is

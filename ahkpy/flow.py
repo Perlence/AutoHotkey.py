@@ -144,7 +144,7 @@ def sleep(secs):
     if secs < 0:
         raise ValueError("sleep length must be non-negative")
     elif secs == 0:
-        # XXX: Should it be -1 or 0?
+        # TODO: Should it be -1 or 0?
         ahk_call("Sleep", -1)
     else:
         ahk_call("Sleep", int(secs * 1000))

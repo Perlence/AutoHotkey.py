@@ -121,7 +121,7 @@ def _get_key(cmd, key):
 
 @dataclass(frozen=True)
 class BaseHotkeyContext:
-    # XXX: Consider adding context options: MaxThreadsBuffer,
+    # TODO: Consider adding context options: MaxThreadsBuffer,
     # MaxThreadsPerHotkey, and InputLevel.
 
     def hotkey(
@@ -134,7 +134,7 @@ class BaseHotkeyContext:
         max_threads=1,
         input_level=0,
     ):
-        # XXX: Consider adding arguments for '*', '~', and '$' prefix hotkey
+        # TODO: Consider adding arguments for '*', '~', and '$' prefix hotkey
         # modifiers.
         if key_name == "":
             raise Error("invalid key name")
@@ -152,7 +152,7 @@ class BaseHotkeyContext:
             return hk
 
         if func is None:
-            # XXX: Consider implementing decorator chaining, e.g.:
+            # TODO: Consider implementing decorator chaining, e.g.:
             #
             #     @ahk.hotkey("F11")
             #     @ahk.hotkey("F12")
@@ -524,7 +524,7 @@ class RemappedKey:
 def send(keys, *, mode=None, level=None, key_delay=None, key_duration=None, mouse_delay=None):
     # TODO: Sending "{U+0009}" and "\u0009" gives different results depending on
     # how tabs are handled in the application.
-    # XXX: Consider adding *blind*, *text*, and *raw* arguments.
+    # TODO: Consider adding *blind*, *text*, and *raw* arguments.
     if mode is None:
         mode = get_settings().send_mode
         if mode == "input" and (

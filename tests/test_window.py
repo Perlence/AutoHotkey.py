@@ -296,7 +296,7 @@ def test_nonexistent_window():
     assert win.get_control("nope") == ahk.Control(None)
     assert win.get_focused_control() == ahk.Control(None)
     assert win.always_on_top is None
-    assert win.is_enabled is None  # XXX: Should it be False?
+    assert win.is_enabled is None  # TODO: Should it be False?
     assert win.enable() is None
     assert win.disable() is None
     assert win.style is None
@@ -850,7 +850,7 @@ def test_include_hidden_context(child_ahk, settings):
 
     assert not ahk_windows.exist()
     assert ahk_windows.include_hidden_windows().exist()
-    # XXX: Why doesn't child AHK recognize F13 unless the level is set?
+    # TODO: Why doesn't child AHK recognize F13 unless the level is set?
     ahk.send("{F13}", level=10)
     assert not context_windows.wait(timeout=0.1)
 

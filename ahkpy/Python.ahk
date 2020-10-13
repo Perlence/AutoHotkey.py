@@ -407,7 +407,7 @@ class WrappedPythonFunction {
 
 AHKToPython(value) {
     if (IsObject(value)) {
-        ; XXX: Should this be a Python wrapper around "value" and not a copy?
+        ; TODO: Should this be a Python wrapper around "value" and not a copy?
         result := PyDict_New()
         for k, v in value {
             pyKey := AHKToPython(k)
@@ -425,7 +425,7 @@ AHKToPython(value) {
         Py_IncRef(Py_EmptyString)
         return Py_EmptyString
     } else if value is integer
-        ; XXX: AHK integers are strings, consider returning them as such.
+        ; TODO: AHK integers are strings, consider returning them as such.
         return PyLong_FromLongLong(value)
     else if value is float
         return PyFloat_FromDouble(value)
