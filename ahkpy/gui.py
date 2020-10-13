@@ -189,7 +189,8 @@ def on_message(msg_number, func=None, *, max_threads=1, prepend_handler=False):
 
 @dc.dataclass(frozen=True)
 class MessageHandler:
-    # TODO: Consider making MessageHandler mutable like Timer.
+    # There's no point in making MessageHandler mutable like the Timer. It's
+    # complicated and doesn't add any usability points.
     msg_number: int
     func: Callable
     __slots__ = ("msg_number", "func")
