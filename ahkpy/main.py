@@ -108,12 +108,10 @@ def run_from_args():
         else:
             sys.argv[:] = [""]
         if sys.stdin.isatty():
-            import code
             import ahkpy
             quiet = True
             ahkpy.coop(
-                code.interact,
-                readfunc=interactive_input,
+                interact,
                 exitmsg="",
                 local={
                     "ahkpy": ahkpy,
@@ -143,6 +141,16 @@ class GUIArgumentParser(argparse.ArgumentParser):
                 gui.message_box(message)
                 return
             file.write(message)
+
+
+def interact(banner=None, local=None, exitmsg=None):
+    import code
+    console = code.InteractiveConsole(local)
+    console.raw_input = interactive_input
+    console.interact(banner, exitmsg)
+    # Force close AHK if it became persistent.
+    # TODO: Add a test for this.
+    sys.exit(0)
 
 
 def interactive_input(prompt=""):
