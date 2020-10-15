@@ -328,7 +328,6 @@ PythonArgsToAHK(pyArgs) {
 }
 
 PythonToAHK(pyObject, borrowed:=true) {
-    ; TODO: Convert dicts to objects and lists to arrays.
     if (pyObject == Py_None or pyObject == Py_EmptyString) {
         return ""
     } else if (PyUnicode_Check(pyObject)) {
@@ -340,6 +339,9 @@ PythonToAHK(pyObject, borrowed:=true) {
     } else if (PyCallable_Check(pyObject)) {
         return WrappedPythonFunction.GetOrWrap(pyObject, borrowed)
     } else {
+        ; Dicts and lists are not passed as arguments from the Python code and
+        ; callbacks shouldn't return any complex types, so there's no need to
+        ; convert them to objects and arrays.
         pyRepr := PyObject_Repr(pyObject)
         if (PyUnicode_Check(pyRepr)) {
             repr := PyUnicode_AsWideCharString(pyRepr)
