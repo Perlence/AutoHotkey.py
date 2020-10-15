@@ -59,3 +59,10 @@ You can check out and run other
 
 AutoHotkey.py was tested on Windows 10 v2004, AutoHotkey v1.1.30.03, Python
 v3.8.1.
+
+## Credits
+
+AutoHotkey.py was greatly inspired by Aurelain's
+[Exo](https://github.com/Aurelain/Exo). Thanks to Lexikos for his inspiring work
+on AutoHotkey. Thanks to the AutoHotkey site admins for maintaining the lively
+and welcoming forums.
