@@ -1,8 +1,5 @@
 import subprocess
 import sys
-from dataclasses import FrozenInstanceError
-
-import pytest
 
 import ahkpy as ahk
 

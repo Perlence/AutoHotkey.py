@@ -163,6 +163,11 @@ PyImport_ImportModule(name) {
     return PythonDllCall("PyImport_ImportModule", "AStr", name, "Cdecl Ptr")
 }
 
+PyMem_Free(p) {
+    ; void PyMem_Free(void *p)
+    return PythonDllCall("PyMem_Free", "Ptr", p, "Cdecl")
+}
+
 PyModule_Create2(module, api_version) {
     return PythonDllCall("PyModule_Create2"
         , "Ptr", module
@@ -350,8 +355,11 @@ PyUnicode_AsWideCharString(unicode) {
     if (wchars == NULL) {
         throw Exception("cannot convert Python unicode to AHK string.")
     }
+    ; TODO: Should we check for the MemoryError?
     size := NumGet(size)
-    return StrGet(wchars, size)
+    result := StrGet(wchars, size)
+    PyMem_Free(wchars)
+    return result
 }
 
 PyUnicode_Check(o) {
