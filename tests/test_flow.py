@@ -1,6 +1,8 @@
 import subprocess
 import sys
 
+import pytest
+
 import ahkpy as ahk
 
 
@@ -246,3 +248,22 @@ def test_coop(child_ahk):
 
     # TODO: Test sending KeyboardInterrupt.
     ahk.send("{F24}")
+
+
+@pytest.mark.xfail
+def test_settings_bleed(settings):
+    settings.win_delay = 0.1
+
+    win_delays = []
+
+    def f():
+        with ahk.local_settings() as local:
+            win_delays.append(ahk.get_settings().win_delay)
+            local.win_delay = 0  # This must not affect other callbacks
+            ahk.sleep(0.02)
+
+    ahk.set_countdown(f, 0.01)
+    ahk.set_countdown(f, 0.02)
+    ahk.sleep(0.03)
+
+    assert win_delays == [0.1, 0.1]
