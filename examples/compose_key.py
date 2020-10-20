@@ -1,3 +1,5 @@
+"""A variation of the Compose key."""
+
 from functools import partial
 
 import ahkpy as ahk
@@ -16,8 +18,10 @@ COMPOSE = "CapsLock"
 
 ahk.hotkey(f"{COMPOSE} & -", partial(compose_send, "–", "—"))  # dashes
 ahk.hotkey(f"{COMPOSE} & Tab", partial(compose_send, "{U+0009}"))  # tab
+ahk.hotkey(f"{COMPOSE} & 2", partial(compose_send, "²"))
+
+# Combining characters
 ahk.hotkey(f"{COMPOSE} & '", partial(compose_send, "\u0301", "\u0308"))  # á ä
 ahk.hotkey(f"{COMPOSE} & 6", partial(compose_send, "\u0302"))  # â
 ahk.hotkey(f"{COMPOSE} & `", partial(compose_send, "\u0300", "\u0303"))  # à ã
 ahk.hotkey(f"{COMPOSE} & o", partial(compose_send, "\u030A"))  # å
-ahk.hotkey(f"{COMPOSE} & 2", partial(compose_send, "²"))
