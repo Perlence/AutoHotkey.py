@@ -3,8 +3,6 @@
 This works with modifiers too: pressing LCtrl+Shift+Down sends Shift+PageDown.
 """
 
-from functools import partial
-
 import ahkpy as ahk
 
 
@@ -15,15 +13,15 @@ def remap_ctrl_arrow(src, dest):
         ahk.send("{Blind}{%s DownR}" % src)
 
 
-ahk.hotkey("*Left", partial(remap_ctrl_arrow, "Left", "Home"))
-ahk.hotkey("*Right", partial(remap_ctrl_arrow, "Right", "End"))
-ahk.hotkey("*Up", partial(remap_ctrl_arrow, "Up", "PgUp"))
-ahk.hotkey("*Down", partial(remap_ctrl_arrow, "Down", "PgDn"))
-ahk.hotkey("*Delete", partial(remap_ctrl_arrow, "Delete", "Insert"))
+ahk.hotkey("*Left", remap_ctrl_arrow, "Left", "Home")
+ahk.hotkey("*Right", remap_ctrl_arrow, "Right", "End")
+ahk.hotkey("*Up", remap_ctrl_arrow, "Up", "PgUp")
+ahk.hotkey("*Down", remap_ctrl_arrow, "Down", "PgDn")
+ahk.hotkey("*Delete", remap_ctrl_arrow, "Delete", "Insert")
 
 # The following hotkeys resolve the stuck arrow keys in some games.
-ahk.hotkey("*Left Up", partial(ahk.send, "{Blind}{Left Up}"))
-ahk.hotkey("*Right Up", partial(ahk.send, "{Blind}{Right Up}"))
-ahk.hotkey("*Up Up", partial(ahk.send, "{Blind}{Up Up}"))
-ahk.hotkey("*Down Up", partial(ahk.send, "{Blind}{Down Up}"))
-ahk.hotkey("*Delete Up", partial(ahk.send, "{Blind}{Delete Up}"))
+ahk.hotkey("*Left Up", ahk.send, "{Blind}{Left Up}")
+ahk.hotkey("*Right Up", ahk.send, "{Blind}{Right Up}")
+ahk.hotkey("*Up Up", ahk.send, "{Blind}{Up Up}")
+ahk.hotkey("*Down Up", ahk.send, "{Blind}{Down Up}")
+ahk.hotkey("*Delete Up", ahk.send, "{Blind}{Delete Up}")

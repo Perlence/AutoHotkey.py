@@ -6,7 +6,6 @@ to Russian layout.
 
 from ctypes import windll
 from ctypes.wintypes import HWND
-from functools import partial
 
 import ahkpy as ahk
 
@@ -36,5 +35,5 @@ LANGID_ENGLISH_US = 0x0409
 LANGID_RUSSIAN = 0x0419
 # See more codes in the "Language Codes" article in AHK docs.
 
-ahk.hotkey("CapsLock", partial(set_keyboard_layout, LANGID_ENGLISH_US))
-ahk.hotkey("+CapsLock", partial(set_keyboard_layout, LANGID_RUSSIAN))
+ahk.hotkey("CapsLock", set_keyboard_layout, LANGID_ENGLISH_US)
+ahk.hotkey("+CapsLock", set_keyboard_layout, LANGID_RUSSIAN)

@@ -1,6 +1,7 @@
 import inspect
 from contextlib import contextmanager
 from dataclasses import dataclass
+from functools import partial
 from typing import Callable, Union
 
 from .exceptions import Error
@@ -129,7 +130,7 @@ class BaseHotkeyContext:
         self,
         key_name: str,
         func: Callable = None,
-        *,
+        *args,
         buffer=False,
         priority=0,
         max_threads=1,
@@ -141,6 +142,8 @@ class BaseHotkeyContext:
             raise Error("invalid key name")
 
         def hotkey_decorator(func):
+            if args:
+                func = partial(func, *args)
             hk = Hotkey(key_name, context=self)
             hk.update(
                 func=func,
@@ -202,7 +205,7 @@ class BaseHotkeyContext:
         self,
         string: str,
         replacement: Union[str, Callable] = None,
-        *,
+        *args,
         case_sensitive=False,
         conform_to_case=True,
         replace_inside_word=False,
@@ -216,6 +219,8 @@ class BaseHotkeyContext:
         reset_recognizer=False,
     ):
         def hotstring_decorator(replacement):
+            if callable(replacement) and args:
+                replacement = partial(replacement, *args)
             hs = Hotstring(string, case_sensitive, replace_inside_word, context=self)
             hs.update(
                 replacement=replacement,
