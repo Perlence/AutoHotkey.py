@@ -31,10 +31,12 @@ def wait_clipboard(timeout=None):
     return get_clipboard()
 
 
-def on_clipboard_change(func=None, *, prepend_handler=False):
+def on_clipboard_change(func=None, *args, prepend_handler=False):
     option = 1 if not prepend_handler else -1
 
     def on_clipboard_change_decorator(func):
+        if args:
+            func = partial(func, *args)
         wrapper = partial(_clipboard_handler, func)
         ahk_call("OnClipboardChange", wrapper, option)
         return ClipboardHandler(wrapper)

@@ -171,7 +171,7 @@ def _message_box(text, title=None, buttons="ok", icon=None, default_button=1, op
     return result
 
 
-def on_message(msg_number, func=None, *, max_threads=1, prepend_handler=False):
+def on_message(msg_number, func=None, *args, max_threads=1, prepend_handler=False):
     if max_threads is not None and max_threads <= 0:
         raise ValueError("max_threads must be positive")
 
@@ -179,6 +179,8 @@ def on_message(msg_number, func=None, *, max_threads=1, prepend_handler=False):
         max_threads *= -1
 
     def on_message_decorator(func):
+        if args:
+            func = functools.partial(func, *args)
         ahk_call("OnMessage", int(msg_number), func, max_threads)
         return MessageHandler(msg_number, func)
 
