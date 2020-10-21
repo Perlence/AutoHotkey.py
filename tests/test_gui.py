@@ -43,25 +43,25 @@ class TestMessageBox:
         assert result is None
 
         msg_boxes = ahk.windows.filter(pid=os.getpid())
-        ahk.set_countdown(lambda: msg_boxes.first().get_control("Button1").check(), interval=0.1)
+        ahk.set_countdown(0.1, lambda: msg_boxes.first().get_control("Button1").check())
         result = ahk.MessageBox().show()
         assert result == "ok"
 
-        ahk.set_countdown(lambda: msg_boxes.first(text="Huh?").get_control("Button2").check(), interval=0.1)
+        ahk.set_countdown(0.1, lambda: msg_boxes.first(text="Huh?").get_control("Button2").check())
         result = ahk.MessageBox("What?", buttons="yes_no").show("Huh?")
         assert result == "no"
 
     def test_message_box_staticmethod(self):
         msg_boxes = ahk.windows.filter(pid=os.getpid())
-        ahk.set_countdown(lambda: msg_boxes.first().get_control("Button1").check(), interval=0.1)
+        ahk.set_countdown(0.1, lambda: msg_boxes.first().get_control("Button1").check())
         result = ahk.MessageBox.info("Info")
         assert result == "ok"
 
-        ahk.set_countdown(lambda: msg_boxes.first().get_control("Button1").check(), interval=0.1)
+        ahk.set_countdown(0.1, lambda: msg_boxes.first().get_control("Button1").check())
         result = ahk.MessageBox.ok_cancel("Continue?")
         assert result is True
 
-        ahk.set_countdown(lambda: msg_boxes.first().get_control("Button2").check(), interval=0.1)
+        ahk.set_countdown(0.1, lambda: msg_boxes.first().get_control("Button2").check())
         result = ahk.MessageBox("What?", buttons="yes_no").show()
         assert result == "no"
 

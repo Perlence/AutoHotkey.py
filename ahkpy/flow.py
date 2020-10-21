@@ -35,10 +35,12 @@ def ahk_call(cmd, *args):
         return _ahk.call(cmd, *args)
 
 
-def set_timer(func=None, interval=0.25, priority=0):
-    t = Timer(func, interval, priority, periodic=True)
+def set_timer(interval=0.25, func=None, *args, priority=0):
+    t = Timer(interval, func, priority, periodic=True)
 
     def set_timer_decorator(func):
+        if args:
+            func = functools.partial(func, *args)
         t.func = func
         t.start()
         return t
@@ -48,10 +50,12 @@ def set_timer(func=None, interval=0.25, priority=0):
     return set_timer_decorator(func)
 
 
-def set_countdown(func=None, interval=0.25, priority=0):
-    t = Timer(func, interval, priority, periodic=False)
+def set_countdown(interval=0.25, func=None, *args, priority=0):
+    t = Timer(interval, func, priority, periodic=False)
 
     def set_countdown_decorator(func):
+        if args:
+            func = functools.partial(func, *args)
         t.func = func
         t.start()
         return t
@@ -63,12 +67,12 @@ def set_countdown(func=None, interval=0.25, priority=0):
 
 @dc.dataclass(eq=False)
 class Timer:
-    func: Callable
     interval: float = 0.25
+    func: Optional[Callable] = None
     priority: int = 0
     periodic: bool = True
 
-    def __init__(self, func, interval=0.25, priority=0, periodic=True):
+    def __init__(self, interval=0.25, func=None, priority=0, periodic=True):
         self.func = func
 
         if interval < 0:
@@ -87,6 +91,7 @@ class Timer:
         self.update(interval=interval, priority=priority, force_restart=True)
 
     def update(self, func=None, interval=None, priority=None, periodic=None, force_restart=False):
+        # TODO: Check that self.func is not None.
         if func is not None:
             self.cancel()
             self.func = func

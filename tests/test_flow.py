@@ -9,7 +9,7 @@ import ahkpy as ahk
 def test_sleep(child_ahk):
     def code():
         import ahkpy as ahk
-        ahk.set_countdown(lambda: print(1), interval=0.1)
+        ahk.set_countdown(0.1, print, 1)
         ahk.sleep(0.2)  # sleep longer than the countdown
         print(2)
         # sys.exit()
@@ -24,7 +24,7 @@ def test_sleep(child_ahk):
     def code():
         import ahkpy as ahk
         import threading
-        ahk.set_countdown(lambda: print(1), interval=0.1)
+        ahk.set_countdown(0.1, print, 1)
         threading.Timer(0.2, lambda: print(2)).start()
         ahk.sleep(0.3)
         print(3)
@@ -38,13 +38,13 @@ def test_sleep(child_ahk):
 class TestTimer:
     def test_refcounts(self, request):
         func = lambda: None  # noqa: E731
-        timer = ahk.set_countdown(func, interval=1)
+        timer = ahk.set_countdown(1, func)
         request.addfinalizer(timer.stop)
         func_refcount = sys.getrefcount(func)
         timer.stop()
         assert sys.getrefcount(func) == func_refcount - 1
 
-        timer = ahk.set_countdown(func, interval=0.01)
+        timer = ahk.set_countdown(0.01, func)
         func_refcount = sys.getrefcount(func)
         ahk.sleep(0.01)
         assert sys.getrefcount(func) == func_refcount - 1
@@ -56,7 +56,7 @@ class TestTimer:
 
             ahk.hotkey("F24", lambda: None)  # Make the script persistent
 
-            @ahk.set_countdown(interval=0.1)
+            @ahk.set_countdown(0.1)
             def dong():
                 print("Dong!")
                 sys.exit()
@@ -75,12 +75,12 @@ class TestTimer:
 
             ahk.hotkey("F24", lambda: None)  # Make the script persistent
 
-            @ahk.set_timer(interval=0.1)
+            @ahk.set_timer(0.1)
             def ding():
                 print("Ding!")
                 ding.stop()
 
-            @ahk.set_countdown(interval=0.5)
+            @ahk.set_countdown(0.5)
             def exit():
                 sys.exit()
 
@@ -92,7 +92,7 @@ class TestTimer:
     def test_timer_update(self, request):
         times = []
 
-        timer = ahk.set_timer(lambda: times.append(1), interval=1)
+        timer = ahk.set_timer(1, times.append, 1)
         request.addfinalizer(timer.stop)
 
         timer.update(interval=0.1)
@@ -100,7 +100,7 @@ class TestTimer:
         timer.stop()
         assert len(times) == 5
 
-        times = []
+        times.clear()
         assert timer.interval == 0.1
         timer.start()
         ahk.sleep(0.06)
@@ -111,7 +111,7 @@ class TestTimer:
     def test_countdown_start(self, request):
         times = []
 
-        timer = ahk.set_countdown(lambda: times.append(1), interval=1)
+        timer = ahk.set_countdown(1, times.append, 1)
         request.addfinalizer(timer.stop)
 
         timer.start(interval=0.1)  # Restart a non-finished countdown
@@ -125,13 +125,13 @@ class TestTimer:
     def test_change_periodic(self, request):
         times = []
 
-        timer = ahk.set_timer(lambda: times.append(1), interval=0.1)
+        timer = ahk.set_timer(0.1, times.append, 1)
         request.addfinalizer(timer.stop)
 
         ahk.sleep(0.29)
         assert len(times) == 2
 
-        times = []
+        times.clear()
         timer.update(periodic=False)
         ahk.sleep(0.29)
         assert len(times) == 1
@@ -149,7 +149,7 @@ def test_suspend(child_ahk):
             ahk.suspend()
             print("ok02")
 
-        ahk.set_countdown(sys.exit, interval=0.5)
+        ahk.set_countdown(0.5, sys.exit)
         print("ok00")
 
     proc = child_ahk.popen_code(code)
@@ -262,8 +262,8 @@ def test_settings_bleed(settings):
             local.win_delay = 0  # This must not affect other callbacks
             ahk.sleep(0.02)
 
-    ahk.set_countdown(f, 0.01)
-    ahk.set_countdown(f, 0.02)
+    ahk.set_countdown(0.01, f)
+    ahk.set_countdown(0.02, f)
     ahk.sleep(0.03)
 
     assert win_delays == [0.1, 0.1]

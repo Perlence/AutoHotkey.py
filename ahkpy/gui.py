@@ -253,7 +253,7 @@ class ToolTip:
             if self._timer:
                 self._timer.start(timeout)
             else:
-                self._timer = set_countdown(self.hide, timeout)
+                self._timer = set_countdown(timeout, self.hide)
         elif self._timer:
             self._timer.stop()
             self._timer = None

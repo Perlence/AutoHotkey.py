@@ -16,11 +16,11 @@ class TestWindows:
 
             ahk.hotkey("F24", sys.exit)
 
-            @ahk.set_countdown(interval=0.1)
+            @ahk.set_countdown(0.1)
             def win1():
                 ahk.message_box("win1", title="ahkpy win1")
 
-            @ahk.set_countdown(interval=0.2)
+            @ahk.set_countdown(0.2)
             def win2():
                 ahk.message_box("win2", title="ahkpy win2")
 
@@ -328,7 +328,7 @@ def test_status_bar(request, notepad):
     ahk.sleep(0)
     assert "Ln 1, Col 2" in notepad.get_status_bar_text(2)
 
-    ahk.set_countdown(partial(notepad.send, "q"), interval=0.5)
+    ahk.set_countdown(0.5, notepad.send, "q")
     assert notepad.wait_status_bar("  Ln 1, Col x", part=2, timeout=0.1) is False
     assert notepad.wait_status_bar("  Ln 1, Col 3", part=2, timeout=1) is True
     assert notepad.get_status_bar_text(2) == "  Ln 1, Col 3"
