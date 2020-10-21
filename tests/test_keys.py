@@ -415,9 +415,9 @@ def test_hotkey_context(child_ahk):
         import ahkpy as ahk
         import sys
         ahk.hotkey("F24", sys.exit)
-        ahk.hotkey("F13", lambda: ahk.message_box("Beep"))
+        ahk.hotkey("F13", ahk.message_box, "Beep")
         ctx = ahk.HotkeyContext(lambda: ahk.windows.get_active(title="Python.ahk", text="Beep"))
-        ctx.hotkey("F13", lambda: ahk.message_box("Boop"))
+        ctx.hotkey("F13", ahk.message_box, "Boop")
         print("ok00")
 
     child_ahk.popen_code(code)
@@ -443,7 +443,7 @@ def test_only_hotkey_context(child_ahk, settings):
         import ahkpy as ahk
         ahk.hotkey("F24", sys.exit)
         ctx = ahk.HotkeyContext(lambda: True)
-        ctx.hotkey("F13", lambda: ahk.message_box("Boop"))
+        ctx.hotkey("F13", ahk.message_box, "Boop")
         print("ok00")
 
     child_ahk.popen_code(code)

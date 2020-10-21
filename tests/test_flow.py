@@ -142,7 +142,7 @@ def test_suspend(child_ahk):
         import ahkpy as ahk
         import sys
 
-        ahk.hotkey("F13", lambda: print("ok01"))
+        ahk.hotkey("F13", print, "ok01")
 
         @ahk.hotkey("F14")
         def sus():
@@ -221,7 +221,7 @@ def test_coop(child_ahk):
         import ahkpy as ahk
 
         ahk.hotkey("F24", sys.exit)
-        ahk.hotkey("F13", lambda: ahk.message_box("hello"))
+        ahk.hotkey("F13", ahk.message_box, "hello")
 
         print("ok00")
 

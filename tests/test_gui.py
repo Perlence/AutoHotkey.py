@@ -114,7 +114,7 @@ def test_on_message_timeout(child_ahk):
         import os
         import sys
 
-        ahk.hotkey("F24", lambda: sys.exit())
+        ahk.hotkey("F24", sys.exit)
 
         @ahk.on_message(0x5555)
         def slow_handler(w_param, l_param, msg, hwnd):

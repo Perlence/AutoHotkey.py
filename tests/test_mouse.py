@@ -19,11 +19,11 @@ def test_click(child_ahk, settings):
         import ahkpy as ahk
         import sys
         ahk.hotkey("F24", sys.exit)
-        ahk.hotkey("LButton", lambda: print("ok01"))
-        ahk.hotkey("RButton", lambda: print("ok02"))
-        ahk.hotkey("+LButton", lambda: print("ok03"))
-        ahk.hotkey("WheelDown", lambda: print("ok04"))
-        ahk.hotkey("WheelLeft", lambda: print("ok05"))
+        ahk.hotkey("LButton", print, "ok01")
+        ahk.hotkey("RButton", print, "ok02")
+        ahk.hotkey("+LButton", print, "ok03")
+        ahk.hotkey("WheelDown", print, "ok04")
+        ahk.hotkey("WheelLeft", print, "ok05")
         print("ok00")
 
     child_ahk.popen_code(hotkeys)
