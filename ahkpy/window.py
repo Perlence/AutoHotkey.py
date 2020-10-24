@@ -663,6 +663,8 @@ class Window(BaseWindow):
     def process_name(self) -> Optional[str]:
         return self._get("ProcessName")
 
+    exe = process_name
+
     @property
     def process_path(self) -> Optional[str]:
         return self._get("ProcessPath")
