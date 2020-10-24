@@ -6,6 +6,7 @@ from .flow import ahk_call
 
 __all__ = [
     "Settings",
+    "default_settings",
     "get_settings",
     "local_settings",
     "set_settings",
@@ -46,7 +47,7 @@ def get_settings() -> Settings:
     try:
         return _current_settings.get()
     except LookupError:
-        settings = Settings()
+        settings = dc.replace(default_settings)
         _current_settings.set(settings)
         return settings
 
@@ -77,6 +78,10 @@ class _SettingsManager:
 
     def __exit__(self, t, v, tb):
         set_settings(self.prior_settings)
+
+
+default_settings = Settings()
+set_settings(default_settings)
 
 
 def optional_ms(value):

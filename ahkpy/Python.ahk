@@ -373,6 +373,7 @@ class WrappedPythonFunction {
 
     __New(pyFunc) {
         this.pyFunc := pyFunc
+        this.ctx := PyContext_CopyCurrent()
     }
 
     GetOrWrap(pyObject, borrowed:=true) {
@@ -395,7 +396,7 @@ class WrappedPythonFunction {
     }
 
     __Call(method, args*) {
-        return PyCall(this.pyFunc, args*)
+        return PyCall(this.pyFunc, this.ctx, args*)
     }
 
     __Delete() {
@@ -403,6 +404,7 @@ class WrappedPythonFunction {
         WRAPPED_PYTHON_FUNCTIONS.Delete(this.pyFunc)
         gstate := PyGILState_Ensure()
         Py_DecRef(this.pyFunc)
+        Py_DecRef(this.ctx)
         PyGILState_Release(gstate)
     }
 }
@@ -452,7 +454,7 @@ PyErr_SetAHKError(err) {
     Py_DecRef(tup)
 }
 
-PyCall(pyFunc, args*) {
+PyCall(pyFunc, ctx, args*) {
     if (not pyFunc) {
         return
     }
@@ -465,25 +467,47 @@ PyCall(pyFunc, args*) {
             ; AHK, do nothing.
             return
         }
-        pyArgs := AHKArgsToPython(args)
-        result := ""
-        pyResult := PyObject_CallObject(pyFunc, pyArgs)
-        Py_XDecRef(pyArgs)
-        if (pyResult == "") {
-            pyRepr := PyObject_Repr(pyFunc)
-            if (PyUnicode_Check(pyRepr)) {
-                repr := PyUnicode_AsWideCharString(pyRepr)
-                Py_DecRef(pyRepr)
-                throw Exception("Call to '" repr "' failed: " ErrorLevel)
-            } else {
-                Py_DecRef(pyRepr)
-                throw Exception("Call to a Python function failed: " ErrorLevel)
-            }
-        } else if (pyResult == NULL) {
+
+        ; Create a copy of the context because it may have been entered by
+        ; another callback.
+        ctxCopy := PyContext_Copy(ctx)
+        if (ctxCopy == NULL) {
             PrintErrorOrExit()
-        } else {
+            return
+        }
+        if (PyContext_Enter(ctxCopy) != 0) {
+            Py_DecRef(ctxCopy)
+            PrintErrorOrExit()
+            return
+        }
+        try {
+            pyArgs := AHKArgsToPython(args)
+            result := ""
+            pyResult := PyObject_CallObject(pyFunc, pyArgs)
+            Py_XDecRef(pyArgs)
+            if (pyResult == "") {
+                pyRepr := PyObject_Repr(pyFunc)
+                if (PyUnicode_Check(pyRepr)) {
+                    repr := PyUnicode_AsWideCharString(pyRepr)
+                    Py_DecRef(pyRepr)
+                    throw Exception("Call to '" repr "' failed: " ErrorLevel)
+                } else {
+                    Py_DecRef(pyRepr)
+                    throw Exception("Call to a Python function failed: " ErrorLevel)
+                }
+            } else if (pyResult == NULL) {
+                PrintErrorOrExit()
+                return
+            }
             result := PythonToAHK(pyResult, False)
             Py_DecRef(pyResult)
+        } finally {
+            ctxExitResult := PyContext_Exit(ctxCopy)
+            Py_DecRef(ctxCopy)
+            if (ctxExitResult != 0) {
+                PrintErrorOrExit()
+                result := ""
+            }
         }
     } finally {
         PyGILState_Release(gstate)

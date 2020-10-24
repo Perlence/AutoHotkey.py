@@ -200,6 +200,28 @@ PyCallable_Check(pyObject) {
     return PythonDllCall("PyCallable_Check", "Ptr", pyObject, "Cdecl Int")
 }
 
+PyContext_Copy(ctx) {
+    ; PyObject *PyContext_Copy(PyObject *ctx)
+    ; Return value: New reference.
+    return PythonDllCall("PyContext_Copy", "Ptr", ctx, "Cdecl Ptr")
+}
+
+PyContext_CopyCurrent() {
+    ; PyObject *PyContext_CopyCurrent(void)
+    ; Return value: New reference.
+    return PythonDllCall("PyContext_CopyCurrent", "Cdecl Ptr")
+}
+
+PyContext_Enter(ctx) {
+    ; int PyContext_Enter(PyObject *ctx)
+    return PythonDllCall("PyContext_Enter", "Ptr", ctx, "Cdecl Ptr")
+}
+
+PyContext_Exit(ctx) {
+    ; int PyContext_Exit(PyObject *ctx)
+    return PythonDllCall("PyContext_Exit", "Ptr", ctx, "Cdecl Ptr")
+}
+
 PyErr_Clear() {
     ; void PyErr_Clear()
     PythonDllCall("PyErr_Clear", "Cdecl")

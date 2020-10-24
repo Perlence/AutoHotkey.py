@@ -250,7 +250,6 @@ def test_coop(child_ahk):
     ahk.send("{F24}")
 
 
-@pytest.mark.xfail
 def test_settings_bleed(settings):
     settings.win_delay = 0.1
 
