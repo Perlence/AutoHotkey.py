@@ -74,10 +74,13 @@ Py_Initialize() {
 }
 
 Py_BuildValue(format) {
+    ; PyObject* Py_BuildValue(const char *format, ...)
+    ; Return value: New reference.
     return PythonDllCall("Py_BuildValue", "AStr", format, "Cdecl Ptr")
 }
 
 Py_FinalizeEx() {
+    ; int Py_FinalizeEx()
     if (HPYTHON_DLL) {
         return PythonDllCall("Py_FinalizeEx", "Cdecl Int")
     }
@@ -114,11 +117,13 @@ Py_TYPE(ob) {
 }
 
 Py_SetPath(path) {
+    ; void Py_SetPath(const wchar_t *)
     PythonDllCall("Py_SetPath", "Str", path, "Cdecl")
 }
 
 PyDict_New() {
     ; PyObject* PyDict_New()
+    ; Return value: New reference.
     return PythonDllCall("PyDict_New", "Cdecl Ptr")
 }
 
@@ -133,6 +138,8 @@ PyFloat_AsDouble(pyfloat) {
 }
 
 PyFloat_FromDouble(value) {
+    ; PyObject* PyFloat_FromDouble(double v)
+    ; Return value: New reference.
     return PythonDllCall("PyFloat_FromDouble", "Double", value, "Cdecl Ptr")
 }
 
@@ -152,6 +159,7 @@ PyGILState_Release(gstate) {
 }
 
 PyImport_AppendInittab(name, initfunc) {
+    ; int PyImport_AppendInittab(const char *name, PyObject* (*initfunc)(void))
     return PythonDllCall("PyImport_AppendInittab"
         , "Ptr", name
         , "Ptr", RegisterCallback(initfunc, "C", 0)
@@ -160,6 +168,7 @@ PyImport_AppendInittab(name, initfunc) {
 
 PyImport_ImportModule(name) {
     ; PyObject* PyImport_ImportModule(const char *name)
+    ; Return value: New reference.
     return PythonDllCall("PyImport_ImportModule", "AStr", name, "Cdecl Ptr")
 }
 
@@ -168,14 +177,17 @@ PyMem_Free(p) {
     return PythonDllCall("PyMem_Free", "Ptr", p, "Cdecl")
 }
 
-PyModule_Create2(module, api_version) {
+PyModule_Create2(module, apiVersion) {
+    ; PyObject* PyModule_Create2(PyModuleDef *def, int module_api_version)
+    ; Return value: New reference.
     return PythonDllCall("PyModule_Create2"
         , "Ptr", module
-        , "Int", api_version
+        , "Int", apiVersion
         , "Cdecl Ptr")
 }
 
 PyModule_AddObject(module, name, value) {
+    ; int PyModule_AddObject(PyObject *module, const char *name, PyObject *value)
     return PythonDllCall("PyModule_AddObject"
         , "Ptr", module
         , "AStr", name
@@ -199,6 +211,7 @@ PyCallable_Check(pyObject) {
 }
 
 PyErr_Clear() {
+    ; void PyErr_Clear()
     PythonDllCall("PyErr_Clear", "Cdecl")
 }
 
@@ -216,6 +229,8 @@ PyErr_Fetch(ByRef ptype, ByRef pvalue, ByRef ptraceback) {
 }
 
 PyErr_NewException(name, base, dict) {
+    ; PyObject* PyErr_NewException(const char *name, PyObject *base, PyObject *dict)
+    ; Return value: New reference.
     return PythonDllCall("PyErr_NewException"
         , "AStr", name
         , "Ptr", base
@@ -225,6 +240,7 @@ PyErr_NewException(name, base, dict) {
 
 PyErr_Occurred() {
     ; PyObject* PyErr_Occurred()
+    ; Return value: Borrowed reference.
     return PythonDllCall("PyErr_Occurred", "Cdecl Ptr")
 }
 
@@ -273,20 +289,26 @@ PyLong_Check(o) {
 }
 
 PyLong_FromLongLong(value) {
+    ; PyObject* PyLong_FromLongLong(long long v)
+    ; Return value: New reference.
     return PythonDllCall("PyLong_FromLongLong", "Int64", value, "Cdecl Ptr")
 }
 
 PyObject_GetAttrString(obj, attr) {
     ; PyObject* PyObject_GetAttrString(PyObject *o, const char *attr_name)
+    ; Return value: New reference.
     return PythonDllCall("PyObject_GetAttrString", "Ptr", obj, "AStr", attr, "Cdecl Ptr")
 }
 
 PyObject_CallObject(pyObject, args) {
+    ; PyObject* PyObject_CallObject(PyObject *callable, PyObject *args)
+    ; Return value: New reference.
     return PythonDllCall("PyObject_CallObject", "Ptr", pyObject, "Ptr", args, "Cdecl Ptr")
 }
 
 PyObject_Repr(o) {
     ; PyObject* PyObject_Repr(PyObject *o)
+    ; Return value: New reference.
     return PythonDllCall("PyObject_Repr", "Ptr", o, "Cdecl Ptr")
 }
 
@@ -302,11 +324,13 @@ PyObject_TypeCheck(ob, tp) {
 
 PyTuple_GetItem(p, pos) {
     ; PyObject* PyTuple_GetItem(PyObject *p, Py_ssize_t pos)
+    ; Return value: Borrowed reference.
     return PythonDllCall("PyTuple_GetItem", "Ptr", p, "Ptr", pos, "Cdecl Ptr")
 }
 
 PyTuple_New(len) {
     ; PyObject* PyTuple_New(Py_ssize_t len)
+    ; Return value: New reference.
     return PythonDllCall("PyTuple_New", "Ptr", len, "Cdecl Ptr")
 }
 
@@ -322,6 +346,7 @@ PySys_SetArgvEx(argc, argv, updatepath:=1) {
 
 PyTuple_Pack(n, objects*) {
     ; PyObject* PyTuple_Pack(Py_ssize_t n, ...)
+    ; Return value: New reference.
     dllArgs := []
     for _, obj in objects {
         dllArgs.Push("Ptr")
@@ -345,6 +370,7 @@ PyType_FastSubclass(t, f) {
 }
 
 PyType_IsSubtype(a, b) {
+    ; int PyType_IsSubtype(PyTypeObject *a, PyTypeObject *b)
     return PythonDllCall("PyType_IsSubtype", "Ptr", a, "Ptr", b, "Cdecl Int")
 }
 
@@ -363,14 +389,19 @@ PyUnicode_AsWideCharString(unicode) {
 }
 
 PyUnicode_Check(o) {
+    ; int PyUnicode_Check(PyObject *o)
     return PyType_FastSubclass(Py_TYPE(o), Py_TPFLAGS_UNICODE_SUBCLASS)
 }
 
 PyUnicode_InternFromString(string) {
+    ; PyObject* PyUnicode_InternFromString(const char *v)
+    ; Return value: New reference.
     return PythonDllCall("PyUnicode_InternFromString", "Ptr", string, "Cdecl Ptr")
 }
 
 PyUnicode_FromString(string) {
+    ; PyObject *PyUnicode_FromString(const char *u)
+    ; Return value: New reference.
     encoded := EncodeString(string)
     return PythonDllCall("PyUnicode_FromString", "Ptr", &encoded, "Cdecl Ptr")
 }
