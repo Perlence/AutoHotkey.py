@@ -18,7 +18,7 @@ global Py_TPFLAGS_LONG_SUBCLASS := 1 << 24
 global Py_TPFLAGS_UNICODE_SUBCLASS := 1 << 28
 global Py_TPFLAGS_BASE_EXC_SUBCLASS := 1 << 30
 
-global WRAPPED_PYTHON_FUNCTIONS := {}
+global WRAPPED_PYTHON_CALLABLE := {}
 
 global AHKMethods
 global AHKModule
@@ -252,8 +252,8 @@ SetArgs(updatepath) {
 AHKCall(self, args) {
     gstate := PyGILState_Ensure()
     try {
-        ; AHK debugger doesn't see local variables in a C callback function. Call a
-        ; regular AHK function.
+        ; AHK debugger doesn't see local variables in a C callback function.
+        ; Call a regular AHK function.
         result := _AHKCall(self, args)
     } finally {
         PyGILState_Release(gstate)
@@ -337,7 +337,7 @@ PythonToAHK(pyObject, borrowed:=true) {
     } else if (PyFloat_Check(pyObject)) {
         return PyFloat_AsDouble(pyObject)
     } else if (PyCallable_Check(pyObject)) {
-        return WrappedPythonFunction.GetOrWrap(pyObject, borrowed)
+        return WrappedPythonCallable.GetOrWrap(pyObject, borrowed)
     } else {
         ; Dicts and lists are not passed as arguments from the Python code and
         ; callbacks shouldn't return any complex types, so there's no need to
@@ -354,8 +354,8 @@ PythonToAHK(pyObject, borrowed:=true) {
     }
 }
 
-class WrappedPythonFunction {
-    ; I need a global registry of Python callables (WRAPPED_PYTHON_FUNCTIONS) to
+class WrappedPythonCallable {
+    ; I need a global registry of Python callables (WRAPPED_PYTHON_CALLABLE) to
     ; avoid creating new callable AHK wrappers. Keeping exactly one wrapper for
     ; each Python callable is important for SetTimer calls that modify existing
     ; timers.
@@ -382,15 +382,15 @@ class WrappedPythonFunction {
         ;
         ; This is a static "constructor" method.
 
-        ahkFuncRef := WRAPPED_PYTHON_FUNCTIONS[pyObject]
+        ahkFuncRef := WRAPPED_PYTHON_CALLABLE[pyObject]
         if (ahkFuncRef) {
             return Object(ahkFuncRef)
         }
         if (borrowed) {
             Py_IncRef(pyObject)
         }
-        ahkFunc := new WrappedPythonFunction(pyObject)
-        WRAPPED_PYTHON_FUNCTIONS[pyObject] := &ahkFunc
+        ahkFunc := new WrappedPythonCallable(pyObject)
+        WRAPPED_PYTHON_CALLABLE[pyObject] := &ahkFunc
         ; TODO: Pass A_ThisHotkey to hotkey callback.
         return ahkFunc
     }
@@ -401,7 +401,7 @@ class WrappedPythonFunction {
 
     __Delete() {
         ; MsgBox, % "freeing " this.pyFunc
-        WRAPPED_PYTHON_FUNCTIONS.Delete(this.pyFunc)
+        WRAPPED_PYTHON_CALLABLE.Delete(this.pyFunc)
         gstate := PyGILState_Ensure()
         Py_DecRef(this.pyFunc)
         Py_DecRef(this.ctx)
