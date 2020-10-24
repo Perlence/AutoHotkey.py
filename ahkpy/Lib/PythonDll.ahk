@@ -195,16 +195,6 @@ PyModule_AddObject(module, name, value) {
         , "Cdecl Int")
 }
 
-PyArg_ParseTuple(args, format, dest*) {
-    dllArgs := ["Ptr", args, "AStr", format]
-    for _, arg in dest {
-        dllArgs.Push("Ptr")
-        dllArgs.Push(arg)
-    }
-    dllArgs.Push("Cdecl Int")
-    return PythonDllCall("PyArg_ParseTuple", dllArgs*)
-}
-
 PyCallable_Check(pyObject) {
     ; int PyCallable_Check(PyObject *o)
     return PythonDllCall("PyCallable_Check", "Ptr", pyObject, "Cdecl Int")
