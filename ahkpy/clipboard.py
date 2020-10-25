@@ -13,15 +13,24 @@ __all__ = [
 ]
 
 
-def get_clipboard():
+def get_clipboard() -> str:
+    """Get text from the Windows clipboard."""
     return ahk_call("GetClipboard")
 
 
 def set_clipboard(value):
+    """Put text into the Windows clipboard."""
     return ahk_call("SetClipboard", str(value))
 
 
-def wait_clipboard(timeout=None):
+def wait_clipboard(timeout: float = None) -> str:
+    """Wait until the clipboard contains text and return it.
+
+    If the optional *timeout* argument is given, then wait no longer than this
+    many seconds. If the wait period expires and there's no text, return an
+    empty string. If omitted, the function will wait indefinitely. Specifying 0
+    is the same as specifying 0.5.
+    """
     # TODO: Implement WaitForAnyData argument.
     if timeout is not None:
         timeout = float(timeout)
@@ -31,13 +40,31 @@ def wait_clipboard(timeout=None):
     return get_clipboard()
 
 
-def on_clipboard_change(func=None, *args, prepend_handler=False):
+def on_clipboard_change(func: Callable = None, *args, prepend_handler=False):
+    """Register *func* to be called on clipboard change.
+
+    An instance of :class:`ClipboardHandler` is returned which can be used to
+    unregister the function.
+
+    The optional positional *args* will be passed to the *func* when it is
+    called. If you want the callback to be called with keyword arguments use
+    :func:`functools.partial`.
+
+    An optional keyword-only *prepend_handler* argument registers the function
+    before any previously registered functions.
+
+    This function can be used as a decorator:
+
+    .. code-block:: python
+
+        @ahkpy.on_clipboard_change()
+        def handler(clipboard):
+            print(clipboard.upper())
+    """
     option = 1 if not prepend_handler else -1
 
     def on_clipboard_change_decorator(func):
-        if args:
-            func = partial(func, *args)
-        wrapper = partial(_clipboard_handler, func)
+        wrapper = partial(_clipboard_handler, func, *args)
         ahk_call("OnClipboardChange", wrapper, option)
         return ClipboardHandler(wrapper)
 
@@ -62,6 +89,9 @@ class ClipboardHandler:
     __slots__ = ("func",)
 
     def unregister(self):
+        """Unregister the clipboard handler and stop calling the function on
+        clipboard change.
+        """
         ahk_call("OnClipboardChange", self.func, 0)
 
 

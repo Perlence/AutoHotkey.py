@@ -5,6 +5,8 @@ dist/
 prof/
 *.egg-info/
 
+docs/_build/
+
 env/
 testenv/
 testvenv/
