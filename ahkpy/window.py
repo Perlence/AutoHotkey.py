@@ -714,8 +714,6 @@ class Window(BaseWindow):
         if is_maximized is not None:
             self.is_maximized = not is_maximized
 
-    # TODO: Add control methods to Windows
-
     @property
     def control_classes(self) -> Optional[List[str]]:
         names = self._get("ControlList")

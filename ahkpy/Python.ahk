@@ -400,7 +400,6 @@ class WrappedPythonCallable {
     }
 
     __Delete() {
-        ; MsgBox, % "freeing " this.pyFunc
         WRAPPED_PYTHON_CALLABLE.Delete(this.pyFunc)
         gstate := PyGILState_Ensure()
         Py_DecRef(this.pyFunc)
@@ -411,7 +410,9 @@ class WrappedPythonCallable {
 
 AHKToPython(value) {
     if (IsObject(value)) {
-        ; TODO: Should this be a Python wrapper around "value" and not a copy?
+        ; Create a new dict instead of wrapping the AHK object because objects
+        ; are returned only by a few AHK functions and the object values are
+        ; used immediately in Python.
         result := PyDict_New()
         for k, v in value {
             pyKey := AHKToPython(k)
@@ -429,7 +430,6 @@ AHKToPython(value) {
         Py_IncRef(Py_EmptyString)
         return Py_EmptyString
     } else if value is integer
-        ; TODO: AHK integers are strings, consider returning them as such.
         return PyLong_FromLongLong(value)
     else if value is float
         return PyFloat_FromDouble(value)
