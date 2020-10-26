@@ -14,12 +14,20 @@ __all__ = [
 
 
 def get_clipboard() -> str:
-    """Get text from the Windows clipboard."""
+    """Get text from the Windows clipboard.
+
+    AutoHotkey command: `Clipboard
+    <https://www.autohotkey.com/docs/misc/Clipboard.htm>`_.
+    """
     return ahk_call("GetClipboard")
 
 
 def set_clipboard(value):
-    """Put text into the Windows clipboard."""
+    """Put text into the Windows clipboard.
+
+    AutoHotkey command: `Clipboard
+    <https://www.autohotkey.com/docs/misc/Clipboard.htm>`_.
+    """
     return ahk_call("SetClipboard", str(value))
 
 
@@ -30,6 +38,9 @@ def wait_clipboard(timeout: float = None) -> str:
     many seconds. If the wait period expires and there's no text, return an
     empty string. If omitted, the function will wait indefinitely. Specifying 0
     is the same as specifying 0.5.
+
+    AutoHotkey command: `ClipWait
+    <https://www.autohotkey.com/docs/commands/ClipWait.htm>`_.
     """
     # TODO: Implement WaitForAnyData argument.
     if timeout is not None:
@@ -58,8 +69,11 @@ def on_clipboard_change(func: Callable = None, *args, prepend_handler=False):
     .. code-block:: python
 
         @ahkpy.on_clipboard_change()
-        def handler(clipboard):
-            print(clipboard.upper())
+        def handler(clipboard_text):
+            print(clipboard_text.upper())
+
+    AutoHotkey function: `OnClipboardChange
+    <https://www.autohotkey.com/docs/commands/OnClipboardChange.htm#function>`_.
     """
     option = 1 if not prepend_handler else -1
 
