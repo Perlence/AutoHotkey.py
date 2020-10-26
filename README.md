@@ -50,7 +50,8 @@ It will show a "Hello!" message box. When the user presses <kbd>F1</kbd>, it
 will show a "Bye!" message box and exit.
 
 You can check out and run other
-[examples](https://github.com/Perlence/AutoHotkey.py/tree/master/examples).
+[examples](https://github.com/Perlence/AutoHotkey.py/tree/master/examples) and
+read the [documentation](https://ahkpy.readthedocs.io/).
 
 ## Supported Versions
 
