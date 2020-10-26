@@ -33,6 +33,7 @@ release = '0.1.dev'
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.viewcode",
 ]
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
