@@ -1,5 +1,6 @@
 div.document {
-    width: 1080px;
+    width: initial;
+    max-width: 1080px;
 }
 
 dl {
