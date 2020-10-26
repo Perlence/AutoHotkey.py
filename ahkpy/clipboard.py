@@ -99,6 +99,11 @@ def _clipboard_handler(func, typ):
 
 @dataclass(frozen=True)
 class ClipboardHandler:
+    """Class that holds a function registered to be called on clipboard change.
+
+    Creating an instance of :class:`!ClipboardHandler` doesn't register the
+    function as a handler. Use :func:`on_clipboard_change` instead.
+    """
     func: Callable
     __slots__ = ("func",)
 
