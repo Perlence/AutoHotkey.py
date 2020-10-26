@@ -4,6 +4,7 @@ build/
 dist/
 prof/
 *.egg-info/
+.tox/
 
 docs/_build/
 

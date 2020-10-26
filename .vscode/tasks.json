@@ -3,8 +3,8 @@
         {
             "type": "process",
             "label": "Serve the docs",
-            "command": "pipenv",
-            "args": ["run", "sphinx-autobuild", "--watch", "ahkpy", "docs", "docs/_build/html"]
+            "command": "env/Scripts/sphinx-autobuild.exe",
+            "args": ["--watch", "ahkpy", "docs", "docs/_build/html"]
         }
     ],
     "version": "2.0.0"
