@@ -8,8 +8,6 @@ flake8 = "*"
 pytest = "*"
 pywinpty = "*"
 sphinx = "*"
+sphinx-autobuild = "*"
 
 [packages]
-
-[requires]
-python_version = "3.8"
