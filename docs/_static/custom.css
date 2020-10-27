@@ -3,6 +3,11 @@ div.document {
     max-width: 1080px;
 }
 
+div.body {
+    min-width: initial;
+    max-width: initial;
+}
+
 dl {
     margin-bottom: 15px;
 }
