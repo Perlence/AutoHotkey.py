@@ -1,4 +1,4 @@
-include LICENSE
+include LICENSE.md
 include README.md
 include CHANGES.md
 include ahkpy/*.ahk
