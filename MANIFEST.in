@@ -1,6 +1,8 @@
 include LICENSE.md
 include README.md
 include CHANGES.md
+include tox.ini
+include requirements/*.txt
 include ahkpy/*.ahk
 include ahkpy/Lib/*.ahk
 graft tests
