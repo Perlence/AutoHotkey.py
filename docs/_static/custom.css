@@ -24,4 +24,8 @@ div.sphinxsidebar {
     div.bodywrapper {
         margin: 0;
     }
+
+    div.sphinxsidebar {
+        width: initial;
+    }
 }
