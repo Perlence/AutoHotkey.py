@@ -59,6 +59,7 @@ html_theme = 'alabaster'
 # further. For a list of options available for each theme, see the
 # documentation.
 html_theme_options = {
+    "description": "Write AutoHotkey scripts in Python",
     "github_user": "Perlence",
     "github_repo": "AutoHotkey.py",
     "github_banner": True,
