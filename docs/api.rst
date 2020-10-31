@@ -21,3 +21,30 @@ Clipboard
 
 .. autoclass:: ClipboardHandler
     :members:
+
+
+Flow
+----
+
+.. autofunction:: set_timer
+
+.. autofunction:: set_countdown
+
+.. autoclass:: Timer
+    :members:
+
+.. autofunction:: sleep
+
+.. autofunction:: suspend
+
+.. autofunction:: resume
+
+.. autofunction:: toggle_suspend
+
+.. autofunction:: reload
+
+.. autofunction:: output_debug
+
+.. autofunction:: coop
+
+.. autofunction:: ahkpy.flow.ahk_call
