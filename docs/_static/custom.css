@@ -1,10 +1,8 @@
+/* Make main content wider */
+
 div.document {
     width: initial;
     max-width: 1080px;
-}
-
-div.bodywrapper {
-    margin: 0 0 0 240px;
 }
 
 div.body {
@@ -12,8 +10,18 @@ div.body {
     max-width: initial;
 }
 
+
+/* Add bottom margin to functions and classes */
+
 dl {
     margin-bottom: 15px;
+}
+
+
+/* Make sidebar wider */
+
+div.bodywrapper {
+    margin: 0 0 0 240px;
 }
 
 div.sphinxsidebar {
