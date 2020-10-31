@@ -23,8 +23,8 @@ Clipboard
     :members:
 
 
-Flow
-----
+Timers
+------
 
 .. autofunction:: set_timer
 
@@ -32,6 +32,10 @@ Flow
 
 .. autoclass:: Timer
     :members:
+
+
+Flow
+----
 
 .. autofunction:: sleep
 

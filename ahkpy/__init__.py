@@ -24,6 +24,7 @@ from .gui import *  # noqa: F401 F403
 from .keys import *  # noqa: F401 F403
 from .mouse import *  # noqa: F401 F403
 from .settings import *  # noqa: F401 F403
+from .timer import *  # noqa: F401 F403
 from .window import *  # noqa: F401 F403
 
 __version__ = "0.1.dev"

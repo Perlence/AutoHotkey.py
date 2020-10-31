@@ -3,8 +3,9 @@ import functools
 import queue
 from typing import Callable, Optional
 
-from .flow import Timer, ahk_call, global_ahk_lock, set_countdown
+from .flow import ahk_call, global_ahk_lock
 from .settings import COORD_MODES, _set_coord_mode
+from .timer import Timer, set_countdown
 from .unset import UNSET
 
 __all__ = [
