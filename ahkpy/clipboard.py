@@ -51,15 +51,11 @@ def wait_clipboard(timeout: float = None) -> str:
     return get_clipboard()
 
 
-def on_clipboard_change(func: Callable = None, *args, prepend_handler=False):
+def on_clipboard_change(func: Callable = None, *, prepend_handler=False):
     """Register *func* to be called on clipboard change.
 
     Returns an instance of :class:`ClipboardHandler` which can be used to
     unregister the function.
-
-    The optional positional *args* will be passed to the *func* when it is
-    called. If you want the *func* to be called with keyword arguments use
-    :func:`functools.partial`.
 
     The optional keyword-only *prepend_handler* argument registers the function
     before any previously registered functions.
@@ -80,7 +76,7 @@ def on_clipboard_change(func: Callable = None, *args, prepend_handler=False):
     option = 1 if not prepend_handler else -1
 
     def on_clipboard_change_decorator(func):
-        wrapper = partial(_clipboard_handler, func, *args)
+        wrapper = partial(_clipboard_handler, func)
         ahk_call("OnClipboardChange", wrapper, option)
         return ClipboardHandler(wrapper)
 

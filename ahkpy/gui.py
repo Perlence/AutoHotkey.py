@@ -262,15 +262,11 @@ def _message_box(text, title=None, buttons="ok", icon=None, default_button=1, op
     return result
 
 
-def on_message(msg_number: int, func=None, *args, max_threads=1, prepend_handler=False):
+def on_message(msg_number: int, func=None, *, max_threads=1, prepend_handler=False):
     """Register *func* to be called on window message *msg_number*.
 
     Returns an instance of :class:`MessageHandler` which can be used to
     unregister the function.
-
-    The optional positional *args* will be passed to the *func* when it is
-    called. If you want the *func* to be called with keyword arguments use
-    :func:`functools.partial`.
 
     The optional *max_threads* argument sets the number of messages AHK can
     handle concurrently.
@@ -301,8 +297,6 @@ def on_message(msg_number: int, func=None, *args, max_threads=1, prepend_handler
         max_threads *= -1
 
     def on_message_decorator(func):
-        if args:
-            func = functools.partial(func, *args)
         ahk_call("OnMessage", int(msg_number), func, max_threads)
         return MessageHandler(msg_number, func)
 
