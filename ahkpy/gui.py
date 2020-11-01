@@ -195,8 +195,8 @@ def message_box(text=None, title=None, *,
           in a circle with a red background
 
     :param default_button: which button should be focused when the message box
-        is shown. Defaults to the first (left) button. Takes :class:`int` values
-        from 1 to 3.
+        is shown. Defaults to the first button in the reading order. Takes
+        :class:`int` values from 1 to 3.
 
     :param options: a list of zero or many additional options. The following
         values are allowed:
