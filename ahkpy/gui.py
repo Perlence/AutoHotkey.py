@@ -268,6 +268,19 @@ def on_message(msg_number: int, func=None, *, max_threads=1, prepend_handler=Fal
     Returns an instance of :class:`MessageHandler` which can be used to
     unregister the function.
 
+    Upon receiving a window message, the *func* will be called with the
+    following positional arguments:
+
+    :param w_param: the message's *wParam* value
+
+    :param l_param: the message's *lParam* value
+
+    :param msg: the message number, which is useful in cases where a function
+        monitors more than one message
+
+    :param hwnd: the HWND (unique ID) of the window or control to which the
+        message was sent
+
     The optional *max_threads* argument sets the number of messages AHK can
     handle concurrently.
 
@@ -321,7 +334,7 @@ class MessageHandler:
     __slots__ = ("msg_number", "func")
 
     def unregister(self):
-        """Unregister the handler."""
+        """Unregister the message handler."""
         ahk_call("OnMessage", self.msg_number, self.func, 0)
 
 

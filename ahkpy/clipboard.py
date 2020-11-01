@@ -57,8 +57,12 @@ def on_clipboard_change(func: Callable = None, *, prepend_handler=False):
     Returns an instance of :class:`ClipboardHandler` which can be used to
     unregister the function.
 
-    The optional keyword-only *prepend_handler* argument registers the function
-    before any previously registered functions.
+    On clipboard change, the *func* will be called with the clipboard text as an
+    argument.
+
+    If the optional *prepend_handler* argument is set to ``True``, the *func*
+    will be registered to be called before any other functions previously
+    registered for *msg_number*.
 
     This function can be used as a decorator:
 
