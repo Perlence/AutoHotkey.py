@@ -56,6 +56,29 @@ MESSAGE_BOX_OPTIONS = {
 
 @dc.dataclass
 class MessageBox:
+    """The utility object to reuse and show message boxes.
+
+    The object can be used by setting the message box attributes and calling
+    :func:`show`:
+
+    .. code-block:: python
+
+        mb = ahkpy.MessageBox(text="hello")  # Doesn't show the message box yet
+        mb.text = "hello from attribute"
+        mb.show()  # Shows a message box with the text "hello from attribute"
+        mb.show(text="hello from keyword argument")
+        # ^^ Shows a message box with the text "hello from keyword argument"
+
+    Also, the class can be used by calling its static methods:
+
+    .. code-block:: python
+
+        ahkpy.MessageBox.info("hello from the static method")
+        # ^^ Shows a message box with the "info" icon
+
+    See :func:`message_box` for the documention on the arguments.
+    """
+
     # Inspired by Python's tkinter.messagebox module and Qt's QMessageBox class.
 
     text: Optional = None
@@ -67,6 +90,7 @@ class MessageBox:
     timeout: Optional[int] = None
 
     def show(self, text=None, title=None, **attrs):
+        """Show the message box with the given attributes."""
         attrs["text"] = text if text is not None else self.text
         attrs["title"] = title if title is not None else self.title
         if attrs:
@@ -83,47 +107,46 @@ class MessageBox:
         )
 
     @staticmethod
-    def info(text, title=None, *, buttons="ok", default_button=1, options=[], timeout=None):
+    def info(text, title=None, *, buttons="ok", default_button=1, options=[], timeout=None) -> Optional[str]:
         """Show an info message."""
         return _message_box(text, title, buttons, "info", default_button, options, timeout)
 
     @staticmethod
-    def warning(text, title=None, *, buttons="ok", default_button=1, options=[], timeout=None):
+    def warning(text, title=None, *, buttons="ok", default_button=1, options=[], timeout=None) -> Optional[str]:
         """Show a warning message."""
         return _message_box(text, title, buttons, "warning", default_button, options, timeout)
 
     @staticmethod
-    def error(text, title=None, *, buttons="ok", default_button=1, options=[], timeout=None):
+    def error(text, title=None, *, buttons="ok", default_button=1, options=[], timeout=None) -> Optional[str]:
         """Show an error message."""
         return _message_box(text, title, buttons, "error", default_button, options, timeout)
 
     @staticmethod
-    def ok_cancel(text, title=None, *, icon="info", default_button=1, options=[], timeout=None):
-        """Ask if operation should proceed; return True if the answer is ok.
-
-        Not using the "question" icon because it's no longer recommended.
-        https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messagebox
-        """
+    def ok_cancel(text, title=None, *, icon="info", default_button=1, options=[], timeout=None) -> Optional[bool]:
+        """Ask if operation should proceed; return ``True`` if the answer is ok."""
+        # Not using the "question" icon because it's no longer recommended.
+        # https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messagebox
         result = _message_box(text, title, "ok_cancel", icon, default_button, options, timeout)
         if result is None:
             return None
         return result == "ok"
 
     @staticmethod
-    def yes_no(text, title=None, *, icon="info", default_button=1, options=[], timeout=None):
-        """Ask a question; return True if the answer is yes."""
+    def yes_no(text, title=None, *, icon="info", default_button=1, options=[], timeout=None) -> Optional[bool]:
+        """Ask a question; return ``True`` if the answer is yes."""
         result = _message_box(text, title, "yes_no", icon, default_button, options, timeout)
         if result is None:
             return None
         return result == "yes"
 
     @staticmethod
-    def yes_no_cancel(text, title=None, *, icon="info", default_button=1, options=[], timeout=None):
+    def yes_no_cancel(text, title=None, *, icon="info", default_button=1, options=[], timeout=None) -> Optional[str]:
         return _message_box(text, title, "yes_no_cancel", icon, default_button, options, timeout)
 
     @staticmethod
-    def retry_cancel(text, title=None, *, icon="warning", default_button=1, options=[], timeout=None):
-        """Ask if operation should be retried; return True if the answer is yes.
+    def retry_cancel(text, title=None, *, icon="warning", default_button=1, options=[], timeout=None) -> Optional[bool]:
+        """Ask if operation should be retried; return ``True`` if the answer is
+        yes.
         """
         result = _message_box(text, title, "retry_cancel", icon, default_button, options, timeout)
         if result is None:
@@ -131,16 +154,83 @@ class MessageBox:
         return result == "retry"
 
     @staticmethod
-    def cancel_try_continue(text, title=None, *, icon="warning", default_button=2, options=[], timeout=None):
-        """Ask if operation should be cancelled, retried, or continued.
-
-        Using "cancel_try_continue" instead of "abort_retry_cancel" because it's
-        more user-friendly.
-        """
+    def cancel_try_continue(text, title=None, *,
+                            icon="warning", default_button=2, options=[], timeout=None) -> Optional[str]:
+        """Ask if operation should be cancelled, retried, or continued."""
+        # Using "cancel_try_continue" instead of "abort_retry_cancel" because
+        # it's more user-friendly.
         return _message_box(text, title, "cancel_try_continue", icon, default_button, options, timeout)
 
 
-def message_box(text=None, title=None, *, buttons="ok", icon=None, default_button=1, options=[], timeout=None):
+def message_box(text=None, title=None, *,
+                buttons="ok", icon=None, default_button=1, options=[], timeout=None) -> Optional[str]:
+    """Display the specified *text* in a small window containing one or more
+    buttons.
+
+    :param text: the text to display in the message box. Defaults to "Press OK
+        to continue.".
+
+    :param title: the title of the message box window. Defaults to the name of
+        the AHK script (without path), that is, "Python.ahk".
+
+    :param buttons: the buttons to display in the message box. Defaults to OK
+        button. The following values are allowed:
+
+        - ``"ok"``
+        - ``"ok_cancel"``
+        - ``"yes_no_cancel"``
+        - ``"yes_no"``
+        - ``"retry_cancel"``
+        - ``"cancel_try_continue"``
+
+    :param icon: the icon to display. Defaults to no icon. The following values
+        are allowed:
+
+        - ``None``: no icon
+        - ``"info"``, ``"information"``, ``"asterisk"``: a symbol consisting of
+          a lowercase letter *i* in a circle
+        - ``"warning"``, ``"exclamation"``: a symbol consisting of an
+          exclamation point in a triangle with a yellow background
+        - ``"error"``, ``"hand"``, ``"stop"``: a symbol consisting of a white X
+          in a circle with a red background
+
+    :param default_button: which button should be focused when the message box
+        is shown. Defaults to the first (left) button. Takes :class:`int` values
+        from 1 to 3.
+
+    :param options: a list of zero or many additional options. The following
+        values are allowed:
+
+        - ``"right"``: the message box text is right-aligned
+        - ``"rtl_reading"``: specifies that the message box text is displayed
+          with right to left reading order
+        - ``"service_notification"``: the message box is displayed on the active
+          desktop
+        - ``"default_desktop_only"``: the message box is displayed on the active
+          desktop. This is similar to ``"service_notification"``, except that
+          the system displays the message box only on the default desktop of the
+          interactive window station
+
+    :param timeout: specifies time in seconds to wait for user's response. After
+        the timeout has elapsed, the message box will be automatically closed.
+        If *timeout* is omitted, waits indefinitely.
+
+    :return: ``None`` if the timeout has elapsed, or one of the following values
+        that signify the button the user has pressed:
+
+        - ``"ok"``
+        - ``"yes"``
+        - ``"no"``
+        - ``"cancel"``
+        - ``"abort"``
+        - ``"ignore"``
+        - ``"retry"``
+        - ``"continue"``
+        - ``"try_again"``
+
+    AutoHotkey command: `MsgBox
+    <https://www.autohotkey.com/docs/commands/MsgBox.htm>`_.
+    """
     if text is None:
         if buttons == "ok" and icon is None:
             text = "Press OK to continue."
@@ -172,7 +262,38 @@ def _message_box(text, title=None, buttons="ok", icon=None, default_button=1, op
     return result
 
 
-def on_message(msg_number, func=None, *args, max_threads=1, prepend_handler=False):
+def on_message(msg_number: int, func=None, *args, max_threads=1, prepend_handler=False):
+    """Register *func* to be called on window message *msg_number*.
+
+    Returns an instance of :class:`MessageHandler` which can be used to
+    unregister the function.
+
+    The optional positional *args* will be passed to the *func* when it is
+    called. If you want the *func* to be called with keyword arguments use
+    :func:`functools.partial`.
+
+    The optional *max_threads* argument sets the number of messages AHK can
+    handle concurrently.
+
+    If the optional *prepend_handler* argument is set to ``True``, the *func*
+    will be registered to be called before any other functions previously
+    registered for *msg_number*.
+
+    This function can be used as a decorator:
+
+    .. code-block:: python
+
+        WM_CLOSE = 0x0010
+
+        @ahkpy.on_message(WM_CLOSE)
+        def handler(w_param, l_param, msg, hwnd):
+            print("was asked to close")
+
+        assert isinstance(handler, ahkpy.MessageHandler)
+
+    AutoHotkey function: `OnMessage
+    <https://www.autohotkey.com/docs/commands/OnMessage.htm>`_.
+    """
     if max_threads is not None and max_threads <= 0:
         raise ValueError("max_threads must be positive")
 
@@ -192,6 +313,13 @@ def on_message(msg_number, func=None, *args, max_threads=1, prepend_handler=Fals
 
 @dc.dataclass(frozen=True)
 class MessageHandler:
+    """This object holds a function registered to be called upon receiving a
+    window message.
+
+    Creating an instance of :class:`!MessageHandler` doesn't register the
+    function as a handler. Use :func:`on_message` instead.
+    """
+
     # There's no point in making MessageHandler mutable like the Timer. It's
     # complicated and doesn't add any usability points.
     msg_number: int
@@ -199,11 +327,28 @@ class MessageHandler:
     __slots__ = ("msg_number", "func")
 
     def unregister(self):
+        """Unregister the handler."""
         ahk_call("OnMessage", self.msg_number, self.func, 0)
 
 
 @dc.dataclass
 class ToolTip:
+    """The tooltip object.
+
+    No more than 20 tooltips can be shown simultaneously.
+
+    .. code-block:: python
+
+        tt = ToolTip(text="hello")  # Doesn't show the tooltip yet
+        tt.text = "hello from attribute"
+        tt.show()
+        # ^^ Shows a tooltip with the text "hello from attribute" near the mouse
+        # cursor
+        tt.show(text="hello from keyword argument")
+        # ^^ Hides the previous tooltip and shows a new one with the text "hello
+        # from keyword argument" near the mouse cursor
+    """
+
     text: Optional[str] = None
     x: Optional[int] = None
     y: Optional[int] = None
@@ -215,8 +360,7 @@ class ToolTip:
         _pool.put(tooltip_id)
     del tooltip_id
 
-    def __init__(self, text=None, x=None, y=None, relative_to="window"):
-        # Write the __init__ method for code suggestions.
+    def __init__(self, text=None, *, x=None, y=None, relative_to="window", timeout=None):
         self.text = text
         self.x = x
         self.y = y
@@ -227,7 +371,33 @@ class ToolTip:
         self._id: Optional[int] = None
         self._timer: Optional[Timer] = None
 
-    def show(self, text=None, x=UNSET, y=UNSET, relative_to=None, timeout=UNSET):
+    def show(self, text=None, *, x=UNSET, y=UNSET, relative_to=None, timeout=UNSET):
+        """Show the tooltip.
+
+        The *text* argument is required either to be set as the instance
+        attribute, or passed as an argument.
+
+        The optional *x* and *y* arguments set the position of the tooltip
+        relative to the area, specified by the *relative_to* argument which
+        defaults to ``"window"``. The valid *relative_to* arguments are the
+        following:
+
+        - ``"screen"``: coordinates are relative to the desktop (entire screen).
+        - ``"window"``: coordinates are relative to the active window.
+        - ``"client"``: coordinates are relative to the active window's client
+          area, which excludes the window's title bar, menu (if it has a
+          standard one) and borders. Client coordinates are less dependent on OS
+          version and theme.
+
+        If the *x* or *y* coordinate is omitted, the tooltip will take the
+        missing coordinate from the mouse cursor.
+
+        If the optional *timeout* argument is given, the tooltip will be hidden
+        after this many seconds.
+
+        AutoHotkey command: `ToolTip
+        <https://www.autohotkey.com/docs/commands/ToolTip.htm>`_.
+        """
         if not text and not self.text:
             raise ValueError("text must not be empty")
         elif not text:
@@ -260,6 +430,7 @@ class ToolTip:
             self._timer = None
 
     def hide(self):
+        """Hide the tooltip."""
         if self._id is None:
             return
         ahk_call("ToolTip", "", "", "", self._id)

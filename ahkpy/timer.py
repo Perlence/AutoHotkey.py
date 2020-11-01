@@ -13,14 +13,24 @@ __all__ = [
 
 
 def set_timer(interval=0.25, func=None, *args, priority=0):
-    """Create a timer that will run *func* periodically with arguments *args*
-    after *interval* seconds have passed.
+    """Create a :class:`Timer` that will run *func* periodically with arguments
+    *args* after *interval* seconds have passed.
 
-    If you want the function to be called with keyword arguments use
+    If you want the *func* to be called with keyword arguments use
     :func:`functools.partial`.
 
     The optional parameter *priority* is an integer between -2147483648 and
     2147483647.
+
+    This function can be used as a decorator:
+
+    .. code-block:: python
+
+        @ahkpy.set_timer(1)
+        def handler():
+            print("tick")
+
+        assert isinstance(handler, ahkpy.Timer)
 
     AutoHotkey command: `SetTimer
     <https://www.autohotkey.com/docs/commands/SetTimer.htm>`_.
@@ -43,14 +53,24 @@ def set_timer(interval=0.25, func=None, *args, priority=0):
 
 
 def set_countdown(interval=0.25, func=None, *args, priority=0):
-    """Create a timer that will run *func* once with arguments *args* after
-    *interval* seconds have passed.
+    """Create a :class:`Timer` that will run *func* once with arguments *args*
+    after *interval* seconds have passed.
 
-    If you want the function to be called with keyword arguments use
+    If you want the *func* to be called with keyword arguments use
     :func:`functools.partial`.
 
     The optional parameter *priority* is an integer between -2147483648 and
     2147483647.
+
+    This function can be used as a decorator:
+
+    .. code-block:: python
+
+        @ahkpy.set_countdown(1)
+        def handler():
+            print("boom")
+
+        assert isinstance(handler, ahkpy.Timer)
 
     AutoHotkey command: `SetTimer
     <https://www.autohotkey.com/docs/commands/SetTimer.htm>`_.
@@ -71,8 +91,8 @@ def set_countdown(interval=0.25, func=None, *args, priority=0):
 
 @dc.dataclass(eq=False)
 class Timer:
-    """This class represents an action that should be run after a certain amount
-    of time has passed.
+    """This object represents an action that should be run after a certain
+    amount of time has passed.
 
     Creating an instance of :class:`!Timer` doesn't register the function in
     AHK. Use :func:`set_timer` or :func:`set_countdown` instead.
@@ -101,7 +121,7 @@ class Timer:
     def start(self, interval=None, priority=None, periodic=None):
         """Start a stopped timer or restart a running timer.
 
-        If the *interval*, *priority*, or *periodic* arguments are passed, the
+        If the *interval*, *priority*, or *periodic* arguments are given, the
         :class:`!Timer` instance will be updated with the new values. See
         :meth:`Timer.update`.
         """

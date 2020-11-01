@@ -52,3 +52,29 @@ Flow
 .. autofunction:: coop
 
 .. autofunction:: ahkpy.flow.ahk_call
+
+
+GUI
+---
+
+.. autofunction:: message_box
+
+.. autoclass:: MessageBox(text=None, title=None, buttons="ok", icon=None, default_button=1, options=[], timeout=None)
+
+    .. automethod:: show
+    .. automethod:: info(text, title=None, *, buttons="ok", default_button=1, **attrs) -> Optional[str]
+    .. automethod:: warning(text, title=None, *, buttons="ok", default_button=1, **attrs) -> Optional[str]
+    .. automethod:: error(text, title=None, *, buttons="ok", default_button=1, **attrs) -> Optional[str]
+    .. automethod:: ok_cancel(text, title=None, *, icon="info", default_button=1, **attrs) -> Optional[bool]
+    .. automethod:: yes_no(text, title=None, *, icon="info", default_button=1, **attrs) -> Optional[bool]
+    .. automethod:: yes_no_cancel(text, title=None, *, icon="info", default_button=1, **attrs) -> Optional[str]
+    .. automethod:: retry_cancel(text, title=None, *, icon="warning", default_button=1, **attrs) -> Optional[bool]
+    .. automethod:: cancel_try_continue(text, title=None, *, icon="warning", default_button=2, **attrs) -> Optional[str]
+
+.. autoclass:: ToolTip
+    :members:
+
+.. autofunction:: on_message
+
+.. autoclass:: MessageHandler
+    :members:

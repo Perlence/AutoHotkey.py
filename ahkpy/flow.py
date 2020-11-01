@@ -121,8 +121,7 @@ def coop(func, *args, **kwargs):
     .. code-block:: python
 
         import code
-        import ahkpy as ahk
-        ahk.coop(code.interact)
+        ahkpy.coop(code.interact)
 
     The call starts a new thread and blocks the current thread until the
     function finishes. Returns the result of the function or raises the
@@ -151,7 +150,7 @@ def coop(func, *args, **kwargs):
             th.start()
             # Avoid calling th.join()
             while th.is_alive():
-                ahk.sleep(0.01)
+                ahkpy.sleep(0.01)
     """
     q = queue.Queue(maxsize=1)
     th = threading.Thread(

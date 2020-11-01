@@ -54,14 +54,14 @@ def wait_clipboard(timeout: float = None) -> str:
 def on_clipboard_change(func: Callable = None, *args, prepend_handler=False):
     """Register *func* to be called on clipboard change.
 
-    An instance of :class:`ClipboardHandler` is returned which can be used to
+    Returns an instance of :class:`ClipboardHandler` which can be used to
     unregister the function.
 
     The optional positional *args* will be passed to the *func* when it is
-    called. If you want the callback to be called with keyword arguments use
+    called. If you want the *func* to be called with keyword arguments use
     :func:`functools.partial`.
 
-    An optional keyword-only *prepend_handler* argument registers the function
+    The optional keyword-only *prepend_handler* argument registers the function
     before any previously registered functions.
 
     This function can be used as a decorator:
@@ -71,6 +71,8 @@ def on_clipboard_change(func: Callable = None, *args, prepend_handler=False):
         @ahkpy.on_clipboard_change()
         def handler(clipboard_text):
             print(clipboard_text.upper())
+
+        assert isinstance(handler, ahkpy.ClipboardHandler)
 
     AutoHotkey function: `OnClipboardChange
     <https://www.autohotkey.com/docs/commands/OnClipboardChange.htm#function>`_.
@@ -99,7 +101,7 @@ def _clipboard_handler(func, typ):
 
 @dataclass(frozen=True)
 class ClipboardHandler:
-    """This class holds a function registered to be called on clipboard change.
+    """This object holds a function registered to be called on clipboard change.
 
     Creating an instance of :class:`!ClipboardHandler` doesn't register the
     function as a handler. Use :func:`on_clipboard_change` instead.
