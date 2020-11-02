@@ -116,7 +116,7 @@ def coop(func, *args, **kwargs):
 
     Use :func:`!coop` to execute **pre-existing** long-running I/O bound Python
     processes like HTTP servers and stdin readers that are designed to handle
-    KeyboardInterrupt:
+    :exc:`KeyboardInterrupt`:
 
     .. code-block:: python
 

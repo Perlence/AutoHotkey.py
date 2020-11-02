@@ -61,8 +61,8 @@ def on_clipboard_change(func: Callable = None, *, prepend_handler=False):
     argument.
 
     If the optional *prepend_handler* argument is set to ``True``, the *func*
-    will be registered to be called before any other functions previously
-    registered for *msg_number*.
+    will be registered to be called before any other previously registered
+    functions.
 
     This function can be used as a decorator:
 
