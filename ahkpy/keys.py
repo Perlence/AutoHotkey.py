@@ -41,7 +41,9 @@ __all__ = [
     "set_hotstring_mouse_reset",
     "set_num_lock_state",
     "set_scroll_lock_state",
+    "wait_key_pressed_physical",
     "wait_key_pressed",
+    "wait_key_released_physical",
     "wait_key_released",
 ]
 
@@ -97,6 +99,34 @@ def _set_key_state(cmd, state, always):
     if always:
         state = f"Always{state}"
     ahk_call(cmd, state)
+
+
+def wait_key_pressed(key_name, timeout=None) -> bool:
+    return _key_wait(key_name, down=True, physical=False, timeout=timeout)
+
+
+def wait_key_released(key_name, timeout=None) -> bool:
+    return _key_wait(key_name, down=False, physical=False, timeout=timeout)
+
+
+def wait_key_pressed_physical(key_name, timeout=None) -> bool:
+    return _key_wait(key_name, down=True, physical=True, timeout=timeout)
+
+
+def wait_key_released_physical(key_name, timeout=None) -> bool:
+    return _key_wait(key_name, down=False, physical=True, timeout=timeout)
+
+
+def _key_wait(key_name, down=False, physical=False, timeout=None) -> bool:
+    options = []
+    if down:
+        options.append("D")
+    if not physical:
+        options.append("L")
+    if timeout is not None:
+        options.append(f"T{timeout}")
+    timed_out = ahk_call("KeyWait", str(key_name), "".join(options))
+    return not timed_out
 
 
 def get_key_name(key):
@@ -485,26 +515,6 @@ def get_hotstring_mouse_reset():
 
 def set_hotstring_mouse_reset(value):
     ahk_call("Hotstring", "MouseReset", bool(value))
-
-
-def wait_key_pressed(key_name, logical_state=False, timeout=None) -> bool:
-    return _key_wait(key_name, down=True, logical_state=logical_state, timeout=timeout)
-
-
-def wait_key_released(key_name, logical_state=False, timeout=None) -> bool:
-    return _key_wait(key_name, down=False, logical_state=logical_state, timeout=timeout)
-
-
-def _key_wait(key_name, down=False, logical_state=False, timeout=None) -> bool:
-    options = []
-    if down:
-        options.append("D")
-    if logical_state:
-        options.append("L")
-    if timeout is not None:
-        options.append(f"T{timeout}")
-    timed_out = ahk_call("KeyWait", str(key_name), "".join(options))
-    return not timed_out
 
 
 @dataclass(frozen=True)
