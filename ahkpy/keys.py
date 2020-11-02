@@ -28,7 +28,7 @@ __all__ = [
     "get_scroll_lock_state",
     "hotkey",
     "hotstring",
-    "is_key_pressed_physical",
+    "is_key_pressed_logical",
     "is_key_pressed",
     "remap_key",
     "reset_hotstring",
@@ -41,19 +41,19 @@ __all__ = [
     "set_hotstring_mouse_reset",
     "set_num_lock_state",
     "set_scroll_lock_state",
-    "wait_key_pressed_physical",
+    "wait_key_pressed_logical",
     "wait_key_pressed",
-    "wait_key_released_physical",
+    "wait_key_released_logical",
     "wait_key_released",
 ]
 
 
 def is_key_pressed(key_name):
-    return _get_key_state(key_name)
-
-
-def is_key_pressed_physical(key_name):
     return _get_key_state(key_name, "P")
+
+
+def is_key_pressed_logical(key_name):
+    return _get_key_state(key_name)
 
 
 def get_caps_lock_state():
@@ -102,26 +102,26 @@ def _set_key_state(cmd, state, always):
 
 
 def wait_key_pressed(key_name, timeout=None) -> bool:
-    return _key_wait(key_name, down=True, physical=False, timeout=timeout)
+    return _key_wait(key_name, down=True, logical=False, timeout=timeout)
 
 
 def wait_key_released(key_name, timeout=None) -> bool:
-    return _key_wait(key_name, down=False, physical=False, timeout=timeout)
+    return _key_wait(key_name, down=False, logical=False, timeout=timeout)
 
 
-def wait_key_pressed_physical(key_name, timeout=None) -> bool:
-    return _key_wait(key_name, down=True, physical=True, timeout=timeout)
+def wait_key_pressed_logical(key_name, timeout=None) -> bool:
+    return _key_wait(key_name, down=True, logical=True, timeout=timeout)
 
 
-def wait_key_released_physical(key_name, timeout=None) -> bool:
-    return _key_wait(key_name, down=False, physical=True, timeout=timeout)
+def wait_key_released_logical(key_name, timeout=None) -> bool:
+    return _key_wait(key_name, down=False, logical=True, timeout=timeout)
 
 
-def _key_wait(key_name, down=False, physical=False, timeout=None) -> bool:
+def _key_wait(key_name, down=False, logical=False, timeout=None) -> bool:
     options = []
     if down:
         options.append("D")
-    if not physical:
+    if logical:
         options.append("L")
     if timeout is not None:
         options.append(f"T{timeout}")
