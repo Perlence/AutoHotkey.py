@@ -55,7 +55,7 @@ read the [documentation](https://ahkpy.readthedocs.io/).
 
 ## Supported Versions
 
-- AutoHotkey 1.1 (U32 and U64 variants)
+- AutoHotkey 1.1.28 or greater (U32 and U64 variants)
 - Python 3.7 or greater
 
 AutoHotkey.py was tested on Windows 10 v2004, AutoHotkey v1.1.30.03, Python
