@@ -144,7 +144,7 @@ class TestTooltip:
 
         t1 = ahk.ToolTip()
         request.addfinalizer(t1.hide)
-        t1.show("hello", 0, 0)
+        t1.show("hello", x=0, y=0)
         assert tooltip_windows.exist()
 
         t1.hide()
