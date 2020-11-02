@@ -13,6 +13,7 @@ __all__ = [
     "Hotkey",
     "HotkeyContext",
     "Hotstring",
+    "RemappedKey",
     "block_input_while_sending",
     "block_input",
     "block_mouse_move",
