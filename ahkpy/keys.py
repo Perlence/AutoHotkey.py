@@ -167,6 +167,11 @@ class BaseHotkeyContext:
         max_threads=1,
         input_level=0,
     ):
+        """Register *func* to be called when *key_name* is pressed.
+
+        AutoHotkey command: `Hotkey
+        <https://www.autohotkey.com/docs/commands/Hotkey.htm>`_.
+        """
         # TODO: Consider adding arguments for '*', '~', and '$' prefix hotkey
         # modifiers.
         if key_name == "":
@@ -200,6 +205,11 @@ class BaseHotkeyContext:
         return hotkey_decorator(func)
 
     def remap_key(self, origin_key, destination_key, *, mode=None, level=None):
+        """Remap *origin_key* to *destination_key*.
+
+        For more info, see `Remapping Keys
+        <https://www.autohotkey.com/docs/misc/Remap.htm>`_.
+        """
         mouse = destination_key.lower() in {"lbutton", "rbutton", "mbutton", "xbutton1", "xbutton2"}
         if mouse:
             def wildcard_origin():
@@ -249,6 +259,11 @@ class BaseHotkeyContext:
         key_delay=-1,
         reset_recognizer=False,
     ):
+        """Register a hotstring.
+
+        AutoHotkey function: `Hotstring
+        <https://www.autohotkey.com/docs/commands/Hotstring.htm>`_.
+        """
         def hotstring_decorator(replacement):
             if callable(replacement) and args:
                 replacement = partial(replacement, *args)
@@ -628,10 +643,10 @@ def block_input():
 
 @contextmanager
 def block_input_while_sending():
-    """Block user input while a Send command is in progress.
+    """Block user input while a :func:`send` is in progress.
 
     This also blocks user input during mouse automation because mouse clicks and
-    movements are implemented via the Send command.
+    movements are implemented using the :func:`send` function.
     """
     ahk_call("BlockInput", "Send")
     yield

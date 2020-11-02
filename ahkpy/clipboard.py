@@ -75,7 +75,7 @@ def on_clipboard_change(func: Callable = None, *, prepend_handler=False):
         assert isinstance(handler, ahkpy.ClipboardHandler)
 
     AutoHotkey function: `OnClipboardChange
-    <https://www.autohotkey.com/docs/commands/OnClipboardChange.htm#function>`_.
+    <https://www.autohotkey.com/docs/commands/OnClipboardChange.htm>`_.
     """
     option = 1 if not prepend_handler else -1
 

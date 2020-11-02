@@ -11,6 +11,8 @@ important right here and provide links to the canonical documentation.
 Clipboard
 ---------
 
+.. TODO: Add short introductions to each section.
+
 .. autofunction:: get_clipboard
 
 .. autofunction:: set_clipboard
@@ -78,3 +80,110 @@ GUI
 
 .. autoclass:: MessageHandler
     :members:
+
+
+Keyboard and Mouse
+------------------
+
+Hotkeys and Hotstrings
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: ahkpy.keys.BaseHotkeyContext
+
+    .. autofunction:: hotkey(key_name: str, func: Callable = None, *args, **options)
+    .. autofunction:: remap_key
+    .. autofunction:: hotstring(string: str, replacement, *args, **options)
+
+.. data:: default_context
+
+    The default instance of :class:`ahkpy.keys.BaseHotkeyContext`.
+
+.. function:: hotkey(...)
+.. function:: remap_key(...)
+.. function:: hotstring(...)
+
+    Useful aliases for :func:`default_context.hotkey()
+    <ahkpy.keys.BaseHotkeyContext.hotkey>`,
+    :func:`default_context.remap_key()
+    <ahkpy.keys.BaseHotkeyContext.remap_key>`,
+    and :func:`default_context.hotstring()
+    <ahkpy.keys.BaseHotkeyContext.hotstring>`.
+
+.. autoclass:: HotkeyContext
+    :members:
+
+.. autoclass:: Hotkey
+    :members:
+
+.. autoclass:: RemappedKey
+    :members:
+
+.. autoclass:: Hotstring
+    :members:
+
+.. autofunction:: reset_hotstring
+
+.. autofunction:: get_hotstring_end_chars
+
+.. autofunction:: set_hotstring_end_chars
+
+.. autofunction:: get_hotstring_mouse_reset
+
+.. autofunction:: set_hotstring_mouse_reset
+
+Sending
+~~~~~~~
+
+.. autofunction:: send(keys, *, mode=None, **options)
+
+.. autofunction:: send_event(keys, **options)
+
+.. autofunction:: send_input(keys, **options)
+
+.. autofunction:: send_play(keys, **options)
+
+Key States
+~~~~~~~~~~
+
+.. autofunction:: get_key_name
+
+.. autofunction:: get_key_sc
+
+.. autofunction:: get_key_vk
+
+.. autofunction:: is_key_pressed
+
+.. autofunction:: is_key_pressed_logical
+
+.. autofunction:: wait_key_pressed
+
+.. autofunction:: wait_key_released
+
+.. autofunction:: wait_key_pressed_logical
+
+.. autofunction:: wait_key_released_logical
+
+.. autofunction:: get_caps_lock_state
+
+.. autofunction:: set_caps_lock_state
+
+.. autofunction:: get_num_lock_state
+
+.. autofunction:: set_num_lock_state
+
+.. autofunction:: get_scroll_lock_state
+
+.. autofunction:: set_scroll_lock_state
+
+.. autofunction:: get_insert_state
+
+Blocking
+~~~~~~~~
+
+A couple of context managers to block user input.
+
+.. autofunction:: block_input_while_sending
+
+.. autofunction:: block_input
+
+.. autofunction:: block_mouse_move
