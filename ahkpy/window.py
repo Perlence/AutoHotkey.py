@@ -1222,7 +1222,7 @@ class Control(BaseWindow):
         :param selected: If ``True``, returns only selected rows.
         :param focused: If ``True``, returns only the focused row.
         :param column: return rows with only the given column, indexed by its
-            number. Supports negative indexing.
+           number. Supports negative indexing.
         :type column: int
         """
         options = []

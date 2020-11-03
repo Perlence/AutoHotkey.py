@@ -164,65 +164,65 @@ def message_box(text=None, title=None, *,
     buttons.
 
     :param text: the text to display in the message box. Defaults to "Press OK
-        to continue.".
+       to continue.".
 
     :param title: the title of the message box window. Defaults to the name of
-        the AHK script (without path), that is, "Python.ahk".
+       the AHK script (without path), that is, "Python.ahk".
 
     :param buttons: the buttons to display in the message box. Defaults to OK
-        button. The following values are allowed:
+       button. The following values are allowed:
 
-        - ``"ok"``
-        - ``"ok_cancel"``
-        - ``"yes_no_cancel"``
-        - ``"yes_no"``
-        - ``"retry_cancel"``
-        - ``"cancel_try_continue"``
+       - ``"ok"``
+       - ``"ok_cancel"``
+       - ``"yes_no_cancel"``
+       - ``"yes_no"``
+       - ``"retry_cancel"``
+       - ``"cancel_try_continue"``
 
     :param icon: the icon to display. Defaults to no icon. The following values
-        are allowed:
+       are allowed:
 
-        - ``None``: no icon
-        - ``"info"``, ``"information"``, ``"asterisk"``: a symbol consisting of
-          a lowercase letter *i* in a circle
-        - ``"warning"``, ``"exclamation"``: a symbol consisting of an
-          exclamation point in a triangle with a yellow background
-        - ``"error"``, ``"hand"``, ``"stop"``: a symbol consisting of a white X
-          in a circle with a red background
+       - ``None``: no icon
+       - ``"info"``, ``"information"``, ``"asterisk"``: a symbol consisting of a
+         lowercase letter *i* in a circle
+       - ``"warning"``, ``"exclamation"``: a symbol consisting of an exclamation
+         point in a triangle with a yellow background
+       - ``"error"``, ``"hand"``, ``"stop"``: a symbol consisting of a white X
+         in a circle with a red background
 
     :param default_button: which button should be focused when the message box
-        is shown. Defaults to the first button in the reading order. Takes
-        :class:`int` values from 1 to 3.
+       is shown. Defaults to the first button in the reading order. Takes
+       :class:`int` values from 1 to 3.
 
     :param options: a list of zero or many additional options. The following
-        values are allowed:
+       values are allowed:
 
-        - ``"right"``: the message box text is right-aligned
-        - ``"rtl_reading"``: specifies that the message box text is displayed
-          with right to left reading order
-        - ``"service_notification"``: the message box is displayed on the active
-          desktop
-        - ``"default_desktop_only"``: the message box is displayed on the active
-          desktop. This is similar to ``"service_notification"``, except that
-          the system displays the message box only on the default desktop of the
-          interactive window station
+       - ``"right"``: the message box text is right-aligned
+       - ``"rtl_reading"``: specifies that the message box text is displayed
+         with right to left reading order
+       - ``"service_notification"``: the message box is displayed on the active
+         desktop
+       - ``"default_desktop_only"``: the message box is displayed on the active
+         desktop. This is similar to ``"service_notification"``, except that the
+         system displays the message box only on the default desktop of the
+         interactive window station
 
     :param timeout: specifies time in seconds to wait for user's response. After
-        the timeout has elapsed, the message box will be automatically closed.
-        If *timeout* is omitted, waits indefinitely.
+       the timeout has elapsed, the message box will be automatically closed. If
+       *timeout* is omitted, waits indefinitely.
 
     :return: ``None`` if the timeout has elapsed, or one of the following values
-        that signify the button the user has pressed:
+       that signify the button the user has pressed:
 
-        - ``"ok"``
-        - ``"yes"``
-        - ``"no"``
-        - ``"cancel"``
-        - ``"abort"``
-        - ``"ignore"``
-        - ``"retry"``
-        - ``"continue"``
-        - ``"try_again"``
+       - ``"ok"``
+       - ``"yes"``
+       - ``"no"``
+       - ``"cancel"``
+       - ``"abort"``
+       - ``"ignore"``
+       - ``"retry"``
+       - ``"continue"``
+       - ``"try_again"``
 
     AutoHotkey command: `MsgBox
     <https://www.autohotkey.com/docs/commands/MsgBox.htm>`_.
@@ -275,7 +275,7 @@ def on_message(msg_number: int, func=None, *, max_threads=1, prepend_handler=Fal
         monitors more than one message
 
     :param hwnd: the HWND (unique ID) of the window or control to which the
-        message was sent
+       message was sent
 
     The optional *max_threads* argument sets the number of messages AHK can
     handle concurrently.
