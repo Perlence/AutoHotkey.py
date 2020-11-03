@@ -92,7 +92,7 @@ Hotkeys and Hotstrings
 
    .. autofunction:: hotkey(key_name: str, func: Callable = None, *args, **options)
    .. autofunction:: remap_key
-   .. autofunction:: hotstring(string: str, replacement, *args, **options)
+   .. autofunction:: hotstring(trigger: str, repl: Union[str, Callable] = None, *args, **options)
 
 .. data:: default_context
 

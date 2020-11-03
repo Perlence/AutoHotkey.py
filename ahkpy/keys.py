@@ -169,6 +169,37 @@ class BaseHotkeyContext:
     ):
         """Register *func* to be called when *key_name* is pressed.
 
+        For valid *key_name* values refer to `Hotkey Modifier Symbols
+        <https://www.autohotkey.com/docs/Hotkeys.htm#Symbols>`_ and `List of
+        Keys <https://www.autohotkey.com/docs/KeyList.htm>`_.
+
+        The optional positional *args* will be passed to the *func* when it is
+        called. If you want the *func* to be called with keyword arguments use
+        :func:`functools.partial`.
+
+        The following keyword-only arguments set the hotkey options:
+
+        :param buffer: causes the hotkey to buffer rather than ignore keypresses
+           when the *max_threads* limit has been reached. Defaults to ``False``.
+
+        :param priority: the priority of the AHK thread where *func* will be
+           executed. Defaults to 0.
+
+        :param max_threads: the number of keypresses AHK can handle
+           concurrently. Defaults to 1.
+
+        :param input_level: the `input level
+           <https://www.autohotkey.com/docs/commands/_InputLevel.htm>`_ of the
+           hotkey. Defaults to 0.
+
+        If *func* is omitted, the method works as a decorator::
+
+            @ahkpy.hotkey("F1")
+            def hello():
+                ahk.message_box("Hello!")
+
+            assert isinstance(hello, ahkpy.Hotkey)
+
         AutoHotkey command: `Hotkey
         <https://www.autohotkey.com/docs/commands/Hotkey.htm>`_.
         """
@@ -207,7 +238,14 @@ class BaseHotkeyContext:
     def remap_key(self, origin_key, destination_key, *, mode=None, level=None):
         """Remap *origin_key* to *destination_key*.
 
-        For more info, see `Remapping Keys
+        For valid keys refer to `List of Keys
+        <https://www.autohotkey.com/docs/KeyList.htm>`_.
+
+        The optional keyword-only *mode* and *level* arguments are passed to the
+        :func:`~ahkpy.send` function that will send the *destination_key* when
+        the user presses the *origin_key*.
+
+        For more information refer to `Remapping Keys
         <https://www.autohotkey.com/docs/misc/Remap.htm>`_.
         """
         mouse = destination_key.lower() in {"lbutton", "rbutton", "mbutton", "xbutton1", "xbutton2"}
@@ -244,8 +282,8 @@ class BaseHotkeyContext:
 
     def hotstring(
         self,
-        string: str,
-        replacement: Union[str, Callable] = None,
+        trigger: str,
+        repl: Union[str, Callable] = None,
         *args,
         case_sensitive=False,
         conform_to_case=True,
@@ -261,15 +299,63 @@ class BaseHotkeyContext:
     ):
         """Register a hotstring.
 
+        By default, the hotstring is triggered when the user types the given
+        *trigger* text and presses one of the `end chars
+        <https://www.autohotkey.com/docs/Hotstrings.htm#EndChars>`_. If *repl*
+        is an instance of :class:`str`, the user's input will be replaced with
+        *repl*. If *repl* is a callable, it will be called when the hotstring is
+        triggered.
+
+        The optional positional *args* will be passed to the *repl* when it is
+        called. If you want the *repl* to be called with keyword arguments use
+        :func:`functools.partial`.
+
+        The following keyword-only arguments set the hotstring options:
+
+        :param case_sensitive: if ``True``, the user must type the text with the
+           exact case to trigger the hotstring. Defaults to ``False``.
+
+        :param conform_to_case: if ``False``, the replacement is typed exactly
+           as given in *repl*. Otherwise, the following rules apply:
+
+           - If the user types the trigger text in all caps, the replacement
+             text is produced in all caps.
+           - If the user types the first letter in caps, the first letter of the
+             replacement is also capitalized.
+           - If the user types the case in any other way, the replacement is
+             produced exactly as given in *repl*.
+
+           Defaults to ``True`` for case-insensitive hotstrings. Conversely,
+           case-sensitive hotstrings never conform to the case of the trigger
+           text.
+
+        :param replace_inside_word: Defaults to ``False``.
+
+        :param wait_for_end_char: Defaults to ``True``.
+
+        :param omit_end_char: Defaults to ``False``.
+
+        :param backspacing: Defaults to ``True``.
+
+        :param priority: Defaults to 0.
+
+        :param text: Defaults to ``False``.
+
+        :param mode: Defaults to ``None``.
+
+        :param key_delay: Defaults to -1.
+
+        :param reset_recognizer: Defaults to ``False``.
+
         AutoHotkey function: `Hotstring
         <https://www.autohotkey.com/docs/commands/Hotstring.htm>`_.
         """
-        def hotstring_decorator(replacement):
-            if callable(replacement) and args:
-                replacement = partial(replacement, *args)
-            hs = Hotstring(string, case_sensitive, replace_inside_word, context=self)
+        def hotstring_decorator(repl):
+            if callable(repl) and args:
+                repl = partial(repl, *args)
+            hs = Hotstring(trigger, case_sensitive, replace_inside_word, context=self)
             hs.update(
-                replacement=replacement,
+                repl=repl,
                 conform_to_case=conform_to_case,
                 wait_for_end_char=wait_for_end_char,
                 omit_end_char=omit_end_char,
@@ -285,9 +371,9 @@ class BaseHotkeyContext:
             hs.enable()
             return hs
 
-        if replacement is None:
+        if repl is None:
             return hotstring_decorator
-        return hotstring_decorator(replacement)
+        return hotstring_decorator(repl)
 
     @contextmanager
     def _manager(self):
@@ -410,13 +496,13 @@ class Hotkey:
 
 @dataclass(frozen=True)
 class Hotstring:
-    string: str
+    trigger: str
     case_sensitive: bool
     replace_inside_word: bool
     context: BaseHotkeyContext
-    __slots__ = ("string", "case_sensitive", "replace_inside_word", "context")
+    __slots__ = ("trigger", "case_sensitive", "replace_inside_word", "context")
 
-    # There are no 'replacement' and option fields in Hotstring object. See the
+    # There are no 'repl' and option fields in Hotstring object. See the
     # reasoning in the Hotkey class.
 
     # Case sensitivity and conformity transitions:
@@ -424,20 +510,20 @@ class Hotstring:
     #     C1 <-- C --> C0
 
     def __post_init__(self):
-        if hasattr(self.string, "lower") and not self.case_sensitive:
-            object.__setattr__(self, "string", self.string.lower())
+        if hasattr(self.trigger, "lower") and not self.case_sensitive:
+            object.__setattr__(self, "string", self.trigger.lower())
 
     def disable(self):
         with self.context._manager():
-            ahk_call("Hotstring", f":{self._id_options()}:{self.string}", "", "Off")
+            ahk_call("Hotstring", f":{self._id_options()}:{self.trigger}", "", "Off")
 
     def enable(self):
         with self.context._manager():
-            ahk_call("Hotstring", f":{self._id_options()}:{self.string}", "", "On")
+            ahk_call("Hotstring", f":{self._id_options()}:{self.trigger}", "", "On")
 
     def toggle(self):
         with self.context._manager():
-            ahk_call("Hotstring", f":{self._id_options()}:{self.string}", "", "Toggle")
+            ahk_call("Hotstring", f":{self._id_options()}:{self.trigger}", "", "Toggle")
 
     def _id_options(self):
         case_option = "C" if self.case_sensitive else ""
@@ -445,7 +531,7 @@ class Hotstring:
         return f"{case_option}{replace_inside_option}"
 
     def update(
-        self, *, replacement=None, conform_to_case=None, wait_for_end_char=None, omit_end_char=None, backspacing=None,
+        self, *, repl=None, conform_to_case=None, wait_for_end_char=None, omit_end_char=None, backspacing=None,
         priority=None, text=None, mode=None, key_delay=None, reset_recognizer=None,
     ):
         options = []
@@ -510,7 +596,7 @@ class Hotstring:
         option_str = "".join(options)
 
         with self.context._manager():
-            ahk_call("Hotstring", f":{option_str}:{self.string}", replacement or "")
+            ahk_call("Hotstring", f":{option_str}:{self.trigger}", repl or "")
 
 
 def reset_hotstring():
@@ -553,6 +639,7 @@ class RemappedKey:
 
 
 def send(keys, *, mode=None, level=None, key_delay=None, key_duration=None, mouse_delay=None):
+    """Send simulated keystrokes and mouse clicks to the active window."""
     # TODO: Sending "{U+0009}" and "\u0009" gives different results depending on
     # how tabs are handled in the application.
     # TODO: Consider adding *blind*, *text*, and *raw* arguments.
