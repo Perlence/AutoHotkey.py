@@ -22,7 +22,7 @@ Clipboard
 .. autofunction:: on_clipboard_change
 
 .. autoclass:: ClipboardHandler
-    :members:
+   :members:
 
 
 Timers
@@ -33,7 +33,7 @@ Timers
 .. autofunction:: set_countdown
 
 .. autoclass:: Timer
-    :members:
+   :members:
 
 
 Flow
@@ -63,23 +63,23 @@ GUI
 
 .. autoclass:: MessageBox(text=None, title=None, buttons="ok", icon=None, default_button=1, options=[], timeout=None)
 
-    .. automethod:: show
-    .. automethod:: info(text, title=None, *, buttons="ok", default_button=1, **attrs) -> Optional[str]
-    .. automethod:: warning(text, title=None, *, buttons="ok", default_button=1, **attrs) -> Optional[str]
-    .. automethod:: error(text, title=None, *, buttons="ok", default_button=1, **attrs) -> Optional[str]
-    .. automethod:: ok_cancel(text, title=None, *, icon="info", default_button=1, **attrs) -> Optional[bool]
-    .. automethod:: yes_no(text, title=None, *, icon="info", default_button=1, **attrs) -> Optional[bool]
-    .. automethod:: yes_no_cancel(text, title=None, *, icon="info", default_button=1, **attrs) -> Optional[str]
-    .. automethod:: retry_cancel(text, title=None, *, icon="warning", default_button=1, **attrs) -> Optional[bool]
-    .. automethod:: cancel_try_continue(text, title=None, *, icon="warning", default_button=2, **attrs) -> Optional[str]
+   .. automethod:: show
+   .. automethod:: info(text, title=None, *, buttons="ok", default_button=1, **attrs) -> Optional[str]
+   .. automethod:: warning(text, title=None, *, buttons="ok", default_button=1, **attrs) -> Optional[str]
+   .. automethod:: error(text, title=None, *, buttons="ok", default_button=1, **attrs) -> Optional[str]
+   .. automethod:: ok_cancel(text, title=None, *, icon="info", default_button=1, **attrs) -> Optional[bool]
+   .. automethod:: yes_no(text, title=None, *, icon="info", default_button=1, **attrs) -> Optional[bool]
+   .. automethod:: yes_no_cancel(text, title=None, *, icon="info", default_button=1, **attrs) -> Optional[str]
+   .. automethod:: retry_cancel(text, title=None, *, icon="warning", default_button=1, **attrs) -> Optional[bool]
+   .. automethod:: cancel_try_continue(text, title=None, *, icon="warning", default_button=2, **attrs) -> Optional[str]
 
 .. autoclass:: ToolTip
-    :members:
+   :members:
 
 .. autofunction:: on_message
 
 .. autoclass:: MessageHandler
-    :members:
+   :members:
 
 
 Keyboard and Mouse
@@ -90,36 +90,36 @@ Hotkeys and Hotstrings
 
 .. autoclass:: ahkpy.keys.BaseHotkeyContext
 
-    .. autofunction:: hotkey(key_name: str, func: Callable = None, *args, **options)
-    .. autofunction:: remap_key
-    .. autofunction:: hotstring(string: str, replacement, *args, **options)
+   .. autofunction:: hotkey(key_name: str, func: Callable = None, *args, **options)
+   .. autofunction:: remap_key
+   .. autofunction:: hotstring(string: str, replacement, *args, **options)
 
 .. data:: default_context
 
-    The default instance of :class:`ahkpy.keys.BaseHotkeyContext`.
+   The default instance of :class:`ahkpy.keys.BaseHotkeyContext`.
 
 .. function:: hotkey(...)
 .. function:: remap_key(...)
 .. function:: hotstring(...)
 
-    Useful aliases for :func:`default_context.hotkey()
-    <ahkpy.keys.BaseHotkeyContext.hotkey>`,
-    :func:`default_context.remap_key()
-    <ahkpy.keys.BaseHotkeyContext.remap_key>`,
-    and :func:`default_context.hotstring()
-    <ahkpy.keys.BaseHotkeyContext.hotstring>`.
+   Useful aliases for :func:`default_context.hotkey()
+   <ahkpy.keys.BaseHotkeyContext.hotkey>`,
+   :func:`default_context.remap_key()
+   <ahkpy.keys.BaseHotkeyContext.remap_key>`,
+   and :func:`default_context.hotstring()
+   <ahkpy.keys.BaseHotkeyContext.hotstring>`.
 
 .. autoclass:: HotkeyContext
-    :members:
+   :members:
 
 .. autoclass:: Hotkey
-    :members:
+   :members:
 
 .. autoclass:: RemappedKey
-    :members:
+   :members:
 
 .. autoclass:: Hotstring
-    :members:
+   :members:
 
 .. autofunction:: reset_hotstring
 
