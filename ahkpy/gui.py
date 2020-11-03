@@ -268,12 +268,9 @@ def on_message(msg_number: int, func=None, *, max_threads=1, prepend_handler=Fal
     following positional arguments:
 
     :param w_param: the message's *wParam* value
-
     :param l_param: the message's *lParam* value
-
     :param msg: the message number, which is useful in cases where a function
-        monitors more than one message
-
+       monitors more than one message
     :param hwnd: the HWND (unique ID) of the window or control to which the
        message was sent
 
@@ -284,7 +281,7 @@ def on_message(msg_number: int, func=None, *, max_threads=1, prepend_handler=Fal
     will be registered to be called before any other functions previously
     registered for *msg_number*.
 
-    This function can be used as a decorator::
+    If *func* is omitted, the function works as a decorator::
 
         WM_CLOSE = 0x0010
 

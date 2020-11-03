@@ -64,7 +64,7 @@ def on_clipboard_change(func: Callable = None, *, prepend_handler=False):
     will be registered to be called before any other previously registered
     functions.
 
-    This function can be used as a decorator::
+    If *func* is omitted, the function works as a decorator::
 
         @ahkpy.on_clipboard_change()
         def handler(clipboard_text):

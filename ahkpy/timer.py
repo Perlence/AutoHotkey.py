@@ -22,7 +22,7 @@ def set_timer(interval=0.25, func=None, *args, priority=0):
     The optional parameter *priority* is an integer between -2147483648 and
     2147483647.
 
-    This function can be used as a decorator::
+    If *func* is omitted, the function works as a decorator::
 
         @ahkpy.set_timer(1)
         def handler():
@@ -60,7 +60,7 @@ def set_countdown(interval=0.25, func=None, *args, priority=0):
     The optional parameter *priority* is an integer between -2147483648 and
     2147483647.
 
-    This function can be used as a decorator::
+    If *func* is omitted, the function works as a decorator::
 
         @ahkpy.set_countdown(1)
         def handler():
