@@ -116,9 +116,7 @@ def coop(func, *args, **kwargs):
 
     Use :func:`!coop` to execute **pre-existing** long-running I/O bound Python
     processes like HTTP servers and stdin readers that are designed to handle
-    :exc:`KeyboardInterrupt`:
-
-    .. code-block:: python
+    :exc:`KeyboardInterrupt`::
 
         import code
         ahkpy.coop(code.interact)
@@ -132,25 +130,23 @@ def coop(func, *args, **kwargs):
 
     .. note::
 
-        If you start your own threads, design them so that the main thread could
-        stop them. For example, use :class:`~threading.Event` or
-        :class:`~queue.Queue`.
+       If you start your own threads, design them so that the main thread could
+       stop them. For example, use :class:`~threading.Event` or
+       :class:`~queue.Queue`.
 
-        If you need to wait for the background thread to finish, don't call
-        :meth:`threading.Thread.join` in the main thread. It blocks the handling
-        of AHK message queue, that is, AHK won't be able to handle the hotkeys
-        and other callbacks. Let AHK handle its message queue by calling
-        :func:`sleep` repeatedly while checking that the background thread is
-        alive:
+       If you need to wait for the background thread to finish, don't call
+       :meth:`threading.Thread.join` in the main thread. It blocks the handling
+       of AHK message queue, that is, AHK won't be able to handle the hotkeys
+       and other callbacks. Let AHK handle its message queue by calling
+       :func:`sleep` repeatedly while checking that the background thread is
+       alive::
 
-        .. code-block:: python
-
-            import threading
-            th = threading.Thread(target=some_worker)
-            th.start()
-            # Avoid calling th.join()
-            while th.is_alive():
-                ahkpy.sleep(0.01)
+           import threading
+           th = threading.Thread(target=some_worker)
+           th.start()
+           # Avoid calling th.join()
+           while th.is_alive():
+               ahkpy.sleep(0.01)
     """
     q = queue.Queue(maxsize=1)
     th = threading.Thread(

@@ -59,9 +59,7 @@ class MessageBox:
     """The utility object to reuse and show message boxes.
 
     The object can be used by setting the message box attributes and calling
-    :func:`show`:
-
-    .. code-block:: python
+    :func:`show`::
 
         mb = ahkpy.MessageBox(text="hello")  # Doesn't show the message box yet
         mb.text = "hello from attribute"
@@ -69,9 +67,7 @@ class MessageBox:
         mb.show(text="hello from keyword argument")
         # ^^ Shows a message box with the text "hello from keyword argument"
 
-    Also, the class can be used by calling its static methods:
-
-    .. code-block:: python
+    Also, the class can be used by calling its static methods::
 
         ahkpy.MessageBox.info("hello from the static method")
         # ^^ Shows a message box with the "info" icon
@@ -288,9 +284,7 @@ def on_message(msg_number: int, func=None, *, max_threads=1, prepend_handler=Fal
     will be registered to be called before any other functions previously
     registered for *msg_number*.
 
-    This function can be used as a decorator:
-
-    .. code-block:: python
+    This function can be used as a decorator::
 
         WM_CLOSE = 0x0010
 
@@ -344,7 +338,7 @@ class ToolTip:
 
     No more than 20 tooltips can be shown simultaneously.
 
-    .. code-block:: python
+    Example usage::
 
         tt = ToolTip(text="hello")  # Doesn't show the tooltip yet
         tt.text = "hello from attribute"

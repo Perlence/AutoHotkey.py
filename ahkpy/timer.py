@@ -22,9 +22,7 @@ def set_timer(interval=0.25, func=None, *args, priority=0):
     The optional parameter *priority* is an integer between -2147483648 and
     2147483647.
 
-    This function can be used as a decorator:
-
-    .. code-block:: python
+    This function can be used as a decorator::
 
         @ahkpy.set_timer(1)
         def handler():
@@ -62,9 +60,7 @@ def set_countdown(interval=0.25, func=None, *args, priority=0):
     The optional parameter *priority* is an integer between -2147483648 and
     2147483647.
 
-    This function can be used as a decorator:
-
-    .. code-block:: python
+    This function can be used as a decorator::
 
         @ahkpy.set_countdown(1)
         def handler():
@@ -136,17 +132,15 @@ class Timer:
 
         .. note::
 
-            Changing the attributes of the timer instance doesn't affect the
-            underlying AHK timer. Call the :meth:`Timer.update` to actually
-            apply the changes to the AHK timer.
+           Changing the attributes of the timer instance doesn't affect the
+           underlying AHK timer. Call the :meth:`Timer.update` to actually apply
+           the changes to the AHK timer::
 
-            .. code-block::
+               t = ahkpy.set_timer(1, print, "beep")
+               t.interval = 0.5
+               # ^^ Does not change the frequency of prints!
 
-                t = ahkpy.set_timer(1, print, "beep")
-                t.interval = 0.5
-                # ^^ Does not change the frequency of prints!
-
-                t.update()  # Makes the timer fire twice a second.
+               t.update()  # Makes the timer fire twice a second.
         """
         # TODO: Check that self.func is not None.
         if func is not None:
