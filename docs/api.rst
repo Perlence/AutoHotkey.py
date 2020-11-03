@@ -102,11 +102,11 @@ Hotkeys and Hotstrings
 .. function:: remap_key(...)
 .. function:: hotstring(...)
 
-   Useful aliases for :func:`default_context.hotkey()
+   Useful aliases for :meth:`default_context.hotkey()
    <ahkpy.keys.BaseHotkeyContext.hotkey>`,
-   :func:`default_context.remap_key()
+   :meth:`default_context.remap_key()
    <ahkpy.keys.BaseHotkeyContext.remap_key>`,
-   and :func:`default_context.hotstring()
+   and :meth:`default_context.hotstring()
    <ahkpy.keys.BaseHotkeyContext.hotstring>`.
 
 .. autoclass:: HotkeyContext
