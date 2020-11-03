@@ -511,7 +511,7 @@ class Hotstring:
 
     def __post_init__(self):
         if hasattr(self.trigger, "lower") and not self.case_sensitive:
-            object.__setattr__(self, "string", self.trigger.lower())
+            object.__setattr__(self, "trigger", self.trigger.lower())
 
     def disable(self):
         with self.context._manager():
