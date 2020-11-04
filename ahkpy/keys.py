@@ -307,6 +307,8 @@ class BaseHotkeyContext:
         *repl*. If *repl* is a callable, it will be called when the hotstring is
         triggered.
 
+        .. TODO: Document end chars.
+
         The optional positional *args* will be passed to the *repl* when it is
         called. If you want the *repl* to be called with keyword arguments use
         :func:`functools.partial`.
@@ -337,7 +339,7 @@ class BaseHotkeyContext:
                ahkpy.hotstring("al", "airline",
                                replace_inside_word=True)
 
-           Given the code above, typing "practical " produces "practicairline ".
+           Given the code above, typing "practical " produces "practicairline ".
 
            Defaults to ``False``.
 
