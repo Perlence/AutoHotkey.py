@@ -19,8 +19,9 @@ def set_timer(interval=0.25, func=None, *args, priority=0):
     If you want the *func* to be called with keyword arguments use
     :func:`functools.partial`.
 
-    The optional parameter *priority* is an integer between -2147483648 and
-    2147483647.
+    The optional *priority* argument sets the priority of the AHK thread where
+    *func* will be executed. It must be an :class:`int` between -2147483648 and
+    2147483647. Defaults to 0.
 
     If *func* is omitted, the function works as a decorator::
 
@@ -33,9 +34,6 @@ def set_timer(interval=0.25, func=None, *args, priority=0):
     AutoHotkey command: `SetTimer
     <https://www.autohotkey.com/docs/commands/SetTimer.htm>`_.
     """
-    # TODO: Does priority actually work in ahkpy? It seems that other AHK
-    # threads cannot interrupt the current AHK thread while it executes Python
-    # code.
     t = Timer(interval, func, priority, periodic=True)
 
     def set_timer_decorator(func):

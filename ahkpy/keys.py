@@ -183,7 +183,8 @@ class BaseHotkeyContext:
            when the *max_threads* limit has been reached. Defaults to ``False``.
 
         :param priority: the priority of the AHK thread where *func* will be
-           executed. Defaults to 0.
+           executed. It must be an :class:`int` between -2147483648 and
+           2147483647. Defaults to 0.
 
         :param max_threads: the number of keypresses AHK can handle
            concurrently. Defaults to 1.
