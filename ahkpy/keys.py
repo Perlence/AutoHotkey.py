@@ -1,7 +1,7 @@
 import inspect
+import functools
 from contextlib import contextmanager
 from dataclasses import dataclass
-from functools import partial
 from typing import Callable, Union
 
 from .exceptions import Error
@@ -211,7 +211,7 @@ class BaseHotkeyContext:
 
         def hotkey_decorator(func):
             if args:
-                func = partial(func, *args)
+                func = functools.partial(func, *args)
             hk = Hotkey(key_name, context=self)
             hk.update(
                 func=func,
@@ -411,7 +411,7 @@ class BaseHotkeyContext:
         """
         def hotstring_decorator(repl):
             if callable(repl) and args:
-                repl = partial(repl, *args)
+                repl = functools.partial(repl, *args)
             nonlocal mode, key_delay
             mode = _get_send_mode(mode, key_delay)
             if key_delay is None and mode != "input":
@@ -484,19 +484,43 @@ hotstring = default_context.hotstring
 
 @dataclass(frozen=True)
 class HotkeyContext(BaseHotkeyContext):
+    """The context-specific hotkey factory. It's used to create hotkeys and key
+    remappings that will be active only when the given *predicate* evaluates to
+    ``True``.
+
+    The *predicate* argument is a callable that is executed every time the user
+    presses the hotkey or – in case of a key remapping – the origin key. The
+    predicate takes either zero or one positional argument. In case of latter,
+    the predicate will be called with the *key_name* of the
+    :meth:`~ahkpy.keys.BaseHotkeyContext.hotkey` that was pressed by the user.
+
+    In the following example pressing the :kbd:`F1` key shows the message only
+    when the mouse cursor is over the taskbar::
+
+        def is_mouse_over_taskbar():
+            return ahkpy.get_window_under_mouse().class_name == "Shell_TrayWnd"
+
+        ctx = ahkpy.HotkeyContext(is_mouse_over_taskbar)
+        ctx.hotkey("F1", ahkpy.message_box, "Pressed F1 over the taskbar.")
+
+    AutoHotkey command: `Hotkey, If, % FunctionObject
+    <https://www.autohotkey.com/docs/commands/Hotkey.htm#IfFn>`_.
+    """
+
     predicate: Callable
     __slots__ = ("predicate",)
 
     def __init__(self, predicate):
         signature = inspect.signature(predicate)
         if len(signature.parameters) == 0:
-            def wrapper(*args):
+            def wrapped_predicate(hotkey):
                 return bool(predicate())
         else:
-            def wrapper(*args):
-                return bool(predicate(*args))
+            def wrapped_predicate(hotkey):
+                return bool(predicate(hotkey))
 
-        object.__setattr__(self, "predicate", wrapper)
+        wrapped_predicate = functools.wraps(predicate)(wrapped_predicate)
+        object.__setattr__(self, "predicate", wrapped_predicate)
 
     def _enter(self):
         ahk_call("HotkeyContext", self.predicate)
