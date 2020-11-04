@@ -295,7 +295,7 @@ class BaseHotkeyContext:
         priority=0,
         text=False,
         mode=None,
-        key_delay=-1,
+        key_delay=None,
         reset_recognizer=False,
     ):
         """Register a hotstring.
@@ -354,6 +354,13 @@ class BaseHotkeyContext:
         def hotstring_decorator(repl):
             if callable(repl) and args:
                 repl = partial(repl, *args)
+            nonlocal mode, key_delay
+            mode = _get_send_mode(mode, key_delay)
+            if key_delay is None:
+                if mode == "event":
+                    key_delay = get_settings().key_delay
+                elif mode == "play":
+                    key_delay = get_settings().key_delay_play
             hs = Hotstring(trigger, case_sensitive, replace_inside_word, context=self)
             hs.update(
                 repl=repl,
@@ -644,14 +651,7 @@ def send(keys, *, mode=None, level=None, key_delay=None, key_duration=None, mous
     # TODO: Sending "{U+0009}" and "\u0009" gives different results depending on
     # how tabs are handled in the application.
     # TODO: Consider adding *blind*, *text*, and *raw* arguments.
-    if mode is None:
-        mode = get_settings().send_mode
-        if mode == "input" and (
-            isinstance(key_delay, (int, float)) and key_delay >= 0 or
-            isinstance(key_duration, (int, float)) and key_duration >= 0 or
-            isinstance(mouse_delay, (int, float)) and mouse_delay >= 0
-        ):
-            mode = "event"
+    mode = _get_send_mode(mode, key_delay, key_duration, mouse_delay)
     if mode == "input":
         send_func = send_input
     elif mode == "play":
@@ -661,6 +661,19 @@ def send(keys, *, mode=None, level=None, key_delay=None, key_duration=None, mous
     else:
         raise ValueError(f"{mode!r} is not a valid send mode")
     send_func(keys, level=level, key_delay=key_delay, key_duration=key_duration, mouse_delay=mouse_delay)
+
+
+def _get_send_mode(mode=None, key_delay=None, key_duration=None, mouse_delay=None):
+    if mode is not None:
+        return mode
+    mode = get_settings().send_mode
+    if mode == "input" and (
+        isinstance(key_delay, (int, float)) and key_delay >= 0 or
+        isinstance(key_duration, (int, float)) and key_duration >= 0 or
+        isinstance(mouse_delay, (int, float)) and mouse_delay >= 0
+    ):
+        return "event"
+    return mode
 
 
 def send_input(keys, *, level=None, **rest):
