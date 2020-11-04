@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from functools import partial
+import dataclasses as dc
+import functools
 from typing import Callable
 
 from .flow import ahk_call
@@ -78,7 +78,7 @@ def on_clipboard_change(func: Callable = None, *, prepend_handler=False):
     option = 1 if not prepend_handler else -1
 
     def on_clipboard_change_decorator(func):
-        wrapper = partial(_clipboard_handler, func)
+        wrapper = functools.partial(_clipboard_handler, func)
         ahk_call("OnClipboardChange", wrapper, option)
         return ClipboardHandler(wrapper)
 
@@ -97,7 +97,7 @@ def _clipboard_handler(func, typ):
         return func(get_clipboard())
 
 
-@dataclass(frozen=True)
+@dc.dataclass(frozen=True)
 class ClipboardHandler:
     """This object holds a function registered to be called on clipboard change.
 

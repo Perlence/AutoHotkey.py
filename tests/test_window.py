@@ -1,4 +1,4 @@
-from dataclasses import FrozenInstanceError
+import dataclasses
 
 import pytest
 
@@ -155,7 +155,7 @@ class TestWindowObj:
 
     def test_properties(self, win1):
         assert hash(win1) == hash(ahk.Window(win1.id))
-        with pytest.raises(FrozenInstanceError):
+        with pytest.raises(dataclasses.FrozenInstanceError):
             win1.id = 0
 
     def test_rect(self, win1):

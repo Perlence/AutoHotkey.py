@@ -1,7 +1,7 @@
-import inspect
+import dataclasses as dc
 import functools
+import inspect
 from contextlib import contextmanager
-from dataclasses import dataclass
 from typing import Callable, Union
 
 from .exceptions import Error
@@ -152,7 +152,7 @@ def _get_key(cmd, key):
     return result
 
 
-@dataclass(frozen=True)
+@dc.dataclass(frozen=True)
 class BaseHotkeyContext:
     # TODO: Consider adding context options: MaxThreadsBuffer,
     # MaxThreadsPerHotkey, and InputLevel.
@@ -482,7 +482,7 @@ remap_key = default_context.remap_key
 hotstring = default_context.hotstring
 
 
-@dataclass(frozen=True)
+@dc.dataclass(frozen=True)
 class HotkeyContext(BaseHotkeyContext):
     """The context-specific hotkey factory. It's used to create hotkeys and key
     remappings that will be active only when the given *predicate* evaluates to
@@ -529,7 +529,7 @@ class HotkeyContext(BaseHotkeyContext):
         ahk_call("HotkeyExitContext")
 
 
-@dataclass(frozen=True)
+@dc.dataclass(frozen=True)
 class Hotkey:
     key_name: str
     context: BaseHotkeyContext
@@ -583,7 +583,7 @@ class Hotkey:
             ahk_call("Hotkey", self.key_name, func or "", option_str)
 
 
-@dataclass(frozen=True)
+@dc.dataclass(frozen=True)
 class Hotstring:
     trigger: str
     case_sensitive: bool
@@ -708,7 +708,7 @@ def set_hotstring_mouse_reset(value):
     ahk_call("Hotstring", "MouseReset", bool(value))
 
 
-@dataclass(frozen=True)
+@dc.dataclass(frozen=True)
 class RemappedKey:
     wildcard_origin: Hotkey
     wildcard_origin_up: Hotkey

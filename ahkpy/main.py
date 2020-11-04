@@ -1,10 +1,10 @@
 import argparse
+import functools
 import os
 import runpy
 import sys
 import time
 import traceback
-from functools import partial
 
 from . import gui
 from .exceptions import Error  # noqa: F401, used in Python.ahk
@@ -184,7 +184,7 @@ def run_path(filename):
                     code = compile(f.read(), filename, "exec")
         else:
             # TODO: Write a test for running directories.
-            code = partial(runpy.run_path, filename, run_name="__main__")
+            code = functools.partial(runpy.run_path, filename, run_name="__main__")
     except FileNotFoundError as err:
         show_error(f"Can't open file: {err}")
         sys.exit(2)

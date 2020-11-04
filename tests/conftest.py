@@ -1,8 +1,8 @@
 import inspect
 import signal
 import subprocess
+import textwrap
 import time
-from textwrap import dedent
 
 import pytest
 
@@ -62,8 +62,8 @@ class ChildAHK:
         if callable(code):
             func_name = code.__name__
             source = inspect.getsource(code)
-            return f"{dedent(source)}\n{func_name}()\n"
-        return dedent(code)
+            return f"{textwrap.dedent(source)}\n{func_name}()\n"
+        return textwrap.dedent(code)
 
     def wait(self, counter):
         line = self.proc.stdout.readline()
