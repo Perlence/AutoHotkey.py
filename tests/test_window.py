@@ -1,5 +1,4 @@
 from dataclasses import FrozenInstanceError
-from functools import partial
 
 import pytest
 

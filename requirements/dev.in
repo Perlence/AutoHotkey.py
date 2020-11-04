@@ -2,5 +2,6 @@
 -r tests.in
 flake8
 pip-tools
+pre-commit
 sphinx-autobuild
 tox

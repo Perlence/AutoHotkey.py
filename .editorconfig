@@ -9,3 +9,6 @@ insert_final_newline = true
 
 [*.rst]
 indent_size = 3
+
+[*.{yml,yaml}]
+indent_size = 2
