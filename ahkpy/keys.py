@@ -357,7 +357,7 @@ class BaseHotkeyContext:
                                wait_for_end_char=false,
                                backspacing=False)
 
-           Given the code above, typing "<em>" produces "<em>|</em>", where
+           Given the code above, typing ``<em>`` produces ``<em>|</em>``, where
            ``|`` is the keyboard cursor.
 
            Defaults to ``True``.
@@ -379,10 +379,8 @@ class BaseHotkeyContext:
            :func:`ahkpy.send`.
 
         :param key_delay: the delay between keystrokes produced by
-           auto-backspacing or auto-replacement. Defaults to one currently set
-           in :attr:`Settings.key_delay` or :attr:`Settings.key_delay_play`,
-           depending on the `mode`. For more information refer to
-           :func:`ahkpy.send`.
+           auto-backspacing and auto-replacement. Defaults to 0 for Event and
+           Play modes. For more information refer to :func:`ahkpy.send`.
 
         :param reset_recognizer: if ``True``, resets the hotstring recognizer
            after each triggering of the hotstring. To illustrate, consider the
@@ -397,8 +395,8 @@ class BaseHotkeyContext:
                def eleven():
                    ahkpy.send_event("xx", level=0)
 
-           Since the above lacks the *reset_recognizer* option, typing 111
-           (three consecutive 1's) would trigger the hotstring twice because the
+           Since the above lacks the *reset_recognizer* option, typing ``111``
+           (three consecutive 1's) triggers the hotstring twice because the
            middle 1 is the *last* character of the first triggering but also the
            first character of the second triggering. By setting
            *reset_recognizer* to ``True``, you would have to type four 1's
@@ -414,11 +412,10 @@ class BaseHotkeyContext:
                 repl = partial(repl, *args)
             nonlocal mode, key_delay
             mode = _get_send_mode(mode, key_delay)
-            if key_delay is None:
-                if mode == "event":
-                    key_delay = get_settings().key_delay
-                elif mode == "play":
-                    key_delay = get_settings().key_delay_play
+            if key_delay is None and mode != "input":
+                # Wanted to use Settings.key_delay for default, but zero delay
+                # is a more suitable default for hotstrings.
+                key_delay = 0
             hs = Hotstring(trigger, case_sensitive, replace_inside_word, context=self)
             hs.update(
                 repl=repl,
