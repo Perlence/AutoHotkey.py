@@ -64,6 +64,8 @@ html_theme_options = {
     "github_banner": True,
     "show_related": False,
     "fixed_sidebar": True,
+    "font_family": "'Lucida Grande', Arial, sans-serif",
+    "font_size": "100%",
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

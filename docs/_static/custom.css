@@ -1,13 +1,7 @@
-/* Make main content wider */
-
-div.document {
-    width: initial;
-    max-width: 1080px;
-}
+/* Remove min-width in mobile view */
 
 div.body {
     min-width: initial;
-    max-width: initial;
 }
 
 
@@ -15,25 +9,4 @@ div.body {
 
 dl {
     margin-bottom: 15px;
-}
-
-
-/* Make sidebar wider */
-
-div.bodywrapper {
-    margin: 0 0 0 240px;
-}
-
-div.sphinxsidebar {
-    width: 240px;
-}
-
-@media screen and (max-width: 875px) {
-    div.bodywrapper {
-        margin: 0;
-    }
-
-    div.sphinxsidebar {
-        width: initial;
-    }
 }
