@@ -330,23 +330,81 @@ class BaseHotkeyContext:
            case-sensitive hotstrings never conform to the case of the trigger
            text.
 
-        :param replace_inside_word: Defaults to ``False``.
+        :param replace_inside_word: if ``True``, the hotstring will be triggered
+           even when it is inside another word; that is, when the character
+           typed immediately before it is alphanumeric::
 
-        :param wait_for_end_char: Defaults to ``True``.
+               ahkpy.hotstring("al", "airline",
+                               replace_inside_word=True)
 
-        :param omit_end_char: Defaults to ``False``.
+           Given the code above, typing "practical " produces "practicairline ".
 
-        :param backspacing: Defaults to ``True``.
+           Defaults to ``False``.
 
-        :param priority: Defaults to 0.
+        :param wait_for_end_char: if ``False``, an `end char
+           <https://www.autohotkey.com/docs/Hotstrings.htm#EndChars>`_ is not
+           required to trigger the hotstring. Defaults to ``True``.
 
-        :param text: Defaults to ``False``.
+        :param omit_end_char: if ``True`` and *wait_for_end_char* is ``True``,
+           then the hotstring waits for the user to type an end char and
+           produces the replacement with the end char omitted. Defaults to
+           ``False``.
 
-        :param mode: Defaults to ``None``.
+        :param backspacing: if ``False``, skips removing the user input that
+           triggered the hotstring before producing the *repl*::
 
-        :param key_delay: Defaults to -1.
+               ahkpy.hotstring("<em>", "</em>{Left 5}",
+                               wait_for_end_char=false,
+                               backspacing=False)
 
-        :param reset_recognizer: Defaults to ``False``.
+           Given the code above, typing "<em>" produces "<em>|</em>", where
+           ``|`` is the keyboard cursor.
+
+           Defaults to ``True``.
+
+        :param priority: the priority of the AHK thread where *repl* will be
+           executed if it's a callable. It must be an :class:`int` between
+           -2147483648 and 2147483647. Defaults to 0.
+
+        :param text: if ``True``, sends the replacement text raw, without
+           translating each character to a keystroke. For details, see `Text
+           mode <https://www.autohotkey.com/docs/commands/Send.htm#SendText>`_.
+           Defaults to ``False``.
+
+           .. TODO: Check `r and `n characters in Text mode.
+
+        :param mode: the method by which auto-replace hotstrings send their
+           keystrokes. Defaults to one currently set in
+           :attr:`Settings.send_mode`. For the list of valid modes refer to
+           :func:`ahkpy.send`.
+
+        :param key_delay: the delay between keystrokes produced by
+           auto-backspacing or auto-replacement. Defaults to one currently set
+           in :attr:`Settings.key_delay` or :attr:`Settings.key_delay_play`,
+           depending on the `mode`. For more information refer to
+           :func:`ahkpy.send`.
+
+        :param reset_recognizer: if ``True``, resets the hotstring recognizer
+           after each triggering of the hotstring. To illustrate, consider the
+           following hotstring::
+
+               @ahkpy.hotstring(
+                   "11",
+                   backspacing=False,
+                   wait_for_end_char=False,
+                   replace_inside_word=True,
+               )
+               def eleven():
+                   ahkpy.send_event("xx", level=0)
+
+           Since the above lacks the *reset_recognizer* option, typing 111
+           (three consecutive 1's) would trigger the hotstring twice because the
+           middle 1 is the *last* character of the first triggering but also the
+           first character of the second triggering. By setting
+           *reset_recognizer* to ``True``, you would have to type four 1's
+           instead of three to trigger the hotstring twice.
+
+           Defaults to ``False``.
 
         AutoHotkey function: `Hotstring
         <https://www.autohotkey.com/docs/commands/Hotstring.htm>`_.
