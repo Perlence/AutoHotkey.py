@@ -64,7 +64,7 @@ html_theme_options = {
     "github_banner": True,
     "show_related": False,
     "fixed_sidebar": True,
-    "font_family": "'Lucida Grande', Arial, sans-serif",
+    "font_family": "system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif",
     "font_size": "100%",
 }
 
