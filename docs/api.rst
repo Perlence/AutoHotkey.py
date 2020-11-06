@@ -25,17 +25,6 @@ Clipboard
    :members:
 
 
-Timers
-------
-
-.. autofunction:: set_timer
-
-.. autofunction:: set_countdown
-
-.. autoclass:: Timer
-   :members:
-
-
 Flow
 ----
 
@@ -187,3 +176,14 @@ A couple of context managers to block user input.
 .. autofunction:: block_input
 
 .. autofunction:: block_mouse_move
+
+
+Timers
+------
+
+.. autofunction:: set_timer
+
+.. autofunction:: set_countdown
+
+.. autoclass:: Timer
+   :members:
