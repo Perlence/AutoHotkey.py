@@ -94,17 +94,18 @@ Hotkeys and Hotstrings
    Useful aliases for :meth:`default_context.hotkey()
    <ahkpy.hotkey_context.BaseHotkeyContext.hotkey>`,
    :meth:`default_context.remap_key()
-   <ahkpy.hotkey_context.BaseHotkeyContext.remap_key>`,
-   and :meth:`default_context.hotstring()
+   <ahkpy.hotkey_context.BaseHotkeyContext.remap_key>`, and
+   :meth:`default_context.hotstring()
    <ahkpy.hotkey_context.BaseHotkeyContext.hotstring>`.
 
 .. autoclass:: HotkeyContext
+   :show-inheritance:
    :members:
 
 .. autoclass:: Hotkey
    :members:
 
-.. autoclass:: RemappedKey
+.. autoclass:: RemappedKey(wildcard_origin: ahkpy.Hotkey, wildcard_origin_up: ahkpy.Hotkey)
    :members:
 
 .. autoclass:: Hotstring
