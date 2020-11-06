@@ -530,6 +530,12 @@ class HotkeyContext(BaseHotkeyContext):
 
 @dc.dataclass(frozen=True)
 class Hotkey:
+    """The object representing a hotkey registered in the given context.
+
+    Creating an instance of :class:`!Hotkey` doesn't register it in AHK. Use
+    :meth:`~ahkpy.keys.BaseHotkeyContext.hotkey` instead.
+    """
+
     key_name: str
     context: BaseHotkeyContext
     __slots__ = ("key_name", "context")
@@ -545,18 +551,26 @@ class Hotkey:
     #    stored in the Python Hotkey object becomes obsolete and misleading.
 
     def enable(self):
+        """Enable the hotkey."""
         with self.context._manager():
             ahk_call("HotkeySpecial", self.key_name, "On")
 
     def disable(self):
+        """Disable the hotkey."""
         with self.context._manager():
             ahk_call("HotkeySpecial", self.key_name, "Off")
 
     def toggle(self):
+        """Enable the hotkey if it's disabled or do the opposite."""
         with self.context._manager():
             ahk_call("HotkeySpecial", self.key_name, "Toggle")
 
     def update(self, *, func=None, buffer=None, priority=None, max_threads=None, input_level=None):
+        """Update the hotkey callback and options.
+
+        For more information about the arguments refer to
+        :meth:`~ahkpy.keys.BaseHotkeyContext.hotkey`.
+        """
         if not callable(func):
             raise TypeError(f"object {func!r} must be callable")
 
@@ -584,6 +598,28 @@ class Hotkey:
 
 @dc.dataclass(frozen=True)
 class Hotstring:
+    """The object that represents a registered hotstring.
+
+    Creating an instance of :class:`!Hotstring` doesn't register it in AHK. Use
+    :meth:`~ahkpy.keys.BaseHotkeyContext.hotstring` instead.
+
+    Hotstrings in AutoHotkey are defined by the trigger string,
+    case-sensitivity, word-sensitivity (*replace_inside_word*), and the context
+    in which they are created. For example, the following creates only one
+    hotstring::
+
+        hs1 = ahkpy.hotstring("btw", "by the way", case_sensitive=False)
+        hs2 = ahkpy.hotstring("BTW", "by the way", case_sensitive=False)
+
+    This is because *case_sensitive* option is set to ``False`` (the default),
+    so that the hotstring will trigger regardless of the case it was typed in.
+
+    Conversely, the following creates two separate hotstrings::
+
+        hs1 = ahkpy.hotstring("btw", "by the way", case_sensitive=True)
+        hs2 = ahkpy.hotstring("BTW", "by the way", case_sensitive=True)
+    """
+
     trigger: str
     case_sensitive: bool
     replace_inside_word: bool
@@ -601,15 +637,18 @@ class Hotstring:
         if hasattr(self.trigger, "lower") and not self.case_sensitive:
             object.__setattr__(self, "trigger", self.trigger.lower())
 
-    def disable(self):
-        with self.context._manager():
-            ahk_call("Hotstring", f":{self._id_options()}:{self.trigger}", "", "Off")
-
     def enable(self):
+        """Enable the hotkey."""
         with self.context._manager():
             ahk_call("Hotstring", f":{self._id_options()}:{self.trigger}", "", "On")
 
+    def disable(self):
+        """Disable the hotkey."""
+        with self.context._manager():
+            ahk_call("Hotstring", f":{self._id_options()}:{self.trigger}", "", "Off")
+
     def toggle(self):
+        """Enable the hotstring if it's disabled or do the opposite."""
         with self.context._manager():
             ahk_call("Hotstring", f":{self._id_options()}:{self.trigger}", "", "Toggle")
 
@@ -622,6 +661,11 @@ class Hotstring:
         self, *, repl=None, conform_to_case=None, wait_for_end_char=None, omit_end_char=None, backspacing=None,
         priority=None, text=None, mode=None, key_delay=None, reset_recognizer=None,
     ):
+        """Update the hotstring's *repl* and options.
+
+        For more information about the arguments refer to
+        :meth:`~ahkpy.keys.BaseHotkeyContext.hotstring`.
+        """
         options = []
 
         if self.case_sensitive:
@@ -709,19 +753,28 @@ def set_hotstring_mouse_reset(value):
 
 @dc.dataclass(frozen=True)
 class RemappedKey:
+    """The object that represents a remapped key.
+
+    Creating an instance of :class:`!RemappedKey` doesn't register it in AHK.
+    Use :meth:`~ahkpy.keys.BaseHotkeyContext.remap_key` instead.
+    """
+
     wildcard_origin: Hotkey
     wildcard_origin_up: Hotkey
     __slots__ = ("wildcard_origin", "wildcard_origin_up")
 
     def enable(self):
+        """Enable the key remapping."""
         self.wildcard_origin.enable()
         self.wildcard_origin_up.enable()
 
     def disable(self):
+        """Disable the key remapping."""
         self.wildcard_origin.disable()
         self.wildcard_origin_up.disable()
 
     def toggle(self):
+        """Enable the key remapping if it's disabled or do the opposite."""
         self.wildcard_origin.toggle()
         self.wildcard_origin_up.toggle()
 

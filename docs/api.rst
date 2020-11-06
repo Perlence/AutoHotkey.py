@@ -90,9 +90,9 @@ Hotkeys and Hotstrings
 
 .. autoclass:: ahkpy.keys.BaseHotkeyContext
 
-   .. autofunction:: hotkey(key_name: str, func: Callable = None, *args, **options)
-   .. autofunction:: remap_key
-   .. autofunction:: hotstring(trigger: str, repl: Union[str, Callable] = None, *args, **options)
+   .. automethod:: hotkey(key_name: str, func: Callable = None, *args, **options)
+   .. automethod:: remap_key
+   .. automethod:: hotstring(trigger: str, repl: Union[str, Callable] = None, *args, **options)
 
 .. data:: default_context
 
