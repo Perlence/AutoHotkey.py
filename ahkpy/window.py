@@ -7,7 +7,7 @@ from . import colors
 from . import sending
 from .exceptions import Error
 from .flow import ahk_call, global_ahk_lock
-from .hotkeys import HotkeyContext
+from .hotkey_context import HotkeyContext
 from .settings import get_settings, optional_ms
 from .unset import UNSET, UnsetType
 

@@ -77,7 +77,7 @@ Keyboard and Mouse
 Hotkeys and Hotstrings
 ~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: ahkpy.keys.BaseHotkeyContext
+.. autoclass:: ahkpy.hotkey_context.BaseHotkeyContext
 
    .. automethod:: hotkey(key_name: str, func: Callable = None, *args, **options)
    .. automethod:: remap_key
@@ -85,18 +85,18 @@ Hotkeys and Hotstrings
 
 .. data:: default_context
 
-   The default instance of :class:`ahkpy.keys.BaseHotkeyContext`.
+   The default instance of :class:`ahkpy.hotkey_context.BaseHotkeyContext`.
 
 .. function:: hotkey(...)
 .. function:: remap_key(...)
 .. function:: hotstring(...)
 
    Useful aliases for :meth:`default_context.hotkey()
-   <ahkpy.keys.BaseHotkeyContext.hotkey>`,
+   <ahkpy.hotkey_context.BaseHotkeyContext.hotkey>`,
    :meth:`default_context.remap_key()
-   <ahkpy.keys.BaseHotkeyContext.remap_key>`,
+   <ahkpy.hotkey_context.BaseHotkeyContext.remap_key>`,
    and :meth:`default_context.hotstring()
-   <ahkpy.keys.BaseHotkeyContext.hotstring>`.
+   <ahkpy.hotkey_context.BaseHotkeyContext.hotstring>`.
 
 .. autoclass:: HotkeyContext
    :members:
