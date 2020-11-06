@@ -177,7 +177,7 @@ class BaseHotkeyContext:
         called. If you want the *func* to be called with keyword arguments use
         :func:`functools.partial`.
 
-        The following keyword-only arguments set the hotkey options:
+        The following keyword-only arguments set the hotkey *options*:
 
         :param buffer: causes the hotkey to buffer rather than ignore keypresses
            when the *max_threads* limit has been reached. Defaults to ``False``.
@@ -313,98 +313,97 @@ class BaseHotkeyContext:
         called. If you want the *repl* to be called with keyword arguments use
         :func:`functools.partial`.
 
-        The following keyword-only arguments set the hotstring options:
+        The following keyword-only arguments set the hotstring *options*:
 
-        :param case_sensitive: if ``True``, the user must type the text with the
-           exact case to trigger the hotstring. Defaults to ``False``.
+        - **case_sensitive** – if ``True``, the user must type the text with the
+          exact case to trigger the hotstring. Defaults to ``False``.
 
-        :param conform_to_case: if ``False``, the replacement is typed exactly
-           as given in *repl*. Otherwise, the following rules apply:
+        - **conform_to_case** – if ``False``, the replacement is typed exactly
+          as given in *repl*. Otherwise, the following rules apply:
 
-           - If the user types the trigger text in all caps, the replacement
-             text is produced in all caps.
-           - If the user types the first letter in caps, the first letter of the
-             replacement is also capitalized.
-           - If the user types the case in any other way, the replacement is
-             produced exactly as given in *repl*.
+          - If the user types the trigger text in all caps, the replacement text
+            is produced in all caps.
+          - If the user types the first letter in caps, the first letter of the
+            replacement is also capitalized.
+          - If the user types the case in any other way, the replacement is
+            produced exactly as given in *repl*.
 
-           Defaults to ``True`` for case-insensitive hotstrings. Conversely,
-           case-sensitive hotstrings never conform to the case of the trigger
-           text.
+          Defaults to ``True`` for case-insensitive hotstrings. Conversely,
+          case-sensitive hotstrings never conform to the case of the trigger
+          text.
 
-        :param replace_inside_word: if ``True``, the hotstring will be triggered
-           even when it is inside another word; that is, when the character
-           typed immediately before it is alphanumeric::
+        - **replace_inside_word** – if ``True``, the hotstring will be triggered
+          even when it is inside another word; that is, when the character typed
+          immediately before it is alphanumeric::
 
-               ahkpy.hotstring("al", "airline",
-                               replace_inside_word=True)
+              ahkpy.hotstring("al", "airline",
+                              replace_inside_word=True)
 
-           Given the code above, typing "practical " produces "practicairline ".
+          Given the code above, typing "practical " produces "practicairline ".
 
-           Defaults to ``False``.
+          Defaults to ``False``.
 
-        :param wait_for_end_char: if ``False``, an `end char
-           <https://www.autohotkey.com/docs/Hotstrings.htm#EndChars>`_ is not
-           required to trigger the hotstring. Defaults to ``True``.
+        - **wait_for_end_char** – if ``False``, an `end char
+          <https://www.autohotkey.com/docs/Hotstrings.htm#EndChars>`_ is not
+          required to trigger the hotstring. Defaults to ``True``.
 
-        :param omit_end_char: if ``True`` and *wait_for_end_char* is ``True``,
-           then the hotstring waits for the user to type an end char and
-           produces the replacement with the end char omitted. Defaults to
-           ``False``.
+        - **omit_end_char** – if ``True`` and *wait_for_end_char* is ``True``,
+          then the hotstring waits for the user to type an end char and produces
+          the replacement with the end char omitted. Defaults to ``False``.
 
-        :param backspacing: if ``False``, skips removing the user input that
-           triggered the hotstring before producing the *repl*::
+        - **backspacing** – if ``False``, skips removing the user input that
+          triggered the hotstring before producing the *repl*::
 
-               ahkpy.hotstring("<em>", "</em>{Left 5}",
-                               wait_for_end_char=false,
-                               backspacing=False)
+              ahkpy.hotstring("<em>", "</em>{Left 5}",
+                              wait_for_end_char=false,
+                              backspacing=False)
 
-           Given the code above, typing ``<em>`` produces ``<em>|</em>``, where
-           ``|`` is the keyboard cursor.
+          Given the code above, typing ``<em>`` produces ``<em>|</em>``, where
+          ``|`` is the keyboard cursor.
 
-           Defaults to ``True``.
+          Defaults to ``True``.
 
-        :param priority: the priority of the AHK thread where *repl* will be
-           executed if it's a callable. It must be an :class:`int` between
-           -2147483648 and 2147483647. Defaults to 0.
+        - **priority** – the priority of the AHK thread where *repl* will be
+          executed if it's a callable. It must be an :class:`int` between
+          -2147483648 and 2147483647. Defaults to 0.
 
-        :param text: if ``True``, sends the replacement text raw, without
-           translating each character to a keystroke. For details, see `Text
-           mode <https://www.autohotkey.com/docs/commands/Send.htm#SendText>`_.
-           Defaults to ``False``.
+        - **text** – if ``True``, sends the replacement text raw, without
+          translating each character to a keystroke. For details, see `Text mode
+          <https://www.autohotkey.com/docs/commands/Send.htm#SendText>`_.
+          Defaults to ``False``.
 
-           .. TODO: Check `r and `n characters in Text mode.
+          .. TODO: Check `r and `n characters in Text mode.
 
-        :param mode: the method by which auto-replace hotstrings send their
-           keystrokes. Defaults to one currently set in
-           :attr:`Settings.send_mode`. For the list of valid modes refer to
-           :func:`ahkpy.send`.
+        - **mode** – the method by which auto-replace hotstrings send their
+          keystrokes. Defaults to one currently set in
+          :attr:`Settings.send_mode`. For the list of valid modes refer to
+          :func:`ahkpy.send`.
 
-        :param key_delay: the delay between keystrokes produced by
-           auto-backspacing and auto-replacement. Defaults to 0 for Event and
-           Play modes. For more information refer to :func:`ahkpy.send`.
+        - **key_delay** – the delay between keystrokes produced by
+          auto-backspacing and auto-replacement. Defaults to 0 for Event and
+          Play modes. For more information refer to :func:`ahkpy.send`.
 
-        :param reset_recognizer: if ``True``, resets the hotstring recognizer
-           after each triggering of the hotstring. To illustrate, consider the
-           following hotstring::
+        - **reset_recognizer** – if ``True``, resets the hotstring recognizer
+          after each triggering of the hotstring. To illustrate, consider the
+          following hotstring::
 
-               @ahkpy.hotstring(
-                   "11",
-                   backspacing=False,
-                   wait_for_end_char=False,
-                   replace_inside_word=True,
-               )
-               def eleven():
-                   ahkpy.send_event("xx", level=0)
+              @ahkpy.hotstring(
+                  "11",
+                  backspacing=False,
+                  wait_for_end_char=False,
+                  replace_inside_word=True,
+              )
+              def eleven():
+                  ahkpy.send_event("xx", level=0)
 
-           Since the above lacks the *reset_recognizer* option, typing ``111``
-           (three consecutive 1's) triggers the hotstring twice because the
-           middle 1 is the *last* character of the first triggering but also the
-           first character of the second triggering. By setting
-           *reset_recognizer* to ``True``, you would have to type four 1's
-           instead of three to trigger the hotstring twice.
+          Since the above lacks the *reset_recognizer* option, typing ``111``
+          (three consecutive 1's) triggers the hotstring twice because the
+          middle 1 is the *last* character of the first triggering but also the
+          first character of the second triggering. By setting
+          *reset_recognizer* to ``True``, you would have to type four 1's
+          instead of three to trigger the hotstring twice.
 
-           Defaults to ``False``.
+          Defaults to ``False``.
 
         AutoHotkey function: `Hotstring
         <https://www.autohotkey.com/docs/commands/Hotstring.htm>`_.
