@@ -17,12 +17,15 @@ except ModuleNotFoundError:
     _sys.modules["_ahk"] = _shim()
     del _shim
 
+from .block_input import *  # noqa: F401 F403
 from .clipboard import *  # noqa: F401 F403
 from .exceptions import *  # noqa: F401 F403
 from .flow import *  # noqa: F401 F403
 from .gui import *  # noqa: F401 F403
-from .keys import *  # noqa: F401 F403
+from .hotkeys import *  # noqa: F401 F403
+from .key_state import *  # noqa: F401 F403
 from .mouse import *  # noqa: F401 F403
+from .sending import *  # noqa: F401 F403
 from .settings import *  # noqa: F401 F403
 from .timer import *  # noqa: F401 F403
 from .window import *  # noqa: F401 F403

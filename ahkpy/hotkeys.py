@@ -6,150 +6,24 @@ from typing import Callable, Union
 
 from .exceptions import Error
 from .flow import ahk_call, global_ahk_lock
-from .settings import get_settings, optional_ms
-from .unset import UNSET
+from .key_state import is_key_pressed
+from .sending import send, _get_send_mode
 
 __all__ = [
     "Hotkey",
     "HotkeyContext",
     "Hotstring",
     "RemappedKey",
-    "block_input_while_sending",
-    "block_input",
-    "block_mouse_move",
     "default_context",
-    "get_caps_lock_state",
     "get_hotstring_end_chars",
     "get_hotstring_mouse_reset",
-    "get_insert_state",
-    "get_key_name",
-    "get_key_sc",
-    "get_key_vk",
-    "get_num_lock_state",
-    "get_scroll_lock_state",
     "hotkey",
     "hotstring",
-    "is_key_pressed_logical",
-    "is_key_pressed",
     "remap_key",
     "reset_hotstring",
-    "send_event",
-    "send_input",
-    "send_play",
-    "send",
-    "set_caps_lock_state",
     "set_hotstring_end_chars",
     "set_hotstring_mouse_reset",
-    "set_num_lock_state",
-    "set_scroll_lock_state",
-    "wait_key_pressed_logical",
-    "wait_key_pressed",
-    "wait_key_released_logical",
-    "wait_key_released",
 ]
-
-
-def is_key_pressed(key_name):
-    return _get_key_state(key_name, "P")
-
-
-def is_key_pressed_logical(key_name):
-    return _get_key_state(key_name)
-
-
-def get_caps_lock_state():
-    return _get_key_state("CapsLock", "T")
-
-
-def get_num_lock_state():
-    return _get_key_state("NumLock", "T")
-
-
-def get_scroll_lock_state():
-    return _get_key_state("ScrollLock", "T")
-
-
-def get_insert_state():
-    return _get_key_state("Insert", "T")
-
-
-def _get_key_state(key_name, mode=None):
-    result = ahk_call("GetKeyState", key_name, mode)
-    if result == "":
-        raise ValueError(f"{key_name!r} is not a valid key or the state of the key could not be determined")
-    return bool(result)
-
-
-def set_caps_lock_state(state: bool, always=False):
-    _set_key_state("SetCapsLockState", state, always)
-
-
-def set_num_lock_state(state: bool, always=False):
-    _set_key_state("SetNumLockState", state, always)
-
-
-def set_scroll_lock_state(state: bool, always=False):
-    _set_key_state("SetScrollLockState", state, always)
-
-
-def _set_key_state(cmd, state, always):
-    if state:
-        state = "On"
-    else:
-        state = "Off"
-    if always:
-        state = f"Always{state}"
-    ahk_call(cmd, state)
-
-
-def wait_key_pressed(key_name, timeout=None) -> bool:
-    return _key_wait(key_name, down=True, logical=False, timeout=timeout)
-
-
-def wait_key_released(key_name, timeout=None) -> bool:
-    return _key_wait(key_name, down=False, logical=False, timeout=timeout)
-
-
-def wait_key_pressed_logical(key_name, timeout=None) -> bool:
-    return _key_wait(key_name, down=True, logical=True, timeout=timeout)
-
-
-def wait_key_released_logical(key_name, timeout=None) -> bool:
-    return _key_wait(key_name, down=False, logical=True, timeout=timeout)
-
-
-def _key_wait(key_name, down=False, logical=False, timeout=None) -> bool:
-    options = []
-    if down:
-        options.append("D")
-    if logical:
-        options.append("L")
-    if timeout is not None:
-        options.append(f"T{timeout}")
-    timed_out = ahk_call("KeyWait", str(key_name), "".join(options))
-    return not timed_out
-
-
-def get_key_name(key):
-    """Return the name of a key."""
-    return str(_get_key("GetKeyName", key))
-
-
-def get_key_vk(key):
-    """Return the virtual key code of a key."""
-    return _get_key("GetKeyVK", key)
-
-
-def get_key_sc(key):
-    """Return the scan code of a key."""
-    return _get_key("GetKeySC", key)
-
-
-def _get_key(cmd, key):
-    result = ahk_call(cmd, str(key))
-    if not result:
-        raise ValueError(f"{key!r} is not a valid key")
-    return result
 
 
 @dc.dataclass(frozen=True)
@@ -777,119 +651,3 @@ class RemappedKey:
         """Enable the key remapping if it's disabled or do the opposite."""
         self.wildcard_origin.toggle()
         self.wildcard_origin_up.toggle()
-
-
-def send(keys, *, mode=None, level=None, key_delay=None, key_duration=None, mouse_delay=None):
-    """Send simulated keystrokes and mouse clicks to the active window."""
-    # TODO: Sending "{U+0009}" and "\u0009" gives different results depending on
-    # how tabs are handled in the application.
-    # TODO: Consider adding *blind*, *text*, and *raw* arguments.
-    mode = _get_send_mode(mode, key_delay, key_duration, mouse_delay)
-    if mode == "input":
-        send_func = send_input
-    elif mode == "play":
-        send_func = send_play
-    elif mode == "event":
-        send_func = send_event
-    else:
-        raise ValueError(f"{mode!r} is not a valid send mode")
-    send_func(keys, level=level, key_delay=key_delay, key_duration=key_duration, mouse_delay=mouse_delay)
-
-
-def _get_send_mode(mode=None, key_delay=None, key_duration=None, mouse_delay=None):
-    if mode is not None:
-        return mode
-    mode = get_settings().send_mode
-    if mode == "input" and (
-        isinstance(key_delay, (int, float)) and key_delay >= 0 or
-        isinstance(key_duration, (int, float)) and key_duration >= 0 or
-        isinstance(mouse_delay, (int, float)) and mouse_delay >= 0
-    ):
-        return "event"
-    return mode
-
-
-def send_input(keys, *, level=None, **rest):
-    with global_ahk_lock:
-        _send_level(level)
-        ahk_call("SendInput", keys)
-
-
-def send_event(keys, *, level=None, key_delay=None, key_duration=None, mouse_delay=None):
-    with global_ahk_lock:
-        _send_level(level)
-        _set_delay(key_delay, key_duration, mouse_delay)
-        ahk_call("SendEvent", keys)
-
-
-def send_play(keys, *, key_delay=None, key_duration=None, mouse_delay=None, **rest):
-    with global_ahk_lock:
-        # SendPlay is not affected by SendLevel.
-        _set_delay(key_delay, key_duration, mouse_delay, play=True)
-        ahk_call("SendPlay", keys)
-
-
-def _send_level(level):
-    if level is None:
-        level = get_settings().send_level
-    elif not 0 <= level <= 100:
-        raise ValueError("level must be between 0 and 100")
-    ahk_call("SendLevel", int(level))
-
-
-def _set_delay(key_delay=None, key_duration=None, mouse_delay=None, play=False):
-    settings = get_settings()
-    if play:
-        if key_delay is not UNSET and key_duration is not UNSET:
-            ahk_call(
-                "SetKeyDelay",
-                optional_ms(key_delay if key_delay is not None else settings.key_delay_play),
-                optional_ms(key_duration if key_duration is not None else settings.key_duration_play),
-                "Play",
-            )
-        if mouse_delay is not UNSET:
-            ahk_call(
-                "SetMouseDelay",
-                optional_ms(mouse_delay if mouse_delay is not None else settings.mouse_delay_play),
-                "Play",
-            )
-    else:
-        if key_delay is not UNSET and key_duration is not UNSET:
-            ahk_call(
-                "SetKeyDelay",
-                optional_ms(key_delay if key_delay is not None else settings.key_delay),
-                optional_ms(key_duration if key_duration is not None else settings.key_duration),
-            )
-        if mouse_delay is not UNSET:
-            ahk_call(
-                "SetMouseDelay",
-                optional_ms(mouse_delay if mouse_delay is not None else settings.mouse_delay),
-            )
-
-
-@contextmanager
-def block_input():
-    """Block all user input unconditionally."""
-    ahk_call("BlockInput", "On")
-    yield
-    ahk_call("BlockInput", "Off")
-
-
-@contextmanager
-def block_input_while_sending():
-    """Block user input while a :func:`send` is in progress.
-
-    This also blocks user input during mouse automation because mouse clicks and
-    movements are implemented using the :func:`send` function.
-    """
-    ahk_call("BlockInput", "Send")
-    yield
-    ahk_call("BlockInput", "Default")
-
-
-@contextmanager
-def block_mouse_move():
-    """Block the mouse cursor movement."""
-    ahk_call("BlockInput", "MouseMove")
-    yield
-    ahk_call("BlockInput", "MouseMoveOff")

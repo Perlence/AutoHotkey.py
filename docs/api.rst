@@ -166,8 +166,8 @@ Key States
 
 .. autofunction:: get_insert_state
 
-Blocking
-~~~~~~~~
+Input Blocking
+~~~~~~~~~~~~~~
 
 A couple of context managers to block user input.
 

@@ -1,7 +1,7 @@
 from typing import Tuple
 
 from .flow import ahk_call, global_ahk_lock
-from .keys import send
+from .sending import send
 from .settings import _set_coord_mode, get_settings
 from .unset import UNSET
 from .window import Control, Window

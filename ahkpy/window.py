@@ -4,9 +4,10 @@ import enum
 from typing import List, Optional, Tuple, Union
 
 from . import colors
-from . import keys as hotkeys
+from . import sending
 from .exceptions import Error
 from .flow import ahk_call, global_ahk_lock
+from .hotkeys import HotkeyContext
 from .settings import get_settings, optional_ms
 from .unset import UNSET, UnsetType
 
@@ -222,27 +223,27 @@ class Windows:
         # 2. It doesn't set DetectHiddenWindows from the given query before
         #    enumerating the windows.
         self = self._filter(title, class_name, id, pid, exe, text, match)
-        return hotkeys.HotkeyContext(lambda: self.exist())
+        return HotkeyContext(lambda: self.exist())
 
     def nonexistent_window_context(
             self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
         self = self._filter(title, class_name, id, pid, exe, text, match)
-        return hotkeys.HotkeyContext(lambda: not self.exist())
+        return HotkeyContext(lambda: not self.exist())
 
     def active_window_context(
             self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
         self = self._filter(title, class_name, id, pid, exe, text, match)
-        return hotkeys.HotkeyContext(lambda: self.get_active())
+        return HotkeyContext(lambda: self.get_active())
 
     def inactive_window_context(
             self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
         self = self._filter(title, class_name, id, pid, exe, text, match)
-        return hotkeys.HotkeyContext(lambda: not self.get_active())
+        return HotkeyContext(lambda: not self.get_active())
 
     def send(self, keys, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text, match=match)
         with global_ahk_lock:
-            hotkeys._set_delay()
+            sending._set_delay()
             control = ""
             self._call("ControlSend", control, str(keys), *self._query())
 
@@ -555,7 +556,7 @@ class BaseWindow(WindowHandle):
         with global_ahk_lock:
             # Unlike the Send command, mouse clicks cannot be sent by
             # ControlSend. Thus, no need to set mouse_delay.
-            hotkeys._set_delay(mouse_delay=UNSET)
+            sending._set_delay(mouse_delay=UNSET)
             control = ""
             try:
                 self._call("ControlSend", control, str(keys), *self._include())
