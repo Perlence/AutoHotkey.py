@@ -139,6 +139,9 @@ def hotstring(
 
       Defaults to ``False``.
 
+    If *repl* is given, returns an instance of :class:`ahkpy.Hotstring`.
+    Otherwise, the method works as a decorator.
+
     AutoHotkey function: `Hotstring
     <https://www.autohotkey.com/docs/commands/Hotstring.htm>`_.
     """

@@ -54,9 +54,6 @@ def wait_clipboard(timeout: float = None) -> str:
 def on_clipboard_change(func: Callable = None, *, prepend_handler=False):
     """Register *func* to be called on clipboard change.
 
-    Returns an instance of :class:`ClipboardHandler` which can be used to
-    unregister the function.
-
     On clipboard change, the *func* will be called with the clipboard text as an
     argument.
 
@@ -64,7 +61,8 @@ def on_clipboard_change(func: Callable = None, *, prepend_handler=False):
     will be registered to be called before any other previously registered
     functions.
 
-    If *func* is omitted, the function works as a decorator::
+    If *func* is given, returns an instance of :class:`ahkpy.ClipboardHandler`.
+    Otherwise, the function works as a decorator::
 
         @ahkpy.on_clipboard_change()
         def handler(clipboard_text):

@@ -13,8 +13,8 @@ __all__ = [
 
 
 def set_timer(interval=0.25, func=None, *args, priority=0):
-    """Create a :class:`Timer` that will run *func* periodically with arguments
-    *args* after *interval* seconds have passed.
+    """Create a timer that will run *func* periodically with arguments *args*
+    after *interval* seconds have passed.
 
     If you want the *func* to be called with keyword arguments use
     :func:`functools.partial`.
@@ -23,7 +23,8 @@ def set_timer(interval=0.25, func=None, *args, priority=0):
     *func* will be executed. It must be an :class:`int` between -2147483648 and
     2147483647. Defaults to 0.
 
-    If *func* is omitted, the function works as a decorator::
+    If *func* is given, returns an instance :class:`ahkpy.Timer`. Otherwise, the
+    function works as a decorator::
 
         @ahkpy.set_timer(1)
         def handler():
@@ -49,8 +50,8 @@ def set_timer(interval=0.25, func=None, *args, priority=0):
 
 
 def set_countdown(interval=0.25, func=None, *args, priority=0):
-    """Create a :class:`Timer` that will run *func* once with arguments *args*
-    after *interval* seconds have passed.
+    """Create a timer that will run *func* once with arguments *args* after
+    *interval* seconds have passed.
 
     If you want the *func* to be called with keyword arguments use
     :func:`functools.partial`.
@@ -58,7 +59,8 @@ def set_countdown(interval=0.25, func=None, *args, priority=0):
     The optional parameter *priority* is an integer between -2147483648 and
     2147483647.
 
-    If *func* is omitted, the function works as a decorator::
+    If *func* is given, returns an instance :class:`ahkpy.Timer`. Otherwise, the
+    function works as a decorator::
 
         @ahkpy.set_countdown(1)
         def handler():

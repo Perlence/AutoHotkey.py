@@ -261,16 +261,16 @@ def _message_box(text, title=None, buttons="ok", icon=None, default_button=1, op
 def on_message(msg_number: int, func=None, *, max_threads=1, prepend_handler=False):
     """Register *func* to be called on window message *msg_number*.
 
-    Returns an instance of :class:`MessageHandler` which can be used to
-    unregister the function.
-
     Upon receiving a window message, the *func* will be called with the
     following positional arguments:
 
     :param w_param: the message's *wParam* value
+
     :param l_param: the message's *lParam* value
+
     :param msg: the message number, which is useful in cases where a function
        monitors more than one message
+
     :param hwnd: the HWND (unique ID) of the window or control to which the
        message was sent
 
@@ -281,7 +281,8 @@ def on_message(msg_number: int, func=None, *, max_threads=1, prepend_handler=Fal
     will be registered to be called before any other functions previously
     registered for *msg_number*.
 
-    If *func* is omitted, the function works as a decorator::
+    If *func* is given, returns an instance of :class:`ahkpy.MessageHandler`.
+    Otherwise, the function works as a decorator::
 
         WM_CLOSE = 0x0010
 

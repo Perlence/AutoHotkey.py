@@ -49,7 +49,8 @@ def hotkey(
         <https://www.autohotkey.com/docs/commands/_InputLevel.htm>`_ of the
         hotkey. Defaults to 0.
 
-    If *func* is omitted, the method works as a decorator::
+    If *func* is given, returns an instance of :class:`ahkpy.Hotkey`. Otherwise,
+    the method works as a decorator::
 
         @ahkpy.hotkey("F1")
         def hello():
