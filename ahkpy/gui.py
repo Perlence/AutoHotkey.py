@@ -77,8 +77,8 @@ class MessageBox:
 
     # Inspired by Python's tkinter.messagebox module and Qt's QMessageBox class.
 
-    text: Optional = None
-    title: Optional = None
+    text: Optional[str] = None
+    title: Optional[str] = None
     buttons: str = "ok"
     icon: Optional[str] = None
     default_button: int = 1
