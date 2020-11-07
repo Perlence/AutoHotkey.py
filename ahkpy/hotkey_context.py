@@ -2,7 +2,7 @@ import dataclasses as dc
 import functools
 import inspect
 from contextlib import contextmanager
-from typing import Callable
+from typing import Callable, Optional
 
 from . import hotkeys
 from . import hotstrings
@@ -22,14 +22,14 @@ __all__ = [
 class HotkeyContext:
     """The hotkey, hotstring, and key remappings factory.
 
-    If the *predicate* argument is a callable, it is executed every time the
-    user presses the hotkey or triggers the hotstring. The predicate takes
-    either zero or one positional argument. In case of latter, the predicate
-    will be called with the identifier of the triggered utility: *key_name* of
-    the :class:`~ahkpy.Hotkey` that was pressed by the user or the full
-    AutoHotkey hotstring with packed options. If the predicate returns ``True``,
-    the hotkey/hotstring is executed. Otherwise, the original key is propagated
-    to the system in the case of a hotkey.
+    If the *active_when* argument is a callable, it is executed every time the
+    user triggers the hotkey or hotstring. The predicate takes either zero or
+    one positional argument. In case of latter, the predicate will be called
+    with the identifier of the triggered utility: *key_name* of the
+    :class:`~ahkpy.Hotkey` that was pressed by the user or the full AutoHotkey
+    hotstring with packed options. If the predicate returns ``True``, the
+    hotkey/hotstring is executed. Otherwise, the original key is propagated to
+    the system in the case of a hotkey.
 
     .. TODO: ^^ Quite a mouthful.
 
@@ -46,27 +46,27 @@ class HotkeyContext:
     <https://www.autohotkey.com/docs/commands/Hotkey.htm#IfFn>`_.
     """
 
-    predicate: Callable
-    __slots__ = ("predicate",)
+    active_when: Optional[Callable]
+    __slots__ = ("active_when",)
 
     # TODO: Consider adding context options: MaxThreadsBuffer,
     # MaxThreadsPerHotkey, and InputLevel.
 
-    def __init__(self, predicate=None):
-        if predicate is None:
-            object.__setattr__(self, "predicate", None)
+    def __init__(self, active_when: Callable = None):
+        if active_when is None:
+            object.__setattr__(self, "active_when", None)
             return
 
-        signature = inspect.signature(predicate)
+        signature = inspect.signature(active_when)
         if len(signature.parameters) == 0:
             def wrapped_predicate(hotkey):
-                return bool(predicate())
+                return bool(active_when())
         else:
             def wrapped_predicate(hotkey):
-                return bool(predicate(hotkey))
+                return bool(active_when(hotkey))
 
-        wrapped_predicate = functools.wraps(predicate)(wrapped_predicate)
-        object.__setattr__(self, "predicate", wrapped_predicate)
+        wrapped_predicate = functools.wraps(active_when)(wrapped_predicate)
+        object.__setattr__(self, "active_when", wrapped_predicate)
 
     hotkey = hotkeys.hotkey
     remap_key = remap.remap_key
@@ -102,11 +102,11 @@ class HotkeyContext:
                 self._exit()
 
     def _enter(self):
-        if self.predicate is not None:
-            ahk_call("HotkeyContext", self.predicate)
+        if self.active_when is not None:
+            ahk_call("HotkeyContext", self.active_when)
 
     def _exit(self):
-        if self.predicate is not None:
+        if self.active_when is not None:
             ahk_call("HotkeyExitContext")
 
 
