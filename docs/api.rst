@@ -126,11 +126,13 @@ Sending
 
 .. autofunction:: send
 
-.. autofunction:: send_event
+.. function:: send_event(keys, **options)
+.. function:: send_input(keys, **options)
+.. function:: send_play(keys, **options)
 
-.. autofunction:: send_input
+   Send simulated keystrokes and mouse clicks using the corresponding mode.
 
-.. autofunction:: send_play
+   For arguments refer to :func:`ahkpy.send`.
 
 Key States
 ~~~~~~~~~~

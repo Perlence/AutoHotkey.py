@@ -10,10 +10,50 @@ __all__ = [
 ]
 
 
-def send(keys, *, mode=None, level=None, key_delay=None, key_duration=None, mouse_delay=None):
-    """send(keys, *, mode=None, **options)
+def send(keys: str, *, mode=None, level=None, key_delay=None, key_duration=None, mouse_delay=None):
+    """send(keys: str, *, mode=None, **options)
 
     Send simulated keystrokes and mouse clicks to the active window.
+
+    The *keys* argument is an encoded sequence of keys. For valid *keys* refer
+    to `Send <https://www.autohotkey.com/docs/commands/Send.htm#Parameters>`_.
+
+    :param str mode: the mode that is used to send keys and clicks. The
+       following values are allowed: ``"input"``, ``"event"``, ``"play"``.
+       Defaults to one currently set in :attr:`ahkpy.Settings.send_mode`. For
+       differences between the modes refer to `Send variants
+       <https://www.autohotkey.com/docs/commands/Send.htm#Send_variants>`_.
+
+    :param int level: controls which artificial keyboard and mouse events are
+       ignored by hotkeys and hotstrings. It must be an integer between 0 and
+       100. Has no effect in the Play mode. Defaults to one currently set in
+       :attr:`ahkpy.Settings.send_level`. For more information refer to
+       `SendLevel Remarks
+       <https://www.autohotkey.com/docs/commands/SendLevel.htm#General_Remarks>`_.
+
+    :param float key_delay: the delay in seconds after each keystroke. Has no
+       effect in the Input mode. Defaults to one currently set in
+       :attr:`ahkpy.Settings.key_delay` or
+       :attr:`ahkpy.Settings.key_delay_play`. For more information refer to
+       `SetKeyDelay Remarks
+       <https://www.autohotkey.com/docs/commands/SetKeyDelay.htm#Remarks>`_.
+
+    :param float key_duration: the delay in seconds after pressing the key and
+       before releasing it. Has no effect in the Input mode. Defaults to one
+       currently set in :attr:`ahkpy.Settings.key_duration` or
+       :attr:`ahkpy.Settings.key_duration_play`. For more information refer to
+       `SetKeyDelay Remarks
+       <https://www.autohotkey.com/docs/commands/SetKeyDelay.htm#Remarks>`_.
+
+    :param float mouse_delay: the delay after each mouse movement or click. Has
+       no effect in the Input mode. Defaults to one currently set in
+       :attr:`ahkpy.Settings.mouse_delay` or
+       :attr:`ahkpy.Settings.mouse_delay_play`. For more information refer to
+       `SetMouseDelay Remarks
+       <https://www.autohotkey.com/docs/commands/SetMouseDelay.htm#Remarks>`_.
+
+    AutoHotkey command: `Send
+    <https://www.autohotkey.com/docs/commands/Send.htm>`_.
     """
     # TODO: Sending "{U+0009}" and "\u0009" gives different results depending on
     # how tabs are handled in the application.
@@ -44,14 +84,14 @@ def _get_send_mode(mode=None, key_delay=None, key_duration=None, mouse_delay=Non
 
 
 def send_input(keys, *, level=None, **rest):
-    """send_input(keys, **options)"""
+    """Send simulated keystrokes and mouse clicks using the Input mode."""
     with global_ahk_lock:
         _send_level(level)
         ahk_call("SendInput", keys)
 
 
 def send_event(keys, *, level=None, key_delay=None, key_duration=None, mouse_delay=None):
-    """send_event(keys, **options)"""
+    """Send simulated keystrokes and mouse clicks using the Event mode."""
     with global_ahk_lock:
         _send_level(level)
         _set_delay(key_delay, key_duration, mouse_delay)
@@ -59,7 +99,7 @@ def send_event(keys, *, level=None, key_delay=None, key_duration=None, mouse_del
 
 
 def send_play(keys, *, key_delay=None, key_duration=None, mouse_delay=None, **rest):
-    """send_play(keys, **options)"""
+    """Send simulated keystrokes and mouse clicks using the Play mode."""
     with global_ahk_lock:
         # SendPlay is not affected by SendLevel.
         _set_delay(key_delay, key_duration, mouse_delay, play=True)
