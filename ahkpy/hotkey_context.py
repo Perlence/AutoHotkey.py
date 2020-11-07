@@ -19,9 +19,54 @@ __all__ = [
 
 
 @dc.dataclass(frozen=True)
-class BaseHotkeyContext:
+class HotkeyContext:
+    """The hotkey, hotstring, and key remappings factory.
+
+    If the *predicate* argument is a callable, it is executed every time the
+    user presses the hotkey or triggers the hotstring. The predicate takes
+    either zero or one positional argument. In case of latter, the predicate
+    will be called with the identifier of the triggered utility: *key_name* of
+    the :class:`~ahkpy.Hotkey` that was pressed by the user or the full
+    AutoHotkey hotstring with packed options. If the predicate returns ``True``,
+    the hotkey/hotstring is executed. Otherwise, the original key is propagated
+    to the system in the case of a hotkey.
+
+    .. TODO: ^^ Quite a mouthful.
+
+    In the following example pressing the :kbd:`F1` key shows the message only
+    when the mouse cursor is over the taskbar::
+
+        def is_mouse_over_taskbar():
+            return ahkpy.get_window_under_mouse().class_name == "Shell_TrayWnd"
+
+        ctx = ahkpy.HotkeyContext(is_mouse_over_taskbar)
+        ctx.hotkey("F1", ahkpy.message_box, "Pressed F1 over the taskbar.")
+
+    AutoHotkey command: `Hotkey, If, % FunctionObject
+    <https://www.autohotkey.com/docs/commands/Hotkey.htm#IfFn>`_.
+    """
+
+    predicate: Callable
+    __slots__ = ("predicate",)
+
     # TODO: Consider adding context options: MaxThreadsBuffer,
     # MaxThreadsPerHotkey, and InputLevel.
+
+    def __init__(self, predicate=None):
+        if predicate is None:
+            object.__setattr__(self, "predicate", None)
+            return
+
+        signature = inspect.signature(predicate)
+        if len(signature.parameters) == 0:
+            def wrapped_predicate(hotkey):
+                return bool(predicate())
+        else:
+            def wrapped_predicate(hotkey):
+                return bool(predicate(hotkey))
+
+        wrapped_predicate = functools.wraps(predicate)(wrapped_predicate)
+        object.__setattr__(self, "predicate", wrapped_predicate)
 
     hotkey = hotkeys.hotkey
     remap_key = remap.remap_key
@@ -29,8 +74,8 @@ class BaseHotkeyContext:
 
     @contextmanager
     def _manager(self):
-        # I don't want to make BaseHotkeyContext a Python context manager,
-        # because the end users will be tempted to use it as such, e.g:
+        # I don't want to make HotkeyContext a Python context manager, because
+        # the end users will be tempted to use it as such, e.g:
         #
         #     with hotkey_context(lambda: ...):
         #         hotkey(...)
@@ -57,60 +102,15 @@ class BaseHotkeyContext:
                 self._exit()
 
     def _enter(self):
-        pass
+        if self.predicate is not None:
+            ahk_call("HotkeyContext", self.predicate)
 
     def _exit(self):
-        pass
+        if self.predicate is not None:
+            ahk_call("HotkeyExitContext")
 
 
-default_context = BaseHotkeyContext()
+default_context = HotkeyContext()
 hotkey = default_context.hotkey
 remap_key = default_context.remap_key
 hotstring = default_context.hotstring
-
-
-@dc.dataclass(frozen=True)
-class HotkeyContext(BaseHotkeyContext):
-    """The context-specific hotkey factory. It's used to create hotkeys and key
-    remappings that will be active only when the given *predicate* evaluates to
-    ``True``.
-
-    The *predicate* argument is a callable that is executed every time the user
-    presses the hotkey or – in case of a key remapping – the origin key. The
-    predicate takes either zero or one positional argument. In case of latter,
-    the predicate will be called with the *key_name* of the
-    :meth:`~ahkpy.keys.BaseHotkeyContext.hotkey` that was pressed by the user.
-
-    In the following example pressing the :kbd:`F1` key shows the message only
-    when the mouse cursor is over the taskbar::
-
-        def is_mouse_over_taskbar():
-            return ahkpy.get_window_under_mouse().class_name == "Shell_TrayWnd"
-
-        ctx = ahkpy.HotkeyContext(is_mouse_over_taskbar)
-        ctx.hotkey("F1", ahkpy.message_box, "Pressed F1 over the taskbar.")
-
-    AutoHotkey command: `Hotkey, If, % FunctionObject
-    <https://www.autohotkey.com/docs/commands/Hotkey.htm#IfFn>`_.
-    """
-
-    predicate: Callable
-    __slots__ = ("predicate",)
-
-    def __init__(self, predicate):
-        signature = inspect.signature(predicate)
-        if len(signature.parameters) == 0:
-            def wrapped_predicate(hotkey):
-                return bool(predicate())
-        else:
-            def wrapped_predicate(hotkey):
-                return bool(predicate(hotkey))
-
-        wrapped_predicate = functools.wraps(predicate)(wrapped_predicate)
-        object.__setattr__(self, "predicate", wrapped_predicate)
-
-    def _enter(self):
-        ahk_call("HotkeyContext", self.predicate)
-
-    def _exit(self):
-        ahk_call("HotkeyExitContext")

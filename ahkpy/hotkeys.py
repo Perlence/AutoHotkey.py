@@ -98,14 +98,16 @@ def hotkey(
 
 @dc.dataclass(frozen=True)
 class Hotkey:
-    """The object representing a hotkey registered in the given context.
+    """Hotkey(key_name: str, context: ahkpy.HotkeyContext)
+
+    The object representing a hotkey registered in the given context.
 
     Creating an instance of :class:`!Hotkey` doesn't register it in AHK. Use
-    :meth:`~ahkpy.keys.BaseHotkeyContext.hotkey` instead.
+    :meth:`~ahkpy.HotkeyContext.hotkey` instead.
     """
 
     key_name: str
-    context: hotkey_context.BaseHotkeyContext
+    context: hotkey_context.HotkeyContext
     __slots__ = ("key_name", "context")
 
     # I decided not to have 'func' and hotkey options as fields, because:
@@ -137,7 +139,7 @@ class Hotkey:
         """Update the hotkey callback and options.
 
         For more information about the arguments refer to
-        :meth:`~ahkpy.keys.BaseHotkeyContext.hotkey`.
+        :meth:`~ahkpy.HotkeyContext.hotkey`.
         """
         if not callable(func):
             raise TypeError(f"object {func!r} must be callable")

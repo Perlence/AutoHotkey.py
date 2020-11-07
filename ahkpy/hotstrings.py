@@ -184,7 +184,7 @@ class Hotstring:
     """The object that represents a registered hotstring.
 
     Creating an instance of :class:`!Hotstring` doesn't register it in AHK. Use
-    :meth:`~ahkpy.keys.BaseHotkeyContext.hotstring` instead.
+    :meth:`~ahkpy.HotkeyContext.hotstring` instead.
 
     Hotstrings in AutoHotkey are defined by the trigger string,
     case-sensitivity, word-sensitivity (*replace_inside_word*), and the context
@@ -206,7 +206,7 @@ class Hotstring:
     trigger: str
     case_sensitive: bool
     replace_inside_word: bool
-    context: hotkey_context.BaseHotkeyContext
+    context: hotkey_context.HotkeyContext
     __slots__ = ("trigger", "case_sensitive", "replace_inside_word", "context")
 
     # There are no 'repl' and option fields in Hotstring object. See the
@@ -247,7 +247,7 @@ class Hotstring:
         """Update the hotstring's *repl* and options.
 
         For more information about the arguments refer to
-        :meth:`~ahkpy.keys.BaseHotkeyContext.hotstring`.
+        :meth:`~ahkpy.HotkeyContext.hotstring`.
         """
         options = []
 
