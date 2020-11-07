@@ -53,14 +53,14 @@ GUI
 .. autoclass:: MessageBox(text=None, title=None, buttons="ok", icon=None, default_button=1, options=[], timeout=None)
 
    .. automethod:: show
-   .. automethod:: info(text, title=None, *, buttons="ok", default_button=1, **attrs) -> Optional[str]
-   .. automethod:: warning(text, title=None, *, buttons="ok", default_button=1, **attrs) -> Optional[str]
-   .. automethod:: error(text, title=None, *, buttons="ok", default_button=1, **attrs) -> Optional[str]
-   .. automethod:: ok_cancel(text, title=None, *, icon="info", default_button=1, **attrs) -> Optional[bool]
-   .. automethod:: yes_no(text, title=None, *, icon="info", default_button=1, **attrs) -> Optional[bool]
-   .. automethod:: yes_no_cancel(text, title=None, *, icon="info", default_button=1, **attrs) -> Optional[str]
-   .. automethod:: retry_cancel(text, title=None, *, icon="warning", default_button=1, **attrs) -> Optional[bool]
-   .. automethod:: cancel_try_continue(text, title=None, *, icon="warning", default_button=2, **attrs) -> Optional[str]
+   .. automethod:: info
+   .. automethod:: warning
+   .. automethod:: error
+   .. automethod:: ok_cancel
+   .. automethod:: yes_no
+   .. automethod:: yes_no_cancel
+   .. automethod:: retry_cancel
+   .. automethod:: cancel_try_continue
 
 .. autoclass:: ToolTip
    :members:
@@ -78,18 +78,15 @@ Hotkeys and Hotstrings
 ~~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: ahkpy.hotkey_context.BaseHotkeyContext
-
-   .. automethod:: hotkey(key_name: str, func: Callable = None, *args, **options)
-   .. automethod:: remap_key
-   .. automethod:: hotstring(trigger: str, repl: Union[str, Callable] = None, *args, **options)
+   :members:
 
 .. data:: default_context
 
    The default instance of :class:`ahkpy.hotkey_context.BaseHotkeyContext`.
 
 .. function:: hotkey(...)
-.. function:: remap_key(...)
 .. function:: hotstring(...)
+.. function:: remap_key(...)
 
    Useful aliases for :meth:`default_context.hotkey()
    <ahkpy.hotkey_context.BaseHotkeyContext.hotkey>`,
@@ -124,13 +121,13 @@ Hotkeys and Hotstrings
 Sending
 ~~~~~~~
 
-.. autofunction:: send(keys, *, mode=None, **options)
+.. autofunction:: send
 
-.. autofunction:: send_event(keys, **options)
+.. autofunction:: send_event
 
-.. autofunction:: send_input(keys, **options)
+.. autofunction:: send_input
 
-.. autofunction:: send_play(keys, **options)
+.. autofunction:: send_play
 
 Key States
 ~~~~~~~~~~

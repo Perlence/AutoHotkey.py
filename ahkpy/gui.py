@@ -58,6 +58,8 @@ MESSAGE_BOX_OPTIONS = {
 class MessageBox:
     """The utility object to reuse and show message boxes.
 
+    For information about the arguments refer to :func:`~ahkpy.message_box`.
+
     The object can be used by setting the message box attributes and calling
     :func:`show`::
 
@@ -71,8 +73,6 @@ class MessageBox:
 
         ahkpy.MessageBox.info("hello from the static method")
         # ^^ Shows a message box with the "info" icon
-
-    See :func:`message_box` for the documention on the arguments.
     """
 
     # Inspired by Python's tkinter.messagebox module and Qt's QMessageBox class.
@@ -104,22 +104,34 @@ class MessageBox:
 
     @staticmethod
     def info(text, title=None, *, buttons="ok", default_button=1, options=[], timeout=None) -> Optional[str]:
-        """Show an info message."""
+        """info(text, title=None, *, buttons="ok", default_button=1, **attrs)
+
+        Show an info message.
+        """
         return _message_box(text, title, buttons, "info", default_button, options, timeout)
 
     @staticmethod
     def warning(text, title=None, *, buttons="ok", default_button=1, options=[], timeout=None) -> Optional[str]:
-        """Show a warning message."""
+        """warning(text, title=None, *, buttons="ok", default_button=1, **attrs)
+
+        Show a warning message.
+        """
         return _message_box(text, title, buttons, "warning", default_button, options, timeout)
 
     @staticmethod
     def error(text, title=None, *, buttons="ok", default_button=1, options=[], timeout=None) -> Optional[str]:
-        """Show an error message."""
+        """error(text, title=None, *, buttons="ok", default_button=1, **attrs)
+
+        Show an error message.
+        """
         return _message_box(text, title, buttons, "error", default_button, options, timeout)
 
     @staticmethod
     def ok_cancel(text, title=None, *, icon="info", default_button=1, options=[], timeout=None) -> Optional[bool]:
-        """Ask if operation should proceed; return ``True`` if the answer is ok."""
+        """ok_cancel(text, title=None, *, icon="info", default_button=1, **attrs)
+
+        Ask if operation should proceed; return ``True`` if the answer is ok.
+        """
         # Not using the "question" icon because it's no longer recommended.
         # https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messagebox
         result = _message_box(text, title, "ok_cancel", icon, default_button, options, timeout)
@@ -129,7 +141,10 @@ class MessageBox:
 
     @staticmethod
     def yes_no(text, title=None, *, icon="info", default_button=1, options=[], timeout=None) -> Optional[bool]:
-        """Ask a question; return ``True`` if the answer is yes."""
+        """yes_no(text, title=None, *, icon="info", default_button=1, **attrs)
+
+        Ask a question; return ``True`` if the answer is yes.
+        """
         result = _message_box(text, title, "yes_no", icon, default_button, options, timeout)
         if result is None:
             return None
@@ -137,11 +152,17 @@ class MessageBox:
 
     @staticmethod
     def yes_no_cancel(text, title=None, *, icon="info", default_button=1, options=[], timeout=None) -> Optional[str]:
+        """yes_no_cancel(text, title=None, *, icon="info", default_button=1, **attrs)
+
+        Ask a question; return ``"yes"``, ``"no"``, or ``"cancel"``.
+        """
         return _message_box(text, title, "yes_no_cancel", icon, default_button, options, timeout)
 
     @staticmethod
     def retry_cancel(text, title=None, *, icon="warning", default_button=1, options=[], timeout=None) -> Optional[bool]:
-        """Ask if operation should be retried; return ``True`` if the answer is
+        """retry_cancel(text, title=None, *, icon="warning", default_button=1, **attrs)
+
+        Ask if operation should be retried; return ``True`` if the answer is
         yes.
         """
         result = _message_box(text, title, "retry_cancel", icon, default_button, options, timeout)
@@ -152,7 +173,10 @@ class MessageBox:
     @staticmethod
     def cancel_try_continue(text, title=None, *,
                             icon="warning", default_button=2, options=[], timeout=None) -> Optional[str]:
-        """Ask if operation should be cancelled, retried, or continued."""
+        """cancel_try_continue(text, title=None, *, icon="warning", default_button=2, **attrs)
+
+        Ask a question; return ``"cancel"``, ``"try"``, or ``"continue"``.
+        """
         # Using "cancel_try_continue" instead of "abort_retry_cancel" because
         # it's more user-friendly.
         return _message_box(text, title, "cancel_try_continue", icon, default_button, options, timeout)

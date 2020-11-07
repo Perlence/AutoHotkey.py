@@ -23,7 +23,9 @@ def hotkey(
     max_threads=1,
     input_level=0,
 ):
-    """Register *func* to be called when *key_name* is pressed.
+    """hotkey(key_name: str, func: Callable = None, *args, **options)
+
+    Register *func* to be called when *key_name* is pressed.
 
     For valid *key_name* values refer to `Hotkey Modifier Symbols
     <https://www.autohotkey.com/docs/Hotkeys.htm#Symbols>`_ and `List of Keys

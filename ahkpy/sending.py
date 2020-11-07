@@ -11,7 +11,10 @@ __all__ = [
 
 
 def send(keys, *, mode=None, level=None, key_delay=None, key_duration=None, mouse_delay=None):
-    """Send simulated keystrokes and mouse clicks to the active window."""
+    """send(keys, *, mode=None, **options)
+
+    Send simulated keystrokes and mouse clicks to the active window.
+    """
     # TODO: Sending "{U+0009}" and "\u0009" gives different results depending on
     # how tabs are handled in the application.
     # TODO: Consider adding *blind*, *text*, and *raw* arguments.
@@ -41,12 +44,14 @@ def _get_send_mode(mode=None, key_delay=None, key_duration=None, mouse_delay=Non
 
 
 def send_input(keys, *, level=None, **rest):
+    """send_input(keys, **options)"""
     with global_ahk_lock:
         _send_level(level)
         ahk_call("SendInput", keys)
 
 
 def send_event(keys, *, level=None, key_delay=None, key_duration=None, mouse_delay=None):
+    """send_event(keys, **options)"""
     with global_ahk_lock:
         _send_level(level)
         _set_delay(key_delay, key_duration, mouse_delay)
@@ -54,6 +59,7 @@ def send_event(keys, *, level=None, key_delay=None, key_duration=None, mouse_del
 
 
 def send_play(keys, *, key_delay=None, key_duration=None, mouse_delay=None, **rest):
+    """send_play(keys, **options)"""
     with global_ahk_lock:
         # SendPlay is not affected by SendLevel.
         _set_delay(key_delay, key_duration, mouse_delay, play=True)

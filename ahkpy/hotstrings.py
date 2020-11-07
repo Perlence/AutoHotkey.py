@@ -35,7 +35,9 @@ def hotstring(
     key_delay=None,
     reset_recognizer=False,
 ):
-    """Register a hotstring.
+    """hotstring(trigger: str, repl: Union[str, Callable] = None, *args, **options)
+
+    Register a hotstring.
 
     By default, the hotstring is triggered when the user types the given
     *trigger* text and presses one of the `end chars
@@ -175,10 +177,6 @@ def hotstring(
     if repl is None:
         return hotstring_decorator
     return hotstring_decorator(repl)
-
-
-# BaseHotkeyContext.hotstring = _hotstring
-# hotstring = default_context.hotstring
 
 
 @dc.dataclass(frozen=True)
