@@ -180,14 +180,14 @@ def message_box(text=None, title=None, *,
     """Display the specified *text* in a small window containing one or more
     buttons.
 
-    :param text: the text to display in the message box. Defaults to "Press OK
-       to continue.".
+    :param str text: the text to display in the message box. Defaults to "Press
+       OK to continue.".
 
-    :param title: the title of the message box window. Defaults to the name of
-       the AHK script (without path), that is, "Python.ahk".
+    :param str title: the title of the message box window. Defaults to the name
+       of the AHK script (without path), that is, "Python.ahk".
 
-    :param buttons: the buttons to display in the message box. Defaults to OK
-       button. The following values are allowed:
+    :param str buttons: the buttons to display in the message box. Defaults to
+       OK button. The following values are allowed:
 
        - ``"ok"``
        - ``"ok_cancel"``
@@ -196,8 +196,8 @@ def message_box(text=None, title=None, *,
        - ``"retry_cancel"``
        - ``"cancel_try_continue"``
 
-    :param icon: the icon to display. Defaults to no icon. The following values
-       are allowed:
+    :param str icon: the icon to display. Defaults to no icon. The following
+       values are allowed:
 
        - ``None``: no icon
        - ``"info"``, ``"information"``, ``"asterisk"``: a symbol consisting of a
@@ -207,12 +207,12 @@ def message_box(text=None, title=None, *,
        - ``"error"``, ``"hand"``, ``"stop"``: a symbol consisting of a white X
          in a circle with a red background
 
-    :param default_button: which button should be focused when the message box
-       is shown. Defaults to the first button in the reading order. Takes
-       :class:`int` values from 1 to 3.
+    :param int default_button: which button should be focused when the message
+       box is shown. Defaults to the first button in the reading order. Takes
+       integer values from 1 to 3.
 
-    :param options: a list of zero or many additional options. The following
-       values are allowed:
+    :param list[str] options: a list of zero or many additional options. The
+       following values are allowed:
 
        - ``"right"``: the message box text is right-aligned
        - ``"rtl_reading"``: specifies that the message box text is displayed
@@ -224,9 +224,9 @@ def message_box(text=None, title=None, *,
          system displays the message box only on the default desktop of the
          interactive window station
 
-    :param timeout: specifies time in seconds to wait for user's response. After
-       the timeout has elapsed, the message box will be automatically closed. If
-       *timeout* is omitted, waits indefinitely.
+    :param float timeout: specifies time in seconds to wait for user's response.
+       After the timeout has elapsed, the message box will be automatically
+       closed. If *timeout* is omitted, waits indefinitely.
 
     :return: ``None`` if the timeout has elapsed, or one of the following values
        that signify the button the user has pressed:

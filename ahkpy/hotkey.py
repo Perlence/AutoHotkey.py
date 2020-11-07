@@ -37,17 +37,18 @@ def hotkey(
 
     The following keyword-only arguments set the hotkey *options*:
 
-    :param buffer: causes the hotkey to buffer rather than ignore keypresses
-        when the *max_threads* limit has been reached. Defaults to ``False``.
+    :param bool buffer: causes the hotkey to buffer rather than ignore
+        keypresses when the *max_threads* limit has been reached. Defaults to
+        ``False``.
 
-    :param priority: the priority of the AHK thread where *func* will be
-        executed. It must be an :class:`int` between -2147483648 and 2147483647.
+    :param int priority: the priority of the AHK thread where *func* will be
+        executed. It must be an integer between -2147483648 and 2147483647.
         Defaults to 0.
 
-    :param max_threads: the number of keypresses AHK can handle concurrently.
-        Defaults to 1.
+    :param int max_threads: the number of keypresses AHK can handle
+        concurrently. Defaults to 1.
 
-    :param input_level: the `input level
+    :param int input_level: the `input level
         <https://www.autohotkey.com/docs/commands/_InputLevel.htm>`_ of the
         hotkey. Defaults to 0.
 
