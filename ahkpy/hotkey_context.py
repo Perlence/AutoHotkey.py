@@ -4,9 +4,9 @@ import inspect
 from contextlib import contextmanager
 from typing import Callable, Optional
 
-from . import hotkeys
-from . import hotstrings
-from . import remap
+from .hotkey import hotkey as _hotkey
+from .hotstring import hotstring as _hotstring
+from .remap_key import remap_key as _remap_key
 from .flow import ahk_call, global_ahk_lock
 
 __all__ = [
@@ -68,9 +68,9 @@ class HotkeyContext:
         wrapped_predicate = functools.wraps(active_when)(wrapped_predicate)
         object.__setattr__(self, "active_when", wrapped_predicate)
 
-    hotkey = hotkeys.hotkey
-    remap_key = remap.remap_key
-    hotstring = hotstrings.hotstring
+    hotkey = _hotkey
+    remap_key = _remap_key
+    hotstring = _hotstring
 
     @contextmanager
     def _manager(self):

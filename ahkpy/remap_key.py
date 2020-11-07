@@ -1,6 +1,6 @@
 import dataclasses as dc
 
-from .hotkeys import Hotkey
+from .hotkey import Hotkey
 from .key_state import is_key_pressed
 from .sending import send
 
