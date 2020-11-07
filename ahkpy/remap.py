@@ -24,11 +24,11 @@ def remap_key(ctx, origin_key, destination_key, *, mode=None, level=None):
     """
     mouse = destination_key.lower() in {"lbutton", "rbutton", "mbutton", "xbutton1", "xbutton2"}
     if mouse:
-        def wildcard_origin():
+        def origin_hotkey():
             if not is_key_pressed(destination_key):
                 send("{Blind}{%s DownR}" % destination_key, mode=mode, level=level, mouse_delay=-1)
 
-        def wildcard_origin_up():
+        def origin_up_hotkey():
             send("{Blind}{%s Up}" % destination_key, mode=mode, level=level, mouse_delay=-1)
     else:
         ctrl_to_alt = (
@@ -36,7 +36,7 @@ def remap_key(ctx, origin_key, destination_key, *, mode=None, level=None):
             destination_key.lower() in {"alt", "lalt", "ralt"}
         )
         if ctrl_to_alt:
-            def wildcard_origin():
+            def origin_hotkey():
                 send(
                     "{Blind}{%s Up}{%s DownR}" % (origin_key, destination_key),
                     mode=mode,
@@ -44,40 +44,42 @@ def remap_key(ctx, origin_key, destination_key, *, mode=None, level=None):
                     key_delay=-1,
                 )
         else:
-            def wildcard_origin():
+            def origin_hotkey():
                 send("{Blind}{%s DownR}" % destination_key, mode=mode, level=level, key_delay=-1)
 
-        def wildcard_origin_up():
+        def origin_up_hotkey():
             send("{Blind}{%s Up}" % destination_key, mode=mode, level=level, key_delay=-1)
 
-    wildcard_origin = ctx.hotkey(f"*{origin_key}", wildcard_origin)
-    wildcard_origin_up = ctx.hotkey(f"*{origin_key} Up", wildcard_origin_up)
-    return RemappedKey(wildcard_origin, wildcard_origin_up)
+    origin_hotkey = ctx.hotkey(f"*{origin_key}", origin_hotkey)
+    origin_up_hotkey = ctx.hotkey(f"*{origin_key} Up", origin_up_hotkey)
+    return RemappedKey(origin_hotkey, origin_up_hotkey)
 
 
 @dc.dataclass(frozen=True)
 class RemappedKey:
-    """The object that represents a remapped key.
+    """RemappedKey(origin_hotkey: ahkpy.Hotkey, origin_up_hotkey: ahkpy.Hotkey)
+
+    The object that represents a remapped key.
 
     Creating an instance of :class:`!RemappedKey` doesn't register it in AHK.
-    Use :meth:`~ahkpy.keys.BaseHotkeyContext.remap_key` instead.
+    Use :meth:`~ahkpy.HotkeyContext.remap_key` instead.
     """
 
-    wildcard_origin: Hotkey
-    wildcard_origin_up: Hotkey
-    __slots__ = ("wildcard_origin", "wildcard_origin_up")
+    origin_hotkey: Hotkey
+    origin_up_hotkey: Hotkey
+    __slots__ = ("origin_hotkey", "origin_up_hotkey")
 
     def enable(self):
         """Enable the key remapping."""
-        self.wildcard_origin.enable()
-        self.wildcard_origin_up.enable()
+        self.origin_hotkey.enable()
+        self.origin_up_hotkey.enable()
 
     def disable(self):
         """Disable the key remapping."""
-        self.wildcard_origin.disable()
-        self.wildcard_origin_up.disable()
+        self.origin_hotkey.disable()
+        self.origin_up_hotkey.disable()
 
     def toggle(self):
         """Enable the key remapping if it's disabled or do the opposite."""
-        self.wildcard_origin.toggle()
-        self.wildcard_origin_up.toggle()
+        self.origin_hotkey.toggle()
+        self.origin_up_hotkey.toggle()

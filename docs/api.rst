@@ -105,7 +105,7 @@ Hotkeys and Hotstrings
 .. autoclass:: Hotkey
    :members:
 
-.. autoclass:: RemappedKey(wildcard_origin: ahkpy.Hotkey, wildcard_origin_up: ahkpy.Hotkey)
+.. autoclass:: RemappedKey
    :members:
 
 .. autoclass:: Hotstring
