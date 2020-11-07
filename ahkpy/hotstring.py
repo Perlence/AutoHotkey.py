@@ -183,7 +183,9 @@ def hotstring(
 
 @dc.dataclass(frozen=True)
 class Hotstring:
-    """The object that represents a registered hotstring.
+    """Hotstring(trigger: str, case_sensitive: bool, replace_inside_word: bool, context: ahkpy.HotkeyContext)
+
+    The object that represents a registered hotstring.
 
     Creating an instance of :class:`~!ahkpy.Hotstring` doesn't register it in
     AHK. Use the :meth:`ahkpy.HotkeyContext.hotstring` method instead.
