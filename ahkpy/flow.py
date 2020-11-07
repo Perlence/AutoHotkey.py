@@ -114,9 +114,9 @@ def coop(func, *args, **kwargs):
     """Run the given function in a new thread and make it cooperate with AHK's
     event loop.
 
-    Use :func:`!coop` to execute **pre-existing** long-running I/O bound Python
-    processes like HTTP servers and stdin readers that are designed to handle
-    :exc:`KeyboardInterrupt`::
+    Use :func:`~!ahkpy.coop` to execute **pre-existing** long-running I/O bound
+    Python processes like HTTP servers and stdin readers that are designed to
+    handle :exc:`KeyboardInterrupt`::
 
         import code
         ahkpy.coop(code.interact)
@@ -131,15 +131,15 @@ def coop(func, *args, **kwargs):
     .. note::
 
        If you start your own threads, design them so that the main thread could
-       stop them. For example, use :class:`~threading.Event` or
-       :class:`~queue.Queue`.
+       stop them. For example, use :class:`threading.Event` or
+       :class:`queue.Queue`.
 
        If you need to wait for the background thread to finish, don't call
        :meth:`threading.Thread.join` in the main thread. It blocks the handling
        of AHK message queue, that is, AHK won't be able to handle the hotkeys
        and other callbacks. Let AHK handle its message queue by calling
-       :func:`sleep` repeatedly while checking that the background thread is
-       alive::
+       :func:`ahkpy.sleep` repeatedly while checking that the background thread
+       is alive::
 
            import threading
            th = threading.Thread(target=some_worker)

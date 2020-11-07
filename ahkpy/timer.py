@@ -90,8 +90,9 @@ class Timer:
     """This object represents an action that should be run after a certain
     amount of time has passed.
 
-    Creating an instance of :class:`!Timer` doesn't register the function in
-    AHK. Use :func:`set_timer` or :func:`set_countdown` instead.
+    Creating an instance of :class:`~!ahkpy.Timer` doesn't register the function
+    in AHK. Use the :func:`ahkpy.set_timer` or :func:`ahkpy.set_countdown`
+    functions instead.
     """
 
     interval: float = 0.25
@@ -118,8 +119,8 @@ class Timer:
         """Start a stopped timer or restart a running timer.
 
         If the *interval*, *priority*, or *periodic* arguments are given, the
-        :class:`!Timer` instance will be updated with the new values. See
-        :meth:`Timer.update`.
+        :class:`~!ahkpy.Timer` instance will be updated with the new values. See
+        the :meth:`Timer.update` method.
         """
         self.update(interval=interval, priority=priority, force_restart=True)
 

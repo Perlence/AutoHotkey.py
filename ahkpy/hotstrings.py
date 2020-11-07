@@ -112,8 +112,9 @@ def hotstring(
       .. TODO: Check `r and `n characters in Text mode.
 
     - **mode** – the method by which auto-replace hotstrings send their
-      keystrokes. Defaults to one currently set in :attr:`Settings.send_mode`.
-      For the list of valid modes refer to :func:`ahkpy.send`.
+      keystrokes. Defaults to one currently set in
+      :attr:`ahkpy.Settings.send_mode`. For the list of valid modes refer to
+      :func:`ahkpy.send`.
 
     - **key_delay** – the delay between keystrokes produced by auto-backspacing
       and auto-replacement. Defaults to 0 for Event and Play modes. For more
@@ -183,8 +184,8 @@ def hotstring(
 class Hotstring:
     """The object that represents a registered hotstring.
 
-    Creating an instance of :class:`!Hotstring` doesn't register it in AHK. Use
-    :meth:`~ahkpy.HotkeyContext.hotstring` instead.
+    Creating an instance of :class:`~!ahkpy.Hotstring` doesn't register it in
+    AHK. Use the :meth:`ahkpy.HotkeyContext.hotstring` method instead.
 
     Hotstrings in AutoHotkey are defined by the trigger string,
     case-sensitivity, word-sensitivity (*replace_inside_word*), and the context
@@ -247,7 +248,7 @@ class Hotstring:
         """Update the hotstring's *repl* and options.
 
         For more information about the arguments refer to
-        :meth:`~ahkpy.HotkeyContext.hotstring`.
+        :meth:`ahkpy.HotkeyContext.hotstring`.
         """
         options = []
 

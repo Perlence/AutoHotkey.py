@@ -102,8 +102,8 @@ class Hotkey:
 
     The object representing a hotkey registered in the given context.
 
-    Creating an instance of :class:`!Hotkey` doesn't register it in AHK. Use
-    :meth:`~ahkpy.HotkeyContext.hotkey` instead.
+    Creating an instance of :class:`~!ahkpy.Hotkey` doesn't register it in AHK.
+    Use the :meth:`ahkpy.HotkeyContext.hotkey` method instead.
     """
 
     key_name: str
@@ -139,7 +139,7 @@ class Hotkey:
         """Update the hotkey callback and options.
 
         For more information about the arguments refer to
-        :meth:`~ahkpy.HotkeyContext.hotkey`.
+        :meth:`ahkpy.HotkeyContext.hotkey`.
         """
         if not callable(func):
             raise TypeError(f"object {func!r} must be callable")
