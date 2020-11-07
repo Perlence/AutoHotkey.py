@@ -40,16 +40,17 @@ def hotstring(
     Register a hotstring.
 
     By default, the hotstring is triggered when the user types the given
-    *trigger* text and presses one of the `end chars
-    <https://www.autohotkey.com/docs/Hotstrings.htm#EndChars>`_. If *repl* is an
-    instance of :class:`str`, the user's input will be replaced with *repl*. If
-    *repl* is a callable, it will be called when the hotstring is triggered.
-
-    .. TODO: Document end chars.
+    *trigger* text and presses one of the end chars which initially consist of
+    the following: ``-()[]{}':;"/\\,.?!\\n \\t``. If *repl* is an instance of
+    :class:`str`, the user's input will be replaced with *repl*. If *repl* is a
+    callable, it will be called when the hotstring is triggered.
 
     The optional positional *args* will be passed to the *repl* when it is
     called. If you want the *repl* to be called with keyword arguments use
     :func:`functools.partial`.
+
+    To change the end chars use the :func:`ahkpy.set_hotstring_end_chars`
+    function.
 
     The following keyword-only arguments set the hotstring *options*:
 
@@ -80,9 +81,9 @@ def hotstring(
 
       Defaults to ``False``.
 
-    - **wait_for_end_char** – if ``False``, an `end char
-      <https://www.autohotkey.com/docs/Hotstrings.htm#EndChars>`_ is not
-      required to trigger the hotstring. Defaults to ``True``.
+    - **wait_for_end_char** – if ``False``, an :func:`end chars
+      <ahkpy.get_hotstring_end_chars>` is not required to trigger the hotstring.
+      Defaults to ``True``.
 
     - **omit_end_char** – if ``True`` and *wait_for_end_char* is ``True``, then
       the hotstring waits for the user to type an end char and produces the
@@ -316,20 +317,56 @@ class Hotstring:
 
 
 def reset_hotstring():
+    """Reset the hotstring recognizer.
+
+    The script will begin waiting for an entirely new hotstring, eliminating
+    from consideration anything the user has typed previously.
+
+    AutoHotkey function: `Hotstring("Reset")
+    <https://www.autohotkey.com/docs/commands/Hotstring.htm#Reset>`_.
+    """
     ahk_call("Hotstring", "Reset")
 
 
 def get_hotstring_end_chars():
+    """Retrieve the set of end chars.
+
+    The default end chars are the following: ``-()[]{}':;"/\\,.?!\\n \\t``.
+
+    AutoHotkey function: `Hotstring("EndChars")
+    <https://www.autohotkey.com/docs/commands/Hotstring.htm#EndChars>`_.
+    """
     return ahk_call("Hotstring", "EndChars")
 
 
-def set_hotstring_end_chars(chars):
+def set_hotstring_end_chars(chars: str):
+    """Change the end chars.
+
+    The end chars can only be changed globally for all hostrings at once.
+
+    AutoHotkey function: `Hotstring("EndChars", NewValue)
+    <https://www.autohotkey.com/docs/commands/Hotstring.htm#EndChars>`_.
+    """
     ahk_call("Hotstring", "EndChars", str(chars))
 
 
 def get_hotstring_mouse_reset():
+    """Get whether mouse clicks reset the hotstring recognizer.
+
+    By default, any click of the left or right mouse button will reset the
+    hotstring recognizer.
+
+    AutoHotkey function: `Hotstring("MouseReset")
+    <https://www.autohotkey.com/docs/commands/Hotstring.htm#MouseReset>`_.
+    """
     return ahk_call("Hotstring", "MouseReset")
 
 
-def set_hotstring_mouse_reset(value):
+def set_hotstring_mouse_reset(value: bool):
+    """Set whether mouse clicks reset the hotstring recognizer.
+
+
+    AutoHotkey function: `Hotstring("MouseReset", NewValue)
+    <https://www.autohotkey.com/docs/commands/Hotstring.htm#MouseReset>`_.
+    """
     ahk_call("Hotstring", "MouseReset", bool(value))
