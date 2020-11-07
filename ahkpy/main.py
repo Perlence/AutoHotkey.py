@@ -6,7 +6,7 @@ import sys
 import time
 import traceback
 
-from . import gui
+from .message_box import MessageBox, message_box
 from .exceptions import Error  # noqa: F401, used in Python.ahk
 
 
@@ -140,7 +140,7 @@ class GUIArgumentParser(argparse.ArgumentParser):
             if file is None:
                 file = sys.stderr
             if file is None:
-                gui.message_box(message)
+                message_box(message)
                 return
             file.write(message)
 
@@ -263,4 +263,4 @@ def show_error(text, end="\n"):
     if sys.stderr is not None:
         print(text, end=end, file=sys.stderr, flush=True)
     if not quiet:
-        gui.MessageBox.error(text)
+        MessageBox.error(text)
