@@ -53,7 +53,7 @@ def send(keys: str, *, mode=None, level=None, key_delay=None, key_duration=None,
     .. _SetKeyDelay Remarks: https://www.autohotkey.com/docs/commands/SetKeyDelay.htm#Remarks
 
     AutoHotkey command: `Send
-    <https://www.autohotkey.com/docs/commands/Send.htm>`_.
+    <https://www.autohotkey.com/docs/commands/Send.htm>`__.
     """
     # TODO: Sending "{U+0009}" and "\u0009" gives different results depending on
     # how tabs are handled in the application.

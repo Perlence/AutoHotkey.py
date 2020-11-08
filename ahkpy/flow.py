@@ -150,7 +150,10 @@ def coop(func, *args, **kwargs):
            # Avoid calling th.join()
            while th.is_alive():
                ahkpy.sleep(0.01)
+
+       .. TODO: Add a notice about calling AHK in the background thread.
     """
+    # TODO: The function must only be called in the main thread.
     q = queue.SimpleQueue()
     th = threading.Thread(
         target=_run_coop,
