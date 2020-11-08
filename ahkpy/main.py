@@ -6,7 +6,7 @@ import sys
 import time
 import traceback
 
-from .message_box import MessageBox, message_box
+import ahkpy as ahk
 from .exceptions import Error  # noqa: F401, used in Python.ahk
 
 
@@ -110,16 +110,8 @@ def run_from_args():
         else:
             sys.argv[:] = [""]
         if sys.stdin.isatty():
-            import ahkpy
             quiet = True
-            ahkpy.coop(
-                interact,
-                exitmsg="",
-                local={
-                    "ahkpy": ahkpy,
-                    "ahk": ahkpy,
-                },
-            )
+            interact()
         else:
             code = sys.stdin.read()
             run_source(code)
@@ -140,20 +132,16 @@ class GUIArgumentParser(argparse.ArgumentParser):
             if file is None:
                 file = sys.stderr
             if file is None:
-                message_box(message)
+                ahk.message_box(message)
                 return
             file.write(message)
 
 
-def interact(banner=None, local=None, exitmsg=None):
+def interact():
     import code
-    console = code.InteractiveConsole(local)
-    console.raw_input = interactive_input
-    console.interact(banner, exitmsg)
-    # TODO: Up and down arrow keys don't scroll the history.
-    # TODO: Executing "ahk.wait_key_pressed('F1')" in the console freezes the
-    # program. Tray menu doesn't respond.
-
+    console = code.InteractiveConsole(locals={"ahkpy": ahk, "ahk": ahk})
+    console.raw_input = lambda prompt="": ahk.coop(interactive_input, prompt)
+    console.interact(exitmsg="")
     # Force close AHK if it became persistent.
     # TODO: Add a test for this.
     sys.exit(0)
@@ -267,4 +255,4 @@ def show_error(text, end="\n"):
     if sys.stderr is not None:
         print(text, end=end, file=sys.stderr, flush=True)
     if not quiet:
-        MessageBox.error(text)
+        ahk.MessageBox.error(text)

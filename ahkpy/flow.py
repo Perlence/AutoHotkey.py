@@ -29,6 +29,9 @@ def ahk_call(cmd: str, *args):
     # an AHK function, trying to call another AHK function from another thread
     # leads to unpredictable results like program crash. The following lock
     # allows only one system thread to call AHK.
+
+    # TODO: If called from a background thread, consider sending commands to the
+    # main thread for execution.
     with global_ahk_lock:
         return _ahk.call(cmd, *args)
 
@@ -148,7 +151,7 @@ def coop(func, *args, **kwargs):
            while th.is_alive():
                ahkpy.sleep(0.01)
     """
-    q = queue.Queue(maxsize=1)
+    q = queue.SimpleQueue()
     th = threading.Thread(
         target=_run_coop,
         args=(q, func, args, kwargs),
