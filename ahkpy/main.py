@@ -150,6 +150,10 @@ def interact(banner=None, local=None, exitmsg=None):
     console = code.InteractiveConsole(local)
     console.raw_input = interactive_input
     console.interact(banner, exitmsg)
+    # TODO: Up and down arrow keys don't scroll the history.
+    # TODO: Executing "ahk.wait_key_pressed('F1')" in the console freezes the
+    # program. Tray menu doesn't respond.
+
     # Force close AHK if it became persistent.
     # TODO: Add a test for this.
     sys.exit(0)

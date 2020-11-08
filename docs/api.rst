@@ -137,46 +137,75 @@ Sending
 Key States
 ~~~~~~~~~~
 
+In the following functions, the *key_name* argument is a VK or SC code, such as
+``"vkA2"`` or ``"sc01D"``, a combination of both, or a key from the `key list
+<https://www.autohotkey.com/docs/KeyList.htm>`_.
+
 .. autofunction:: get_key_name
 
-.. autofunction:: get_key_sc
+.. autofunction:: get_key_name_from_vk
+
+.. autofunction:: get_key_name_from_sc
 
 .. autofunction:: get_key_vk
+
+.. autofunction:: get_key_sc
 
 .. autofunction:: is_key_pressed
 
 .. autofunction:: is_key_pressed_logical
 
-.. autofunction:: wait_key_pressed
+.. function:: wait_key_pressed(key_name, timeout: float = None) -> bool
+.. function:: wait_key_released(key_name, timeout: float = None) -> bool
+.. function:: wait_key_pressed_logical(key_name, timeout: float = None) -> bool
+.. function:: wait_key_released_logical(key_name, timeout: float = None) -> bool
 
-.. autofunction:: wait_key_released
+   Wait for a key or mouse/joystick button to be pressed/released
+   physically/logically.
 
-.. autofunction:: wait_key_pressed_logical
+   By default, the function waits indefinitely and returns ``True`` when the
+   user presses the key. The optional *timeout* argument specifies the number
+   of seconds to wait before returning ``False`` if there was no input.
 
-.. autofunction:: wait_key_released_logical
+   The logical state is the state that the OS and the active window believe the
+   key to be in, but is not necessarily the same as the physical state, that is,
+   whether the user is physically holding it down.
 
-.. autofunction:: get_caps_lock_state
+   AutoHotkey command: `KeyWait
+   <https://www.autohotkey.com/docs/commands/KeyWait.htm>`_.
 
-.. autofunction:: set_caps_lock_state
+.. function:: get_caps_lock_state() -> bool
+.. function:: get_num_lock_state() -> bool
+.. function:: get_scroll_lock_state() -> bool
+.. function:: get_insert_state() -> bool
 
-.. autofunction:: get_num_lock_state
+   Retrieve the toggle state of :kbd:`CapsLock`, :kbd:`NumLock`,
+   :kbd:`ScrollLock`, and :kbd:`Insert` keys.
 
-.. autofunction:: set_num_lock_state
+   AutoHotkey function: `GetKeyState
+   <https://www.autohotkey.com/docs/commands/GetKeyState.htm>`_.
 
-.. autofunction:: get_scroll_lock_state
+.. function:: set_caps_lock_state(state: bool, always=False)
+.. function:: set_num_lock_state(state: bool, always=False)
+.. function:: set_scroll_lock_state(state: bool, always=False)
 
-.. autofunction:: set_scroll_lock_state
+   Set the toggle state of :kbd:`CapsLock`, :kbd:`NumLock`, and
+   :kbd:`ScrollLock` keys.
 
-.. autofunction:: get_insert_state
+   If the optional *always* argument is True, forces the key to stay on or off.
+
+   AutoHotkey command: `SetCapsLockState / SetNumLockState / SetScrollLockState
+   <https://www.autohotkey.com/docs/commands/SetNumScrollCapsLockState.htm>`_.
+
 
 Input Blocking
 ~~~~~~~~~~~~~~
 
 A couple of context managers to block user input.
 
-.. autofunction:: block_input_while_sending
-
 .. autofunction:: block_input
+
+.. autofunction:: block_input_while_sending
 
 .. autofunction:: block_mouse_move
 

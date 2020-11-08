@@ -3,6 +3,8 @@ from .flow import ahk_call
 __all__ = [
     "get_caps_lock_state",
     "get_insert_state",
+    "get_key_name_from_sc",
+    "get_key_name_from_vk",
     "get_key_name",
     "get_key_sc",
     "get_key_vk",
@@ -20,27 +22,41 @@ __all__ = [
 ]
 
 
-def is_key_pressed(key_name):
+def is_key_pressed(key_name: str) -> bool:
+    """Return whether the key is pressed down physically.
+
+    AutoHotkey function: `GetKeyState
+    <https://www.autohotkey.com/docs/commands/GetKeyState.htm>`_.
+    """
     return _get_key_state(key_name, "P")
 
 
-def is_key_pressed_logical(key_name):
+def is_key_pressed_logical(key_name: str) -> bool:
+    """Return the logical state of the key.
+
+    This is the state that the OS and the active window believe the key to be
+    in, but is not necessarily the same as the physical state, that is, whether
+    the user is physically holding it down.
+
+    AutoHotkey function: `GetKeyState
+    <https://www.autohotkey.com/docs/commands/GetKeyState.htm>`_.
+    """
     return _get_key_state(key_name)
 
 
-def get_caps_lock_state():
+def get_caps_lock_state() -> bool:
     return _get_key_state("CapsLock", "T")
 
 
-def get_num_lock_state():
+def get_num_lock_state() -> bool:
     return _get_key_state("NumLock", "T")
 
 
-def get_scroll_lock_state():
+def get_scroll_lock_state() -> bool:
     return _get_key_state("ScrollLock", "T")
 
 
-def get_insert_state():
+def get_insert_state() -> bool:
     return _get_key_state("Insert", "T")
 
 
@@ -73,19 +89,28 @@ def _set_key_state(cmd, state, always):
     ahk_call(cmd, state)
 
 
-def wait_key_pressed(key_name, timeout=None) -> bool:
+def wait_key_pressed(key_name, timeout: float = None) -> bool:
+    """Wait for a key or mouse/joystick button to be pressed down physically.
+
+    By default, the function waits indefinitely and returns ``True`` when the
+    user presses the key. The optional *timeout* argument specifies the number
+    of seconds to wait before returning ``False`` if there was no input.
+    """
     return _key_wait(key_name, down=True, logical=False, timeout=timeout)
 
 
-def wait_key_released(key_name, timeout=None) -> bool:
+def wait_key_released(key_name, timeout: float = None) -> bool:
+    """Wait for a key or mouse/joystick button to be released physically."""
     return _key_wait(key_name, down=False, logical=False, timeout=timeout)
 
 
-def wait_key_pressed_logical(key_name, timeout=None) -> bool:
+def wait_key_pressed_logical(key_name, timeout: float = None) -> bool:
+    """Wait for a key or mouse/joystick button logical state to be pressed."""
     return _key_wait(key_name, down=True, logical=True, timeout=timeout)
 
 
-def wait_key_released_logical(key_name, timeout=None) -> bool:
+def wait_key_released_logical(key_name, timeout: float = None) -> bool:
+    """Wait for a key or mouse/joystick button logical state to be released."""
     return _key_wait(key_name, down=False, logical=True, timeout=timeout)
 
 
@@ -101,19 +126,62 @@ def _key_wait(key_name, down=False, logical=False, timeout=None) -> bool:
     return not timed_out
 
 
-def get_key_name(key):
-    """Return the name of a key."""
-    return str(_get_key("GetKeyName", key))
+def get_key_name(key_name: str) -> str:
+    """Return the name of a key.
+
+        >>> ahkpy.get_key_name("vk70")
+        'F1'
+        >>> ahkpy.get_key_name(f"vk{112:x}")
+        'F1'
+        >>> ahkpy.get_key_name("sc3b")
+        'F1'
+
+    AutoHotkey function: `GetKeyName
+    <https://www.autohotkey.com/docs/commands/GetKey.htm>`_.
+    """
+    return str(_get_key("GetKeyName", key_name))
 
 
-def get_key_vk(key):
-    """Return the virtual key code of a key."""
-    return _get_key("GetKeyVK", key)
+def get_key_name_from_vk(vk: int) -> str:
+    """Return the name of a key given its virtual key code.
+
+        >>> ahkpy.get_key_name_from_vk(112)
+        'F1'
+    """
+    return get_key_name(f"vk{vk}")
 
 
-def get_key_sc(key):
-    """Return the scan code of a key."""
-    return _get_key("GetKeySC", key)
+def get_key_name_from_sc(sc: int) -> str:
+    """Return the name of a key given its scan code.
+
+        >>> ahkpy.get_key_name_from_sc(59)
+        'F1'
+    """
+    return get_key_name(f"sc{sc}")
+
+
+def get_key_vk(key_name: str) -> int:
+    """Return the virtual key code of a key.
+
+        >>> ahkpy.get_key_vk("F1")
+        112
+
+    AutoHotkey function: `GetKeyVK
+    <https://www.autohotkey.com/docs/commands/GetKey.htm>`_.
+    """
+    return _get_key("GetKeyVK", key_name)
+
+
+def get_key_sc(key_name: str) -> int:
+    """Return the scan code of a key.
+
+        >>> ahkpy.get_key_sc("F1")
+        59
+
+    AutoHotkey function: `GetKeySC
+    <https://www.autohotkey.com/docs/commands/GetKey.htm>`_.
+    """
+    return _get_key("GetKeySC", key_name)
 
 
 def _get_key(cmd, key):
