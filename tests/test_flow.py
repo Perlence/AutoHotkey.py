@@ -151,7 +151,7 @@ def test_deadlock(child_ahk):
         import ahkpy as ahk
 
         def bg():
-            print(ahk.wait_key_pressed("F1"))  # Some blocking operation
+            print(ahk.wait_key_pressed("F13"))  # Some blocking operation
 
         th = threading.Thread(target=bg, daemon=True)
         th.start()

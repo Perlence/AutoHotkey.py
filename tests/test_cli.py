@@ -208,3 +208,24 @@ def test_interactive_mode(request):
     proc.write("exit()\r\n")
     proc.wait()
     assert proc.exitstatus == 0
+
+
+def test_interactive_exec_in_main(request):
+    import time
+
+    import ahkpy as ahk
+    from winpty import PtyProcess
+
+    proc = PtyProcess.spawn("py.exe -m ahkpy", dimensions=(24, 120))
+    request.addfinalizer(proc.terminate)
+    proc.read()
+
+    proc.write("ahk.wait_key_released_logical('F13')\r\n")
+    proc.read()
+    ahk.send_event("{F13}", level=10)
+    time.sleep(0.01)
+    assert proc.readline().startswith("True")
+
+    proc.write("exit()\r\n")
+    proc.wait()
+    assert proc.exitstatus == 0
