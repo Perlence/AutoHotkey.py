@@ -22,18 +22,50 @@ global_ahk_lock = threading.RLock()
 def ahk_call(cmd: str, *args):
     """Call the arbitrary AHK command/function *cmd* with *args* arguments.
 
-    Use this function only when there's no appropriate API provided by
-    AutoHotkey.py.
+    Use this function when there's no appropriate API provided by AutoHotkey.py.
+
+    .. note::
+
+       Calling blocking AHK functions from the background thread deadlocks the
+       program::
+
+           def bg_thread():
+               ahk.wait_key_pressed("F1")
+               # ^^ Blocks the thread until F1 is pressed
+               print("F1 pressed")
+
+           th = threading.Thread(target=bg_thread, daemon=True)
+           th.start()
+           while th.is_alive():
+               ahk.sleep(0.01)
+
+       Instead, use their nonblocking versions and yield control to other Python
+       threads with :func:`time.sleep`::
+
+           def bg():
+               while not ahk.is_key_pressed("F1"):
+                   time.sleep(0)
+               print("F1 pressed")
     """
     # AHK callbacks are not reentrant. While the main thread is busy executing
     # an AHK function, trying to call another AHK function from another thread
     # leads to unpredictable results like program crash. The following lock
     # allows only one system thread to call AHK.
-
-    # TODO: If called from a background thread, consider sending commands to the
-    # main thread for execution.
-    with global_ahk_lock:
+    locked = global_ahk_lock.acquire(timeout=1)
+    if not locked:
+        if threading.current_thread() is threading.main_thread():
+            err = RuntimeError(
+                "deadlock occurred; the main thread tried calling AHK "
+                "when it was acquired by another thread",
+            )
+            # Don't show the message box with an error via AHK.
+            err._ahk_silent_exc = True
+            raise err
+        global_ahk_lock.acquire()
+    try:
         return _ahk.call(cmd, *args)
+    finally:
+        global_ahk_lock.release()
 
 
 def sleep(secs):
@@ -117,29 +149,29 @@ def coop(func, *args, **kwargs):
     """Run the given function in a new thread and make it cooperate with AHK's
     event loop.
 
-    Use :func:`~!ahkpy.coop` to execute **pre-existing** long-running I/O bound
-    Python processes like HTTP servers and stdin readers that are designed to
-    handle :exc:`KeyboardInterrupt`::
+    Use :func:`~!ahkpy.coop` to execute long-running I/O bound Python processes
+    like HTTP servers and stdin readers that are designed to handle
+    :exc:`KeyboardInterrupt`::
 
         import code
         ahkpy.coop(code.interact)
 
-    The call starts a new thread and blocks the current thread until the
-    function finishes. Returns the result of the function or raises the
-    exception.
+    This call runs the given function in a new thread and waits for the function
+    to finish. Returns the function result or raises the exception.
 
-    Whenever :exc:`KeyboardInterrupt` occurs in the current thread, it's
-    propagated to the background thread so it could stop.
+    Whenever :exc:`KeyboardInterrupt` occurs in the main thread, it's propagated
+    to the background thread so it could stop.
+
+    Calling :func:`~!ahkpy.coop` from a background thread doesn't start a new
+    one. Instead, the given function is executed in the current thread.
+
+    .. TODO: Move the following section to the user's guide.
 
     .. note::
 
-       If you start your own threads, design them so that the main thread could
-       stop them. For example, use :class:`threading.Event` or
-       :class:`queue.Queue`.
-
-       If you need to wait for the background thread to finish, don't call
-       :meth:`threading.Thread.join` in the main thread. It blocks the handling
-       of AHK message queue, that is, AHK won't be able to handle the hotkeys
+       If you need to wait for the background thread to finish, calling
+       :meth:`threading.Thread.join` in the main thread will block the handling
+       of AHK message queue. That is, AHK won't be able to handle the hotkeys
        and other callbacks. Let AHK handle its message queue by calling
        :func:`ahkpy.sleep` repeatedly while checking that the background thread
        is alive::
@@ -147,13 +179,13 @@ def coop(func, *args, **kwargs):
            import threading
            th = threading.Thread(target=some_worker)
            th.start()
-           # Avoid calling th.join()
            while th.is_alive():
                ahkpy.sleep(0.01)
-
-       .. TODO: Add a notice about calling AHK in the background thread.
     """
-    # TODO: The function must only be called in the main thread.
+    if threading.current_thread() is not threading.main_thread():
+        # Just execute the function, we are already in another thread.
+        return func(*args, **kwargs)
+
     q = queue.SimpleQueue()
     th = threading.Thread(
         target=_run_coop,

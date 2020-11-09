@@ -248,11 +248,16 @@ def show_traceback():
 
 
 def excepthook(type, value, tb):
-    show_error("".join(traceback.format_exception(type, value, tb)), end="")
+    text = "".join(traceback.format_exception(type, value, tb))
+    silent_exc = getattr(value, "_ahk_silent_exc", False)
+    show_error(text, end="", silent_exc=silent_exc)
 
 
-def show_error(text, end="\n"):
+def show_error(text, end="\n", silent_exc=False):
     if sys.stderr is not None:
         print(text, end=end, file=sys.stderr, flush=True)
-    if not quiet:
+    if not (quiet or silent_exc):
         ahk.MessageBox.error(text)
+
+
+# TODO: Consider hiding tray icon atexit.
