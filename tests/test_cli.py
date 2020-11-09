@@ -220,9 +220,9 @@ def test_interactive_exec_in_main(request):
     request.addfinalizer(proc.terminate)
     proc.read()
 
-    proc.write("ahk.wait_key_released_logical('F13')\r\n")
+    proc.write("ahk.wait_key_pressed_logical('F13')\r\n")
     proc.read()
-    ahk.send_event("{F13}", level=10)
+    ahk.send_event("{F13}", level=10, key_duration=0.01)
     time.sleep(0.01)
     assert proc.readline().startswith("True")
 
