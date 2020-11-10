@@ -51,10 +51,10 @@ MESSAGE_BOX_OPTIONS = {
 class MessageBox:
     """The utility object to reuse and show message boxes.
 
-    For information about the arguments refer to :func:`ahkpy.message_box`.
+    For information about the arguments refer to :func:`message_box`.
 
     The object can be used by setting the message box attributes and calling the
-    :func:`~ahkpy.MessageBox.show` method::
+    :meth:`show` method::
 
         mb = ahkpy.MessageBox(text="hello")  # Doesn't show the message box yet
         mb.text = "hello from attribute"

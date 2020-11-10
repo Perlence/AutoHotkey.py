@@ -52,8 +52,8 @@ def hotkey(
         <https://www.autohotkey.com/docs/commands/_InputLevel.htm>`_ of the
         hotkey. Defaults to 0.
 
-    If *func* is given, returns an instance of :class:`ahkpy.Hotkey`. Otherwise,
-    the method works as a decorator::
+    If *func* is given, returns an instance of :class:`Hotkey`. Otherwise, the
+    method works as a decorator::
 
         @ahkpy.hotkey("F1")
         def hello():
@@ -103,8 +103,8 @@ class Hotkey:
 
     The object representing a hotkey registered in the given context.
 
-    Creating an instance of :class:`~!ahkpy.Hotkey` doesn't register it in AHK.
-    Use the :meth:`ahkpy.HotkeyContext.hotkey` method instead.
+    Creating an instance of :class:`!Hotkey` doesn't register it in AHK. Use the
+    :meth:`HotkeyContext.hotkey` method instead.
     """
 
     key_name: str
@@ -140,7 +140,7 @@ class Hotkey:
         """Update the hotkey callback and options.
 
         For more information about the arguments refer to
-        :meth:`ahkpy.HotkeyContext.hotkey`.
+        :meth:`HotkeyContext.hotkey`.
         """
         if not callable(func):
             raise TypeError(f"object {func!r} must be callable")

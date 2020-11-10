@@ -32,7 +32,7 @@ def on_message(msg_number: int, func=None, *, max_threads=1, prepend_handler=Fal
     will be registered to be called before any other functions previously
     registered for *msg_number*.
 
-    If *func* is given, returns an instance of :class:`ahkpy.MessageHandler`.
+    If *func* is given, returns an instance of :class:`MessageHandler`.
     Otherwise, the function works as a decorator::
 
         WM_CLOSE = 0x0010
@@ -66,8 +66,8 @@ class MessageHandler:
     """This object holds a function registered to be called upon receiving a
     window message.
 
-    Creating an instance of :class:`~!ahkpy.MessageHandler` doesn't register the
-    function as a handler. Use the :func:`ahkpy.on_message` function instead.
+    Creating an instance of :class:`!MessageHandler` doesn't register the
+    function as a handler. Use the :func:`on_message` function instead.
     """
 
     # There's no point in making MessageHandler mutable like the Timer. It's

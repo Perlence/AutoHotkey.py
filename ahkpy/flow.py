@@ -130,7 +130,8 @@ def output_debug(*objects, sep=" "):
     """Send *objects* separated by *sep* to the debugger with `OutputDebugString
     <https://docs.microsoft.com/en-us/windows/win32/api/debugapi/nf-debugapi-outputdebugstringw>`_.
 
-    All non-keyword arguments are converted to strings with :func:`str()`.
+    All non-keyword arguments are converted to strings with :class:`str()
+    <str>`.
 
     AutoHotkey command: `OutputDebug
     <https://www.autohotkey.com/docs/commands/OutputDebug.htm>`_.
@@ -149,8 +150,8 @@ def coop(func, *args, **kwargs):
     """Run the given function in a new thread and make it cooperate with AHK's
     event loop.
 
-    Use :func:`~!ahkpy.coop` to execute long-running I/O bound Python processes
-    like HTTP servers and stdin readers that are designed to handle
+    Use :func:`!coop` to execute long-running I/O bound Python processes like
+    HTTP servers and stdin readers that are designed to handle
     :exc:`KeyboardInterrupt`::
 
         import code
@@ -162,8 +163,8 @@ def coop(func, *args, **kwargs):
     Whenever :exc:`KeyboardInterrupt` occurs in the main thread, it's propagated
     to the background thread so it could stop.
 
-    Calling :func:`~!ahkpy.coop` from a background thread doesn't start a new
-    one. Instead, the given function is executed in the current thread.
+    Calling :func:`!coop` from a background thread doesn't start a new one.
+    Instead, the given function is executed in the current thread.
 
     .. TODO: Move the following section to the user's guide.
 

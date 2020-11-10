@@ -91,7 +91,7 @@ Hotkeys and Hotstrings
 
 .. data:: default_context
 
-   The default instance of :class:`ahkpy.HotkeyContext`.
+   The default instance of :class:`HotkeyContext`.
 
 .. function:: hotkey(...)
 .. function:: hotstring(...)
@@ -132,7 +132,7 @@ Sending
 
    Send simulated keystrokes and mouse clicks using the corresponding mode.
 
-   For arguments refer to :func:`ahkpy.send`.
+   For arguments refer to :func:`send`.
 
 Key States
 ~~~~~~~~~~

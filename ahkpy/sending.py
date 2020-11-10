@@ -20,34 +20,31 @@ def send(keys: str, *, mode=None, level=None, key_delay=None, key_duration=None,
 
     :param str mode: the mode that is used to send keys and clicks. The
        following values are allowed: ``"input"``, ``"event"``, ``"play"``.
-       Defaults to one currently set in :attr:`ahkpy.Settings.send_mode`. For
+       Defaults to one currently set in :attr:`Settings.send_mode`. For
        differences between the modes refer to `Send variants
        <https://www.autohotkey.com/docs/commands/Send.htm#Send_variants>`_.
 
     :param int level: controls which artificial keyboard and mouse events are
        ignored by hotkeys and hotstrings. It must be an integer between 0 and
        100. Has no effect in the Play mode. Defaults to one currently set in
-       :attr:`ahkpy.Settings.send_level`. For more information refer to
-       `SendLevel Remarks
-       <https://www.autohotkey.com/docs/commands/SendLevel.htm#General_Remarks>`_.
+       :attr:`Settings.send_level`. For more information refer to `SendLevel
+       Remarks <https://www.autohotkey.com/docs/commands/SendLevel.htm#General_Remarks>`_.
 
     :param float key_delay: the delay in seconds after each keystroke. Has no
        effect in the Input mode. Defaults to one currently set in
-       :attr:`ahkpy.Settings.key_delay` or
-       :attr:`ahkpy.Settings.key_delay_play`. For more information refer to
-       `SetKeyDelay Remarks`_.
+       :attr:`Settings.key_delay` or :attr:`Settings.key_delay_play`. For more
+       information refer to `SetKeyDelay Remarks`_.
 
     :param float key_duration: the delay in seconds after pressing the key and
        before releasing it. Has no effect in the Input mode. Defaults to one
-       currently set in :attr:`ahkpy.Settings.key_duration` or
-       :attr:`ahkpy.Settings.key_duration_play`. For more information refer to
+       currently set in :attr:`Settings.key_duration` or
+       :attr:`Settings.key_duration_play`. For more information refer to
        `SetKeyDelay Remarks`_.
 
     :param float mouse_delay: the delay after each mouse movement or click. Has
        no effect in the Input mode. Defaults to one currently set in
-       :attr:`ahkpy.Settings.mouse_delay` or
-       :attr:`ahkpy.Settings.mouse_delay_play`. For more information refer to
-       `SetMouseDelay Remarks
+       :attr:`Settings.mouse_delay` or :attr:`Settings.mouse_delay_play`. For
+       more information refer to `SetMouseDelay Remarks
        <https://www.autohotkey.com/docs/commands/SetMouseDelay.htm#Remarks>`_.
 
     .. _SetKeyDelay Remarks: https://www.autohotkey.com/docs/commands/SetKeyDelay.htm#Remarks

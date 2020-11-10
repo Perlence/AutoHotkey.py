@@ -12,14 +12,14 @@ __all__ = [
 def remap_key(ctx, origin_key, destination_key, *, mode=None, level=None):
     """Remap *origin_key* to *destination_key*.
 
-    Returns an instance of :class:`ahkpy.RemappedKey`.
+    Returns an instance of :class:`RemappedKey`.
 
     For valid keys refer to `List of Keys
     <https://www.autohotkey.com/docs/KeyList.htm>`_.
 
     The optional keyword-only *mode* and *level* arguments are passed to the
-    :func:`ahkpy.send` function that will send the *destination_key* when the
-    user presses the *origin_key*.
+    :func:`send` function that will send the *destination_key* when the user
+    presses the *origin_key*.
 
     For more information refer to `Remapping Keys
     <https://www.autohotkey.com/docs/misc/Remap.htm>`_.
@@ -63,8 +63,8 @@ class RemappedKey:
 
     The object that represents a remapped key.
 
-    Creating an instance of :class:`~!ahkpy.RemappedKey` doesn't register it in
-    AHK. Use the :meth:`ahkpy.HotkeyContext.remap_key` method instead.
+    Creating an instance of :class:`!RemappedKey` doesn't register it in AHK.
+    Use the :meth:`HotkeyContext.remap_key` method instead.
     """
 
     origin_hotkey: Hotkey

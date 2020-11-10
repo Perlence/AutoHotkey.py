@@ -61,7 +61,7 @@ def on_clipboard_change(func: Callable = None, *, prepend_handler=False):
     will be registered to be called before any other previously registered
     functions.
 
-    If *func* is given, returns an instance of :class:`ahkpy.ClipboardHandler`.
+    If *func* is given, returns an instance of :class:`ClipboardHandler`.
     Otherwise, the function works as a decorator::
 
         @ahkpy.on_clipboard_change()
@@ -99,9 +99,8 @@ def _clipboard_handler(func, typ):
 class ClipboardHandler:
     """This object holds a function registered to be called on clipboard change.
 
-    Creating an instance of :class:`~!ahkpy.ClipboardHandler` doesn't register
-    the function as a handler. Use the :func:`ahkpy.on_clipboard_change`
-    function instead.
+    Creating an instance of :class:`!ClipboardHandler` doesn't register the
+    function as a handler. Use the :func:`on_clipboard_change` function instead.
     """
 
     func: Callable

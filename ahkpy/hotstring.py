@@ -49,8 +49,7 @@ def hotstring(
     called. If you want the *repl* to be called with keyword arguments use
     :func:`functools.partial`.
 
-    To change the end chars use the :func:`ahkpy.set_hotstring_end_chars`
-    function.
+    To change the end chars use the :func:`set_hotstring_end_chars` function.
 
     The following keyword-only arguments set the hotstring *options*:
 
@@ -81,9 +80,9 @@ def hotstring(
 
       Defaults to ``False``.
 
-    - **wait_for_end_char** – if ``False``, an :func:`end chars
-      <ahkpy.get_hotstring_end_chars>` is not required to trigger the hotstring.
-      Defaults to ``True``.
+    - **wait_for_end_char** – if ``False``, an `end chars
+      <#ahkpy.get_hotstring_end_chars>`__ is not required to trigger the
+      hotstring. Defaults to ``True``.
 
     - **omit_end_char** – if ``True`` and *wait_for_end_char* is ``True``, then
       the hotstring waits for the user to type an end char and produces the
@@ -113,13 +112,12 @@ def hotstring(
       .. TODO: Check `r and `n characters in Text mode.
 
     - **mode** – the method by which auto-replace hotstrings send their
-      keystrokes. Defaults to one currently set in
-      :attr:`ahkpy.Settings.send_mode`. For the list of valid modes refer to
-      :func:`ahkpy.send`.
+      keystrokes. Defaults to one currently set in :attr:`Settings.send_mode`.
+      For the list of valid modes refer to :func:`~ahkpy.send`.
 
     - **key_delay** (:class:`float`) – the delay between keystrokes produced by
       auto-backspacing and auto-replacement. Defaults to 0 for Event and Play
-      modes. For more information refer to :func:`ahkpy.send`.
+      modes. For more information refer to :func:`~ahkpy.send`.
 
     - **reset_recognizer** – if ``True``, resets the hotstring recognizer after
       each triggering of the hotstring. To illustrate, consider the following
@@ -143,7 +141,7 @@ def hotstring(
 
       Defaults to ``False``.
 
-    If *repl* is given, returns an instance of :class:`ahkpy.Hotstring`.
+    If *repl* is given, returns an instance of :class:`Hotstring`.
     Otherwise, the method works as a decorator.
 
     AutoHotkey function: `Hotstring
@@ -187,8 +185,8 @@ class Hotstring:
 
     The object that represents a registered hotstring.
 
-    Creating an instance of :class:`~!ahkpy.Hotstring` doesn't register it in
-    AHK. Use the :meth:`ahkpy.HotkeyContext.hotstring` method instead.
+    Creating an instance of :class:`!Hotstring` doesn't register it in AHK. Use
+    the :meth:`HotkeyContext.hotstring` method instead.
 
     Hotstrings in AutoHotkey are defined by the trigger string,
     case-sensitivity, word-sensitivity (*replace_inside_word*), and the context
@@ -251,7 +249,7 @@ class Hotstring:
         """Update the hotstring's *repl* and options.
 
         For more information about the arguments refer to
-        :meth:`ahkpy.HotkeyContext.hotstring`.
+        :meth:`HotkeyContext.hotstring`.
         """
         options = []
 

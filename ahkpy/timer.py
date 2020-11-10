@@ -23,7 +23,7 @@ def set_timer(interval=0.25, func=None, *args, priority=0):
     *func* will be executed. It must be an :class:`int` between -2147483648 and
     2147483647. Defaults to 0.
 
-    If *func* is given, returns an instance :class:`ahkpy.Timer`. Otherwise, the
+    If *func* is given, returns an instance :class:`Timer`. Otherwise, the
     function works as a decorator::
 
         @ahkpy.set_timer(1)
@@ -59,7 +59,7 @@ def set_countdown(interval=0.25, func=None, *args, priority=0):
     The optional parameter *priority* is an integer between -2147483648 and
     2147483647.
 
-    If *func* is given, returns an instance :class:`ahkpy.Timer`. Otherwise, the
+    If *func* is given, returns an instance :class:`Timer`. Otherwise, the
     function works as a decorator::
 
         @ahkpy.set_countdown(1)
@@ -90,9 +90,8 @@ class Timer:
     """This object represents an action that should be run after a certain
     amount of time has passed.
 
-    Creating an instance of :class:`~!ahkpy.Timer` doesn't register the function
-    in AHK. Use the :func:`ahkpy.set_timer` or :func:`ahkpy.set_countdown`
-    functions instead.
+    Creating an instance of :class:`!Timer` doesn't register the function in
+    AHK. Use the :func:`set_timer` or :func:`set_countdown` functions instead.
     """
 
     interval: float = 0.25
@@ -119,8 +118,8 @@ class Timer:
         """Start a stopped timer or restart a running timer.
 
         If the *interval*, *priority*, or *periodic* arguments are given, the
-        :class:`~!ahkpy.Timer` instance will be updated with the new values. See
-        the :meth:`Timer.update` method.
+        :class:`!Timer` instance will be updated with the new values. See the
+        :meth:`Timer.update` method.
         """
         self.update(interval=interval, priority=priority, force_restart=True)
 

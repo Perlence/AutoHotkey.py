@@ -23,10 +23,10 @@ def block_input():
 
 @contextmanager
 def block_input_while_sending():
-    """Block user input while a :func:`ahkpy.send` is in progress.
+    """Block user input while a :func:`~ahkpy.send` is in progress.
 
     This also blocks user input during mouse automation, because mouse clicks
-    and movements are implemented using the :func:`ahkpy.send` function.
+    and movements are implemented using the :func:`~ahkpy.send` function.
 
     AutoHotkey command: `BlockInput, Send
     <https://www.autohotkey.com/docs/commands/BlockInput.htm>`_.
