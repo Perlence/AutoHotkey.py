@@ -39,6 +39,9 @@ class Settings:
     # CoordMode on the other hand completely changes the behavior of the
     # affected functions.
 
+    def copy(self):
+        return dc.replace(self)
+
     def __delattr__(self, name):
         raise AttributeError(f"{name} cannot be deleted")
 
@@ -47,7 +50,7 @@ def get_settings() -> Settings:
     try:
         return _current_settings.get()
     except LookupError:
-        settings = dc.replace(default_settings)
+        settings = default_settings.copy()
         _current_settings.set(settings)
         return settings
 
@@ -69,7 +72,7 @@ class _SettingsManager:
     settings in __exit__().
     """
     def __init__(self, new_settings):
-        self.new_settings = dc.replace(new_settings)
+        self.new_settings = new_settings.copy()
 
     def activate(self) -> Settings:
         self.prior_settings = get_settings()
