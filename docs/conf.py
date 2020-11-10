@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'AutoHotkey.py'
-copyright = '2020, Sviatoslav Abakumov'
+copyright = '2020 Sviatoslav Abakumov'
 author = 'Sviatoslav Abakumov'
 
 # The full version, including alpha/beta/rc tags
