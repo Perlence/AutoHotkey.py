@@ -71,10 +71,12 @@ class _SettingsManager:
     def __init__(self, new_settings):
         self.new_settings = dc.replace(new_settings)
 
-    def __enter__(self) -> Settings:
+    def activate(self) -> Settings:
         self.prior_settings = get_settings()
         set_settings(self.new_settings)
         return self.new_settings
+
+    __enter__ = activate
 
     def __exit__(self, t, v, tb):
         set_settings(self.prior_settings)
