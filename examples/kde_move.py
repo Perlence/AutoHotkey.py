@@ -14,7 +14,7 @@ def kde_move():
             win.restore()
             win.x = x1
             win.y = y1
-        while ahk.is_key_pressed_physical("LButton") and win:
+        while ahk.is_key_pressed("LButton") and win:
             x2, y2 = ahk.get_mouse_pos(relative_to="screen")
             win.x += x2 - x1
             win.y += y2 - y1

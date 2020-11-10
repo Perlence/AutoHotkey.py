@@ -4,7 +4,7 @@ import ahkpy as ahk
 
 
 def compose_send(keys, shift_keys=None):
-    shift_pressed = ahk.is_key_pressed_physical("Shift")
+    shift_pressed = ahk.is_key_pressed("Shift")
     ahk.wait_key_released(COMPOSE)
     if shift_keys and shift_pressed:
         ahk.send(shift_keys)
