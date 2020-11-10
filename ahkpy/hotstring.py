@@ -101,8 +101,8 @@ def hotstring(
 
       Defaults to ``True``.
 
-    - **priority** – the priority of the AHK thread where *repl* will be
-      executed if it's a callable. It must be an :class:`int` between
+    - **priority** (:class:`int`) – the priority of the AHK thread where *repl*
+      will be executed if it's a callable. It must be an integer between
       -2147483648 and 2147483647. Defaults to 0.
 
     - **text** – if ``True``, sends the replacement text raw, without
@@ -117,9 +117,9 @@ def hotstring(
       :attr:`ahkpy.Settings.send_mode`. For the list of valid modes refer to
       :func:`ahkpy.send`.
 
-    - **key_delay** – the delay between keystrokes produced by auto-backspacing
-      and auto-replacement. Defaults to 0 for Event and Play modes. For more
-      information refer to :func:`ahkpy.send`.
+    - **key_delay** (:class:`float`) – the delay between keystrokes produced by
+      auto-backspacing and auto-replacement. Defaults to 0 for Event and Play
+      modes. For more information refer to :func:`ahkpy.send`.
 
     - **reset_recognizer** – if ``True``, resets the hotstring recognizer after
       each triggering of the hotstring. To illustrate, consider the following
