@@ -134,6 +134,20 @@ Sending
 
    For arguments refer to :func:`send`.
 
+Mouse
+~~~~~
+
+.. autofunction:: click
+.. autofunction:: mouse_press
+.. autofunction:: mouse_release
+.. autofunction:: right_click
+.. autofunction:: double_click
+.. autofunction:: mouse_scroll
+.. autofunction:: mouse_move
+.. autofunction:: get_mouse_pos
+.. autofunction:: get_window_under_mouse
+.. autofunction:: get_control_under_mouse
+
 Key States
 ~~~~~~~~~~
 

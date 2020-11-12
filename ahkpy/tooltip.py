@@ -58,8 +58,10 @@ class ToolTip:
         The *text* argument is required either to be set as the instance
         attribute, or passed as an argument.
 
+        .. TODO: Review the following paragraph.
+
         The optional *x* and *y* arguments set the position of the tooltip
-        relative to the area, specified by the *relative_to* argument which
+        relative to the area specified by the *relative_to* argument which
         defaults to ``"window"``. The valid *relative_to* arguments are the
         following:
 

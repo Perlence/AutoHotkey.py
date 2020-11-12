@@ -38,32 +38,98 @@ __all__ = [
 KEY_DOWN = 0
 KEY_UP = 1
 KEY_DOWN_AND_UP = 2
+BUTTONS = {"left", "right", "middle", "x1", "x2"}
+SCROLL_DIRECTIONS = {"up", "down", "left", "right"}
+MODIFIERS = set("!+^#")
 
 
-def click(button="left", *, times=1, modifier: str = None, blind=True, mode=None, level=None, delay=None):
+def click(button="left", times=1, *, modifier: str = None, blind=True, mode=None, level=None, delay=None):
+    """click(button="left", times=1, **options)
+
+    Click a mouse button.
+
+    The *button* argument takes one of the following values: ``"left"``,
+    ``"right"``, ``"middle"``, ``"x1"``, ``"x2"``.
+
+    The *times* argument specifies the number of times to click the mouse.
+
+    .. :param str button: the mouse button to click. Takes one of the following
+       values: ``"left"``, ``"right"``, ``"middle"``, ``"x1"``, ``"x2"``.
+       Defaults to ``"left"``.
+
+    .. :param int times: the number of times to click the mouse. Defaults to 1.
+
+    The following keyword-only arguments set the click *options*:
+
+    :param str modifier: the string of AHK characters that represent the
+       keyboard modifiers to press down before clicking the mouse. Takes a
+       combination of the following characters: ``!+^#`` which correspond to
+       :kbd:`Alt`, :kbd:`Shift`, :kbd:`Ctrl`, and :kbd:`Win`. Defaults to no
+       modifiers.
+
+    :param blind: if ``False``, releases the currently held keyboard modifiers
+       before clicking the mouse. Defaults to ``True``, that is, for example, if
+       :kbd:`Ctrl` is currently down, a control-click will be produced.
+
+    :param str mode: the mode that is used to send the clicks. For more
+       information refer to the *mode* argument of the :func:`send` function.
+
+    :param int level: controls which artificial keyboard and mouse events are
+       ignored by hotkeys and hotstrings. For more information refer to the
+       *level* argument of the :func:`send` function.
+
+    :param float delay: the delay after each mouse click. For more information
+       refer to the *mouse_delay* argument of the :func:`send` function.
+
+    .. TODO: The documentation of the *blind* argument is not super clear.
+    """
     _click(button, times, KEY_DOWN_AND_UP, modifier=modifier, blind=blind, mode=mode, level=level, delay=delay)
 
 
-def right_click(*, times=1, modifier: str = None, blind=True, mode=None, level=None, delay=None):
+def right_click(times=1, *, modifier: str = None, blind=True, mode=None, level=None, delay=None):
+    """right_click(times=1, **options)
+
+    Click the right mouse button.
+
+    For arguments refer to :func:`click`.
+    """
     _click("right", times, KEY_DOWN_AND_UP, modifier=modifier, blind=blind, mode=mode, level=level, delay=delay)
 
 
 def double_click(button="left", *, modifier: str = None, blind=True, mode=None, level=None, delay=None):
+    """double_click(button="left", **options)
+
+    Double-click a mouse button.
+
+    For arguments refer to :func:`click`.
+    """
     _click(button, 2, KEY_DOWN_AND_UP, modifier=modifier, blind=blind, mode=mode, level=level, delay=delay)
 
 
-def mouse_press(button="left", *, times=1, modifier: str = None, blind=True, mode=None, level=None, delay=None):
+def mouse_press(button="left", times=1, *, modifier: str = None, blind=True, mode=None, level=None, delay=None):
+    """mouse_press(button="left", times=1, **options)
+
+    Press down and hold a mouse button.
+
+    For arguments refer to :func:`click`.
+    """
     _click(button, times, KEY_DOWN, modifier=modifier, blind=blind, mode=mode, level=level, delay=delay)
 
 
-def mouse_release(button="left", *, times=1, modifier: str = None, blind=True, mode=None, level=None, delay=None):
+def mouse_release(button="left", times=1, *, modifier: str = None, blind=True, mode=None, level=None, delay=None):
+    """mouse_release(button="left", times=1, **options)
+
+    Release a mouse button.
+
+    For arguments refer to :func:`click`.
+    """
     _click(button, times, KEY_UP, modifier=modifier, blind=blind, mode=mode, level=level, delay=delay)
 
 
 def _click(button, times, event_type, modifier: str = None, blind=True, mode=None, level=None, delay=None):
     args = []
 
-    if button not in {"left", "right", "middle", "x1", "x2"}:
+    if button not in BUTTONS:
         raise ValueError(f"{button!r} is not a valid mouse button")
     args.append(button)
 
@@ -84,8 +150,25 @@ def _click(button, times, event_type, modifier: str = None, blind=True, mode=Non
         _send_click(*args, modifier=modifier, blind=blind, mode=mode, level=level, delay=delay)
 
 
-def mouse_scroll(direction, times=1, *, modifier: str = None, blind=True, mode=None, level=None):
-    if direction not in {"up", "down", "left", "right"}:
+def mouse_scroll(direction: str, times=1, *, modifier: str = None, blind=True, mode=None, level=None):
+    """mouse_scroll(direction: str, times=1, **options)
+
+    Scroll the mouse wheel.
+
+    :param str direction: the scroll direction. Takes one of the following
+       values: ``"up"``, ``"down"``, ``"left"``, ``"right"``.
+
+    :param int times: the number of notches to turn the wheel. However, some
+       applications do not obey *times* higher than 1. Use the following
+       workaround::
+
+           for _ in range(5):
+               ahkpy.mouse_scroll("up")
+
+    :param options: the optional keyword-only arguments that :func:`click`
+       takes.
+    """
+    if direction not in SCROLL_DIRECTIONS:
         raise ValueError(f"{direction!r} is not a valid mouse scroll direction")
     if times < 0:
         raise ValueError("times must be positive")
@@ -93,6 +176,34 @@ def mouse_scroll(direction, times=1, *, modifier: str = None, blind=True, mode=N
 
 
 def mouse_move(x, y, *, relative_to="window", mode=None, speed=None, delay=None):
+    """Move the mouse cursor.
+
+    .. TODO: Pasted from the ToolTip.show method. Consider referring.
+
+    The *x* and *y* arguments set the coordinates to move the mouse to relative
+    to the area specified by the *relative_to* argument which defaults to
+    ``"window"``. The valid *relative_to* arguments are the following:
+
+    - ``"cursor"``: coordinates are relative to its current position.
+    - ``"screen"``: coordinates are relative to the desktop (entire screen).
+    - ``"window"``: coordinates are relative to the active window.
+    - ``"client"``: coordinates are relative to the active window's client
+      area, which excludes the window's title bar, menu (if it has a
+      standard one) and borders. Client coordinates are less dependent on OS
+      version and theme.
+
+    :param str mode: the mode that is used to move the mouse. If the *speed*
+       argument is given, it forces the Event mode. For more information refer
+       to the *mode* argument of the :func:`send` function.
+
+    :param int speed: the speed of mouse movement in the range 0 (fastest) to
+       100 (slowest). Defaults to one currently set in
+       :attr:`Settings.mouse_speed`.
+
+    :param float delay: the delay after the mouse movement. For more information
+       refer to the *mouse_delay* argument of the :func:`send` function.
+
+    """
     if speed is not None:
         if mode is None:
             # Force SendEvent if speed is given.
@@ -120,7 +231,7 @@ def mouse_move(x, y, *, relative_to="window", mode=None, speed=None, delay=None)
 
 def _send_click(*args, modifier: str = None, blind=True, mode=None, level=None, delay=None):
     if modifier is not None:
-        unknown_modifiers = set(modifier) - set("!+^#")
+        unknown_modifiers = set(modifier) - MODIFIERS
         if unknown_modifiers:
             raise ValueError(f"{''.join(unknown_modifiers)!r} is not a valid modifier")
     else:
