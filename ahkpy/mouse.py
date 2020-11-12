@@ -67,7 +67,7 @@ def click(button="left", times=1, *, modifier: str = None, blind=True, mode=None
        :kbd:`Alt`, :kbd:`Shift`, :kbd:`Ctrl`, and :kbd:`Win`. Defaults to no
        modifiers.
 
-    :param blind: if ``False``, releases the currently held keyboard modifiers
+    :param blind: if false, releases the currently held keyboard modifiers
        before clicking the mouse. Defaults to ``True``, that is, for example, if
        :kbd:`Ctrl` is currently down, a control-click will be produced.
 

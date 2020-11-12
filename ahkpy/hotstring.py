@@ -53,11 +53,11 @@ def hotstring(
 
     The following keyword-only arguments set the hotstring *options*:
 
-    - **case_sensitive** – if ``True``, the user must type the text with the
-      exact case to trigger the hotstring. Defaults to ``False``.
+    - **case_sensitive** – if true, the user must type the text with the exact
+      case to trigger the hotstring. Defaults to ``False``.
 
-    - **conform_to_case** – if ``False``, the replacement is typed exactly as
-      given in *repl*. Otherwise, the following rules apply:
+    - **conform_to_case** – if false, the replacement is typed exactly as given
+      in *repl*. Otherwise, the following rules apply:
 
       - If the user types the trigger text in all caps, the replacement text is
         produced in all caps.
@@ -69,8 +69,8 @@ def hotstring(
       Defaults to ``True`` for case-insensitive hotstrings. Conversely,
       case-sensitive hotstrings never conform to the case of the trigger text.
 
-    - **replace_inside_word** – if ``True``, the hotstring will be triggered
-      even when it is inside another word; that is, when the character typed
+    - **replace_inside_word** – if true, the hotstring will be triggered even
+      when it is inside another word; that is, when the character typed
       immediately before it is alphanumeric::
 
           ahkpy.hotstring("al", "airline",
@@ -80,16 +80,16 @@ def hotstring(
 
       Defaults to ``False``.
 
-    - **wait_for_end_char** – if ``False``, an `end chars
+    - **wait_for_end_char** – if false, an `end chars
       <#ahkpy.get_hotstring_end_chars>`__ is not required to trigger the
       hotstring. Defaults to ``True``.
 
-    - **omit_end_char** – if ``True`` and *wait_for_end_char* is ``True``, then
-      the hotstring waits for the user to type an end char and produces the
+    - **omit_end_char** – if true and *wait_for_end_char* is true, then the
+      hotstring waits for the user to type an end char and produces the
       replacement with the end char omitted. Defaults to ``False``.
 
-    - **backspacing** – if ``False``, skips removing the user input that
-      triggered the hotstring before producing the *repl*::
+    - **backspacing** – if false, skips removing the user input that triggered
+      the hotstring before producing the *repl*::
 
           ahkpy.hotstring("<em>", "</em>{Left 5}",
                           wait_for_end_char=false,
@@ -104,8 +104,8 @@ def hotstring(
       will be executed if it's a callable. It must be an integer between
       -2147483648 and 2147483647. Defaults to 0.
 
-    - **text** – if ``True``, sends the replacement text raw, without
-      translating each character to a keystroke. For details, see `Text mode
+    - **text** – if true, sends the replacement text raw, without translating
+      each character to a keystroke. For details, see `Text mode
       <https://www.autohotkey.com/docs/commands/Send.htm#SendText>`_. Defaults
       to ``False``.
 
@@ -117,8 +117,8 @@ def hotstring(
       auto-backspacing and auto-replacement. Defaults to 0 for Event and Play
       modes. For more information refer to :func:`~ahkpy.send`.
 
-    - **reset_recognizer** – if ``True``, resets the hotstring recognizer after
-      each triggering of the hotstring. To illustrate, consider the following
+    - **reset_recognizer** – if true, resets the hotstring recognizer after each
+      triggering of the hotstring. To illustrate, consider the following
       hotstring::
 
           @ahkpy.hotstring(
@@ -144,6 +144,8 @@ def hotstring(
 
     AutoHotkey function: `Hotstring
     <https://www.autohotkey.com/docs/commands/Hotstring.htm>`_.
+
+    .. TODO: Review this docstring.
     """
     def hotstring_decorator(repl):
         if callable(repl) and args:
