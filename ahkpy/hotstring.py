@@ -109,8 +109,6 @@ def hotstring(
       <https://www.autohotkey.com/docs/commands/Send.htm#SendText>`_. Defaults
       to ``False``.
 
-      .. TODO: Check `r and `n characters in Text mode.
-
     - **mode** – the method by which auto-replace hotstrings send their
       keystrokes. Defaults to one currently set in :attr:`Settings.send_mode`.
       For the list of valid modes refer to :func:`~ahkpy.send`.
