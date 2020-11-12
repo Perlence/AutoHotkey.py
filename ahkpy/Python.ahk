@@ -30,6 +30,8 @@ global Py_EmptyString := NULL
 global Py_AHKError := NULL
 global Py_HandleSystemExit := NULL
 
+global callResult := NULL
+
 OnExit("OnExitFunc")
 
 Main()
@@ -231,6 +233,14 @@ PyInit_ahk() {
         return NULL
     }
 
+    ahkCall2Addr := RegisterCallback("AHKCall2", "C Fast")
+    pyAHKCall2Addr := AHKToPython(ahkCall2Addr)
+    result := PyObject_SetAttrString(mod, "call2", pyAHKCall2Addr)
+    Py_DecRef(pyAHKCall2Addr)
+    if (result < 0) {
+        return NULL
+    }
+
     return mod
 }
 
@@ -247,6 +257,70 @@ SetArgs(updatepath) {
     Pack(argv, packArgs*)
     PySys_SetArgvEx(argc, &argv, updatepath)
     return fullCommand
+}
+
+; AHKCall2(func, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11) {
+AHKCall2(func, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, res) {
+    ; a2f := NumGet(a2, "float")
+    ; MsgBox, % funcStr " " StrGet(a1) " " a2f " " a3 " " a4 " " a5 " " a6 " " a7 " " a8 " " a9 " " a10 " " a11
+    ; gstate := PyGILState_Ensure()
+
+    func := StrGet(func)
+    funcRef := Func(func)
+    if (not funcRef) {
+        ; Try custom command wrapper.
+        funcRef := Func("_" func)
+    }
+    if (not funcRef) {
+        StrPut("unknown function " func, res)
+        return NULL
+        ; return false
+    }
+
+    try {
+        if (a1 == NULL) {
+            result := %funcRef%()
+        } else if (a2 == NULL) {
+            result := %funcRef%(a1)
+        } else if (a3 == NULL) {
+            result := %funcRef%(a1, a2)
+        } else if (a4 == NULL) {
+            result := %funcRef%(a1, a2, a3)
+        } else if (a5 == NULL) {
+            result := %funcRef%(a1, a2, a3, a4)
+        } else if (a6 == NULL) {
+            result := %funcRef%(a1, a2, a3, a4, a5)
+        } else if (a7 == NULL) {
+            result := %funcRef%(a1, a2, a3, a4, a5, a6)
+        } else if (a8 == NULL) {
+            result := %funcRef%(a1, a2, a3, a4, a5, a6, a7)
+        } else if (a9 == NULL) {
+            result := %funcRef%(a1, a2, a3, a4, a5, a6, a7, a8)
+        } else if (a10 == NULL) {
+            result := %funcRef%(a1, a2, a3, a4, a5, a6, a7, a8, a9)
+        } else if (a11 == NULL) {
+            result := %funcRef%(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10)
+        } else {
+            result := %funcRef%(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11)
+        }
+    } catch e {
+        ; PyErr_SetAHKError(e)
+        return NULL
+        ; return false
+    }
+
+    ; StrPut(result, res)
+    ; return true
+
+    StrPut(result, &callResult)
+    return &callResult
+
+    ; gstate := PyGILState_Ensure()
+    ; try {
+    ;     return PyUnicode_FromString(result)
+    ; } finally {
+    ;     PyGILState_Release(gstate)
+    ; }
 }
 
 AHKCall(self, args) {

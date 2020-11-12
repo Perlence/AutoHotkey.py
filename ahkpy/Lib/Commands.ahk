@@ -106,6 +106,12 @@ _EnvGet(EnvVarName) {
     return OutputVar
 }
 
+_EnvGet2(EnvVarName) {
+    EnvVarName := StrGet(EnvVarName)
+    EnvGet OutputVar,%EnvVarName%
+    return OutputVar
+}
+
 _FileCreateShortcut(Target,LinkFile,WorkingDir="",Args="",Description="",IconFile="",ShortcutKey="",IconNumber="",RunState="") {
     FileCreateShortcut %Target%,%LinkFile%,%WorkingDir%,%Args%,%Description%,%IconFile%,%ShortcutKey%,%IconNumber%,%RunState%
 }
