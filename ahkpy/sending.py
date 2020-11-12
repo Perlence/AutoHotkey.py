@@ -18,10 +18,12 @@ def send(keys: str, *, mode=None, level=None, key_delay=None, key_duration=None,
     The *keys* argument is an encoded sequence of keys. For valid *keys* refer
     to `Send <https://www.autohotkey.com/docs/commands/Send.htm#Parameters>`_.
 
-    :param str mode: the mode that is used to send keys and clicks. The
-       following values are allowed: ``"input"``, ``"event"``, ``"play"``.
-       Defaults to one currently set in :attr:`Settings.send_mode`. For
-       differences between the modes refer to `Send variants
+    :param str mode: the mode that is used to send keys and clicks. Takes one of
+       the following values: ``"input"``, ``"event"``, ``"play"``. Defaults to
+       one currently set in :attr:`Settings.send_mode`. If any of *key_delay*,
+       *key_duration*, or *mouse_delay* arguments are given, and the current
+       mode is Input, then reverts to the Event mode. For differences between
+       the modes refer to `Send variants
        <https://www.autohotkey.com/docs/commands/Send.htm#Send_variants>`_.
 
     :param int level: controls which artificial keyboard and mouse events are

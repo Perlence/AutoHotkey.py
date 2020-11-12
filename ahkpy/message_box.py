@@ -187,7 +187,7 @@ def message_box(text=None, title=None, *,
        of the AHK script (without path), that is, "Python.ahk".
 
     :param str buttons: the buttons to display in the message box. Defaults to
-       OK button. The following values are allowed:
+       OK button. Takes one of the following values:
 
        - ``"ok"``
        - ``"ok_cancel"``
@@ -196,8 +196,8 @@ def message_box(text=None, title=None, *,
        - ``"retry_cancel"``
        - ``"cancel_try_continue"``
 
-    :param str icon: the icon to display. Defaults to no icon. The following
-       values are allowed:
+    :param str icon: the icon to display. Defaults to no icon. Takes one of the
+       following values:
 
        - ``None``: no icon
        - ``"info"``, ``"information"``, ``"asterisk"``: a symbol consisting of a
@@ -211,8 +211,7 @@ def message_box(text=None, title=None, *,
        box is shown. Defaults to the first button in the reading order. Takes
        integer values from 1 to 3.
 
-    :param list[str] options: a list of zero or many additional options. The
-       following values are allowed:
+    :param list[str] options: a list of zero or many of the following options:
 
        - ``"right"``: the message box text is right-aligned
        - ``"rtl_reading"``: specifies that the message box text is displayed
