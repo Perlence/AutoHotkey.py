@@ -23,15 +23,12 @@ class HotkeyContext:
     """The hotkey, hotstring, and key remappings factory.
 
     If the *active_when* argument is a callable, it is executed every time the
-    user triggers the hotkey or hotstring. The predicate takes either zero or
-    one positional argument. In case of latter, the predicate will be called
-    with the identifier of the triggered utility: *key_name* of the
-    :class:`~ahkpy.Hotkey` that was pressed by the user or the full AutoHotkey
-    hotstring with packed options. If the predicate returns ``True``, the
-    hotkey/hotstring is executed. Otherwise, the original key is propagated to
-    the system in the case of a hotkey.
-
-    .. TODO: ^^ Quite a mouthful.
+    user triggers the hotkey or hotstring. The callable takes either zero or one
+    positional argument. The argument is the identifier of the triggered
+    utility. For hotkeys, the identifier will be the *key_name* of the
+    :class:`~ahkpy.Hotkey` that was pressed by the user. For hotstrings, the
+    identifier will be the full AutoHotkey hotstring with packed options. The
+    hotkey/hotstring action is executed only if the callable returns ``True``.
 
     In the following example pressing the :kbd:`F1` key shows the message only
     when the mouse cursor is over the taskbar::
