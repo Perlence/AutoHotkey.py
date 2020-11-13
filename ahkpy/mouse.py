@@ -82,6 +82,9 @@ def click(button="left", times=1, *, modifier: str = None, blind=True, mode=None
        refer to the *mouse_delay* argument of the :func:`send` function.
 
     .. TODO: The documentation of the *blind* argument is not super clear.
+
+    AutoHotkey command: `Send, {Click}
+    <https://www.autohotkey.com/docs/commands/Send.htm#Click>`__.
     """
     _click(button, times, KEY_DOWN_AND_UP, modifier=modifier, blind=blind, mode=mode, level=level, delay=delay)
 
@@ -167,6 +170,9 @@ def mouse_scroll(direction: str, times=1, *, modifier: str = None, blind=True, m
 
     :param options: the optional keyword-only arguments that :func:`click`
        takes.
+
+    AutoHotkey command: `Send, {Click}
+    <https://www.autohotkey.com/docs/commands/Send.htm#Click>`__.
     """
     if direction not in SCROLL_DIRECTIONS:
         raise ValueError(f"{direction!r} is not a valid mouse scroll direction")
@@ -203,6 +209,10 @@ def mouse_move(x, y, *, relative_to="window", mode=None, speed=None, delay=None)
     :param float delay: the delay after the mouse movement. For more information
        refer to the *mouse_delay* argument of the :func:`send` function.
 
+    AutoHotkey command: `Send, {Click X, Y, 0}
+    <https://www.autohotkey.com/docs/commands/Send.htm#Click>`__. Related
+    command: `MouseMove
+    <https://www.autohotkey.com/docs/commands/MouseMove.htm>`__.
     """
     if speed is not None:
         if mode is None:
@@ -250,13 +260,42 @@ def _send_click(*args, modifier: str = None, blind=True, mode=None, level=None, 
 
 
 def get_mouse_pos(relative_to="window") -> Tuple[int, int]:
+    """Get current mouse position relative to specified area.
+
+    The valid *relative_to* arguments are the following:
+
+    - ``"screen"``: coordinates are relative to the desktop (entire screen).
+    - ``"window"``: coordinates are relative to the active window.
+    - ``"client"``: coordinates are relative to the active window's client
+      area, which excludes the window's title bar, menu (if it has a
+      standard one) and borders. Client coordinates are less dependent on OS
+      version and theme.
+
+    .. ^^ Copied from ToolTip.show().
+
+    Returns a ``(x, y)`` tuple.
+
+    AutoHotkey command: `MouseGetPos, OutputVarX, OutputVarY
+    <https://www.autohotkey.com/docs/commands/MouseGetPos.htm>`__.
+    """
     with global_ahk_lock:
         _set_coord_mode("mouse", relative_to)
         result = ahk_call("MouseGetPos")
     return (result["X"], result["Y"])
 
 
-def get_window_under_mouse():
+def get_window_under_mouse() -> Window:
+    """get_window_under_mouse() -> ahkpy.Window
+
+    Get the window under the mouse cursor.
+
+    Returns a :class:`Window` instance. If the window cannot be determined,
+    returns ``Window(None)``. The window does not have to be active to be
+    detected.
+
+    AutoHotkey command: `MouseGetPos,,, OutputVarWin
+    <https://www.autohotkey.com/docs/commands/MouseGetPos.htm>`__.
+    """
     win_id = ahk_call("MouseGetWin")
     if not win_id:
         return Window(None)
@@ -264,7 +303,24 @@ def get_window_under_mouse():
 
 
 def get_control_under_mouse(simple=False):
-    flag = 2 if not simple else 3
+    """get_control_under_mouse(simple=False) -> ahkpy.Control
+
+    Get the control under the mouse cursor.
+
+    If the *simple* argument is true, a simpler method of detection is used.
+    This method correctly retrieves the active/topmost child window of an
+    Multiple Document Interface (MDI) application such as SysEdit or TextPad.
+    However, it is less accurate for other purposes such as detecting controls
+    inside a GroupBox control.
+
+    Returns a :class:`Control` instance. If the control cannot be determined,
+    returns ``Control(None)``. The window does not have to be active for the
+    control to be detected.
+
+    AutoHotkey command: `MouseGetPos,,,, OutputVarControl
+    <https://www.autohotkey.com/docs/commands/MouseGetPos.htm>`__.
+    """
+    flag = 2 | bool(simple)
     win_id = ahk_call("MouseGetControl", flag)
     if not win_id:
         return Control(None)

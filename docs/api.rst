@@ -144,6 +144,16 @@ Mouse
 .. autofunction:: double_click
 .. autofunction:: mouse_scroll
 .. autofunction:: mouse_move
+
+The `MouseClickDrag
+<https://www.autohotkey.com/docs/commands/MouseClickDrag.htm>`__ command can be
+implemented as follows::
+
+   ahkpy.mouse_move(x=x1, y=y1)
+   ahkpy.mouse_press(which_button)
+   ahkpy.mouse_move(x=x2, y=y2, speed=speed, relative_to=...)
+   ahkpy.mouse_release()
+
 .. autofunction:: get_mouse_pos
 .. autofunction:: get_window_under_mouse
 .. autofunction:: get_control_under_mouse
