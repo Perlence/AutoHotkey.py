@@ -1104,8 +1104,8 @@ class Control(BaseWindow):
 
     @property
     def list_choice_index(self) -> Optional[int]:
-        """Retrieve the index of the currently selected entry in a ListBox or
-        ComboBox.
+        """Retrieve or set the index of the currently selected entry in a
+        ListBox or ComboBox.
         """
         class_name = self.class_name
         if class_name is None:
@@ -1123,6 +1123,10 @@ class Control(BaseWindow):
         if result is None:
             return None
         return result
+
+    @list_choice_index.setter
+    def list_choice_index(self, index):
+        self.choose_item_index(index)
 
     def choose_item_index(self, index):
         """Set the selection in a ListBox or ComboBox to be the Nth entry."""
