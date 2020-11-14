@@ -29,6 +29,12 @@ TEXT_MATCH_MODES = {"fast", "slow"}
 
 @dc.dataclass(frozen=True)
 class Windows:
+    """Windows()
+
+    The object containing the criteria that is used to match the windows,
+    iterate over them, do bulk actions, or to pick one window.
+    """
+
     title: Union[str, UnsetType] = UNSET
     class_name: Union[str, UnsetType] = UNSET
     id: Union[int, UnsetType] = UNSET
@@ -43,6 +49,43 @@ class Windows:
     text_mode: str = "fast"
 
     def filter(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
+        """filter(title: str = UNSET, **criteria)
+
+        Match specific windows using the given criteria. All strings are
+        case-sensitive.
+
+        :param str title: the window title to match. The matching behavior is
+           specified in the *match* argument and defaults to ``"startswith"``.
+
+        :param str class_name: the window class to match.
+
+        :param int id: the unique ID of a window or a control; also known as
+           HWND.
+
+        :param int pid: the process identifier that is used to match the windows
+           belonging to this process.
+
+        :param str exe: the filename of the process that is used to match the
+           windows belonging to this process.
+
+        :param str text: the substring from a single text element of the target
+           window. The matching behavior is affected by the
+           :meth:`include_hidden_text` and :meth:`match_text_slow` methods.
+
+        :param str match: sets the matching behavior. Takes one of the following
+           values:
+
+           - ``"startswith"`` – a window's title must start with the given
+             *title*.
+           - ``"contains"`` – a window's title must contain the given *title*.
+           - ``"exact"`` – a window's title must exactly match the given
+             *title*.
+           - ``"regex"`` – changes *title*, *class_name*, *exe*, and *text*
+             arguments to accept `PCRE regular expressions
+             <https://www.autohotkey.com/docs/misc/RegEx-QuickRef.htm>`__.
+
+           Defaults to ``"startswith"``.
+        """
         return self._filter(title, class_name, id, pid, exe, text, match)
 
     def _filter(self, title, class_name, id, pid, exe, text, match):
@@ -67,6 +110,20 @@ class Windows:
         )
 
     def exclude(self, title=UNSET, *, text=UNSET, match=UNSET):
+        """exclude(title: str = UNSET, **criteria)
+
+        Exclude windows from the match using the given criteria. All strings are
+        case-sensitive.
+
+        :param str title: exclude windows with the given title.
+
+        :param str text: exclude windows with the given text. The matching
+           behavior is affected by the :meth:`match_text_slow` method only. It's
+           not affected by :meth:`include_hidden_text`.
+
+        :param str match: sets the matching behavior. For more information refer
+           to :meth:`filter`.
+        """
         # TODO: Consider implementing class_name, id, pid, and exe exclusion in
         # Python.
         if title is UNSET and text is UNSET and match is UNSET:
@@ -83,18 +140,52 @@ class Windows:
         )
 
     def include_hidden_windows(self, include=True):
+        """Change the window-matching behavior based on window visibility.
+
+        If *include* is true, includes the hidden windows in the search.
+
+        Default behavior is matching only visible windows while ignoring the
+        hidden ones.
+        """
         return dc.replace(self, hidden_windows=include)
 
     def exclude_hidden_windows(self):
+        """Exclude hidden windows from the search.
+
+        A shorthand for ``windows.include_hidden_windows(False)``.
+        """
         return dc.replace(self, hidden_windows=False)
 
     def include_hidden_text(self, include=True):
+        """Change whether to ignore invisible controls when matching windows
+        using the *text* criterion.
+
+        If *include* is false, ignores the invisible controls when searching for
+        text in the windows.
+
+        Default behavior is searching for visible and hidden text.
+        """
         return dc.replace(self, hidden_text=include)
 
     def exclude_hidden_text(self):
+        """Exclude hidden text from the search.
+
+        A shorthand for ``windows.include_hidden_text(False)``.
+        """
         return dc.replace(self, hidden_text=False)
 
     def match_text_slow(self, is_slow=True):
+        """Change how windows are matched when using the *text* criterion.
+
+        If *is_slow* is true, the matching can be much slower, but works with
+        all controls which respond to the `WM_GETTEXT
+        <https://msdn.microsoft.com/en-us/library/ms632627>`__ message.
+
+        Default behavior is to use the fast mode. However, certain types of
+        controls are not detected. For instance, text is typically detected
+        within Static and Button controls, but not Edit controls, unless they
+        are owned by the script.
+        """
         # Not including the parameter in filter() because it's used very rarely.
         if is_slow:
             return dc.replace(self, text_mode="slow")

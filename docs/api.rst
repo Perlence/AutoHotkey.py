@@ -300,3 +300,31 @@ Timers
 
 .. autoclass:: Timer
    :members:
+
+
+Windows
+-------
+
+.. data:: windows
+.. data:: visible_windows
+
+   An instance of :class:`Windows` that matches only visible windows.
+
+.. data:: all_windows
+
+   An instance of :class:`Windows` that matches visible and hidden windows.
+
+.. autoclass:: Windows
+   :members:
+
+.. autoclass:: Window
+   :members:
+
+.. autoclass:: Control
+   :members:
+
+.. autoclass:: WindowStyle
+   :members:
+
+.. autoclass:: ExWindowStyle
+   :members:
