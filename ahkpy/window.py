@@ -66,15 +66,20 @@ class Windows:
             title_mode=match if match is not UNSET else self.title_mode,
         )
 
-    def exclude(self, title=UNSET, *, text=UNSET):
+    def exclude(self, title=UNSET, *, text=UNSET, match=UNSET):
         # TODO: Consider implementing class_name, id, pid, and exe exclusion in
         # Python.
-        if title is UNSET and text is UNSET:
+        if title is UNSET and text is UNSET and match is UNSET:
             return self
+
+        if match is not UNSET and match not in TITLE_MATCH_MODES:
+            raise ValueError(f"{match!r} is not a valid title match mode")
+
         return dc.replace(
             self,
             exclude_title=title if title is not UNSET else self.exclude_title,
             exclude_text=text if text is not UNSET else self.exclude_text,
+            title_mode=match if match is not UNSET else self.title_mode,
         )
 
     def include_hidden_windows(self, include=True):
