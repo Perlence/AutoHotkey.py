@@ -65,9 +65,10 @@ class ToolTip:
         defaults to ``"window"``. The valid *relative_to* arguments are the
         following:
 
-        - ``"screen"``: coordinates are relative to the desktop (entire screen).
-        - ``"window"``: coordinates are relative to the active window.
-        - ``"client"``: coordinates are relative to the active window's client
+        - ``"screen"`` – coordinates are relative to the desktop (entire
+          screen).
+        - ``"window"`` – coordinates are relative to the active window.
+        - ``"client"`` – coordinates are relative to the active window's client
           area, which excludes the window's title bar, menu (if it has a
           standard one) and borders. Client coordinates are less dependent on OS
           version and theme.

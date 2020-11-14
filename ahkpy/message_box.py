@@ -199,12 +199,12 @@ def message_box(text=None, title=None, *,
     :param str icon: the icon to display. Defaults to no icon. Takes one of the
        following values:
 
-       - ``None``: no icon
-       - ``"info"``, ``"information"``, ``"asterisk"``: a symbol consisting of a
-         lowercase letter *i* in a circle
-       - ``"warning"``, ``"exclamation"``: a symbol consisting of an exclamation
-         point in a triangle with a yellow background
-       - ``"error"``, ``"hand"``, ``"stop"``: a symbol consisting of a white X
+       - ``None`` – no icon
+       - ``"info"``, ``"information"``, ``"asterisk"`` – a symbol consisting of
+         a lowercase letter *i* in a circle
+       - ``"warning"``, ``"exclamation"`` – a symbol consisting of an
+         exclamation point in a triangle with a yellow background
+       - ``"error"``, ``"hand"``, ``"stop"`` – a symbol consisting of a white X
          in a circle with a red background
 
     :param int default_button: which button should be focused when the message
@@ -213,12 +213,12 @@ def message_box(text=None, title=None, *,
 
     :param list[str] options: a list of zero or many of the following options:
 
-       - ``"right"``: the message box text is right-aligned
-       - ``"rtl_reading"``: specifies that the message box text is displayed
+       - ``"right"`` – the message box text is right-aligned
+       - ``"rtl_reading"`` – specifies that the message box text is displayed
          with right to left reading order
-       - ``"service_notification"``: the message box is displayed on the active
+       - ``"service_notification"`` – the message box is displayed on the active
          desktop
-       - ``"default_desktop_only"``: the message box is displayed on the active
+       - ``"default_desktop_only"`` – the message box is displayed on the active
          desktop. This is similar to ``"service_notification"``, except that the
          system displays the message box only on the default desktop of the
          interactive window station
