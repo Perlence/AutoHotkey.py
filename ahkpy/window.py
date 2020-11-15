@@ -48,7 +48,7 @@ class Windows:
     title_mode: str = "startswith"
     text_mode: str = "fast"
 
-    def filter(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
+    def filter(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
         """filter(title: str = UNSET, **criteria)
 
         Match specific windows using the given criteria. All strings are
@@ -91,11 +91,11 @@ class Windows:
     def _filter(self, title, class_name, id, pid, exe, text, match):
         if (
             title is UNSET and class_name is UNSET and id is UNSET and pid is UNSET and exe is UNSET and
-            text is UNSET and match is UNSET
+            text is UNSET and match is None
         ):
             return self
 
-        if match is not UNSET and match not in TITLE_MATCH_MODES:
+        if match is not None and match not in TITLE_MATCH_MODES:
             raise ValueError(f"{match!r} is not a valid title match mode")
 
         return dc.replace(
@@ -106,10 +106,10 @@ class Windows:
             pid=pid if pid is not UNSET else self.pid,
             exe=exe if exe is not UNSET else self.exe,
             text=text if text is not UNSET else self.text,
-            title_mode=match if match is not UNSET else self.title_mode,
+            title_mode=match if match is not None else self.title_mode,
         )
 
-    def exclude(self, title=UNSET, *, text=UNSET, match=UNSET):
+    def exclude(self, title=UNSET, *, text=UNSET, match=None):
         """exclude(title: str = UNSET, **criteria)
 
         Exclude windows from the match using the given criteria. All strings are
@@ -126,17 +126,17 @@ class Windows:
         """
         # TODO: Consider implementing class_name, id, pid, and exe exclusion in
         # Python.
-        if title is UNSET and text is UNSET and match is UNSET:
+        if title is UNSET and text is UNSET and match is None:
             return self
 
-        if match is not UNSET and match not in TITLE_MATCH_MODES:
+        if match is not None and match not in TITLE_MATCH_MODES:
             raise ValueError(f"{match!r} is not a valid title match mode")
 
         return dc.replace(
             self,
             exclude_title=title if title is not UNSET else self.exclude_title,
             exclude_text=text if text is not UNSET else self.exclude_text,
-            title_mode=match if match is not UNSET else self.title_mode,
+            title_mode=match if match is not None else self.title_mode,
         )
 
     def include_hidden_windows(self, include=True):
@@ -192,7 +192,7 @@ class Windows:
         else:
             return dc.replace(self, text_mode="fast")
 
-    def exist(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
+    def exist(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
         """exist(title: str = UNSET, **criteria) -> ahkpy.Window
 
         Return the window handle of the first (top) matching window.
@@ -212,7 +212,7 @@ class Windows:
     first = exist
     top = exist
 
-    def last(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
+    def last(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
         """last(title: str = UNSET, **criteria) -> ahkpy.Window
 
         Return the window handle of the last (bottom) matching window.
@@ -231,7 +231,7 @@ class Windows:
 
     bottom = last
 
-    def get_active(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
+    def get_active(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
         """get_active(title: str = UNSET, **criteria) -> ahkpy.Window
 
         Return the window handle of the active matching window.
@@ -250,7 +250,7 @@ class Windows:
             return Window(None)
         return Window(win_id)
 
-    def wait(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET,
+    def wait(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None,
              timeout=None):
         """wait(title: str = UNSET, *, timeout=None, **criteria) -> ahkpy.Window
 
@@ -265,7 +265,7 @@ class Windows:
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._wait("WinWait", timeout)
 
-    def wait_active(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET,
+    def wait_active(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None,
                     timeout=None):
         """wait_active(title: str = UNSET, *, timeout=None, **criteria) -> ahkpy.Window
 
@@ -279,7 +279,7 @@ class Windows:
             self = dc.replace(self, title="A")
         return self._wait("WinWaitActive", timeout)
 
-    def wait_inactive(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET,
+    def wait_inactive(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None,
                       timeout=None):
         """wait_inactive(title: str = UNSET, *, timeout=None, **criteria) -> ahkpy.Window
 
@@ -290,7 +290,7 @@ class Windows:
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._wait("WinWaitNotActive", timeout)
 
-    def wait_close(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET,
+    def wait_close(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None,
                    timeout=None):
         """wait_close(title: str = UNSET, *, timeout=None, **criteria) -> bool
 
@@ -318,35 +318,35 @@ class Windows:
             return Window(None)
         return Window(win_id)
 
-    def close_all(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET,
+    def close_all(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None,
                   timeout=None):
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._group_action("WinClose", timeout)
 
-    def hide_all(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
+    def hide_all(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._group_action("WinHide")
 
-    def kill_all(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET,
+    def kill_all(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None,
                  timeout=None):
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._group_action("WinKill", timeout)
 
-    def maximize_all(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
+    def maximize_all(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._group_action("WinMaximize")
 
-    def minimize_all(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
+    def minimize_all(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._group_action("WinMinimize")
 
     # TODO: Implement WinMinimizeAllUndo.
 
-    def restore_all(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
+    def restore_all(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
         self = self._filter(title, class_name, id, pid, exe, text, match)
         self._group_action("WinRestore")
 
-    def show_all(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
+    def show_all(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
         self = self._filter(title, class_name, id, pid, exe, text, match)
         self._group_action("WinShow")
 
@@ -365,7 +365,7 @@ class Windows:
         if timeout is not None:
             return not self.exist()
 
-    def window_context(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
+    def window_context(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
         # Not using Hotkey, IfWinActive/Exist because:
         #
         # 1. It doesn't support excluding windows.
@@ -375,21 +375,21 @@ class Windows:
         return HotkeyContext(lambda: self.exist())
 
     def nonexistent_window_context(
-            self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
+            self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return HotkeyContext(lambda: not self.exist())
 
     def active_window_context(
-            self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
+            self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return HotkeyContext(lambda: self.get_active())
 
     def inactive_window_context(
-            self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
+            self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return HotkeyContext(lambda: not self.get_active())
 
-    def send(self, keys, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
+    def send(self, keys, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
         self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text, match=match)
         with global_ahk_lock:
             sending._set_delay()
