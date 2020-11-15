@@ -22,7 +22,7 @@ global_ahk_lock = threading.RLock()
 def ahk_call(cmd: str, *args):
     """Call the arbitrary AHK command/function *cmd* with *args* arguments.
 
-    Use this function when there's no appropriate API provided by AutoHotkey.py.
+    Use this function when there's no appropriate AutoHotkey.py API.
 
     .. note::
 
@@ -172,8 +172,8 @@ def coop(func, *args, **kwargs):
 
        If you need to wait for the background thread to finish, calling
        :meth:`threading.Thread.join` in the main thread will block the handling
-       of AHK message queue. That is, AHK won't be able to handle the hotkeys
-       and other callbacks. Let AHK handle its message queue by calling
+       of the AHK message queue. That is, AHK won't be able to handle the
+       hotkeys and other callbacks. Let AHK handle its message queue by calling
        :func:`ahkpy.sleep` repeatedly while checking that the background thread
        is alive::
 

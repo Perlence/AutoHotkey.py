@@ -49,7 +49,9 @@ MESSAGE_BOX_OPTIONS = {
 
 @dc.dataclass
 class MessageBox:
-    """The utility object to reuse and show message boxes.
+    """MessageBox(text=None, title=None, buttons="ok", icon=None, default_button=1, options=[], timeout=None)
+
+    The utility object to reuse and show message boxes.
 
     For information about the arguments refer to :func:`message_box`.
 

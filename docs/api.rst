@@ -53,7 +53,7 @@ Message Boxes
 
 .. autofunction:: message_box
 
-.. autoclass:: MessageBox(text=None, title=None, buttons="ok", icon=None, default_button=1, options=[], timeout=None)
+.. autoclass:: MessageBox
 
    .. automethod:: show
    .. automethod:: info
