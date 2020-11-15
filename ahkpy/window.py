@@ -389,13 +389,6 @@ class Windows:
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return HotkeyContext(lambda: not self.get_active())
 
-    def send(self, keys, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
-        self = self.filter(title=title, class_name=class_name, id=id, pid=pid, exe=exe, text=text, match=match)
-        with global_ahk_lock:
-            sending._set_delay()
-            control = ""
-            self._call("ControlSend", control, str(keys), *self._query())
-
     def __iter__(self):
         """Return matching windows ordered from top to bottom."""
         win_ids = self._call("WinGet", "List", *self._query())
@@ -702,6 +695,7 @@ class BaseWindow(WindowHandle):
         raise NotImplementedError
 
     def send(self, keys):
+        # TODO: Add level, key_delay, and key_duration arguments.
         with global_ahk_lock:
             # Unlike the Send command, mouse clicks cannot be sent by
             # ControlSend. Thus, no need to set mouse_delay.
