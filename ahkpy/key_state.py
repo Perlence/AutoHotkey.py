@@ -122,8 +122,8 @@ def _key_wait(key_name, down=False, logical=False, timeout=None) -> bool:
         options.append("L")
     if timeout is not None:
         options.append(f"T{timeout}")
-    timed_out = ahk_call("KeyWait", str(key_name), "".join(options))
-    return not timed_out
+    ok = ahk_call("KeyWait", str(key_name), "".join(options))
+    return bool(ok)
 
 
 def get_key_name(key_name: str) -> str:

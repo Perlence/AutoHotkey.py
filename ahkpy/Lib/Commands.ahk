@@ -20,7 +20,7 @@ _SetClipboard(Value) {
 
 _ClipWait(SecondsToWait="",AnyKindOfData="") {
     ClipWait %SecondsToWait%,%AnyKindOfData%
-    return ErrorLevel
+    return not ErrorLevel
 }
 
 _Control(Cmd,Value="",Control="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
@@ -211,7 +211,7 @@ _KeyHistory() {
 
 _KeyWait(KeyName,Options="") {
     KeyWait %KeyName%,%Options%
-    return ErrorLevel
+    return not ErrorLevel
 }
 
 _ListHotkeys() {
@@ -463,7 +463,7 @@ _StatusBarGetText(Part="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText="")
 
 _StatusBarWait(BarText="",Seconds="",Part#="",WinTitle="",WinText="",Interval="",ExcludeTitle="",ExcludeText="") {
     StatusBarWait %BarText%,%Seconds%,%Part#%,%WinTitle%,%WinText%,%Interval%,%ExcludeTitle%,%ExcludeText%
-    return ErrorLevel
+    return not ErrorLevel
 }
 
 _Suspend(Mode="") {
@@ -589,20 +589,35 @@ _WinShow(WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
 
 _WinWait(WinTitle="",WinText="",Seconds="",ExcludeTitle="",ExcludeText="") {
     WinWait %WinTitle%,%WinText%,%Seconds%,%ExcludeTitle%,%ExcludeText%
-    return ErrorLevel
+    if (ErrorLevel > 0) {
+        return 0
+    }
+    ; Get Last Found Window
+    WinGet, id, ID
+    return id
 }
 
 _WinWaitActive(WinTitle="",WinText="",Seconds="",ExcludeTitle="",ExcludeText="") {
     WinWaitActive %WinTitle%,%WinText%,%Seconds%,%ExcludeTitle%,%ExcludeText%
-    return ErrorLevel
+    if (ErrorLevel > 0) {
+        return 0
+    }
+    ; Get Last Found Window
+    WinGet, id, ID
+    return id
 }
 
 _WinWaitClose(WinTitle="",WinText="",Seconds="",ExcludeTitle="",ExcludeText="") {
     WinWaitClose %WinTitle%,%WinText%,%Seconds%,%ExcludeTitle%,%ExcludeText%
-    return ErrorLevel
+    return not ErrorLevel
 }
 
 _WinWaitNotActive(WinTitle="",WinText="",Seconds="",ExcludeTitle="",ExcludeText="") {
     WinWaitNotActive %WinTitle%,%WinText%,%Seconds%,%ExcludeTitle%,%ExcludeText%
-    return ErrorLevel
+    if (ErrorLevel > 0) {
+        return 0
+    }
+    ; Get Last Found Window
+    WinGet, id, ID
+    return id
 }

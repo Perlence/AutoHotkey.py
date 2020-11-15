@@ -247,23 +247,17 @@ class Windows:
         self = self._filter(title, class_name, id, pid, exe, text, match)
         # WinWaitClose doesn't set Last Found Window, return False if the wait
         # was timed out.
-        timed_out = self._call("WinWaitClose", *self._include(), timeout or "", *self._exclude(), set_delay=True)
-        # If some of the query parameters is None, then the self._call will also
-        # return None. Returning `not None` is ok because the matching window
-        # doesn't exist, and that's what we are waiting for.
-        return not timed_out
+        ok = self._call("WinWaitClose", *self._include(), timeout or "", *self._exclude(), set_delay=True)
+        if ok is None:
+            # There are no matching windows, and that's what we are waiting for.
+            return True
+        return bool(ok)
 
     def _wait(self, cmd, timeout):
-        # Calling WinWait[Not]Active and WinWait sets an implicit Last Found
-        # Window that is local to the current AHK thread. Let's retrieve it
-        # while protecting it from being overwritten by other Python threads.
-        with global_ahk_lock:
-            timed_out = self._call(cmd, *self._include(), timeout or "", *self._exclude(), set_delay=True)
-            if timed_out is None or timed_out:
-                # timed_out may be None if some of the query parameters is None.
-                return Window(None)
-            # Return the Last Found Window.
-            return windows.first()
+        win_id = self._call(cmd, *self._include(), timeout or "", *self._exclude(), set_delay=True)
+        if not win_id:
+            return Window(None)
+        return Window(win_id)
 
     def close_all(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET,
                   timeout=None):
@@ -951,7 +945,7 @@ class Window(BaseWindow):
 
     def wait_status_bar(self, bar_text="", timeout=None, part=1, interval=0.05) -> Optional[bool]:
         try:
-            timed_out = self._call(
+            ok = self._call(
                 "StatusBarWait",
                 bar_text,
                 timeout if timeout is not None else "",
@@ -959,7 +953,7 @@ class Window(BaseWindow):
                 *self._include(),
                 interval * 1000,
             )
-            return not timed_out
+            return bool(ok)
         except Error as err:
             if err.message == 2:
                 if not self._status_bar_exists():
@@ -995,20 +989,23 @@ class Window(BaseWindow):
         self._call("WinRestore", *self._include(), set_delay=True)
 
     def wait_active(self, timeout=None) -> bool:
-        timed_out = self._call("WinWaitActive", *self._include(), timeout, set_delay=True)
-        return not timed_out
+        win_id = self._call("WinWaitActive", *self._include(), timeout, set_delay=True)
+        return bool(win_id)
 
     def wait_inactive(self, timeout=None) -> bool:
-        timed_out = self._call("WinWaitNotActive", *self._include(), timeout, set_delay=True)
-        return not timed_out
+        win_id = self._call("WinWaitNotActive", *self._include(), timeout, set_delay=True)
+        if win_id == "":
+            # Non-existent window is inactive.
+            return True
+        return bool(win_id)
 
     def wait_hidden(self, timeout=None) -> bool:
-        timed_out = self._call("WinWaitClose", *self._include(), timeout, hidden_windows=False, set_delay=True)
-        return not timed_out
+        ok = self._call("WinWaitClose", *self._include(), timeout, hidden_windows=False, set_delay=True)
+        return bool(ok)
 
     def wait_close(self, timeout=None) -> bool:
-        timed_out = self._call("WinWaitClose", *self._include(), timeout, set_delay=True)
-        return not timed_out
+        ok = self._call("WinWaitClose", *self._include(), timeout, set_delay=True)
+        return bool(ok)
 
     def _move(self, x, y, width, height):
         self._call("WinMove", *self._include(), x, y, width, height, set_delay=True)

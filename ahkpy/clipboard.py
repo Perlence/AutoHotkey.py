@@ -44,8 +44,8 @@ def wait_clipboard(timeout: float = None) -> str:
     # TODO: Implement WaitForAnyData argument.
     if timeout is not None:
         timeout = float(timeout)
-    timed_out = ahk_call("ClipWait", timeout)
-    if timed_out:
+    ok = ahk_call("ClipWait", timeout)
+    if not ok:
         return ""
     return get_clipboard()
 

@@ -120,6 +120,9 @@ class TestWindows:
         win1.bring_to_top()
         assert msg_boxes.first() == win1
 
+    def test_wait_close_none(self):
+        assert ahk.windows.filter(title=None).wait_close() is True
+
     def test_close(self, msg_boxes, win1):
         win1.activate(timeout=1)
         msg_boxes.first().close()  # Close actually hides this AHK message box
