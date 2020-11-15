@@ -193,8 +193,15 @@ class Windows:
             return dc.replace(self, text_mode="fast")
 
     def exist(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
-        """Return the window handle of the first matching window or return
-        a dummy window object if there are no such windows.
+        """exist(title: str = UNSET, **criteria) -> ahkpy.Window
+
+        Return the window handle of the first (top) matching window.
+
+        If there are no matching windows, returns ``Window(None)``.
+
+        For arguments refer to :meth:`filter`.
+
+        Aliases: :meth:`first`, :meth:`top`.
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         win_id = self._call("WinExist", *self._query())
@@ -206,6 +213,16 @@ class Windows:
     top = exist
 
     def last(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
+        """last(title: str = UNSET, **criteria) -> ahkpy.Window
+
+        Return the window handle of the last (bottom) matching window.
+
+        If there are no matching windows, returns ``Window(None)``.
+
+        For arguments refer to :meth:`filter`.
+
+        Alias: :meth:`bottom`.
+        """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         win_id = self._call("WinGet", "IDLast", *self._query())
         if not win_id:
@@ -215,6 +232,15 @@ class Windows:
     bottom = last
 
     def get_active(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET):
+        """get_active(title: str = UNSET, **criteria) -> ahkpy.Window
+
+        Return the window handle of the active matching window.
+
+        If no criteria are given, returns the current active window. If no
+        window is active, returns ``Window(None)``.
+
+        For arguments refer to :meth:`filter`.
+        """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         query = self._query()
         if query == ("", "", "", ""):
@@ -226,11 +252,27 @@ class Windows:
 
     def wait(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET,
              timeout=None):
+        """wait(title: str = UNSET, *, timeout=None, **criteria) -> ahkpy.Window
+
+        Wait until the specified window exists and return it.
+
+        Returns the first matched window. If there are no matching windows after
+        *timeout* seconds, then ``Window(None)`` will be returned. If *timeout*
+        is not specified or ``None``, there is no limit to the wait time.
+
+        For other arguments refer to :meth:`filter`.
+        """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._wait("WinWait", timeout)
 
     def wait_active(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET,
                     timeout=None):
+        """wait_active(title: str = UNSET, *, timeout=None, **criteria) -> ahkpy.Window
+
+        Wait until the window is active and return it.
+
+        For arguments refer to :meth:`wait`.
+        """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         query = self._query()
         if query == ("", "", "", ""):
@@ -239,11 +281,28 @@ class Windows:
 
     def wait_inactive(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET,
                       timeout=None):
+        """wait_inactive(title: str = UNSET, *, timeout=None, **criteria) -> ahkpy.Window
+
+        Wait until the window is inactive and return it.
+
+        For arguments refer to :meth:`wait`.
+        """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._wait("WinWaitNotActive", timeout)
 
     def wait_close(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=UNSET,
                    timeout=None):
+        """wait_close(title: str = UNSET, *, timeout=None, **criteria) -> bool
+
+        Wait until all matched windows stop existing.
+
+        Returns ``True`` if there are not matching windows. If the matching
+        windows still exist after *timeout* seconds, then ``False`` will be
+        returned. If *timeout* is not specified or ``None``, there is no limit
+        to the wait time.
+
+        For other arguments refer to :meth:`filter`.
+        """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         # WinWaitClose doesn't set Last Found Window, return False if the wait
         # was timed out.

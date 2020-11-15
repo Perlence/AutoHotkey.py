@@ -316,6 +316,7 @@ Windows
 
 .. autoclass:: Windows
    :members:
+   :exclude-members: first, top, bottom
 
 .. autoclass:: Window
    :members:
