@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import ctypes
 import dataclasses as dc
 import enum
-from typing import List, Optional, Tuple, Union
+from typing import Iterator, List, Optional, Tuple, Union
 
 from . import colors
 from . import sending
@@ -110,7 +112,7 @@ class Windows:
         )
 
     def exclude(self, title=UNSET, *, text=UNSET, match=None):
-        """exclude(title: str = UNSET, **criteria)
+        """exclude(title: str = UNSET, **exclude_criteria)
 
         Exclude windows from the match using the given criteria. All strings are
         case-sensitive.
@@ -271,7 +273,7 @@ class Windows:
 
         Wait until the window is active and return it.
 
-        For arguments refer to :meth:`wait`.
+        For more information refer to :meth:`wait`.
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         query = self._query()
@@ -285,7 +287,7 @@ class Windows:
 
         Wait until the window is inactive and return it.
 
-        For arguments refer to :meth:`wait`.
+        For more information refer to :meth:`wait`.
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._wait("WinWaitNotActive", timeout)
@@ -296,7 +298,7 @@ class Windows:
 
         Wait until all matched windows stop existing.
 
-        Returns ``True`` if there are not matching windows. If the matching
+        Returns ``True`` if there are no matching windows. If the matching
         windows still exist after *timeout* seconds, then ``False`` will be
         returned. If *timeout* is not specified or ``None``, there is no limit
         to the wait time.
@@ -320,33 +322,85 @@ class Windows:
 
     def close_all(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None,
                   timeout=None):
+        """close_all(title: str = UNSET, *, timeout=None, **criteria) -> bool
+
+        Close all matching windows.
+
+        Returns ``True`` if all windows are closed. If the matching windows
+        still exist after *timeout* seconds, then ``False`` will be returned. If
+        *timeout* is not specified or ``None``, there is no limit to the wait
+        time.
+
+        For arguments refer to :meth:`filter`.
+        """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._group_action("WinClose", timeout)
 
     def hide_all(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
+        """hide_all(title: str = UNSET, **criteria)
+
+        Hide all matching windows.
+
+        For arguments refer to :meth:`filter`.
+        """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._group_action("WinHide")
 
     def kill_all(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None,
                  timeout=None):
+        """kill_all(title: str = UNSET, *, timeout=None, **criteria) -> bool
+
+        Forces all matching windows to close.
+
+        Returns ``True`` if all windows are closed. If the matching windows
+        still exist after *timeout* seconds, then ``False`` will be returned. If
+        *timeout* is not specified or ``None``, there is no limit to the wait
+        time.
+
+        For arguments refer to :meth:`filter`.
+        """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._group_action("WinKill", timeout)
 
     def maximize_all(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
+        """maximize_all(title: str = UNSET, **criteria)
+
+        Maximize all matching windows.
+
+        For arguments refer to :meth:`filter`.
+        """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._group_action("WinMaximize")
 
     def minimize_all(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
+        """minimize_all(title: str = UNSET, **criteria)
+
+        Minimize all matching windows.
+
+        For arguments refer to :meth:`filter`.
+        """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._group_action("WinMinimize")
 
     # TODO: Implement WinMinimizeAllUndo.
 
     def restore_all(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
+        """restore_all(title: str = UNSET, **criteria)
+
+        Restore all matching windows.
+
+        For arguments refer to :meth:`filter`.
+        """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         self._group_action("WinRestore")
 
     def show_all(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
+        """show_all(title: str = UNSET, **criteria)
+
+        Show all matching windows.
+
+        For arguments refer to :meth:`filter`.
+        """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         self._group_action("WinShow")
 
@@ -366,6 +420,13 @@ class Windows:
             return not self.exist()
 
     def window_context(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
+        """window_context(title: str = UNSET, **criteria) -> ahkpy.HotkeyContext
+
+        Create a context for hotkeys that will work only when the matching
+        windows exist.
+
+        For arguments refer to :meth:`filter`.
+        """
         # Not using Hotkey, IfWinActive/Exist because:
         #
         # 1. It doesn't support excluding windows.
@@ -376,21 +437,45 @@ class Windows:
 
     def nonexistent_window_context(
             self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
+        """nonexistent_window_context(title: str = UNSET, **criteria) -> ahkpy.HotkeyContext
+
+        Create a context for hotkeys that will work only when there are no
+        matching windows.
+
+        For arguments refer to :meth:`filter`.
+        """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return HotkeyContext(lambda: not self.exist())
 
     def active_window_context(
             self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
+        """active_window_context(title: str = UNSET, **criteria) -> ahkpy.HotkeyContext
+
+        Create a context for hotkeys that will work only when the matching
+        windows are active.
+
+        For arguments refer to :meth:`filter`.
+        """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return HotkeyContext(lambda: self.get_active())
 
     def inactive_window_context(
             self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
+        """inactive_window_context(title: str = UNSET, **criteria) -> ahkpy.HotkeyContext
+
+        Create a context for hotkeys that will work only when the matching
+        windows are not active.
+
+        For arguments refer to :meth:`filter`.
+        """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return HotkeyContext(lambda: not self.get_active())
 
-    def __iter__(self):
-        """Return matching windows ordered from top to bottom."""
+    def __iter__(self) -> Iterator[Window]:
+        """__iter__() -> typing.Iterator[ahkpy.Window]
+
+        Return matching windows ordered from top to bottom.
+        """
         win_ids = self._call("WinGet", "List", *self._query())
         if win_ids is None:
             return
@@ -399,6 +484,7 @@ class Windows:
                 yield Window(win_id)
 
     def __len__(self):
+        """Return the number of matching windows."""
         return self._call("WinGet", "Count", *self._query()) or 0
 
     def __repr__(self):

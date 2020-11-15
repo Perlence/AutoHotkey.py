@@ -317,6 +317,7 @@ Windows
 .. autoclass:: Windows
    :members:
    :exclude-members: first, top, bottom
+   :special-members: __iter__, __len__
 
 .. autoclass:: Window
    :members:
