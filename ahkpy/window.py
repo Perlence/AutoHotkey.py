@@ -204,6 +204,8 @@ class Windows:
         For arguments refer to :meth:`filter`.
 
         Aliases: :meth:`first`, :meth:`top`.
+
+        .. TODO: Add AutoHotkey command.
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         win_id = self._call("WinExist", *self._query())
@@ -296,10 +298,10 @@ class Windows:
                    timeout=None):
         """wait_close(title: str = UNSET, *, timeout=None, **criteria) -> bool
 
-        Wait until all matched windows stop existing.
+        Wait until there are no matching windows.
 
-        Returns ``True`` if there are no matching windows. If the matching
-        windows still exist after *timeout* seconds, then ``False`` will be
+        Returns ``True`` if there are no matching windows. If there are still
+        matching windows after *timeout* seconds, then ``False`` will be
         returned. If *timeout* is not specified or ``None``, there is no limit
         to the wait time.
 
@@ -326,10 +328,10 @@ class Windows:
 
         Close all matching windows.
 
-        Returns ``True`` if all windows are closed. If the matching windows
-        still exist after *timeout* seconds, then ``False`` will be returned. If
-        *timeout* is not specified or ``None``, there is no limit to the wait
-        time.
+        Returns ``True`` if all matching windows are closed. If there are still
+        matching windows after *timeout* seconds, then ``False`` will be
+        returned. If *timeout* is not specified or ``None``, there is no limit
+        to the wait time.
 
         For arguments refer to :meth:`filter`.
         """
@@ -352,8 +354,8 @@ class Windows:
 
         Forces all matching windows to close.
 
-        Returns ``True`` if all windows are closed. If the matching windows
-        still exist after *timeout* seconds, then ``False`` will be returned. If
+        Returns ``True`` if all windows are closed. If there are still matching
+        windows after *timeout* seconds, then ``False`` will be returned. If
         *timeout* is not specified or ``None``, there is no limit to the wait
         time.
 
