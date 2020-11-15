@@ -224,8 +224,9 @@ def message_box(text=None, title=None, *,
          interactive window station
 
     :param float timeout: specifies time in seconds to wait for user's response.
-       After the timeout has elapsed, the message box will be automatically
-       closed. If *timeout* is omitted, waits indefinitely.
+       After the timeout elapses, the message box will be automatically
+       closed. If *timeout* is not specified or ``None``, there is no limit to
+       the wait time.
 
     :return: ``None`` if the timeout has elapsed, or one of the following values
        that signify the button the user has pressed:

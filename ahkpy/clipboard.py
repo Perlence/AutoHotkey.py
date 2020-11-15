@@ -34,10 +34,9 @@ def set_clipboard(value):
 def wait_clipboard(timeout: float = None) -> str:
     """Wait until the clipboard contains text and return it.
 
-    If the optional *timeout* argument is given, then wait no longer than this
-    many seconds. If the wait period expires and there's no text, return an
-    empty string. If omitted, the function will wait indefinitely. Specifying 0
-    is the same as specifying 0.5.
+    If there is no text in the clipboard after *timeout* seconds, then an empty
+    string will be returned. If *timeout* is not specified or ``None``, there is
+    no limit to the wait time. Specifying 0 is the same as specifying 0.5.
 
     AutoHotkey command: `ClipWait
     <https://www.autohotkey.com/docs/commands/ClipWait.htm>`_.

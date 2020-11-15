@@ -92,9 +92,9 @@ def _set_key_state(cmd, state, always):
 def wait_key_pressed(key_name, timeout: float = None) -> bool:
     """Wait for a key or mouse/joystick button to be pressed down physically.
 
-    By default, the function waits indefinitely and returns ``True`` when the
-    user presses the key. The optional *timeout* argument specifies the number
-    of seconds to wait before returning ``False`` if there was no input.
+    Returns ``True`` when the user presses the key. If there is no user input
+    after *timeout* seconds, then ``False`` will be returned. If *timeout* is
+    not specified or ``None``, there is no limit to the wait time.
     """
     return _key_wait(key_name, down=True, logical=False, timeout=timeout)
 

@@ -187,9 +187,9 @@ In the following functions, the *key_name* argument is a VK or SC code, such as
    Wait for a key or mouse/joystick button to be pressed/released
    physically/logically.
 
-   By default, the function waits indefinitely and returns ``True`` when the
-   user presses the key. The optional *timeout* argument specifies the number
-   of seconds to wait before returning ``False`` if there was no input.
+   Returns ``True`` when the user presses the key. If there is no user input
+   after *timeout* seconds, then ``False`` will be returned. If *timeout* is
+   not specified or ``None``, there is no limit to the wait time.
 
    The logical state is the state that the OS and the active window believe the
    key to be in, but is not necessarily the same as the physical state, that is,
