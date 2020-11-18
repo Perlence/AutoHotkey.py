@@ -308,7 +308,7 @@ Windows
 .. data:: windows
 .. data:: visible_windows
 
-   An instance of :class:`Windows` that matches only visible windows.
+   The instances of :class:`Windows` that match only visible windows.
 
 .. data:: all_windows
 
@@ -316,7 +316,7 @@ Windows
 
 .. autoclass:: Windows
    :members:
-   :exclude-members: first, top, bottom
+   :exclude-members: exist, top, bottom
    :special-members: __iter__, __len__
 
 .. autoclass:: Window

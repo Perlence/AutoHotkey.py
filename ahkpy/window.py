@@ -194,8 +194,8 @@ class Windows:
         else:
             return dc.replace(self, text_mode="fast")
 
-    def exist(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
-        """exist(title: str = UNSET, **criteria) -> ahkpy.Window
+    def first(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
+        """first(title: str = UNSET, **criteria) -> ahkpy.Window
 
         Return the window handle of the first (top) matching window.
 
@@ -203,7 +203,7 @@ class Windows:
 
         For arguments refer to :meth:`filter`.
 
-        Aliases: :meth:`first`, :meth:`top`.
+        Aliases: :meth:`exist`, :meth:`top`.
 
         AutoHotkey function: `WinExist
         <https://www.autohotkey.com/docs/commands/WinExist.htm>`_.
@@ -214,8 +214,8 @@ class Windows:
             return Window(None)
         return Window(win_id)
 
-    first = exist
-    top = exist
+    exist = first
+    top = first
 
     def last(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
         """last(title: str = UNSET, **criteria) -> ahkpy.Window
