@@ -507,16 +507,17 @@ _WinClose(WinTitle="",WinText="",SecondsToWait="",ExcludeTitle="",ExcludeText=""
 
 _WinGet(Cmd="",WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
     WinGet OutputVar,%Cmd%,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
-    StringLower, Cmd, Cmd
-    if (Cmd == "list") {
-        a := []
-        Loop, %OutputVar%
-        {
-            a.Insert(OutputVar%A_Index% + 0)
-        }
-        return a
-    }
     return OutputVar
+}
+
+_WinGetList(WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {
+    WinGet OutputVar,List,%WinTitle%,%WinText%,%ExcludeTitle%,%ExcludeText%
+    a := []
+    Loop, %OutputVar%
+    {
+        a.Insert(OutputVar%A_Index% + 0)
+    }
+    return a
 }
 
 _WinGetClass(WinTitle="",WinText="",ExcludeTitle="",ExcludeText="") {

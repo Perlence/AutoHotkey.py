@@ -478,7 +478,7 @@ class Windows:
 
         Return matching windows ordered from top to bottom.
         """
-        win_ids = self._call("WinGet", "List", *self._query())
+        win_ids = self._call("WinGetList", *self._query())
         if win_ids is None:
             return
         for win_id in win_ids.values():
