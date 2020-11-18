@@ -84,7 +84,7 @@ def click(button="left", times=1, *, modifier: str = None, blind=True, mode=None
     .. TODO: The documentation of the *blind* argument is not super clear.
 
     AutoHotkey command: `Send, {Click}
-    <https://www.autohotkey.com/docs/commands/Send.htm#Click>`__.
+    <https://www.autohotkey.com/docs/commands/Send.htm#Click>`_.
     """
     _click(button, times, KEY_DOWN_AND_UP, modifier=modifier, blind=blind, mode=mode, level=level, delay=delay)
 
@@ -172,7 +172,7 @@ def mouse_scroll(direction: str, times=1, *, modifier: str = None, blind=True, m
        takes.
 
     AutoHotkey command: `Send, {Click}
-    <https://www.autohotkey.com/docs/commands/Send.htm#Click>`__.
+    <https://www.autohotkey.com/docs/commands/Send.htm#Click>`_.
     """
     if direction not in SCROLL_DIRECTIONS:
         raise ValueError(f"{direction!r} is not a valid mouse scroll direction")
@@ -210,9 +210,9 @@ def mouse_move(x, y, *, relative_to="window", mode=None, speed=None, delay=None)
        refer to the *mouse_delay* argument of the :func:`send` function.
 
     AutoHotkey command: `Send, {Click X, Y, 0}
-    <https://www.autohotkey.com/docs/commands/Send.htm#Click>`__. Related
+    <https://www.autohotkey.com/docs/commands/Send.htm#Click>`_. Related
     command: `MouseMove
-    <https://www.autohotkey.com/docs/commands/MouseMove.htm>`__.
+    <https://www.autohotkey.com/docs/commands/MouseMove.htm>`_.
     """
     if speed is not None:
         if mode is None:
@@ -276,7 +276,7 @@ def get_mouse_pos(relative_to="window") -> Tuple[int, int]:
     Returns a ``(x, y)`` tuple.
 
     AutoHotkey command: `MouseGetPos, OutputVarX, OutputVarY
-    <https://www.autohotkey.com/docs/commands/MouseGetPos.htm>`__.
+    <https://www.autohotkey.com/docs/commands/MouseGetPos.htm>`_.
     """
     with global_ahk_lock:
         _set_coord_mode("mouse", relative_to)
@@ -294,7 +294,7 @@ def get_window_under_mouse() -> Window:
     detected.
 
     AutoHotkey command: `MouseGetPos,,, OutputVarWin
-    <https://www.autohotkey.com/docs/commands/MouseGetPos.htm>`__.
+    <https://www.autohotkey.com/docs/commands/MouseGetPos.htm>`_.
     """
     win_id = ahk_call("MouseGetWin")
     if not win_id:
@@ -318,7 +318,7 @@ def get_control_under_mouse(simple=False):
     control to be detected.
 
     AutoHotkey command: `MouseGetPos,,,, OutputVarControl
-    <https://www.autohotkey.com/docs/commands/MouseGetPos.htm>`__.
+    <https://www.autohotkey.com/docs/commands/MouseGetPos.htm>`_.
     """
     flag = 2 | bool(simple)
     win_id = ahk_call("MouseGetControl", flag)

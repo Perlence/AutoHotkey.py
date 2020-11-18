@@ -84,7 +84,7 @@ class Windows:
              *title*.
            - ``"regex"`` – changes *title*, *class_name*, *exe*, and *text*
              arguments to accept `PCRE regular expressions
-             <https://www.autohotkey.com/docs/misc/RegEx-QuickRef.htm>`__.
+             <https://www.autohotkey.com/docs/misc/RegEx-QuickRef.htm>`_.
 
            Defaults to ``"startswith"``.
         """
@@ -181,7 +181,7 @@ class Windows:
 
         If *is_slow* is true, the matching can be much slower, but works with
         all controls which respond to the `WM_GETTEXT
-        <https://msdn.microsoft.com/en-us/library/ms632627>`__ message.
+        <https://msdn.microsoft.com/en-us/library/ms632627>`_ message.
 
         Default behavior is to use the fast mode. However, certain types of
         controls are not detected. For instance, text is typically detected

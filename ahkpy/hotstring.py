@@ -81,7 +81,7 @@ def hotstring(
       Defaults to ``False``.
 
     - **wait_for_end_char** – if false, an `end chars
-      <#ahkpy.get_hotstring_end_chars>`__ is not required to trigger the
+      <#ahkpy.get_hotstring_end_chars>`_ is not required to trigger the
       hotstring. Defaults to ``True``.
 
     - **omit_end_char** – if true and *wait_for_end_char* is true, then the

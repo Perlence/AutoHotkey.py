@@ -146,7 +146,7 @@ Mouse
 .. autofunction:: mouse_move
 
 The `MouseClickDrag
-<https://www.autohotkey.com/docs/commands/MouseClickDrag.htm>`__ command can be
+<https://www.autohotkey.com/docs/commands/MouseClickDrag.htm>`_ command can be
 implemented as follows::
 
    ahkpy.mouse_move(x=x1, y=y1)

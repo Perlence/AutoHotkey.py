@@ -16,7 +16,7 @@ def send(keys: str, *, mode=None, level=None, key_delay=None, key_duration=None,
     Send simulated keystrokes and mouse clicks to the active window.
 
     The *keys* argument is an encoded sequence of keys. For valid *keys* refer
-    to `Send <https://www.autohotkey.com/docs/commands/Send.htm#Parameters>`_.
+    to `Send <https://www.autohotkey.com/docs/commands/Send.htm#Parameters>`__.
 
     :param str mode: the mode that is used to send keys and clicks. Takes one of
        the following values: ``"input"``, ``"event"``, ``"play"``. Defaults to
@@ -30,12 +30,14 @@ def send(keys: str, *, mode=None, level=None, key_delay=None, key_duration=None,
        ignored by hotkeys and hotstrings. It must be an integer between 0 and
        100. Has no effect in the Play mode. Defaults to one currently set in
        :attr:`Settings.send_level`. For more information refer to `SendLevel
-       Remarks <https://www.autohotkey.com/docs/commands/SendLevel.htm#General_Remarks>`_.
+       Remarks
+       <https://www.autohotkey.com/docs/commands/SendLevel.htm#General_Remarks>`_.
 
-    :param float key_delay: the delay in seconds after each keystroke.
-       Defaults to one currently set in :attr:`Settings.key_delay` or
+    :param float key_delay: the delay in seconds after each keystroke. Defaults
+       to one currently set in :attr:`Settings.key_delay` or
        :attr:`Settings.key_delay_play`. For more information refer to
-       `SetKeyDelay Remarks`_.
+       `SetKeyDelay Remarks
+       <https://www.autohotkey.com/docs/commands/SetKeyDelay.htm#Remarks>`_.
 
     :param float key_duration: the delay in seconds after pressing the key and
        before releasing it. Defaults to one currently set in
@@ -48,10 +50,8 @@ def send(keys: str, *, mode=None, level=None, key_delay=None, key_duration=None,
        `SetMouseDelay Remarks
        <https://www.autohotkey.com/docs/commands/SetMouseDelay.htm#Remarks>`_.
 
-    .. _SetKeyDelay Remarks: https://www.autohotkey.com/docs/commands/SetKeyDelay.htm#Remarks
-
     AutoHotkey command: `Send
-    <https://www.autohotkey.com/docs/commands/Send.htm>`__.
+    <https://www.autohotkey.com/docs/commands/Send.htm>`_.
     """
     # TODO: Sending "{U+0009}" and "\u0009" gives different results depending on
     # how tabs are handled in the application.
