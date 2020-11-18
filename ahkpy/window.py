@@ -205,7 +205,8 @@ class Windows:
 
         Aliases: :meth:`first`, :meth:`top`.
 
-        .. TODO: Add AutoHotkey command.
+        AutoHotkey function: `WinExist
+        <https://www.autohotkey.com/docs/commands/WinExist.htm>`_.
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         win_id = self._call("WinExist", *self._query())
@@ -226,6 +227,9 @@ class Windows:
         For arguments refer to :meth:`filter`.
 
         Alias: :meth:`bottom`.
+
+        AutoHotkey command: `WinGet, OutputVar, IDLast
+        <https://www.autohotkey.com/docs/commands/WinGet.htm#IDLast>`_.
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         win_id = self._call("WinGet", "IDLast", *self._query())
@@ -244,6 +248,9 @@ class Windows:
         window is active, returns ``Window(None)``.
 
         For arguments refer to :meth:`filter`.
+
+        AutoHotkey function: `WinActive
+        <https://www.autohotkey.com/docs/commands/WinActive.htm>`_.
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         query = self._query()
@@ -265,6 +272,9 @@ class Windows:
         is not specified or ``None``, there is no limit to the wait time.
 
         For other arguments refer to :meth:`filter`.
+
+        AutoHotkey command: `WinWait
+        <https://www.autohotkey.com/docs/commands/WinWait.htm>`_.
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._wait("WinWait", timeout)
@@ -276,6 +286,9 @@ class Windows:
         Wait until the window is active and return it.
 
         For more information refer to :meth:`wait`.
+
+        AutoHotkey command: `WinWaitActive
+        <https://www.autohotkey.com/docs/commands/WinWaitActive.htm>`_.
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         query = self._query()
@@ -290,6 +303,9 @@ class Windows:
         Wait until the window is inactive and return it.
 
         For more information refer to :meth:`wait`.
+
+        AutoHotkey command: `WinWaitNotActive
+        <https://www.autohotkey.com/docs/commands/WinWaitActive.htm>`_.
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._wait("WinWaitNotActive", timeout)
@@ -306,6 +322,9 @@ class Windows:
         to the wait time.
 
         For other arguments refer to :meth:`filter`.
+
+        AutoHotkey command: `WinWaitClose
+        <https://www.autohotkey.com/docs/commands/WinWaitClose.htm>`_.
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         # WinWaitClose doesn't set Last Found Window, return False if the wait
@@ -334,6 +353,9 @@ class Windows:
         to the wait time.
 
         For arguments refer to :meth:`filter`.
+
+        AutoHotkey command: `WinClose
+        <https://www.autohotkey.com/docs/commands/WinClose.htm>`_.
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._group_action("WinClose", timeout)
@@ -344,6 +366,9 @@ class Windows:
         Hide all matching windows.
 
         For arguments refer to :meth:`filter`.
+
+        AutoHotkey command: `WinHide
+        <https://www.autohotkey.com/docs/commands/WinHide.htm>`_.
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._group_action("WinHide")
@@ -360,6 +385,9 @@ class Windows:
         time.
 
         For arguments refer to :meth:`filter`.
+
+        AutoHotkey command: `WinKill
+        <https://www.autohotkey.com/docs/commands/WinKill.htm>`_.
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._group_action("WinKill", timeout)
@@ -370,6 +398,9 @@ class Windows:
         Maximize all matching windows.
 
         For arguments refer to :meth:`filter`.
+
+        AutoHotkey command: `WinMaximize
+        <https://www.autohotkey.com/docs/commands/WinMaximize.htm>`_.
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._group_action("WinMaximize")
@@ -380,6 +411,9 @@ class Windows:
         Minimize all matching windows.
 
         For arguments refer to :meth:`filter`.
+
+        AutoHotkey command: `WinMinimize
+        <https://www.autohotkey.com/docs/commands/WinMinimize.htm>`_.
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._group_action("WinMinimize")
@@ -392,6 +426,9 @@ class Windows:
         Restore all matching windows.
 
         For arguments refer to :meth:`filter`.
+
+        AutoHotkey command: `WinRestore
+        <https://www.autohotkey.com/docs/commands/WinRestore.htm>`_.
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         self._group_action("WinRestore")
@@ -402,6 +439,9 @@ class Windows:
         Show all matching windows.
 
         For arguments refer to :meth:`filter`.
+
+        AutoHotkey command: `WinShow
+        <https://www.autohotkey.com/docs/commands/WinShow.htm>`_.
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         self._group_action("WinShow")
@@ -428,6 +468,11 @@ class Windows:
         windows exist.
 
         For arguments refer to :meth:`filter`.
+
+        AutoHotkey command: `Hotkey, IfWinExist
+        <https://www.autohotkey.com/docs/commands/Hotkey.htm>`_. Related
+        directive `#IfWinExist
+        <https://www.autohotkey.com/docs/commands/_IfWinActive.htm>`_.
         """
         # Not using Hotkey, IfWinActive/Exist because:
         #
@@ -445,6 +490,11 @@ class Windows:
         matching windows.
 
         For arguments refer to :meth:`filter`.
+
+        AutoHotkey command: `Hotkey, IfWinNotExist
+        <https://www.autohotkey.com/docs/commands/Hotkey.htm>`_. Related
+        directive `#IfWinNotExist
+        <https://www.autohotkey.com/docs/commands/_IfWinActive.htm>`_.
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return HotkeyContext(lambda: not self.exist())
@@ -457,6 +507,11 @@ class Windows:
         windows are active.
 
         For arguments refer to :meth:`filter`.
+
+        AutoHotkey command: `Hotkey, IfWinActive
+        <https://www.autohotkey.com/docs/commands/Hotkey.htm>`_. Related
+        directive `#IfWinActive
+        <https://www.autohotkey.com/docs/commands/_IfWinActive.htm>`_.
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return HotkeyContext(lambda: self.get_active())
@@ -469,6 +524,11 @@ class Windows:
         windows are not active.
 
         For arguments refer to :meth:`filter`.
+
+        AutoHotkey command: `Hotkey, IfWinNotActive
+        <https://www.autohotkey.com/docs/commands/Hotkey.htm>`_. Related
+        directive `#IfWinNotActive
+        <https://www.autohotkey.com/docs/commands/_IfWinActive.htm>`_.
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return HotkeyContext(lambda: not self.get_active())
@@ -477,6 +537,9 @@ class Windows:
         """__iter__() -> typing.Iterator[ahkpy.Window]
 
         Return matching windows ordered from top to bottom.
+
+        AutoHotkey command: `WinGet, OutputVar, List
+        <https://www.autohotkey.com/docs/commands/WinGet.htm#List>`_.
         """
         win_ids = self._call("WinGetList", *self._query())
         if win_ids is None:
@@ -486,7 +549,11 @@ class Windows:
                 yield Window(win_id)
 
     def __len__(self):
-        """Return the number of matching windows."""
+        """Return the number of matching windows.
+
+        AutoHotkey command: `WinGet, OutputVar, Count
+        <https://www.autohotkey.com/docs/commands/WinGet.htm#Count>`_.
+        """
         return self._call("WinGet", "Count", *self._query()) or 0
 
     def __repr__(self):
