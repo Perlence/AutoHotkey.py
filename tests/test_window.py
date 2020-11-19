@@ -322,7 +322,7 @@ def test_nonexistent_window():
     assert win.post_message(9000) is None
 
 
-def test_status_bar(request, notepad):
+def test_status_bar(notepad):
     ahk.sleep(0.2)
     assert "Ln 1, Col 1" in notepad.get_status_bar_text(2)
 
