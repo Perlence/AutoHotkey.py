@@ -639,10 +639,29 @@ class WindowHandle:
     __slots__ = ("id",)
 
     def __bool__(self):
+        """Check if the window/control exists.
+
+        Returns ``False`` if it's a ``Window(None)`` or ``Control(None)``
+        instance.
+        """
         return bool(self.id) and self.exists
 
     @property
     def exists(self) -> bool:
+        """Check if the window/control exists.
+
+        Returns ``False`` if it's a ``Window(None)`` or ``Control(None)``
+        instance.
+
+        .. TODO: Remove rtypes once
+           https://github.com/sphinx-doc/sphinx/issues/7383 is resolved and
+           released.
+
+        :rtype: bool
+
+        :AHK function: `WinExist
+           <https://www.autohotkey.com/docs/commands/WinExist.htm>`_.
+        """
         return bool(self._call("WinExist", *self._include()))
 
     def _call(self, cmd, *args, hidden_windows=True, title_mode=None, set_delay=False):
@@ -674,12 +693,24 @@ class WindowHandle:
 
 
 class BaseWindow(WindowHandle):
-    """Base window class that is inherited by Window and Control classes."""
+    """Base window class that is inherited by :class:`~ahkpy.Window` and
+    :class:`~ahkpy.Control` classes.
+    """
 
     __slots__ = ("id",)
 
     @property
-    def style(self) -> Optional["WindowStyle"]:
+    def style(self) -> Optional[WindowStyle]:
+        """Get or set the styles of the window/control.
+
+        Returns an instance of :class:`~ahkpy.WindowStyle` if the window exists.
+        Otherwise, returns ``None``.
+
+        AutoHotkey commands: `WinGet, OutputVar, Style
+        <https://www.autohotkey.com/docs/commands/WinGet.htm#Style>`_,
+        `ControlGet, OutputVar, Style
+        <https://www.autohotkey.com/docs/commands/ControlGet.htm#Style>`_.
+        """
         style = self._get("Style")
         if style is None:
             return None
@@ -690,7 +721,17 @@ class BaseWindow(WindowHandle):
         self._set("Style", int(value))
 
     @property
-    def ex_style(self) -> Optional["ExWindowStyle"]:
+    def ex_style(self) -> Optional[ExWindowStyle]:
+        """Get or set the extended styles of the window/control.
+
+        Returns an instance of :class:`~ahkpy.ExWindowStyle` if the window
+        exists. Otherwise, returns ``None``.
+
+        AutoHotkey command: `WinGet, OutputVar, ExStyle
+        <https://www.autohotkey.com/docs/commands/WinGet.htm#ExStyle>`_,
+        `ControlGet, OutputVar, ExStyle
+        <https://www.autohotkey.com/docs/commands/ControlGet.htm#ExStyle>`_.
+        """
         ex_style = self._get("ExStyle")
         if ex_style is None:
             return None
@@ -702,6 +743,15 @@ class BaseWindow(WindowHandle):
 
     @property
     def class_name(self) -> Optional[str]:
+        """Get the window/control class.
+
+        Returns ``None`` if the window doesn't exist.
+
+        :rtype: Optional[str]
+
+        :AHK command: `WinGetClass
+           <https://www.autohotkey.com/docs/commands/WinGetClass.htm>`_.
+        """
         class_name = self._call("WinGetClass", *self._include())
         if class_name == "":
             # Windows API doesn't allow the class name to be an empty string. If
@@ -712,6 +762,21 @@ class BaseWindow(WindowHandle):
 
     @property
     def rect(self) -> Optional[Tuple[int, int, int, int]]:
+        """Get or set the position and size of the window/control.
+
+        Returns a ``(x, y, width, height)`` tuple. If the window doesn't exist,
+        returns ``None``.
+
+        :rtype: Optional[Tuple[int, int, int, int]]
+
+        :AHK command: `WinGetPos
+           <https://www.autohotkey.com/docs/commands/WinGetPos.htm>`_,
+           `ControlGetPos
+           <https://www.autohotkey.com/docs/commands/ControlGetPos.htm>`_,
+           `WinMove <https://www.autohotkey.com/docs/commands/WinMove.htm>`_,
+           `ControlMove
+           <https://www.autohotkey.com/docs/commands/ControlMove.htm>`_.
+        """
         result = self._get_pos()
         if result is None:
             return None
@@ -730,6 +795,21 @@ class BaseWindow(WindowHandle):
 
     @property
     def position(self):
+        """Get or set the window/control position.
+
+        Returns a ``(x, y)`` tuple. If the window doesn't exist, returns
+        ``None``.
+
+        :rtype: Optional[Tuple[int, int]]
+
+        :AHK command: `WinGetPos
+           <https://www.autohotkey.com/docs/commands/WinGetPos.htm>`_,
+           `ControlGetPos
+           <https://www.autohotkey.com/docs/commands/ControlGetPos.htm>`_,
+           `WinMove <https://www.autohotkey.com/docs/commands/WinMove.htm>`_,
+           `ControlMove
+           <https://www.autohotkey.com/docs/commands/ControlMove.htm>`_.
+        """
         rect = self.rect
         if rect is None:
             return None
@@ -743,6 +823,20 @@ class BaseWindow(WindowHandle):
 
     @property
     def x(self):
+        """Get or set the x coordinate of the window/control.
+
+        Returns ``None`` if the window doesn't exist.
+
+        :rtype: Optional[int]
+
+        :AHK command: `WinGetPos
+           <https://www.autohotkey.com/docs/commands/WinGetPos.htm>`_,
+           `ControlGetPos
+           <https://www.autohotkey.com/docs/commands/ControlGetPos.htm>`_,
+           `WinMove <https://www.autohotkey.com/docs/commands/WinMove.htm>`_,
+           `ControlMove
+           <https://www.autohotkey.com/docs/commands/ControlMove.htm>`_.
+        """
         rect = self.rect
         if rect is None:
             return None
@@ -755,6 +849,20 @@ class BaseWindow(WindowHandle):
 
     @property
     def y(self):
+        """Get or set the y coordinate of the window/control.
+
+        Returns ``None`` if the window doesn't exist.
+
+        :rtype: Optional[int]
+
+        :AHK command: `WinGetPos
+           <https://www.autohotkey.com/docs/commands/WinGetPos.htm>`_,
+           `ControlGetPos
+           <https://www.autohotkey.com/docs/commands/ControlGetPos.htm>`_,
+           `WinMove <https://www.autohotkey.com/docs/commands/WinMove.htm>`_,
+           `ControlMove
+           <https://www.autohotkey.com/docs/commands/ControlMove.htm>`_.
+        """
         rect = self.rect
         if rect is None:
             return None
@@ -767,6 +875,21 @@ class BaseWindow(WindowHandle):
 
     @property
     def size(self):
+        """Get or set the window/control size.
+
+        Returns a ``(width, height)`` tuple. If the window doesn't exist,
+        returns ``None``.
+
+        :rtype: Optional[Tuple[int, int]]
+
+        :AHK command: `WinGetPos
+           <https://www.autohotkey.com/docs/commands/WinGetPos.htm>`_,
+           `ControlGetPos
+           <https://www.autohotkey.com/docs/commands/ControlGetPos.htm>`_,
+           `WinMove <https://www.autohotkey.com/docs/commands/WinMove.htm>`_,
+           `ControlMove
+           <https://www.autohotkey.com/docs/commands/ControlMove.htm>`_.
+        """
         rect = self.rect
         if rect is None:
             return None
@@ -780,6 +903,20 @@ class BaseWindow(WindowHandle):
 
     @property
     def width(self):
+        """Get or set the window/control width.
+
+        Returns ``None`` if the window doesn't exist.
+
+        :rtype: Optional[int]
+
+        :AHK command: `WinGetPos
+           <https://www.autohotkey.com/docs/commands/WinGetPos.htm>`_,
+           `ControlGetPos
+           <https://www.autohotkey.com/docs/commands/ControlGetPos.htm>`_,
+           `WinMove <https://www.autohotkey.com/docs/commands/WinMove.htm>`_,
+           `ControlMove
+           <https://www.autohotkey.com/docs/commands/ControlMove.htm>`_.
+        """
         rect = self.rect
         if rect is None:
             return None
@@ -792,6 +929,20 @@ class BaseWindow(WindowHandle):
 
     @property
     def height(self):
+        """Get or set the window/control height.
+
+        Returns ``None`` if the window doesn't exist.
+
+        :rtype: Optional[int]
+
+        :AHK command: `WinGetPos
+           <https://www.autohotkey.com/docs/commands/WinGetPos.htm>`_,
+           `ControlGetPos
+           <https://www.autohotkey.com/docs/commands/ControlGetPos.htm>`_,
+           `WinMove <https://www.autohotkey.com/docs/commands/WinMove.htm>`_,
+           `ControlMove
+           <https://www.autohotkey.com/docs/commands/ControlMove.htm>`_.
+        """
         rect = self.rect
         if rect is None:
             return None
@@ -803,6 +954,14 @@ class BaseWindow(WindowHandle):
         self.move(height=new_height)
 
     def move(self, x=None, y=None, width=None, height=None):
+        """Move and/or resize the window/control.
+
+        Does nothing if the window/control doesn't exist.
+
+        AutoHotkey commands: `WinMove
+        <https://www.autohotkey.com/docs/commands/WinMove.htm>`_, `ControlMove
+        <https://www.autohotkey.com/docs/commands/ControlMove.htm>`_.
+        """
         self._move(
             int(x) if x is not None else "",
             int(y) if y is not None else "",
@@ -811,10 +970,20 @@ class BaseWindow(WindowHandle):
         )
 
     @property
-    def is_enabled(self):
+    def is_enabled(self) -> Optional[bool]:
+        """Check if the window/control is enabled, or set the enabled state.
+
+        Returns ``None`` if the window doesn't exist.
+
+        :rtype: Optional[bool]
+
+        :AHK command: `ControlGet, OutputVar, Enabled
+           <https://www.autohotkey.com/docs/commands/ControlGet.htm#Enabled>`_.
+        """
         style = self.style
-        if style is not None:
-            return WindowStyle.DISABLED not in style
+        if style is None:
+            return None
+        return WindowStyle.DISABLED not in style
 
     @is_enabled.setter
     def is_enabled(self, value):
@@ -824,13 +993,40 @@ class BaseWindow(WindowHandle):
             self.disable()
 
     def enable(self):
+        """Enable the window/control.
+
+        Does nothing if the window/control doesn't exist.
+
+        AutoHotkey commands: `WinSet, Enable
+        <https://www.autohotkey.com/docs/commands/WinSet.htm#Enable>`_,
+        `Control, Enable
+        <https://www.autohotkey.com/docs/commands/Control.htm#Enable>`_.
+        """
         raise NotImplementedError
 
     def disable(self):
+        """Disable the window/control.
+
+        Does nothing if the window/control doesn't exist.
+
+        AutoHotkey commands: `WinSet, Disable
+        <https://www.autohotkey.com/docs/commands/WinSet.htm#Disable>`_,
+        `Control, Disable
+        <https://www.autohotkey.com/docs/commands/Control.htm#Disable>`_.
+        """
         raise NotImplementedError
 
     @property
     def is_visible(self):
+        """Check if the window/control is visible, or set the visibility state.
+
+        Returns ``False`` if the window doesn't exist.
+
+        :rtype: bool
+
+        :AHK command: `ControlGet, OutputVar, Visible
+           <https://www.autohotkey.com/docs/commands/ControlGet.htm#Visible>`_.
+        """
         style = self.style
         if style is None:
             return False
@@ -844,12 +1040,40 @@ class BaseWindow(WindowHandle):
             self.hide()
 
     def show(self):
+        """Show the window/control.
+
+        Does nothing if the window/control doesn't exist.
+
+        AutoHotkey commands: `WinShow
+        <https://www.autohotkey.com/docs/commands/WinShow.htm>`_,
+        `Control, Show
+        <https://www.autohotkey.com/docs/commands/Control.htm#Show>`_.
+        """
         raise NotImplementedError
 
     def hide(self):
+        """Hide the window/control.
+
+        Does nothing if the window/control doesn't exist.
+
+        AutoHotkey commands: `WinHide
+        <https://www.autohotkey.com/docs/commands/WinHide.htm>`_,
+        `Control, Hide
+        <https://www.autohotkey.com/docs/commands/Control.htm#Hide>`_.
+        """
         raise NotImplementedError
 
     def send(self, keys):
+        """Send simulated keystrokes to the window/control.
+
+        Unlike the :func:`~ahkpy.send` function, mouse clicks cannot be sent by
+        :meth:`!send`.
+
+        Does nothing if the window/control doesn't exist.
+
+        AutoHotkey command: `ControlSend
+        <https://www.autohotkey.com/docs/commands/ControlSend.htm>`_.
+        """
         # TODO: Add level, key_delay, and key_duration arguments.
         with global_ahk_lock:
             # Unlike the Send command, mouse clicks cannot be sent by
@@ -866,7 +1090,34 @@ class BaseWindow(WindowHandle):
 
     # TODO: Implement ControlClick.
 
-    def send_message(self, msg, w_param=0, l_param=0, signed_int32=False, timeout=5) -> Optional[int]:
+    def send_message(self, msg: int, w_param: int = 0, l_param: int = 0,
+                     signed_int32=False, timeout=5) -> Optional[int]:
+        """Send a message to the window/control and get a response.
+
+        The *msg* argument is the message number to send. See the `message list
+        <https://www.autohotkey.com/docs/misc/SendMessageList.htm>`_ for common
+        numbers. The *w_param* and *l_param* arguments are the first and second
+        components of the message.
+
+        If *signed_int32* argument is true, the response is interpreted as a
+        32-bit signed integer. Defaults to ``False``.
+
+        If there is no response after *timeout* seconds, then an :exc:`Error`
+        will be raised. If *timeout* is not specified or ``None``, there is no
+        limit to the wait time.
+
+        The range of possible response values depends on the target window and
+        the version of AutoHotkey that is running. When using the 32-bit version
+        of AutoHotkey, or if the target window is 32-bit, the result is a 32-bit
+        unsigned integer between 0 and 4294967295. When using the 64-bit version
+        of AutoHotkey with a 64-bit window, the result is a 64-bit signed
+        integer between -9223372036854775808 and 9223372036854775807.
+
+        Returns ``None`` if the window/control doesn't exist.
+
+        AutoHotkey command: `SendMessage
+        <https://www.autohotkey.com/docs/commands/PostMessage.htm>`_.
+        """
         control = exclude_title = exclude_text = ""
         try:
             result = self._call(
@@ -877,6 +1128,8 @@ class BaseWindow(WindowHandle):
             if result is None:
                 return None
             if signed_int32:
+                # TODO: Can we check if the target window is 32-bit and do the
+                # conversion automatically?
                 return ctypes.c_int32(result).value
             return result
         except Error as err:
@@ -886,7 +1139,20 @@ class BaseWindow(WindowHandle):
                 err.message = "there was a problem sending message or response timed out"
             raise
 
-    def post_message(self, msg, w_param=0, l_param=0) -> Optional[bool]:
+    def post_message(self, msg: int, w_param: int = 0, l_param: int = 0) -> Optional[bool]:
+        """Post a message to the window/control.
+
+        The *msg* argument is the message number to send. See the `message list
+        <https://www.autohotkey.com/docs/misc/SendMessageList.htm>`_ for common
+        numbers. The *w_param* and *l_param* arguments are the first and second
+        components of the message.
+
+        Returns ``True`` if the message was received. Returns ``False`` if there
+        was a problem. Returns ``None`` if the window/control doesn't exist.
+
+        AutoHotkey command: `PostMessage
+        <https://www.autohotkey.com/docs/commands/PostMessage.htm>`_.
+        """
         control = ""
         try:
             err = self._call("PostMessage", int(msg), int(w_param), int(l_param), control, *self._include())
@@ -1021,7 +1287,7 @@ class Window(BaseWindow):
         return names.splitlines()
 
     @property
-    def controls(self) -> Optional[List["Control"]]:
+    def controls(self) -> Optional[List[Control]]:
         handles = self._get("ControlListHwnd")
         if handles is None:
             return None
@@ -1666,6 +1932,12 @@ def _set_title_match_mode(title_mode):
 
 
 class WindowStyle(enum.IntFlag):
+    """The object that holds the window styles.
+
+    For more information on styles refer to `Window Styles
+    <https://docs.microsoft.com/en-us/windows/win32/winmsg/window-styles>`_ on
+    Microsoft Docs.
+    """
     BORDER = 0x00800000
     CAPTION = 0x00C00000
     CHILD = 0x40000000
@@ -1696,6 +1968,12 @@ class WindowStyle(enum.IntFlag):
 
 
 class ExWindowStyle(enum.IntFlag):
+    """The object that holds the extended window styles.
+
+    For more information on styles refer to `Extended Window Styles
+    <https://docs.microsoft.com/en-us/windows/win32/winmsg/extended-window-styles>`_
+    on Microsoft Docs.
+    """
     ACCEPTFILES = 0x00000010
     APPWINDOW = 0x00040000
     CLIENTEDGE = 0x00000200

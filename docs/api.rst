@@ -316,17 +316,31 @@ Windows
 
 .. autoclass:: Windows
    :members:
-   :exclude-members: exist, top, bottom
    :special-members: __iter__, __len__
+   :exclude-members: exist, top, bottom
+
+.. autoclass:: ahkpy.window.WindowHandle
+   :members:
+   :special-members: __bool__
+
+.. autoclass:: ahkpy.window.BaseWindow
+   :show-inheritance:
+   :members:
 
 .. autoclass:: Window
+   :show-inheritance:
    :members:
+   :exclude-members: enable, disable, show, hide
 
 .. autoclass:: Control
+   :show-inheritance:
    :members:
+   :exclude-members: enable, disable, show, hide
 
 .. autoclass:: WindowStyle
+   :show-inheritance:
    :members:
 
 .. autoclass:: ExWindowStyle
+   :show-inheritance:
    :members:
