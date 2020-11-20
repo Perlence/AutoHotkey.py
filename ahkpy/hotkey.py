@@ -101,7 +101,7 @@ def hotkey(
 class Hotkey:
     """Hotkey(key_name: str, context: ahkpy.HotkeyContext)
 
-    The object representing a hotkey registered in the given context.
+    The immutable object representing a hotkey registered in the given context.
 
     Creating an instance of :class:`!Hotkey` doesn't register it in AHK. Use the
     :meth:`HotkeyContext.hotkey` method instead.

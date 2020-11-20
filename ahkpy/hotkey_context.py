@@ -20,7 +20,7 @@ __all__ = [
 
 @dc.dataclass(frozen=True)
 class HotkeyContext:
-    """The hotkey, hotstring, and key remappings factory.
+    """The hotkey, hotstring, and key remappings immutable factory.
 
     If the *active_when* argument is a callable, it is executed every time the
     user triggers the hotkey or hotstring. The callable takes either zero or one

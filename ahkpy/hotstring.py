@@ -183,7 +183,7 @@ def hotstring(
 class Hotstring:
     """Hotstring(trigger: str, case_sensitive: bool, replace_inside_word: bool, context: ahkpy.HotkeyContext)
 
-    The object that represents a registered hotstring.
+    The immutable object that represents a registered hotstring.
 
     Creating an instance of :class:`!Hotstring` doesn't register it in AHK. Use
     the :meth:`HotkeyContext.hotstring` method instead.

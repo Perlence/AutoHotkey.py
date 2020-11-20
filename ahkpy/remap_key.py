@@ -61,7 +61,7 @@ def remap_key(ctx, origin_key, destination_key, *, mode=None, level=None):
 class RemappedKey:
     """RemappedKey(origin_hotkey: ahkpy.Hotkey, origin_up_hotkey: ahkpy.Hotkey)
 
-    The object that represents a remapped key.
+    The immutable object that represents a remapped key.
 
     Creating an instance of :class:`!RemappedKey` doesn't register it in AHK.
     Use the :meth:`HotkeyContext.remap_key` method instead.

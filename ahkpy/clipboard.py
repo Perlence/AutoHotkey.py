@@ -96,7 +96,8 @@ def _clipboard_handler(func, typ):
 
 @dc.dataclass(frozen=True)
 class ClipboardHandler:
-    """This object holds a function registered to be called on clipboard change.
+    """This immutable object holds a function registered to be called on
+    clipboard change.
 
     Creating an instance of :class:`!ClipboardHandler` doesn't register the
     function as a handler. Use the :func:`on_clipboard_change` function instead.

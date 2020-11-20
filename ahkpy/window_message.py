@@ -63,8 +63,8 @@ def on_message(msg_number: int, func=None, *, max_threads=1, prepend_handler=Fal
 
 @dc.dataclass(frozen=True)
 class MessageHandler:
-    """This object holds a function registered to be called upon receiving a
-    window message.
+    """This immutable object holds a function registered to be called upon
+    receiving a window message.
 
     Creating an instance of :class:`!MessageHandler` doesn't register the
     function as a handler. Use the :func:`on_message` function instead.

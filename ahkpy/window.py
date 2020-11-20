@@ -33,8 +33,8 @@ TEXT_MATCH_MODES = {"fast", "slow"}
 class Windows:
     """Windows()
 
-    The object containing the criteria that is used to match the windows,
-    iterate over them, do bulk actions, or to pick one window.
+    The immutable object containing the criteria that is used to match the
+    windows, iterate over them, do bulk actions, or to pick one window.
     """
 
     title: Union[str, UnsetType] = UNSET
