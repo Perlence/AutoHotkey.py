@@ -275,7 +275,7 @@ def get_mouse_pos(relative_to="window") -> Tuple[int, int]:
 
     Returns a ``(x, y)`` tuple.
 
-    AutoHotkey command: `MouseGetPos, OutputVarX, OutputVarY
+    AutoHotkey command: `MouseGetPos, X, Y
     <https://www.autohotkey.com/docs/commands/MouseGetPos.htm>`_.
     """
     with global_ahk_lock:
@@ -293,7 +293,7 @@ def get_window_under_mouse() -> Window:
     returns ``Window(None)``. The window does not have to be active to be
     detected.
 
-    AutoHotkey command: `MouseGetPos,,, OutputVarWin
+    AutoHotkey command: `MouseGetPos,,, Win
     <https://www.autohotkey.com/docs/commands/MouseGetPos.htm>`_.
     """
     win_id = ahk_call("MouseGetWin")
@@ -317,7 +317,7 @@ def get_control_under_mouse(simple=False):
     returns ``Control(None)``. The window does not have to be active for the
     control to be detected.
 
-    AutoHotkey command: `MouseGetPos,,,, OutputVarControl
+    AutoHotkey command: `MouseGetPos,,,, Control
     <https://www.autohotkey.com/docs/commands/MouseGetPos.htm>`_.
     """
     flag = 2 | bool(simple)

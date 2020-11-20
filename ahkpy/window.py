@@ -228,7 +228,7 @@ class Windows:
 
         Alias: :meth:`bottom`.
 
-        AutoHotkey command: `WinGet, OutputVar, IDLast
+        AutoHotkey command: `WinGet, $, IDLast
         <https://www.autohotkey.com/docs/commands/WinGet.htm#IDLast>`_.
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
@@ -538,7 +538,7 @@ class Windows:
 
         Return matching windows ordered from top to bottom.
 
-        AutoHotkey command: `WinGet, OutputVar, List
+        AutoHotkey command: `WinGet, $, List
         <https://www.autohotkey.com/docs/commands/WinGet.htm#List>`_.
         """
         win_ids = self._call("WinGetList", *self._query())
@@ -551,7 +551,7 @@ class Windows:
     def __len__(self):
         """Return the number of matching windows.
 
-        AutoHotkey command: `WinGet, OutputVar, Count
+        AutoHotkey command: `WinGet, $, Count
         <https://www.autohotkey.com/docs/commands/WinGet.htm#Count>`_.
         """
         return self._call("WinGet", "Count", *self._query()) or 0
@@ -706,10 +706,14 @@ class BaseWindow(WindowHandle):
         Returns an instance of :class:`~ahkpy.WindowStyle` if the window exists.
         Otherwise, returns ``None``.
 
-        AutoHotkey commands: `WinGet, OutputVar, Style
-        <https://www.autohotkey.com/docs/commands/WinGet.htm#Style>`_,
-        `ControlGet, OutputVar, Style
-        <https://www.autohotkey.com/docs/commands/ControlGet.htm#Style>`_.
+        AutoHotkey commands: `WinGet, $, Style
+        <https://www.autohotkey.com/docs/commands/WinGet.htm#Style>`_, `WinSet,
+        $, Style
+        <https://www.autohotkey.com/docs/commands/WinSet.htm#Style>`_,
+        `ControlGet, $, Style
+        <https://www.autohotkey.com/docs/commands/ControlGet.htm#Style>`_,
+        `Control, $, Style
+        <https://www.autohotkey.com/docs/commands/Control.htm#Style>`_.
         """
         style = self._get("Style")
         if style is None:
@@ -727,10 +731,14 @@ class BaseWindow(WindowHandle):
         Returns an instance of :class:`~ahkpy.ExWindowStyle` if the window
         exists. Otherwise, returns ``None``.
 
-        AutoHotkey command: `WinGet, OutputVar, ExStyle
+        AutoHotkey commands: `WinGet, $, ExStyle
         <https://www.autohotkey.com/docs/commands/WinGet.htm#ExStyle>`_,
-        `ControlGet, OutputVar, ExStyle
-        <https://www.autohotkey.com/docs/commands/ControlGet.htm#ExStyle>`_.
+        `WinSet, $, ExStyle
+        <https://www.autohotkey.com/docs/commands/WinSet.htm#ExStyle>`_,
+        `ControlGet, $, ExStyle
+        <https://www.autohotkey.com/docs/commands/ControlGet.htm#ExStyle>`_,
+        `Control, $, ExStyle
+        <https://www.autohotkey.com/docs/commands/Control.htm#ExStyle>`_.
         """
         ex_style = self._get("ExStyle")
         if ex_style is None:
@@ -977,7 +985,7 @@ class BaseWindow(WindowHandle):
 
         :rtype: Optional[bool]
 
-        :AHK command: `ControlGet, OutputVar, Enabled
+        :AHK command: `ControlGet, $, Enabled
            <https://www.autohotkey.com/docs/commands/ControlGet.htm#Enabled>`_.
         """
         style = self.style
@@ -1024,7 +1032,7 @@ class BaseWindow(WindowHandle):
 
         :rtype: bool
 
-        :AHK command: `ControlGet, OutputVar, Visible
+        :AHK command: `ControlGet, $, Visible
            <https://www.autohotkey.com/docs/commands/ControlGet.htm#Visible>`_.
         """
         style = self.style
