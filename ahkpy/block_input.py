@@ -13,8 +13,8 @@ __all__ = [
 def block_input():
     """Block all user input unconditionally.
 
-    AutoHotkey command: `BlockInput
-    <https://www.autohotkey.com/docs/commands/BlockInput.htm>`_.
+    :command: `BlockInput
+       <https://www.autohotkey.com/docs/commands/BlockInput.htm>`_
     """
     ahk_call("BlockInput", "On")
     yield
@@ -28,8 +28,8 @@ def block_input_while_sending():
     This also blocks user input during mouse automation, because mouse clicks
     and movements are implemented using the :func:`~ahkpy.send` function.
 
-    AutoHotkey command: `BlockInput, Send
-    <https://www.autohotkey.com/docs/commands/BlockInput.htm>`_.
+    :command: `BlockInput, Send
+       <https://www.autohotkey.com/docs/commands/BlockInput.htm>`_
     """
     ahk_call("BlockInput", "Send")
     yield
@@ -40,8 +40,8 @@ def block_input_while_sending():
 def block_mouse_move():
     """Block the mouse cursor movement.
 
-    AutoHotkey command: `BlockInput, MouseMove
-    <https://www.autohotkey.com/docs/commands/BlockInput.htm>`_.
+    :command: `BlockInput, MouseMove
+       <https://www.autohotkey.com/docs/commands/BlockInput.htm>`_
     """
     ahk_call("BlockInput", "MouseMove")
     yield

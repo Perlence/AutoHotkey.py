@@ -243,8 +243,7 @@ def message_box(text=None, title=None, *,
        - ``"continue"``
        - ``"try_again"``
 
-    AutoHotkey command: `MsgBox
-    <https://www.autohotkey.com/docs/commands/MsgBox.htm>`_.
+    :command: `MsgBox <https://www.autohotkey.com/docs/commands/MsgBox.htm>`_
     """
     if text is None:
         if buttons == "ok" and icon is None:

@@ -27,75 +27,75 @@ class Settings:
 
     #: The delay after each control-modifying method.
     #:
-    #: AutoHotkey command: `SetControlDelay
-    #: <https://www.autohotkey.com/docs/commands/SetControlDelay.htm>`_.
+    #: :command: `SetControlDelay
+    #:    <https://www.autohotkey.com/docs/commands/SetControlDelay.htm>`_
     control_delay: float = 0.02
     # TODO: List the affected methods.
 
     #: The delay after each keystroke sent by
     #: :func:`~ahkpy.send_event` and :meth:`Control.send`.
     #:
-    #: AutoHotkey command: `SetKeyDelay
-    #: <https://www.autohotkey.com/docs/commands/SetKeyDelay.htm>`_.
+    #: :command: `SetKeyDelay
+    #:    <https://www.autohotkey.com/docs/commands/SetKeyDelay.htm>`_
     key_delay: float = 0.01
 
     #: The delay after the press of the key and before its release sent by
     #: :func:`~ahkpy.send_event` and :meth:`Control.send`.
     #:
-    #: AutoHotkey command: `SetKeyDelay
-    #: <https://www.autohotkey.com/docs/commands/SetKeyDelay.htm>`_.
+    #: :command: `SetKeyDelay
+    #:    <https://www.autohotkey.com/docs/commands/SetKeyDelay.htm>`_
     key_duration: float = -1
 
     #: The delay after each keystroke sent by
     #: :func:`~ahkpy.send_play`.
     #:
-    #: AutoHotkey command: `SetKeyDelay
-    #: <https://www.autohotkey.com/docs/commands/SetKeyDelay.htm>`_.
+    #: :command: `SetKeyDelay
+    #:    <https://www.autohotkey.com/docs/commands/SetKeyDelay.htm>`_
     key_delay_play: float = -1
 
     #: The delay after the press of the key and before its release sent by
     #: :func:`~ahkpy.send_play`.
     #:
-    #: AutoHotkey command: `SetKeyDelay
-    #: <https://www.autohotkey.com/docs/commands/SetKeyDelay.htm>`_.
+    #: :command: `SetKeyDelay
+    #:    <https://www.autohotkey.com/docs/commands/SetKeyDelay.htm>`_
     key_duration_play: float = -1
 
     #: The delay after each mouse movement or click in the Event mode.
     #:
-    #: AutoHotkey command: `SetMouseDelay
-    #: <https://www.autohotkey.com/docs/commands/SetMouseDelay.htm>`_.
+    #: :command: `SetMouseDelay
+    #:    <https://www.autohotkey.com/docs/commands/SetMouseDelay.htm>`_
     mouse_delay: float = 0.01
 
     #: The delay after each mouse movement or click in the Play mode.
     #:
-    #: AutoHotkey command: `SetMouseDelay
-    #: <https://www.autohotkey.com/docs/commands/SetMouseDelay.htm>`_.
+    #: :command: `SetMouseDelay
+    #:    <https://www.autohotkey.com/docs/commands/SetMouseDelay.htm>`_
     mouse_delay_play: float = -1
 
     #: The speed of mouse movement in the range 0 (fastest) to 100 (slowest).
     #: Affects only the Event mode.
     #:
-    #: AutoHotkey command: `SetDefaultMouseSpeed
-    #: <https://www.autohotkey.com/docs/commands/SetDefaultMouseSpeed.htm>`_.
+    #: :command: `SetDefaultMouseSpeed
+    #:    <https://www.autohotkey.com/docs/commands/SetDefaultMouseSpeed.htm>`_
     mouse_speed: int = 2
 
     #: Controls which artificial keyboard and mouse events are ignored by
     #: hotkeys and hotstrings. Must be an integer between 0 and 100.
     #:
-    #: AutoHotkey command: `SendLevel
-    #: <https://www.autohotkey.com/docs/commands/SendLevel.htm>`_.
+    #: :command: `SendLevel
+    #:    <https://www.autohotkey.com/docs/commands/SendLevel.htm>`_
     send_level: int = 0
 
     #: The default mode for :func:`~ahkpy.send` and mouse functions.
     #:
-    #: AutoHotkey command: `SendMode
-    #: <https://www.autohotkey.com/docs/commands/SendMode.htm>`_.
+    #: :command: `SendMode
+    #:    <https://www.autohotkey.com/docs/commands/SendMode.htm>`_
     send_mode: str = "input"
 
     #: The delay after each window-modifying method.
     #:
-    #: AutoHotkey command: `SetWinDelay
-    #: <https://www.autohotkey.com/docs/commands/SetWinDelay.htm>`_.
+    #: :command: `SetWinDelay
+    #:    <https://www.autohotkey.com/docs/commands/SetWinDelay.htm>`_
     win_delay: float = 0.1
     # TODO: List the affected methods.
 

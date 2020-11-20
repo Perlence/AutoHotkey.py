@@ -74,8 +74,7 @@ def sleep(secs):
     During the wait, AHK checks its message queue and handles hotkeys and other
     callbacks.
 
-    AutoHotkey command: `Sleep
-    <https://www.autohotkey.com/docs/commands/Sleep.htm>`_.
+    :command: `Sleep <https://www.autohotkey.com/docs/commands/Sleep.htm>`_
     """
     if secs < 0:
         raise ValueError("sleep length must be non-negative")
@@ -89,8 +88,7 @@ def sleep(secs):
 def suspend():
     """Disable all hotkeys and hotstrings.
 
-    AutoHotkey command: `Suspend
-    <https://www.autohotkey.com/docs/commands/Suspend.htm>`_.
+    :command: `Suspend <https://www.autohotkey.com/docs/commands/Suspend.htm>`_
     """
     ahk_call("Suspend", "On")
 
@@ -98,8 +96,7 @@ def suspend():
 def resume():
     """Enable all hotkeys and hotstrings.
 
-    AutoHotkey command: `Suspend
-    <https://www.autohotkey.com/docs/commands/Suspend.htm>`_.
+    :command: `Suspend <https://www.autohotkey.com/docs/commands/Suspend.htm>`_
     """
     ahk_call("Suspend", "Off")
 
@@ -107,8 +104,7 @@ def resume():
 def toggle_suspend():
     """Toggle all hotkeys and hotstrings.
 
-    AutoHotkey command: `Suspend
-    <https://www.autohotkey.com/docs/commands/Suspend.htm>`_.
+    :command: `Suspend <https://www.autohotkey.com/docs/commands/Suspend.htm>`_
     """
     ahk_call("Suspend", "Toggle")
 
@@ -116,8 +112,7 @@ def toggle_suspend():
 def reload():
     """Replace the currently running instance of the script with a new one.
 
-    AutoHotkey command: `Reload
-    <https://www.autohotkey.com/docs/commands/Reload.htm>`_.
+    :command: `Reload <https://www.autohotkey.com/docs/commands/Reload.htm>`_
     """
     # TODO: If the new script has an error, AHK will show it and quit. Instead,
     # keep the old script running.
@@ -133,8 +128,8 @@ def output_debug(*objects, sep=" "):
     All non-keyword arguments are converted to strings with :class:`str()
     <str>`.
 
-    AutoHotkey command: `OutputDebug
-    <https://www.autohotkey.com/docs/commands/OutputDebug.htm>`_.
+    :command: `OutputDebug
+       <https://www.autohotkey.com/docs/commands/OutputDebug.htm>`_
     """
     if sep is None:
         # Python documentation for the print() function:

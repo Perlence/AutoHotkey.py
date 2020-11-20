@@ -39,8 +39,8 @@ class HotkeyContext:
         ctx = ahkpy.HotkeyContext(is_mouse_over_taskbar)
         ctx.hotkey("F1", ahkpy.message_box, "Pressed F1 over the taskbar.")
 
-    AutoHotkey command: `Hotkey, If, % FunctionObject
-    <https://www.autohotkey.com/docs/commands/Hotkey.htm#IfFn>`_.
+    :command: `Hotkey, If, % FunctionObject
+       <https://www.autohotkey.com/docs/commands/Hotkey.htm#IfFn>`_
     """
 
     active_when: Optional[Callable]

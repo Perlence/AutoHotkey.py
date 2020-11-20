@@ -142,8 +142,8 @@ def hotstring(
     If *repl* is given, returns an instance of :class:`Hotstring`.
     Otherwise, the method works as a decorator.
 
-    AutoHotkey function: `Hotstring
-    <https://www.autohotkey.com/docs/commands/Hotstring.htm>`_.
+    :command: `Hotstring
+       <https://www.autohotkey.com/docs/commands/Hotstring.htm>`_
 
     .. TODO: Review this docstring.
     """
@@ -322,8 +322,8 @@ def reset_hotstring():
     The script will begin waiting for an entirely new hotstring, eliminating
     from consideration anything the user has typed previously.
 
-    AutoHotkey function: `Hotstring("Reset")
-    <https://www.autohotkey.com/docs/commands/Hotstring.htm#Reset>`_.
+    :command: `Hotstring("Reset")
+       <https://www.autohotkey.com/docs/commands/Hotstring.htm#Reset>`_
     """
     ahk_call("Hotstring", "Reset")
 
@@ -333,8 +333,8 @@ def get_hotstring_end_chars():
 
     The default end chars are the following: ``-()[]{}':;"/\\,.?!\\n \\t``.
 
-    AutoHotkey function: `Hotstring("EndChars")
-    <https://www.autohotkey.com/docs/commands/Hotstring.htm#EndChars>`_.
+    :command: `Hotstring("EndChars")
+       <https://www.autohotkey.com/docs/commands/Hotstring.htm#EndChars>`_
     """
     return ahk_call("Hotstring", "EndChars")
 
@@ -344,8 +344,8 @@ def set_hotstring_end_chars(chars: str):
 
     The end chars can only be changed globally for all hostrings at once.
 
-    AutoHotkey function: `Hotstring("EndChars", NewValue)
-    <https://www.autohotkey.com/docs/commands/Hotstring.htm#EndChars>`_.
+    :command: `Hotstring("EndChars", NewValue)
+       <https://www.autohotkey.com/docs/commands/Hotstring.htm#EndChars>`_
     """
     ahk_call("Hotstring", "EndChars", str(chars))
 
@@ -356,8 +356,8 @@ def get_hotstring_mouse_reset():
     By default, any click of the left or right mouse button will reset the
     hotstring recognizer.
 
-    AutoHotkey function: `Hotstring("MouseReset")
-    <https://www.autohotkey.com/docs/commands/Hotstring.htm#MouseReset>`_.
+    :command: `Hotstring("MouseReset")
+       <https://www.autohotkey.com/docs/commands/Hotstring.htm#MouseReset>`_
     """
     return ahk_call("Hotstring", "MouseReset")
 
@@ -366,7 +366,7 @@ def set_hotstring_mouse_reset(value: bool):
     """Set whether mouse clicks reset the hotstring recognizer.
 
 
-    AutoHotkey function: `Hotstring("MouseReset", NewValue)
-    <https://www.autohotkey.com/docs/commands/Hotstring.htm#MouseReset>`_.
+    :command: `Hotstring("MouseReset", NewValue)
+       <https://www.autohotkey.com/docs/commands/Hotstring.htm#MouseReset>`_
     """
     ahk_call("Hotstring", "MouseReset", bool(value))

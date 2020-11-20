@@ -32,8 +32,8 @@ def set_timer(interval=0.25, func=None, *args, priority=0):
 
         assert isinstance(handler, ahkpy.Timer)
 
-    AutoHotkey command: `SetTimer
-    <https://www.autohotkey.com/docs/commands/SetTimer.htm>`_.
+    :command: `SetTimer
+       <https://www.autohotkey.com/docs/commands/SetTimer.htm>`_
     """
     t = Timer(interval, func, priority, periodic=True)
 
@@ -68,8 +68,8 @@ def set_countdown(interval=0.25, func=None, *args, priority=0):
 
         assert isinstance(handler, ahkpy.Timer)
 
-    AutoHotkey command: `SetTimer
-    <https://www.autohotkey.com/docs/commands/SetTimer.htm>`_.
+    :command: `SetTimer
+       <https://www.autohotkey.com/docs/commands/SetTimer.htm>`_
     """
     t = Timer(interval, func, priority, periodic=False)
 

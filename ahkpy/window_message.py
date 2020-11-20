@@ -43,8 +43,8 @@ def on_message(msg_number: int, func=None, *, max_threads=1, prepend_handler=Fal
 
         assert isinstance(handler, ahkpy.MessageHandler)
 
-    AutoHotkey function: `OnMessage
-    <https://www.autohotkey.com/docs/commands/OnMessage.htm>`_.
+    :command: `OnMessage
+       <https://www.autohotkey.com/docs/commands/OnMessage.htm>`_
     """
     if max_threads is not None and max_threads <= 0:
         raise ValueError("max_threads must be positive")

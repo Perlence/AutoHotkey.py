@@ -79,8 +79,8 @@ class ToolTip:
         If the optional *timeout* argument is given, the tooltip will be hidden
         after this many seconds.
 
-        AutoHotkey command: `ToolTip
-        <https://www.autohotkey.com/docs/commands/ToolTip.htm>`_.
+        :command: `ToolTip
+           <https://www.autohotkey.com/docs/commands/ToolTip.htm>`_
         """
         if not text and not self.text:
             raise ValueError("text must not be empty")

@@ -25,8 +25,8 @@ __all__ = [
 def is_key_pressed(key_name: str) -> bool:
     """Return whether the key is pressed down physically.
 
-    AutoHotkey function: `GetKeyState
-    <https://www.autohotkey.com/docs/commands/GetKeyState.htm>`_.
+    :command: `GetKeyState
+       <https://www.autohotkey.com/docs/commands/GetKeyState.htm>`_
     """
     return _get_key_state(key_name, "P")
 
@@ -38,8 +38,8 @@ def is_key_pressed_logical(key_name: str) -> bool:
     in, but is not necessarily the same as the physical state, that is, whether
     the user is physically holding it down.
 
-    AutoHotkey function: `GetKeyState
-    <https://www.autohotkey.com/docs/commands/GetKeyState.htm>`_.
+    :command: `GetKeyState
+       <https://www.autohotkey.com/docs/commands/GetKeyState.htm>`_
     """
     return _get_key_state(key_name)
 
@@ -136,8 +136,8 @@ def get_key_name(key_name: str) -> str:
         >>> ahkpy.get_key_name("sc3b")
         'F1'
 
-    AutoHotkey function: `GetKeyName
-    <https://www.autohotkey.com/docs/commands/GetKey.htm>`_.
+    :command: `GetKeyName
+       <https://www.autohotkey.com/docs/commands/GetKey.htm>`_
     """
     return str(_get_key("GetKeyName", key_name))
 
@@ -166,8 +166,7 @@ def get_key_vk(key_name: str) -> int:
         >>> ahkpy.get_key_vk("F1")
         112
 
-    AutoHotkey function: `GetKeyVK
-    <https://www.autohotkey.com/docs/commands/GetKey.htm>`_.
+    :command: `GetKeyVK <https://www.autohotkey.com/docs/commands/GetKey.htm>`_
     """
     return _get_key("GetKeyVK", key_name)
 
@@ -178,8 +177,7 @@ def get_key_sc(key_name: str) -> int:
         >>> ahkpy.get_key_sc("F1")
         59
 
-    AutoHotkey function: `GetKeySC
-    <https://www.autohotkey.com/docs/commands/GetKey.htm>`_.
+    :command: `GetKeySC <https://www.autohotkey.com/docs/commands/GetKey.htm>`_
     """
     return _get_key("GetKeySC", key_name)
 

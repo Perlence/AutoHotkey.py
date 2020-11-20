@@ -61,8 +61,7 @@ def hotkey(
 
         assert isinstance(hello, ahkpy.Hotkey)
 
-    AutoHotkey command: `Hotkey
-    <https://www.autohotkey.com/docs/commands/Hotkey.htm>`_.
+    :command: `Hotkey <https://www.autohotkey.com/docs/commands/Hotkey.htm>`_
     """
     # TODO: Consider adding arguments for '*', '~', and '$' prefix hotkey
     # modifiers.

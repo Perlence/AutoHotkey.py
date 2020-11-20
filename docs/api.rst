@@ -195,8 +195,7 @@ In the following functions, the *key_name* argument is a VK or SC code, such as
    key to be in, but is not necessarily the same as the physical state, that is,
    whether the user is physically holding it down.
 
-   AutoHotkey command: `KeyWait
-   <https://www.autohotkey.com/docs/commands/KeyWait.htm>`_.
+   :command: `KeyWait <https://www.autohotkey.com/docs/commands/KeyWait.htm>`_
 
 .. function:: get_caps_lock_state() -> bool
 .. function:: get_num_lock_state() -> bool
@@ -206,8 +205,8 @@ In the following functions, the *key_name* argument is a VK or SC code, such as
    Retrieve the toggle state of :kbd:`CapsLock`, :kbd:`NumLock`,
    :kbd:`ScrollLock`, and :kbd:`Insert` keys.
 
-   AutoHotkey function: `GetKeyState
-   <https://www.autohotkey.com/docs/commands/GetKeyState.htm>`_.
+   :command: `GetKeyState
+      <https://www.autohotkey.com/docs/commands/GetKeyState.htm>`_
 
 .. function:: set_caps_lock_state(state: bool, always=False)
 .. function:: set_num_lock_state(state: bool, always=False)
@@ -218,8 +217,8 @@ In the following functions, the *key_name* argument is a VK or SC code, such as
 
    If the optional *always* argument is True, forces the key to stay on or off.
 
-   AutoHotkey command: `SetCapsLockState / SetNumLockState / SetScrollLockState
-   <https://www.autohotkey.com/docs/commands/SetNumScrollCapsLockState.htm>`_.
+   :command: `SetCapsLockState / SetNumLockState / SetScrollLockState
+      <https://www.autohotkey.com/docs/commands/SetNumScrollCapsLockState.htm>`_
 
 
 Input Blocking

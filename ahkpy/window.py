@@ -205,8 +205,8 @@ class Windows:
 
         Aliases: :meth:`exist`, :meth:`top`.
 
-        AutoHotkey function: `WinExist
-        <https://www.autohotkey.com/docs/commands/WinExist.htm>`_.
+        :command: `WinExist
+           <https://www.autohotkey.com/docs/commands/WinExist.htm>`_
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         win_id = self._call("WinExist", *self._query())
@@ -228,8 +228,8 @@ class Windows:
 
         Alias: :meth:`bottom`.
 
-        AutoHotkey command: `WinGet, $, IDLast
-        <https://www.autohotkey.com/docs/commands/WinGet.htm#IDLast>`_.
+        :command: `WinGet, $, IDLast
+           <https://www.autohotkey.com/docs/commands/WinGet.htm#IDLast>`_
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         win_id = self._call("WinGet", "IDLast", *self._query())
@@ -249,8 +249,8 @@ class Windows:
 
         For arguments refer to :meth:`filter`.
 
-        AutoHotkey function: `WinActive
-        <https://www.autohotkey.com/docs/commands/WinActive.htm>`_.
+        :command: `WinActive
+           <https://www.autohotkey.com/docs/commands/WinActive.htm>`_
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         query = self._query()
@@ -273,8 +273,8 @@ class Windows:
 
         For other arguments refer to :meth:`filter`.
 
-        AutoHotkey command: `WinWait
-        <https://www.autohotkey.com/docs/commands/WinWait.htm>`_.
+        :command: `WinWait
+           <https://www.autohotkey.com/docs/commands/WinWait.htm>`_
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._wait("WinWait", timeout)
@@ -287,8 +287,8 @@ class Windows:
 
         For more information refer to :meth:`wait`.
 
-        AutoHotkey command: `WinWaitActive
-        <https://www.autohotkey.com/docs/commands/WinWaitActive.htm>`_.
+        :command: `WinWaitActive
+           <https://www.autohotkey.com/docs/commands/WinWaitActive.htm>`_
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         query = self._query()
@@ -304,8 +304,8 @@ class Windows:
 
         For more information refer to :meth:`wait`.
 
-        AutoHotkey command: `WinWaitNotActive
-        <https://www.autohotkey.com/docs/commands/WinWaitActive.htm>`_.
+        :command: `WinWaitNotActive
+           <https://www.autohotkey.com/docs/commands/WinWaitActive.htm>`_
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._wait("WinWaitNotActive", timeout)
@@ -323,8 +323,8 @@ class Windows:
 
         For other arguments refer to :meth:`filter`.
 
-        AutoHotkey command: `WinWaitClose
-        <https://www.autohotkey.com/docs/commands/WinWaitClose.htm>`_.
+        :command: `WinWaitClose
+           <https://www.autohotkey.com/docs/commands/WinWaitClose.htm>`_
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         # WinWaitClose doesn't set Last Found Window, return False if the wait
@@ -354,8 +354,8 @@ class Windows:
 
         For arguments refer to :meth:`filter`.
 
-        AutoHotkey command: `WinClose
-        <https://www.autohotkey.com/docs/commands/WinClose.htm>`_.
+        :command: `WinClose
+           <https://www.autohotkey.com/docs/commands/WinClose.htm>`_
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._group_action("WinClose", timeout)
@@ -367,8 +367,8 @@ class Windows:
 
         For arguments refer to :meth:`filter`.
 
-        AutoHotkey command: `WinHide
-        <https://www.autohotkey.com/docs/commands/WinHide.htm>`_.
+        :command: `WinHide
+           <https://www.autohotkey.com/docs/commands/WinHide.htm>`_
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._group_action("WinHide")
@@ -386,8 +386,8 @@ class Windows:
 
         For arguments refer to :meth:`filter`.
 
-        AutoHotkey command: `WinKill
-        <https://www.autohotkey.com/docs/commands/WinKill.htm>`_.
+        :command: `WinKill
+           <https://www.autohotkey.com/docs/commands/WinKill.htm>`_
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._group_action("WinKill", timeout)
@@ -399,8 +399,8 @@ class Windows:
 
         For arguments refer to :meth:`filter`.
 
-        AutoHotkey command: `WinMaximize
-        <https://www.autohotkey.com/docs/commands/WinMaximize.htm>`_.
+        :command: `WinMaximize
+           <https://www.autohotkey.com/docs/commands/WinMaximize.htm>`_
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._group_action("WinMaximize")
@@ -412,8 +412,8 @@ class Windows:
 
         For arguments refer to :meth:`filter`.
 
-        AutoHotkey command: `WinMinimize
-        <https://www.autohotkey.com/docs/commands/WinMinimize.htm>`_.
+        :command: `WinMinimize
+           <https://www.autohotkey.com/docs/commands/WinMinimize.htm>`_
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return self._group_action("WinMinimize")
@@ -427,8 +427,8 @@ class Windows:
 
         For arguments refer to :meth:`filter`.
 
-        AutoHotkey command: `WinRestore
-        <https://www.autohotkey.com/docs/commands/WinRestore.htm>`_.
+        :command: `WinRestore
+           <https://www.autohotkey.com/docs/commands/WinRestore.htm>`_
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         self._group_action("WinRestore")
@@ -440,8 +440,8 @@ class Windows:
 
         For arguments refer to :meth:`filter`.
 
-        AutoHotkey command: `WinShow
-        <https://www.autohotkey.com/docs/commands/WinShow.htm>`_.
+        :command: `WinShow
+           <https://www.autohotkey.com/docs/commands/WinShow.htm>`_
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         self._group_action("WinShow")
@@ -469,10 +469,10 @@ class Windows:
 
         For arguments refer to :meth:`filter`.
 
-        AutoHotkey command: `Hotkey, IfWinExist
-        <https://www.autohotkey.com/docs/commands/Hotkey.htm>`_. Related
-        directive `#IfWinExist
-        <https://www.autohotkey.com/docs/commands/_IfWinActive.htm>`_.
+        :command: `Hotkey, IfWinExist
+           <https://www.autohotkey.com/docs/commands/Hotkey.htm>`_, `#IfWinExist
+           <https://www.autohotkey.com/docs/commands/_IfWinActive.htm>`_.
+
         """
         # Not using Hotkey, IfWinActive/Exist because:
         #
@@ -491,10 +491,10 @@ class Windows:
 
         For arguments refer to :meth:`filter`.
 
-        AutoHotkey command: `Hotkey, IfWinNotExist
-        <https://www.autohotkey.com/docs/commands/Hotkey.htm>`_. Related
-        directive `#IfWinNotExist
-        <https://www.autohotkey.com/docs/commands/_IfWinActive.htm>`_.
+        :command: `Hotkey, IfWinNotExist
+           <https://www.autohotkey.com/docs/commands/Hotkey.htm>`_,
+           `#IfWinNotExist
+           <https://www.autohotkey.com/docs/commands/_IfWinActive.htm>`_.
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return HotkeyContext(lambda: not self.exist())
@@ -508,10 +508,10 @@ class Windows:
 
         For arguments refer to :meth:`filter`.
 
-        AutoHotkey command: `Hotkey, IfWinActive
-        <https://www.autohotkey.com/docs/commands/Hotkey.htm>`_. Related
-        directive `#IfWinActive
-        <https://www.autohotkey.com/docs/commands/_IfWinActive.htm>`_.
+        :command: `Hotkey, IfWinActive
+           <https://www.autohotkey.com/docs/commands/Hotkey.htm>`_,
+           `#IfWinActive
+           <https://www.autohotkey.com/docs/commands/_IfWinActive.htm>`_.
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return HotkeyContext(lambda: self.get_active())
@@ -525,10 +525,10 @@ class Windows:
 
         For arguments refer to :meth:`filter`.
 
-        AutoHotkey command: `Hotkey, IfWinNotActive
-        <https://www.autohotkey.com/docs/commands/Hotkey.htm>`_. Related
-        directive `#IfWinNotActive
-        <https://www.autohotkey.com/docs/commands/_IfWinActive.htm>`_.
+        :command: `Hotkey, IfWinNotActive
+           <https://www.autohotkey.com/docs/commands/Hotkey.htm>`_,
+           `#IfWinNotActive
+           <https://www.autohotkey.com/docs/commands/_IfWinActive.htm>`_.
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return HotkeyContext(lambda: not self.get_active())
@@ -538,8 +538,8 @@ class Windows:
 
         Return matching windows ordered from top to bottom.
 
-        AutoHotkey command: `WinGet, $, List
-        <https://www.autohotkey.com/docs/commands/WinGet.htm#List>`_.
+        :command: `WinGet, $, List
+           <https://www.autohotkey.com/docs/commands/WinGet.htm#List>`_
         """
         win_ids = self._call("WinGetList", *self._query())
         if win_ids is None:
@@ -551,8 +551,8 @@ class Windows:
     def __len__(self):
         """Return the number of matching windows.
 
-        AutoHotkey command: `WinGet, $, Count
-        <https://www.autohotkey.com/docs/commands/WinGet.htm#Count>`_.
+        :command: `WinGet, $, Count
+           <https://www.autohotkey.com/docs/commands/WinGet.htm#Count>`_
         """
         return self._call("WinGet", "Count", *self._query()) or 0
 
@@ -659,8 +659,8 @@ class WindowHandle:
 
         :rtype: bool
 
-        :AHK function: `WinExist
-           <https://www.autohotkey.com/docs/commands/WinExist.htm>`_.
+        :command: `WinExist
+           <https://www.autohotkey.com/docs/commands/WinExist.htm>`_
         """
         return bool(self._call("WinExist", *self._include()))
 
@@ -706,14 +706,14 @@ class BaseWindow(WindowHandle):
         Returns an instance of :class:`~ahkpy.WindowStyle` if the window exists.
         Otherwise, returns ``None``.
 
-        AutoHotkey commands: `WinGet, $, Style
-        <https://www.autohotkey.com/docs/commands/WinGet.htm#Style>`_, `WinSet,
-        $, Style
-        <https://www.autohotkey.com/docs/commands/WinSet.htm#Style>`_,
-        `ControlGet, $, Style
-        <https://www.autohotkey.com/docs/commands/ControlGet.htm#Style>`_,
-        `Control, $, Style
-        <https://www.autohotkey.com/docs/commands/Control.htm#Style>`_.
+        :command: `WinGet, $, Style
+           <https://www.autohotkey.com/docs/commands/WinGet.htm#Style>`_,
+           `WinSet, $, Style
+           <https://www.autohotkey.com/docs/commands/WinSet.htm#Style>`_,
+           `ControlGet, $, Style
+           <https://www.autohotkey.com/docs/commands/ControlGet.htm#Style>`_,
+           `Control, $, Style
+           <https://www.autohotkey.com/docs/commands/Control.htm#Style>`_
         """
         style = self._get("Style")
         if style is None:
@@ -731,14 +731,14 @@ class BaseWindow(WindowHandle):
         Returns an instance of :class:`~ahkpy.ExWindowStyle` if the window
         exists. Otherwise, returns ``None``.
 
-        AutoHotkey commands: `WinGet, $, ExStyle
-        <https://www.autohotkey.com/docs/commands/WinGet.htm#ExStyle>`_,
-        `WinSet, $, ExStyle
-        <https://www.autohotkey.com/docs/commands/WinSet.htm#ExStyle>`_,
-        `ControlGet, $, ExStyle
-        <https://www.autohotkey.com/docs/commands/ControlGet.htm#ExStyle>`_,
-        `Control, $, ExStyle
-        <https://www.autohotkey.com/docs/commands/Control.htm#ExStyle>`_.
+        :command: `WinGet, $, ExStyle
+           <https://www.autohotkey.com/docs/commands/WinGet.htm#ExStyle>`_,
+           `WinSet, $, ExStyle
+           <https://www.autohotkey.com/docs/commands/WinSet.htm#ExStyle>`_,
+           `ControlGet, $, ExStyle
+           <https://www.autohotkey.com/docs/commands/ControlGet.htm#ExStyle>`_,
+           `Control, $, ExStyle
+           <https://www.autohotkey.com/docs/commands/Control.htm#ExStyle>`_
         """
         ex_style = self._get("ExStyle")
         if ex_style is None:
@@ -757,8 +757,8 @@ class BaseWindow(WindowHandle):
 
         :rtype: Optional[str]
 
-        :AHK command: `WinGetClass
-           <https://www.autohotkey.com/docs/commands/WinGetClass.htm>`_.
+        :command: `WinGetClass
+           <https://www.autohotkey.com/docs/commands/WinGetClass.htm>`_
         """
         class_name = self._call("WinGetClass", *self._include())
         if class_name == "":
@@ -777,13 +777,13 @@ class BaseWindow(WindowHandle):
 
         :rtype: Optional[Tuple[int, int, int, int]]
 
-        :AHK command: `WinGetPos
+        :command: `WinGetPos
            <https://www.autohotkey.com/docs/commands/WinGetPos.htm>`_,
            `ControlGetPos
            <https://www.autohotkey.com/docs/commands/ControlGetPos.htm>`_,
            `WinMove <https://www.autohotkey.com/docs/commands/WinMove.htm>`_,
            `ControlMove
-           <https://www.autohotkey.com/docs/commands/ControlMove.htm>`_.
+           <https://www.autohotkey.com/docs/commands/ControlMove.htm>`_
         """
         result = self._get_pos()
         if result is None:
@@ -810,13 +810,13 @@ class BaseWindow(WindowHandle):
 
         :rtype: Optional[Tuple[int, int]]
 
-        :AHK command: `WinGetPos
+        :command: `WinGetPos
            <https://www.autohotkey.com/docs/commands/WinGetPos.htm>`_,
            `ControlGetPos
            <https://www.autohotkey.com/docs/commands/ControlGetPos.htm>`_,
            `WinMove <https://www.autohotkey.com/docs/commands/WinMove.htm>`_,
            `ControlMove
-           <https://www.autohotkey.com/docs/commands/ControlMove.htm>`_.
+           <https://www.autohotkey.com/docs/commands/ControlMove.htm>`_
         """
         rect = self.rect
         if rect is None:
@@ -837,13 +837,13 @@ class BaseWindow(WindowHandle):
 
         :rtype: Optional[int]
 
-        :AHK command: `WinGetPos
+        :command: `WinGetPos
            <https://www.autohotkey.com/docs/commands/WinGetPos.htm>`_,
            `ControlGetPos
            <https://www.autohotkey.com/docs/commands/ControlGetPos.htm>`_,
            `WinMove <https://www.autohotkey.com/docs/commands/WinMove.htm>`_,
            `ControlMove
-           <https://www.autohotkey.com/docs/commands/ControlMove.htm>`_.
+           <https://www.autohotkey.com/docs/commands/ControlMove.htm>`_
         """
         rect = self.rect
         if rect is None:
@@ -863,13 +863,13 @@ class BaseWindow(WindowHandle):
 
         :rtype: Optional[int]
 
-        :AHK command: `WinGetPos
+        :command: `WinGetPos
            <https://www.autohotkey.com/docs/commands/WinGetPos.htm>`_,
            `ControlGetPos
            <https://www.autohotkey.com/docs/commands/ControlGetPos.htm>`_,
            `WinMove <https://www.autohotkey.com/docs/commands/WinMove.htm>`_,
            `ControlMove
-           <https://www.autohotkey.com/docs/commands/ControlMove.htm>`_.
+           <https://www.autohotkey.com/docs/commands/ControlMove.htm>`_
         """
         rect = self.rect
         if rect is None:
@@ -890,13 +890,13 @@ class BaseWindow(WindowHandle):
 
         :rtype: Optional[Tuple[int, int]]
 
-        :AHK command: `WinGetPos
+        :command: `WinGetPos
            <https://www.autohotkey.com/docs/commands/WinGetPos.htm>`_,
            `ControlGetPos
            <https://www.autohotkey.com/docs/commands/ControlGetPos.htm>`_,
            `WinMove <https://www.autohotkey.com/docs/commands/WinMove.htm>`_,
            `ControlMove
-           <https://www.autohotkey.com/docs/commands/ControlMove.htm>`_.
+           <https://www.autohotkey.com/docs/commands/ControlMove.htm>`_
         """
         rect = self.rect
         if rect is None:
@@ -917,13 +917,13 @@ class BaseWindow(WindowHandle):
 
         :rtype: Optional[int]
 
-        :AHK command: `WinGetPos
+        :command: `WinGetPos
            <https://www.autohotkey.com/docs/commands/WinGetPos.htm>`_,
            `ControlGetPos
            <https://www.autohotkey.com/docs/commands/ControlGetPos.htm>`_,
            `WinMove <https://www.autohotkey.com/docs/commands/WinMove.htm>`_,
            `ControlMove
-           <https://www.autohotkey.com/docs/commands/ControlMove.htm>`_.
+           <https://www.autohotkey.com/docs/commands/ControlMove.htm>`_
         """
         rect = self.rect
         if rect is None:
@@ -943,13 +943,13 @@ class BaseWindow(WindowHandle):
 
         :rtype: Optional[int]
 
-        :AHK command: `WinGetPos
+        :command: `WinGetPos
            <https://www.autohotkey.com/docs/commands/WinGetPos.htm>`_,
            `ControlGetPos
            <https://www.autohotkey.com/docs/commands/ControlGetPos.htm>`_,
            `WinMove <https://www.autohotkey.com/docs/commands/WinMove.htm>`_,
            `ControlMove
-           <https://www.autohotkey.com/docs/commands/ControlMove.htm>`_.
+           <https://www.autohotkey.com/docs/commands/ControlMove.htm>`_
         """
         rect = self.rect
         if rect is None:
@@ -966,9 +966,10 @@ class BaseWindow(WindowHandle):
 
         Does nothing if the window/control doesn't exist.
 
-        AutoHotkey commands: `WinMove
-        <https://www.autohotkey.com/docs/commands/WinMove.htm>`_, `ControlMove
-        <https://www.autohotkey.com/docs/commands/ControlMove.htm>`_.
+        :command: `WinMove
+           <https://www.autohotkey.com/docs/commands/WinMove.htm>`_,
+           `ControlMove
+           <https://www.autohotkey.com/docs/commands/ControlMove.htm>`_
         """
         self._move(
             int(x) if x is not None else "",
@@ -985,8 +986,12 @@ class BaseWindow(WindowHandle):
 
         :rtype: Optional[bool]
 
-        :AHK command: `ControlGet, $, Enabled
-           <https://www.autohotkey.com/docs/commands/ControlGet.htm#Enabled>`_.
+        :command: `WinSet, Enable
+           <https://www.autohotkey.com/docs/commands/WinSet.htm#Enable>`_,
+           `ControlGet, $, Enabled
+           <https://www.autohotkey.com/docs/commands/ControlGet.htm#Enabled>`_,
+           `Control, Enable
+           <https://www.autohotkey.com/docs/commands/Control.htm#Enable>`_
         """
         style = self.style
         if style is None:
@@ -1005,10 +1010,10 @@ class BaseWindow(WindowHandle):
 
         Does nothing if the window/control doesn't exist.
 
-        AutoHotkey commands: `WinSet, Enable
-        <https://www.autohotkey.com/docs/commands/WinSet.htm#Enable>`_,
-        `Control, Enable
-        <https://www.autohotkey.com/docs/commands/Control.htm#Enable>`_.
+        :command: `WinSet, Enable
+           <https://www.autohotkey.com/docs/commands/WinSet.htm#Enable>`_,
+           `Control, Enable
+           <https://www.autohotkey.com/docs/commands/Control.htm#Enable>`_
         """
         raise NotImplementedError
 
@@ -1017,23 +1022,27 @@ class BaseWindow(WindowHandle):
 
         Does nothing if the window/control doesn't exist.
 
-        AutoHotkey commands: `WinSet, Disable
-        <https://www.autohotkey.com/docs/commands/WinSet.htm#Disable>`_,
-        `Control, Disable
-        <https://www.autohotkey.com/docs/commands/Control.htm#Disable>`_.
+        :command: `WinSet, Disable
+           <https://www.autohotkey.com/docs/commands/WinSet.htm#Disable>`_,
+           `Control, Disable
+           <https://www.autohotkey.com/docs/commands/Control.htm#Disable>`_
         """
         raise NotImplementedError
 
     @property
     def is_visible(self):
-        """Check if the window/control is visible, or set the visibility state.
+        """The visibility of the window/control.
 
         Returns ``False`` if the window doesn't exist.
 
-        :rtype: bool
+        :type: bool
 
-        :AHK command: `ControlGet, $, Visible
-           <https://www.autohotkey.com/docs/commands/ControlGet.htm#Visible>`_.
+        :command: `WinShow
+           <https://www.autohotkey.com/docs/commands/WinShow.htm>`_,
+           `ControlGet, $, Visible
+           <https://www.autohotkey.com/docs/commands/ControlGet.htm#Visible>`_,
+           `Control, Show
+           <https://www.autohotkey.com/docs/commands/Control.htm#Show>`_
         """
         style = self.style
         if style is None:
@@ -1052,10 +1061,9 @@ class BaseWindow(WindowHandle):
 
         Does nothing if the window/control doesn't exist.
 
-        AutoHotkey commands: `WinShow
-        <https://www.autohotkey.com/docs/commands/WinShow.htm>`_,
-        `Control, Show
-        <https://www.autohotkey.com/docs/commands/Control.htm#Show>`_.
+        :command: `WinShow
+           <https://www.autohotkey.com/docs/commands/WinShow.htm>`_, `Control,
+           Show <https://www.autohotkey.com/docs/commands/Control.htm#Show>`_
         """
         raise NotImplementedError
 
@@ -1064,10 +1072,9 @@ class BaseWindow(WindowHandle):
 
         Does nothing if the window/control doesn't exist.
 
-        AutoHotkey commands: `WinHide
-        <https://www.autohotkey.com/docs/commands/WinHide.htm>`_,
-        `Control, Hide
-        <https://www.autohotkey.com/docs/commands/Control.htm#Hide>`_.
+        :command: `WinHide
+           <https://www.autohotkey.com/docs/commands/WinHide.htm>`_, `Control,
+           Hide <https://www.autohotkey.com/docs/commands/Control.htm#Hide>`_
         """
         raise NotImplementedError
 
@@ -1079,8 +1086,8 @@ class BaseWindow(WindowHandle):
 
         Does nothing if the window/control doesn't exist.
 
-        AutoHotkey command: `ControlSend
-        <https://www.autohotkey.com/docs/commands/ControlSend.htm>`_.
+        :command: `ControlSend
+           <https://www.autohotkey.com/docs/commands/ControlSend.htm>`_
         """
         # TODO: Add level, key_delay, and key_duration arguments.
         with global_ahk_lock:
@@ -1123,8 +1130,8 @@ class BaseWindow(WindowHandle):
 
         Returns ``None`` if the window/control doesn't exist.
 
-        AutoHotkey command: `SendMessage
-        <https://www.autohotkey.com/docs/commands/PostMessage.htm>`_.
+        :command: `SendMessage
+           <https://www.autohotkey.com/docs/commands/PostMessage.htm>`_
         """
         control = exclude_title = exclude_text = ""
         try:
@@ -1158,8 +1165,8 @@ class BaseWindow(WindowHandle):
         Returns ``True`` if the message was received. Returns ``False`` if there
         was a problem. Returns ``None`` if the window/control doesn't exist.
 
-        AutoHotkey command: `PostMessage
-        <https://www.autohotkey.com/docs/commands/PostMessage.htm>`_.
+        :command: `PostMessage
+           <https://www.autohotkey.com/docs/commands/PostMessage.htm>`_
         """
         control = ""
         try:

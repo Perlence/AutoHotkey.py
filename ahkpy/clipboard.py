@@ -16,8 +16,8 @@ __all__ = [
 def get_clipboard() -> str:
     """Get text from the Windows clipboard.
 
-    AutoHotkey command: `Clipboard
-    <https://www.autohotkey.com/docs/misc/Clipboard.htm>`_.
+    :command: `Clipboard
+       <https://www.autohotkey.com/docs/misc/Clipboard.htm>`_
     """
     return ahk_call("GetClipboard")
 
@@ -25,8 +25,8 @@ def get_clipboard() -> str:
 def set_clipboard(value):
     """Put text into the Windows clipboard.
 
-    AutoHotkey command: `Clipboard
-    <https://www.autohotkey.com/docs/misc/Clipboard.htm>`_.
+    :command: `Clipboard = Value
+       <https://www.autohotkey.com/docs/misc/Clipboard.htm>`_
     """
     return ahk_call("SetClipboard", str(value))
 
@@ -38,8 +38,8 @@ def wait_clipboard(timeout: float = None) -> str:
     string will be returned. If *timeout* is not specified or ``None``, there is
     no limit to the wait time. Specifying 0 is the same as specifying 0.5.
 
-    AutoHotkey command: `ClipWait
-    <https://www.autohotkey.com/docs/commands/ClipWait.htm>`_.
+    :command: `ClipWait
+       <https://www.autohotkey.com/docs/commands/ClipWait.htm>`_
     """
     # TODO: Implement WaitForAnyData argument.
     if timeout is not None:
@@ -69,8 +69,8 @@ def on_clipboard_change(func: Callable = None, *, prepend_handler=False):
 
         assert isinstance(handler, ahkpy.ClipboardHandler)
 
-    AutoHotkey function: `OnClipboardChange
-    <https://www.autohotkey.com/docs/commands/OnClipboardChange.htm>`_.
+    :command: `OnClipboardChange
+       <https://www.autohotkey.com/docs/commands/OnClipboardChange.htm>`_
     """
     option = 1 if not prepend_handler else -1
 
