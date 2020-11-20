@@ -631,6 +631,9 @@ all_windows = windows.include_hidden_windows()
 
 @dc.dataclass(frozen=True)
 class WindowHandle:
+    """The immutable object that contains the *id* (HWND) of a window/control.
+    """
+
     # I'd like the Window and Control classes to be hashable, and making the
     # dataclass frozen also makes it hashable. However, frozen dataclasses
     # cannot have setter properties unless it's a subclass.
@@ -641,23 +644,19 @@ class WindowHandle:
     def __bool__(self):
         """Check if the window/control exists.
 
-        Returns ``False`` if it's a ``Window(None)`` or ``Control(None)``
-        instance.
+        Returns ``True`` if the window/control exists. Returns ``False`` if the
+        window/control doesn't exist or it's a ``Window(None)`` or
+        ``Control(None)`` instance.
         """
         return bool(self.id) and self.exists
 
     @property
     def exists(self) -> bool:
-        """Check if the window/control exists.
+        """The window/control existence (read-only).
 
-        Returns ``False`` if it's a ``Window(None)`` or ``Control(None)``
-        instance.
-
-        .. TODO: Remove rtypes once
-           https://github.com/sphinx-doc/sphinx/issues/7383 is resolved and
-           released.
-
-        :rtype: bool
+        Returns ``True`` if the window/control exists. Returns ``False`` if the
+        window/control doesn't exist or it's a ``Window(None)`` or
+        ``Control(None)`` instance.
 
         :command: `WinExist
            <https://www.autohotkey.com/docs/commands/WinExist.htm>`_
@@ -701,10 +700,15 @@ class BaseWindow(WindowHandle):
 
     @property
     def style(self) -> Optional[WindowStyle]:
-        """Get or set the styles of the window/control.
+        """The styles of the window/control.
 
-        Returns an instance of :class:`~ahkpy.WindowStyle` if the window exists.
-        Otherwise, returns ``None``.
+        Returns ``None`` if the window doesn't exist.
+
+        .. TODO: Remove :types: once
+           https://github.com/sphinx-doc/sphinx/issues/7383 is resolved and
+           released.
+
+        :type: WindowStyle
 
         :command: `WinGet, $, Style
            <https://www.autohotkey.com/docs/commands/WinGet.htm#Style>`_,
@@ -726,10 +730,11 @@ class BaseWindow(WindowHandle):
 
     @property
     def ex_style(self) -> Optional[ExWindowStyle]:
-        """Get or set the extended styles of the window/control.
+        """The extended styles of the window/control.
 
-        Returns an instance of :class:`~ahkpy.ExWindowStyle` if the window
-        exists. Otherwise, returns ``None``.
+        Returns ``None`` if the window doesn't exist.
+
+        :type: ExWindowStyle
 
         :command: `WinGet, $, ExStyle
            <https://www.autohotkey.com/docs/commands/WinGet.htm#ExStyle>`_,
@@ -751,11 +756,11 @@ class BaseWindow(WindowHandle):
 
     @property
     def class_name(self) -> Optional[str]:
-        """Get the window/control class.
+        """The window/control class name (read-only).
 
         Returns ``None`` if the window doesn't exist.
 
-        :rtype: Optional[str]
+        :type: str
 
         :command: `WinGetClass
            <https://www.autohotkey.com/docs/commands/WinGetClass.htm>`_
@@ -770,12 +775,12 @@ class BaseWindow(WindowHandle):
 
     @property
     def rect(self) -> Optional[Tuple[int, int, int, int]]:
-        """Get or set the position and size of the window/control.
+        """The position and size of the window/control as a ``(x, y, width,
+        height)`` tuple.
 
-        Returns a ``(x, y, width, height)`` tuple. If the window doesn't exist,
-        returns ``None``.
+        Returns ``None`` if the window doesn't exist.
 
-        :rtype: Optional[Tuple[int, int, int, int]]
+        :type: Tuple[int, int, int, int]
 
         :command: `WinGetPos
            <https://www.autohotkey.com/docs/commands/WinGetPos.htm>`_,
@@ -803,12 +808,11 @@ class BaseWindow(WindowHandle):
 
     @property
     def position(self):
-        """Get or set the window/control position.
+        """The window/control position as a ``(x, y)`` tuple.
 
-        Returns a ``(x, y)`` tuple. If the window doesn't exist, returns
-        ``None``.
+        Returns ``None`` if the window doesn't exist.
 
-        :rtype: Optional[Tuple[int, int]]
+        :type: Tuple[int, int]
 
         :command: `WinGetPos
            <https://www.autohotkey.com/docs/commands/WinGetPos.htm>`_,
@@ -831,11 +835,11 @@ class BaseWindow(WindowHandle):
 
     @property
     def x(self):
-        """Get or set the x coordinate of the window/control.
+        """The *x* coordinate of the window/control.
 
         Returns ``None`` if the window doesn't exist.
 
-        :rtype: Optional[int]
+        :type: int
 
         :command: `WinGetPos
            <https://www.autohotkey.com/docs/commands/WinGetPos.htm>`_,
@@ -857,11 +861,11 @@ class BaseWindow(WindowHandle):
 
     @property
     def y(self):
-        """Get or set the y coordinate of the window/control.
+        """The *y* coordinate of the window/control.
 
         Returns ``None`` if the window doesn't exist.
 
-        :rtype: Optional[int]
+        :type: int
 
         :command: `WinGetPos
            <https://www.autohotkey.com/docs/commands/WinGetPos.htm>`_,
@@ -883,12 +887,12 @@ class BaseWindow(WindowHandle):
 
     @property
     def size(self):
-        """Get or set the window/control size.
+        """The window/control size.
 
         Returns a ``(width, height)`` tuple. If the window doesn't exist,
         returns ``None``.
 
-        :rtype: Optional[Tuple[int, int]]
+        :type: Tuple[int, int]
 
         :command: `WinGetPos
            <https://www.autohotkey.com/docs/commands/WinGetPos.htm>`_,
@@ -911,11 +915,11 @@ class BaseWindow(WindowHandle):
 
     @property
     def width(self):
-        """Get or set the window/control width.
+        """The window/control width.
 
         Returns ``None`` if the window doesn't exist.
 
-        :rtype: Optional[int]
+        :type: int
 
         :command: `WinGetPos
            <https://www.autohotkey.com/docs/commands/WinGetPos.htm>`_,
@@ -937,11 +941,11 @@ class BaseWindow(WindowHandle):
 
     @property
     def height(self):
-        """Get or set the window/control height.
+        """The window/control height.
 
         Returns ``None`` if the window doesn't exist.
 
-        :rtype: Optional[int]
+        :type: int
 
         :command: `WinGetPos
            <https://www.autohotkey.com/docs/commands/WinGetPos.htm>`_,
@@ -980,11 +984,11 @@ class BaseWindow(WindowHandle):
 
     @property
     def is_enabled(self) -> Optional[bool]:
-        """Check if the window/control is enabled, or set the enabled state.
+        """The enabled state of the window/control.
 
         Returns ``None`` if the window doesn't exist.
 
-        :rtype: Optional[bool]
+        :type: bool
 
         :command: `WinSet, Enable
            <https://www.autohotkey.com/docs/commands/WinSet.htm#Enable>`_,
