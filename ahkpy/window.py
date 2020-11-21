@@ -1476,7 +1476,8 @@ class Window(BaseWindow):
                 err.message = "status bar cannot be accessed"
             raise
 
-    def wait_status_bar(self, bar_text="", *, timeout=None, part=0, interval=0.05) -> Optional[bool]:
+    def wait_status_bar(self, bar_text="", *,
+                        timeout=None, part=0, interval=0.05, match="startswith") -> Optional[bool]:
         try:
             ok = self._call(
                 "StatusBarWait",
@@ -1485,6 +1486,7 @@ class Window(BaseWindow):
                 part + 1,
                 *self._include(),
                 interval * 1000,
+                title_mode=match,
             )
             return bool(ok)
         except Error as err:
