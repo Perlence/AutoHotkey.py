@@ -324,16 +324,16 @@ def test_nonexistent_window():
 
 def test_status_bar(notepad):
     ahk.sleep(0.2)
-    assert "Ln 1, Col 1" in notepad.get_status_bar_text(2)
+    assert "Ln 1, Col 1" in notepad.get_status_bar_text(1)
 
     notepad.send("q")
     ahk.sleep(0)
-    assert "Ln 1, Col 2" in notepad.get_status_bar_text(2)
+    assert "Ln 1, Col 2" in notepad.get_status_bar_text(1)
 
     ahk.set_countdown(0.5, notepad.send, "q")
-    assert notepad.wait_status_bar("  Ln 1, Col x", part=2, timeout=0.1) is False
-    assert notepad.wait_status_bar("  Ln 1, Col 3", part=2, timeout=1) is True
-    assert notepad.get_status_bar_text(2) == "  Ln 1, Col 3"
+    assert notepad.wait_status_bar("  Ln 1, Col x", part=1, timeout=0.1) is False
+    assert notepad.wait_status_bar("  Ln 1, Col 3", part=1, timeout=1) is True
+    assert notepad.get_status_bar_text(1) == "  Ln 1, Col 3"
 
 
 def test_hidden_text():

@@ -1426,9 +1426,9 @@ class Window(BaseWindow):
             return self.is_active
         return self.wait_active(timeout=timeout)
 
-    def get_status_bar_text(self, part=1) -> Optional[str]:
+    def get_status_bar_text(self, part=0) -> Optional[str]:
         try:
-            text = self._call("StatusBarGetText", int(part), *self._include())
+            text = self._call("StatusBarGetText", int(part) + 1, *self._include())
             return str(text)
         except Error as err:
             if err.message == 1:
@@ -1437,13 +1437,13 @@ class Window(BaseWindow):
                 err.message = "status bar cannot be accessed"
             raise
 
-    def wait_status_bar(self, bar_text="", timeout=None, part=1, interval=0.05) -> Optional[bool]:
+    def wait_status_bar(self, bar_text="", *, timeout=None, part=0, interval=0.05) -> Optional[bool]:
         try:
             ok = self._call(
                 "StatusBarWait",
                 bar_text,
                 timeout if timeout is not None else "",
-                part,
+                part + 1,
                 *self._include(),
                 interval * 1000,
             )
