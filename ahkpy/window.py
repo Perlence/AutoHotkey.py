@@ -347,10 +347,10 @@ class Windows:
 
         Close all matching windows.
 
-        Returns ``True`` if all matching windows are closed. If there are still
+        Returns ``True`` if all matching windows were closed. If there are still
         matching windows after *timeout* seconds, then ``False`` will be
-        returned. If *timeout* is not specified or ``None``, there is no limit
-        to the wait time.
+        returned. If *timeout* is not specified or ``None``, the function
+        returns immediately.
 
         For arguments refer to :meth:`filter`.
 
@@ -379,10 +379,10 @@ class Windows:
 
         Forces all matching windows to close.
 
-        Returns ``True`` if all windows are closed. If there are still matching
-        windows after *timeout* seconds, then ``False`` will be returned. If
-        *timeout* is not specified or ``None``, there is no limit to the wait
-        time.
+        Returns ``True`` if all matching windows were closed. If there are still
+        matching windows after *timeout* seconds, then ``False`` will be
+        returned. If *timeout* is not specified or ``None``, the function
+        returns immediately.
 
         For arguments refer to :meth:`filter`.
 
@@ -446,7 +446,7 @@ class Windows:
         self = self._filter(title, class_name, id, pid, exe, text, match)
         self._group_action("WinShow")
 
-    def _group_action(self, cmd, timeout=None):
+    def _group_action(self, cmd, timeout=UNSET):
         if self == Windows() and cmd == "WinMinimize":
             # If the filter matches all the windows, minimize everything except
             # the desktop window.
@@ -457,8 +457,8 @@ class Windows:
         query_hash_str = str(query_hash).replace("-", "m")  # AHK doesn't allow "-" in group names
         label = ""
         self._call("GroupAdd", query_hash_str, *self._include(), label, *self._exclude())
-        self._call(cmd, f"ahk_group {query_hash_str}", "", timeout, set_delay=True)
-        if timeout is not None:
+        self._call(cmd, f"ahk_group {query_hash_str}", "", timeout or "", set_delay=True)
+        if timeout is not UNSET:
             return not self.exist()
 
     def window_context(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
@@ -1420,10 +1420,11 @@ class Window(BaseWindow):
     def show(self):
         self._call("WinShow", *self._include(), set_delay=True)
 
-    def activate(self, timeout=None):
+    def activate(self, timeout=None) -> bool:
         self._call("WinActivate", *self._include())
-        if timeout is not None:
-            return self.wait_active(timeout=timeout)
+        if timeout is None:
+            return self.is_active
+        return self.wait_active(timeout=timeout)
 
     def get_status_bar_text(self, part=1) -> Optional[str]:
         try:
@@ -1458,17 +1459,13 @@ class Window(BaseWindow):
         status_bar = self.get_control("msctls_statusbar321")
         return bool(status_bar)
 
-    def close(self, timeout=None) -> Optional[bool]:
+    def close(self, timeout=None) -> bool:
         self._call("WinClose", *self._include(), timeout, set_delay=True)
-        if timeout is None:
-            return None
         # TODO: Test timeout.
         return not self.exists
 
-    def kill(self, timeout=None) -> Optional[bool]:
+    def kill(self, timeout=None) -> bool:
         self._call("WinKill", *self._include(), timeout, set_delay=True)
-        if timeout is None:
-            return None
         # TODO: Test timeout.
         return not self.exists
 

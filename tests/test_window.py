@@ -125,12 +125,12 @@ class TestWindows:
 
     def test_close(self, msg_boxes, win1):
         win1.activate(timeout=1)
-        msg_boxes.first().close()  # Close actually hides this AHK message box
+        assert msg_boxes.first().close() is False  # Close actually hides this AHK message box
         assert not win1.wait_close(timeout=0.1)
         assert win1.wait_hidden(timeout=1)
 
         assert msg_boxes.wait_close(timeout=0.1) is False
-        msg_boxes.close_all()
+        assert msg_boxes.close_all() is True
         assert msg_boxes.wait_close() is True
         assert not msg_boxes.exist()
 
@@ -316,7 +316,7 @@ def test_nonexistent_window():
     assert win.wait_hidden(timeout=0.1) is True
     assert win.wait_close(timeout=0.1) is True
     assert len(ahk.windows.filter(title=win.title)) == 0
-    assert win.activate() is None
+    assert win.activate() is False
     assert win.send("^r") is None
     assert win.send_message(9000) is None
     assert win.post_message(9000) is None
