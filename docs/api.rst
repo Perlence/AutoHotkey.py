@@ -329,7 +329,7 @@ Windows
 .. autoclass:: Window
    :show-inheritance:
    :members:
-   :exclude-members: enable, disable, show, hide
+   :exclude-members: enable, disable, show, hide, exe
 
 .. autoclass:: Control
    :show-inheritance:

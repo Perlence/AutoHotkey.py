@@ -1209,15 +1209,38 @@ class BaseWindow(WindowHandle):
 
 
 class Window(BaseWindow):
+    """The object representing a window."""
+
     __slots__ = ("id",)
 
     @property
     def is_active(self) -> bool:
+        """Whether the window is active (read-only).
+
+        Returns ``None`` if window doesn't exist.
+
+        :type: bool
+
+        :command: `WinActive
+           <https://www.autohotkey.com/docs/commands/WinActive.htm>`_
+        """
         return bool(self._call("WinActive", *self._include()))
 
     @property
     def text(self) -> Optional[str]:
+        """The text that was retrieved from the window (read-only).
+
+        Each text element ends with ``"\\r\\n"``. If the window doesn't exist,
+        returns ``None``. Raises an :exc:`Error` if there was a problem
+        retrieving the window text.
+
+        :type: str
+
+        :command: `WinGetText
+           <https://www.autohotkey.com/docs/commands/WinGetText.htm>`_
+        """
         try:
+            # TODO: Consider adding an argument that will call VarSetCapacity.
             text = self._call("WinGetText", *self._include())
             return str(text)
         except Error as err:
@@ -1229,6 +1252,17 @@ class Window(BaseWindow):
 
     @property
     def title(self) -> Optional[str]:
+        """The window title.
+
+        Returns ``None`` if the window doesn't exist.
+
+        :type: str
+
+        :command: `WinGetTitle
+           <https://www.autohotkey.com/docs/commands/WinGetTitle.htm>`_,
+           `WinSetTitle
+           <https://www.autohotkey.com/docs/commands/WinSetTitle.htm>`_
+        """
         title = self._call("WinGetTitle", *self._include())
         # If the window doesn't exist, AHK returns an empty string. Check that
         # the window exists.
@@ -1242,20 +1276,65 @@ class Window(BaseWindow):
 
     @property
     def pid(self) -> Optional[int]:
+        """The identifier of the process that created the window (read-only).
+
+        Returns ``None`` if the window doesn't exist.
+
+        :type: int
+
+        :command: `WinGet, PID
+           <https://www.autohotkey.com/docs/commands/WinGet.htm#PID>`_
+        """
         return self._get("PID")
 
     @property
     def process_name(self) -> Optional[str]:
+        """The name of the executable that created the window (read-only).
+
+        Returns ``None`` if the window doesn't exist.
+
+        :type: str
+
+        :alias: :meth:`exe`
+
+        :command: `WinGet, ProcessName
+           <https://www.autohotkey.com/docs/commands/WinGet.htm#ProcessName>`_
+        """
         return self._get("ProcessName")
 
     exe = process_name
 
     @property
     def process_path(self) -> Optional[str]:
+        """The full path to the executable that created the window (read-only).
+
+        Returns ``None`` if the window doesn't exist.
+
+        :type: str
+
+        :command: `WinGet, ProcessPath
+           <https://www.autohotkey.com/docs/commands/WinGet.htm#ProcessPath>`_
+        """
         return self._get("ProcessPath")
 
     @property
     def is_minimized(self) -> Optional[bool]:
+        """Whether the window is minimized.
+
+        Returns ``None`` if the window doesn't exist.
+
+        Setting ``True`` minimizes the window, setting ``False`` restores the
+        window if it's minimized.
+
+        :type: bool
+
+        :command: `WinGet, MinMax
+           <https://www.autohotkey.com/docs/commands/WinGet.htm#MinMax>`_,
+           `WinMinimize
+           <https://www.autohotkey.com/docs/commands/WinMinimize.htm>`_,
+           `WinRestore
+           <https://www.autohotkey.com/docs/commands/WinRestore.htm>`_
+        """
         min_max = self._get("MinMax")
         if min_max is None:
             return None
@@ -1269,6 +1348,16 @@ class Window(BaseWindow):
             self.restore()
 
     def toggle_minimized(self):
+        """Toggle the minimized state of the window.
+
+        If window is minimized, restores it. Otherwise, minimizes it. Does
+        nothing if the window doesn't exist.
+
+        :command: `WinMinimize
+           <https://www.autohotkey.com/docs/commands/WinMinimize.htm>`_,
+           `WinRestore
+           <https://www.autohotkey.com/docs/commands/WinRestore.htm>`_
+        """
         is_minimized = self.is_minimized
         if is_minimized is None:
             return
@@ -1289,6 +1378,15 @@ class Window(BaseWindow):
 
     @property
     def is_restored(self) -> Optional[bool]:
+        """Whether the window is not minimized nor maximized (read-only).
+
+        Returns ``None`` if the window doesn't exist.
+
+        :type: bool
+
+        :command: `WinGet, MinMax
+           <https://www.autohotkey.com/docs/commands/WinGet.htm#MinMax>`_
+        """
         min_max = self._get("MinMax")
         if min_max is None:
             return None
@@ -1306,6 +1404,22 @@ class Window(BaseWindow):
 
     @property
     def is_maximized(self) -> Optional[bool]:
+        """Whether the window is maximized.
+
+        Returns ``None`` if the window doesn't exist.
+
+        Setting ``True`` maximizes the window, setting ``False`` restores the
+        window if it's maximized.
+
+        :type: bool
+
+        :command: `WinGet, MinMax
+           <https://www.autohotkey.com/docs/commands/WinGet.htm#MinMax>`_,
+           `WinMaximize
+           <https://www.autohotkey.com/docs/commands/WinMaximize.htm>`_,
+           `WinRestore
+           <https://www.autohotkey.com/docs/commands/WinRestore.htm>`_
+        """
         min_max = self._get("MinMax")
         if min_max is None:
             return None
@@ -1319,6 +1433,16 @@ class Window(BaseWindow):
             self.restore()
 
     def toggle_maximized(self):
+        """Toggle the maximized state of the window.
+
+        If window is maximized, restores it. Otherwise, maximizes it. Does
+        nothing if the window doesn't exist.
+
+        :command: `WinMaximize
+           <https://www.autohotkey.com/docs/commands/WinMaximize.htm>`_,
+           `WinRestore
+           <https://www.autohotkey.com/docs/commands/WinRestore.htm>`_
+        """
         is_maximized = self.is_maximized
         if is_maximized is None:
             return
@@ -1339,6 +1463,15 @@ class Window(BaseWindow):
 
     @property
     def control_classes(self) -> Optional[List[str]]:
+        """The list of class names of the window controls (read-only).
+
+        Returns ``None`` if the window doesn't exist.
+
+        :type: List[str]
+
+        :command: `WinGet, ControlList
+           <https://www.autohotkey.com/docs/commands/WinGet.htm#ControlList>`_
+        """
         names = self._get("ControlList")
         if names is None:
             return None
@@ -1346,6 +1479,15 @@ class Window(BaseWindow):
 
     @property
     def controls(self) -> Optional[List[Control]]:
+        """The list of window controls (read-only).
+
+        Returns ``None`` if the window doesn't exist.
+
+        :type: List[Control]
+
+        :command: `WinGet, ControlListHwnd
+           <https://www.autohotkey.com/docs/commands/WinGet.htm#ControlListHwnd>`_
+        """
         handles = self._get("ControlListHwnd")
         if handles is None:
             return None
@@ -1355,7 +1497,20 @@ class Window(BaseWindow):
             for hwnd in hwnds
         ]
 
-    def get_control(self, class_or_text, match="startswith") -> "Control":
+    def get_control(self, class_or_text, match="startswith") -> Control:
+        """get_control(class_or_text, match="startswith") -> ahkpy.Control
+
+        Find the window control by its class name or text.
+
+        In the case of searching the control by its text, the optional *match*
+        argument specifies the matching behavior and defaults to
+        ``"startswith"``. For other modes refer to :meth:`Windows.filter`.
+
+        Returns ``Control(None)`` if the either window or control doesn't exist.
+
+        :command: `ControlGet
+           <https://www.autohotkey.com/docs/commands/ControlGet.htm>`_
+        """
         try:
             control_id = self._call("ControlGet", "Hwnd", "", class_or_text, *self._include(), title_mode=match)
             return Control(control_id)
@@ -1365,7 +1520,17 @@ class Window(BaseWindow):
                 return Control(None)
             raise
 
-    def get_focused_control(self) -> "Control":
+    def get_focused_control(self) -> Control:
+        """get_focused_control() -> ahkpy.Control
+
+        Get the currently focused control.
+
+        Returns ``Control(None)`` if the window doesn't exist or no control is
+        focused.
+
+        :command: `ControlGet
+           <https://www.autohotkey.com/docs/commands/ControlGet.htm>`_
+        """
         try:
             class_name = self._call("ControlGetFocus", *self._include())
         except Error as err:
@@ -1379,6 +1544,15 @@ class Window(BaseWindow):
 
     @property
     def always_on_top(self) -> Optional[bool]:
+        """Whether the window is always on top.
+
+        Returns ``None`` if the window doesn't exist.
+
+        :type: bool
+
+        :command: `WinSet, AlwaysOnTop
+           <https://www.autohotkey.com/docs/commands/WinSet.htm#AlwaysOnTop>`_
+        """
         ex_style = self.ex_style
         if ex_style is None:
             return None
@@ -1392,38 +1566,151 @@ class Window(BaseWindow):
             self.unpin_from_top()
 
     def pin_to_top(self):
+        """Make the window to always be on top.
+
+        Does nothing if the window doesn't exist.
+
+        :command: `WinSet, AlwaysOnTop, On
+           <https://www.autohotkey.com/docs/commands/WinSet.htm#AlwaysOnTop>`_
+        """
         self._set("AlwaysOnTop", "On")
 
     def unpin_from_top(self):
+        """Unpin the window from the top.
+
+        Does nothing if the window doesn't exist.
+
+        :command: `WinSet, AlwaysOnTop, Off
+           <https://www.autohotkey.com/docs/commands/WinSet.htm#AlwaysOnTop>`_
+        """
         self._set("AlwaysOnTop", "Off")
 
     def toggle_always_on_top(self):
+        """Toggle the topmost state of the window.
+
+        Does nothing if the window doesn't exist.
+
+        :command: `WinSet, AlwaysOnTop, Toggle
+           <https://www.autohotkey.com/docs/commands/WinSet.htm#AlwaysOnTop>`_
+        """
         self._set("AlwaysOnTop", "Toggle")
 
     def send_to_bottom(self):
+        """Send the window to the bottom; that is, beneath all other windows.
+
+        Does nothing if the window doesn't exist.
+
+        :command: `WinSet, Bottom
+           <https://www.autohotkey.com/docs/commands/WinSet.htm#Bottom>`_
+        """
         self._set("Bottom")
 
     def bring_to_top(self):
+        """Bring the window to the top without explicitly activating it.
+
+        However, the system default settings will probably cause it to activate
+        in most cases. In addition, this method may have no effect due to the
+        operating system's protection against applications that try to steal
+        focus from the user (it may depend on factors such as what type of
+        window is currently active and what the user is currently doing). One
+        possible work-around is to call :meth:`toggle_always_on_top` twice in a
+        row.
+
+        Does nothing if the window doesn't exist.
+
+        :command: `WinSet, Top
+           <https://www.autohotkey.com/docs/commands/WinSet.htm#Top>`_
+        """
         self._set("Top")
 
     def disable(self):
+        """Disable the window.
+
+        When a window is disabled, the user cannot move it or interact with its
+        controls. In addition, disabled windows are omitted from the Alt+Tab
+        list.
+
+        Does nothing if the window doesn't exist.
+
+        :command: `WinSet, Disable
+           <https://www.autohotkey.com/docs/commands/WinSet.htm#Disable>`_
+        """
         self._set("Disable")
 
     def enable(self):
+        """Enable the window.
+
+        Does nothing if the window doesn't exist.
+
+        :command: `WinSet, Enable
+           <https://www.autohotkey.com/docs/commands/WinSet.htm#Enable>`_
+        """
         self._set("Enable")
 
     def redraw(self):
+        """Redraw the window.
+
+        This method attempts to update the appearance/contents of a window by
+        informing the OS that the window's rectangle needs to be redrawn. If
+        this approach does not work for a particular window, try
+        :meth:`~ahkpy.window.BaseWindow.move`. If that does not work, try
+        :meth:`~ahkpy.window.BaseWindow.hide` in combination with
+        :meth:`~ahkpy.window.BaseWindow.show`.
+
+        Does nothing if the window doesn't exist.
+
+        :command: `WinSet, Redraw
+           <https://www.autohotkey.com/docs/commands/WinSet.htm#Redraw>`_
+        """
         self._set("Redraw")
 
-    def set_region(self, options):
+    def set_region(self, options: str):
+        """Change the shape of a window to rectangle, ellipse, or polygon.
+
+        Does nothing if the window doesn't exist.
+
+        :command: `WinSet, Region
+           <https://www.autohotkey.com/docs/commands/WinSet.htm#Region>`_
+        """
         # TODO: Implement better options.
         self._set("Region", options)
 
     def reset_region(self):
+        """Restore the window to its original/default display area.
+
+        Does nothing if the window doesn't exist.
+
+        :command: `WinSet, Region
+           <https://www.autohotkey.com/docs/commands/WinSet.htm#Region>`_
+        """
         self._set("Region", "")
 
     @property
     def opacity(self) -> Optional[int]:
+        """The window opacity level.
+
+        Returns a integer between 0 and 255, where 0 indicates an invisible
+        window and 255 indicates an opaque window.
+
+        Returns ``None`` under the following circumstances:
+
+        - the window doesn't exist
+        - the window has no transparency level
+        - the OS is older than Windows XP
+        - other conditions (caused by OS behavior) such as the window having
+          been minimized, restored, and/or resized since it was made
+          transparent
+
+        Setting ``None`` makes the window opaque. Does nothing if the window
+        doesn't exist.
+
+        :type: int
+
+        :command: `WinGet, Transparent
+           <https://www.autohotkey.com/docs/commands/WinGet.htm#Transparent>`_,
+           `WinSet, Transparent
+           <https://www.autohotkey.com/docs/commands/WinSet.htm#Transparent>`_
+        """
         return self._get("Transparent")
 
     @opacity.setter
@@ -1438,6 +1725,30 @@ class Window(BaseWindow):
 
     @property
     def transparent_color(self) -> Optional[Tuple[int, int, int]]:
+        """The color that is marked transparent in the window.
+
+        Returns a ``(red, green, blue)`` tuple. The color components are
+        integers between 0 and 255.
+
+        Returns ``None`` under the following circumstances:
+
+        - the window doesn't exist
+        - the window has no transparent color
+        - the OS is older than Windows XP
+        - other conditions (caused by OS behavior) such as the window having
+          been minimized, restored, and/or resized since it was made
+          transparent
+
+        Setting ``None`` makes the window opaque. Does nothing if the window
+        doesn't exist.
+
+        :type: Tuple[int, int, int]
+
+        :command: `WinGet, TransColor
+           <https://www.autohotkey.com/docs/commands/WinGet.htm#TransColor>`_,
+           `WinSet, TransColor
+           <https://www.autohotkey.com/docs/commands/WinSet.htm#TransColor>`_
+        """
         result = self._get("TransColor")
         if result is None:
             return None
@@ -1460,12 +1771,36 @@ class Window(BaseWindow):
         self._call("WinShow", *self._include(), set_delay=True)
 
     def activate(self, timeout=None) -> bool:
+        """Activate the window.
+
+        Returns ``True`` if the window was activated. If the window is not
+        active after *timeout* seconds, then ``False`` will be returned. If
+        *timeout* is not specified or ``None``, the function returns
+        immediately.
+
+        Does nothing if the window doesn't exist.
+
+        :command: `WinActivate
+           <https://www.autohotkey.com/docs/commands/WinActivate.htm>`_
+        """
         self._call("WinActivate", *self._include())
         if timeout is None:
             return self.is_active
         return self.wait_active(timeout=timeout)
 
     def get_status_bar_text(self, part=0) -> Optional[str]:
+        """Get the status bar text from the window.
+
+        The *part* argument specifies which part of the bar to retrieve.
+        Defaults to 0, which is usually the part that contains the text of
+        interest.
+
+        Returns ``None`` if the window doesn't exists or there's no status bar.
+        Raises an :exc:`Error` if there was a problem accessing the status bar.
+
+        :command: `StatusBarGetText
+           <https://www.autohotkey.com/docs/commands/StatusBarGetText.htm>`_
+        """
         try:
             text = self._call("StatusBarGetText", int(part) + 1, *self._include())
             return str(text)
@@ -1478,6 +1813,29 @@ class Window(BaseWindow):
 
     def wait_status_bar(self, bar_text="", *,
                         timeout=None, part=0, interval=0.05, match="startswith") -> Optional[bool]:
+        """Wait until the window's status bar contains the specified *bar_text*
+        string.
+
+        If the status bar doesn't contain the specified string after *timeout*
+        seconds, then ``False`` will be returned. If *timeout* is not specified
+        or ``None``, there is no limit to the wait time.
+
+        The *part* argument specifies which part of the bar to retrieve.
+        Defaults to 0, which is usually the part that contains the text of
+        interest.
+
+        The *interval* argument specifies how often the status bar should be
+        checked. Defaults to 0.05 seconds.
+
+        The *match* argument specifies how *bar_text* is matched. Defaults to
+        ``"startswith"``. For other modes refer to :meth:`Windows.filter`.
+
+        Returns ``None`` if the window doesn't exists or there's no status bar.
+        Raises an :exc:`Error` if there was a problem accessing the status bar.
+
+        :command: `StatusBarWait
+           <https://www.autohotkey.com/docs/commands/StatusBarWait.htm>`_
+        """
         try:
             ok = self._call(
                 "StatusBarWait",
@@ -1501,20 +1859,57 @@ class Window(BaseWindow):
         return bool(status_bar)
 
     def close(self, timeout=None) -> bool:
+        """Close the window.
+
+        Returns ``True`` if the window was closed. If the window still exists
+        after *timeout* seconds, then ``False`` will be returned. If *timeout*
+        is not specified or ``None``, the function returns immediately.
+
+        :command: `WinClose
+           <https://www.autohotkey.com/docs/commands/WinClose.htm>`_
+        """
         self._call("WinClose", *self._include(), timeout, set_delay=True)
         # TODO: Test timeout.
         return not self.exists
 
     def kill(self, timeout=None) -> bool:
+        """Forces the window to close.
+
+        Returns ``True`` if the window was closed. If the window still exists
+        after *timeout* seconds, then ``False`` will be returned. If *timeout*
+        is not specified or ``None``, the function returns immediately.
+
+        :command: `WinKill
+           <https://www.autohotkey.com/docs/commands/WinKill.htm>`_
+        """
         self._call("WinKill", *self._include(), timeout, set_delay=True)
         # TODO: Test timeout.
         return not self.exists
 
     def wait_active(self, timeout=None) -> bool:
+        """Wait until the window is active.
+
+        Returns ``True`` if the window is active. If it's still not active after
+        *timeout* seconds, then ``False`` will be returned. If *timeout* is not
+        specified or ``None``, there is no limit to the wait time.
+
+        :command: `WinWaitActive
+           <https://www.autohotkey.com/docs/commands/WinWaitActive.htm>`_
+        """
         win_id = self._call("WinWaitActive", *self._include(), timeout, set_delay=True)
         return bool(win_id)
 
     def wait_inactive(self, timeout=None) -> bool:
+        """Wait until the window is inactive.
+
+        Returns ``True`` if the window is inactive or doesn't exist. If it's
+        still active after *timeout* seconds, then ``False`` will be returned.
+        If *timeout* is not specified or ``None``, there is no limit to the wait
+        time.
+
+        :command: `WinWaitNotActive
+           <https://www.autohotkey.com/docs/commands/WinWaitActive.htm>`_
+        """
         win_id = self._call("WinWaitNotActive", *self._include(), timeout, set_delay=True)
         if win_id == "":
             # Non-existent window is inactive.
@@ -1522,10 +1917,29 @@ class Window(BaseWindow):
         return bool(win_id)
 
     def wait_hidden(self, timeout=None) -> bool:
+        """Wait until the window is hidden.
+
+        Returns ``True`` if the window is hidden or doesn't exist. If it's still
+        visible after *timeout* seconds, then ``False`` will be returned. If
+        *timeout* is not specified or ``None``, there is no limit to the wait
+        time.
+
+        :command: `WinWaitClose
+           <https://www.autohotkey.com/docs/commands/WinWaitClose.htm>`_
+        """
         ok = self._call("WinWaitClose", *self._include(), timeout, hidden_windows=False, set_delay=True)
         return bool(ok)
 
     def wait_close(self, timeout=None) -> bool:
+        """Wait until the window is closed.
+
+        Returns ``True`` if the window doesn't exist. If it still exists after
+        *timeout* seconds, then ``False`` will be returned. If *timeout* is not
+        specified or ``None``, there is no limit to the wait time.
+
+        :command: `WinWaitClose
+           <https://www.autohotkey.com/docs/commands/WinWaitClose.htm>`_
+        """
         ok = self._call("WinWaitClose", *self._include(), timeout, set_delay=True)
         return bool(ok)
 
