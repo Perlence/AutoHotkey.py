@@ -1264,13 +1264,17 @@ class Window(BaseWindow):
     def is_minimized(self, value):
         if value:
             self.minimize()
-        else:
+        elif self.is_minimized:
             self.restore()
 
     def toggle_minimized(self):
         is_minimized = self.is_minimized
-        if is_minimized is not None:
-            self.is_minimized = not is_minimized
+        if is_minimized is None:
+            return
+        if is_minimized:
+            self.restore()
+        else:
+            self.minimize()
 
     @property
     def is_restored(self) -> Optional[bool]:
@@ -1290,13 +1294,17 @@ class Window(BaseWindow):
     def is_maximized(self, value):
         if value:
             self.maximize()
-        else:
+        elif self.is_maximized:
             self.restore()
 
     def toggle_maximized(self):
         is_maximized = self.is_maximized
-        if is_maximized is not None:
-            self.is_maximized = not is_maximized
+        if is_maximized is None:
+            return
+        if is_maximized:
+            self.restore()
+        else:
+            self.maximize()
 
     @property
     def control_classes(self) -> Optional[List[str]]:
