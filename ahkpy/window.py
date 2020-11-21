@@ -1087,8 +1087,7 @@ class BaseWindow(WindowHandle):
     def send(self, keys):
         """Send simulated keystrokes to the window/control.
 
-        Unlike the :func:`~ahkpy.send` function, mouse clicks cannot be sent by
-        :meth:`!send`.
+        Unlike the :func:`~ahkpy.send` function, mouse clicks cannot be sent.
 
         Does nothing if the window/control doesn't exist.
 
