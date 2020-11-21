@@ -1788,76 +1788,6 @@ class Window(BaseWindow):
             return self.is_active
         return self.wait_active(timeout=timeout)
 
-    def get_status_bar_text(self, part=0) -> Optional[str]:
-        """Get the status bar text from the window.
-
-        The *part* argument specifies which part of the bar to retrieve.
-        Defaults to 0, which is usually the part that contains the text of
-        interest.
-
-        Returns ``None`` if the window doesn't exists or there's no status bar.
-        Raises an :exc:`Error` if there was a problem accessing the status bar.
-
-        :command: `StatusBarGetText
-           <https://www.autohotkey.com/docs/commands/StatusBarGetText.htm>`_
-        """
-        try:
-            text = self._call("StatusBarGetText", int(part) + 1, *self._include())
-            return str(text)
-        except Error as err:
-            if err.message == 1:
-                if not self._status_bar_exists():
-                    return None
-                err.message = "status bar cannot be accessed"
-            raise
-
-    def wait_status_bar(self, bar_text="", *,
-                        timeout=None, part=0, interval=0.05, match="startswith") -> Optional[bool]:
-        """Wait until the window's status bar contains the specified *bar_text*
-        string.
-
-        If the status bar doesn't contain the specified string after *timeout*
-        seconds, then ``False`` will be returned. If *timeout* is not specified
-        or ``None``, there is no limit to the wait time.
-
-        The *part* argument specifies which part of the bar to retrieve.
-        Defaults to 0, which is usually the part that contains the text of
-        interest.
-
-        The *interval* argument specifies how often the status bar should be
-        checked. Defaults to 0.05 seconds.
-
-        The *match* argument specifies how *bar_text* is matched. Defaults to
-        ``"startswith"``. For other modes refer to :meth:`Windows.filter`.
-
-        Returns ``None`` if the window doesn't exists or there's no status bar.
-        Raises an :exc:`Error` if there was a problem accessing the status bar.
-
-        :command: `StatusBarWait
-           <https://www.autohotkey.com/docs/commands/StatusBarWait.htm>`_
-        """
-        try:
-            ok = self._call(
-                "StatusBarWait",
-                bar_text,
-                timeout if timeout is not None else "",
-                part + 1,
-                *self._include(),
-                interval * 1000,
-                title_mode=match,
-            )
-            return bool(ok)
-        except Error as err:
-            if err.message == 2:
-                if not self._status_bar_exists():
-                    return None
-                err.message = "status bar cannot be accessed"
-            raise
-
-    def _status_bar_exists(self):
-        status_bar = self.get_control("msctls_statusbar321")
-        return bool(status_bar)
-
     def close(self, timeout=None) -> bool:
         """Close the window.
 
@@ -1942,6 +1872,76 @@ class Window(BaseWindow):
         """
         ok = self._call("WinWaitClose", *self._include(), timeout, set_delay=True)
         return bool(ok)
+
+    def get_status_bar_text(self, part=0) -> Optional[str]:
+        """Get the status bar text from the window.
+
+        The *part* argument specifies which part of the bar to retrieve.
+        Defaults to 0, which is usually the part that contains the text of
+        interest.
+
+        Returns ``None`` if the window doesn't exists or there's no status bar.
+        Raises an :exc:`Error` if there was a problem accessing the status bar.
+
+        :command: `StatusBarGetText
+           <https://www.autohotkey.com/docs/commands/StatusBarGetText.htm>`_
+        """
+        try:
+            text = self._call("StatusBarGetText", int(part) + 1, *self._include())
+            return str(text)
+        except Error as err:
+            if err.message == 1:
+                if not self._status_bar_exists():
+                    return None
+                err.message = "status bar cannot be accessed"
+            raise
+
+    def wait_status_bar(self, bar_text="", *,
+                        timeout=None, part=0, interval=0.05, match="startswith") -> Optional[bool]:
+        """Wait until the window's status bar contains the specified *bar_text*
+        string.
+
+        If the status bar doesn't contain the specified string after *timeout*
+        seconds, then ``False`` will be returned. If *timeout* is not specified
+        or ``None``, there is no limit to the wait time.
+
+        The *part* argument specifies which part of the bar to retrieve.
+        Defaults to 0, which is usually the part that contains the text of
+        interest.
+
+        The *interval* argument specifies how often the status bar should be
+        checked. Defaults to 0.05 seconds.
+
+        The *match* argument specifies how *bar_text* is matched. Defaults to
+        ``"startswith"``. For other modes refer to :meth:`Windows.filter`.
+
+        Returns ``None`` if the window doesn't exists or there's no status bar.
+        Raises an :exc:`Error` if there was a problem accessing the status bar.
+
+        :command: `StatusBarWait
+           <https://www.autohotkey.com/docs/commands/StatusBarWait.htm>`_
+        """
+        try:
+            ok = self._call(
+                "StatusBarWait",
+                bar_text,
+                timeout if timeout is not None else "",
+                part + 1,
+                *self._include(),
+                interval * 1000,
+                title_mode=match,
+            )
+            return bool(ok)
+        except Error as err:
+            if err.message == 2:
+                if not self._status_bar_exists():
+                    return None
+                err.message = "status bar cannot be accessed"
+            raise
+
+    def _status_bar_exists(self):
+        status_bar = self.get_control("msctls_statusbar321")
+        return bool(status_bar)
 
     def _move(self, x, y, width, height):
         self._call("WinMove", *self._include(), x, y, width, height, set_delay=True)
