@@ -68,7 +68,9 @@ class Windows:
            belonging to this process.
 
         :param str exe: the filename of the process that is used to match the
-           windows belonging to this process.
+           windows belonging to this process. If *match* is ``"regex"``, the
+           *exe* argument accepts a regular expression that matches the full
+           path of the process.
 
         :param str text: the substring from a single text element of the target
            window. The matching behavior is affected by the
