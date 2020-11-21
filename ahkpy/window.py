@@ -203,7 +203,7 @@ class Windows:
 
         For arguments refer to :meth:`filter`.
 
-        Aliases: :meth:`exist`, :meth:`top`.
+        :aliases: :meth:`exist`, :meth:`top`
 
         :command: `WinExist
            <https://www.autohotkey.com/docs/commands/WinExist.htm>`_
@@ -226,7 +226,7 @@ class Windows:
 
         For arguments refer to :meth:`filter`.
 
-        Alias: :meth:`bottom`.
+        :alias: :meth:`bottom`
 
         :command: `WinGet, $, IDLast
            <https://www.autohotkey.com/docs/commands/WinGet.htm#IDLast>`_
