@@ -1276,12 +1276,32 @@ class Window(BaseWindow):
         else:
             self.minimize()
 
+    def minimize(self):
+        """Minimize the window.
+
+        Does nothing if the window doesn't exist.
+
+        :command: `WinMinimize
+           <https://www.autohotkey.com/docs/commands/WinMinimize.htm>`_
+        """
+        self._call("WinMinimize", *self._include(), set_delay=True)
+
     @property
     def is_restored(self) -> Optional[bool]:
         min_max = self._get("MinMax")
         if min_max is None:
             return None
         return min_max == 0
+
+    def restore(self):
+        """Restore the window.
+
+        Does nothing if the window doesn't exist.
+
+        :command: `WinRestore
+           <https://www.autohotkey.com/docs/commands/WinRestore.htm>`_
+        """
+        self._call("WinRestore", *self._include(), set_delay=True)
 
     @property
     def is_maximized(self) -> Optional[bool]:
@@ -1305,6 +1325,16 @@ class Window(BaseWindow):
             self.restore()
         else:
             self.maximize()
+
+    def maximize(self):
+        """Maximize the window.
+
+        Does nothing if the window doesn't exist.
+
+        :command: `WinMaximize
+           <https://www.autohotkey.com/docs/commands/WinMaximize.htm>`_
+        """
+        self._call("WinMaximize", *self._include(), set_delay=True)
 
     @property
     def control_classes(self) -> Optional[List[str]]:
@@ -1476,15 +1506,6 @@ class Window(BaseWindow):
         self._call("WinKill", *self._include(), timeout, set_delay=True)
         # TODO: Test timeout.
         return not self.exists
-
-    def maximize(self):
-        self._call("WinMaximize", *self._include(), set_delay=True)
-
-    def minimize(self):
-        self._call("WinMinimize", *self._include(), set_delay=True)
-
-    def restore(self):
-        self._call("WinRestore", *self._include(), set_delay=True)
 
     def wait_active(self, timeout=None) -> bool:
         win_id = self._call("WinWaitActive", *self._include(), timeout, set_delay=True)
