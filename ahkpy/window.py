@@ -1217,7 +1217,7 @@ class Window(BaseWindow):
     def is_active(self) -> bool:
         """Whether the window is active (read-only).
 
-        Returns ``None`` if window doesn't exist.
+        Returns ``None`` if the window doesn't exist.
 
         :type: bool
 
@@ -1960,10 +1960,25 @@ class Window(BaseWindow):
 
 
 class Control(BaseWindow):
+    """The object representing a control: button, edit, checkbox, radio button,
+    list box, combobox, list view.
+    """
+
     __slots__ = ("id",)
 
     @property
     def is_checked(self) -> Optional[bool]:
+        """Whether the checkbox or radio button is checked.
+
+        Returns ``None`` if the control doesn't exist.
+
+        :type: bool
+
+        :command: `ControlGet, $, Checked
+           <https://www.autohotkey.com/docs/commands/ControlGet.htm#Checked>`_,
+           `Control, Check
+           <https://www.autohotkey.com/docs/commands/Control.htm#Check>`_
+        """
         checked = self._get("Checked")
         if checked is None:
             return None
@@ -1977,25 +1992,100 @@ class Control(BaseWindow):
             self.uncheck()
 
     def check(self):
+        """Check the checkbox or radio button.
+
+        Does nothing if the control doesn't exist.
+
+        To improve reliability, a :attr:`Settings.control_delay` is done
+        automatically after calling this method.
+
+        :command: `Control, Check
+           <https://www.autohotkey.com/docs/commands/Control.htm#Check>`_
+        """
         return self._call("Control", "Check", "", "", *self._include(), set_delay=True)
 
     def uncheck(self):
+        """Uncheck the checkbox or radio button.
+
+        Does nothing if the control doesn't exist.
+
+        To improve reliability, a :attr:`Settings.control_delay` is done
+        automatically after calling this method.
+
+        :command: `Control, Uncheck
+           <https://www.autohotkey.com/docs/commands/Control.htm#Uncheck>`_
+        """
         return self._call("Control", "Uncheck", "", "", *self._include(), set_delay=True)
 
     def enable(self):
+        """Enable the control.
+
+        Does nothing if the control doesn't exist.
+
+        To improve reliability, a :attr:`Settings.control_delay` is done
+        automatically after calling this method.
+
+        :command: `Control, Enable
+           <https://www.autohotkey.com/docs/commands/Control.htm#Enable>`_
+        """
         return self._call("Control", "Enable", "", "", *self._include(), set_delay=True)
 
     def disable(self):
+        """Disable the control.
+
+        Does nothing if the control doesn't exist.
+
+        To improve reliability, a :attr:`Settings.control_delay` is done
+        automatically after calling this method.
+
+        :command: `Control, Disable
+           <https://www.autohotkey.com/docs/commands/Control.htm#Disable>`_
+        """
         return self._call("Control", "Disable", "", "", *self._include(), set_delay=True)
 
     def hide(self):
+        """Hide the control.
+
+        Does nothing if the control doesn't exist.
+
+        To improve reliability, a :attr:`Settings.control_delay` is done
+        automatically after calling this method.
+
+        :command: `Control, Hide
+           <https://www.autohotkey.com/docs/commands/Control.htm#Hide>`_
+        """
         return self._call("Control", "Hide", "", "", *self._include(), set_delay=True)
 
     def show(self):
+        """Show the control.
+
+        Does nothing if the control doesn't exist.
+
+        To improve reliability, a :attr:`Settings.control_delay` is done
+        automatically after calling this method.
+
+        :command: `Control, Show
+           <https://www.autohotkey.com/docs/commands/Control.htm#Show>`_
+        """
         return self._call("Control", "Show", "", "", *self._include(), set_delay=True)
 
     @property
     def text(self) -> Optional[str]:
+        """The text of the control.
+
+        Each text element ends with ``"\\r\\n"``. If the window doesn't exist,
+        returns ``None``.
+
+        To improve reliability, a :attr:`Settings.control_delay` is done
+        automatically after setting the text.
+
+        :type: str
+
+        :command: `ControlGetText
+           <https://www.autohotkey.com/docs/commands/ControlGetText.htm>`_,
+           `ControlSetText
+           <https://www.autohotkey.com/docs/commands/ControlSetText.htm>`_
+        """
         text = self._call("ControlGetText", "", *self._include())
         if text is None:
             return None
@@ -2007,6 +2097,12 @@ class Control(BaseWindow):
 
     @property
     def is_focused(self) -> bool:
+        """Whether the control is focused (read-only).
+
+        Returns ``False`` if the control doesn't exist.
+
+        :type: bool
+        """
         if not self:
             return False
         focused_control = windows.get_active().get_focused_control()
@@ -2015,30 +2111,59 @@ class Control(BaseWindow):
         return self == focused_control
 
     def focus(self):
+        """Focus the control.
+
+        Does nothing if the control doesn't exist.
+
+        To improve reliability, a :attr:`Settings.control_delay` is done
+        automatically after calling this method.
+
+        :command: `ControlFocus
+           <https://www.autohotkey.com/docs/commands/ControlFocus.htm>`_
+        """
         return self._call("ControlFocus", "", *self._include(), set_delay=True)
 
     def paste(self, text):
         """Paste *text* at the caret/insert position in an Edit control.
 
-        This does not affect the contents of the clipboard.
+        Does not affect the contents of the clipboard. Does nothing if the
+        control doesn't exist.
+
+        To improve reliability, a :attr:`Settings.control_delay` is done
+        automatically after calling this method.
+
+        :command: `Control, EditPaste
+           <https://www.autohotkey.com/docs/commands/Control.htm#EditPaste>`_
         """
         self._call("Control", "EditPaste", str(text), "", *self._include(), set_delay=True)
 
     @property
     def line_count(self) -> Optional[int]:
-        """Retrieve the number of lines in an Edit control.
+        """The number of lines in an Edit control (read-only).
 
         All Edit controls have at least 1 line, even if the control is empty.
+        Returns ``None`` if the control doesn't exist.
+
+        :type: int
+
+        :command: `ControlGet, $, LineCount
+           <https://www.autohotkey.com/docs/commands/ControlGet.htm#LineCount>`_
         """
         return self._get("LineCount")
 
     @property
     def current_line_number(self) -> Optional[int]:
-        """Retrieve the line number in an Edit control where the caret (insert
-        point) resides.
+        """The line number in an Edit control where the caret resides
+        (read-only).
 
         The first line is 0. If there is text selected in the control, the
-        result is set to the line number where the selection begins.
+        result is set to the line number where the selection begins. Returns
+        ``None`` if the control doesn't exist.
+
+        :type: int
+
+        :command: `ControlGet, $, CurrentLine
+           <https://www.autohotkey.com/docs/commands/ControlGet.htm#CurrentLine>`_
         """
         result = self._get("CurrentLine")
         if result is None:
@@ -2047,11 +2172,17 @@ class Control(BaseWindow):
 
     @property
     def current_column(self) -> Optional[int]:
-        """Retrieve the column number in an Edit control where the caret (text
-        insertion point) resides.
+        """The column number in an Edit control where the caret resides
+        (read-only).
 
-        The first column is 0. If there is text selected in the control,
-        the result is set to the column number where the selection begins.
+        The first column is 0. If there is text selected in the control, the
+        result is set to the column number where the selection begins. Returns
+        ``None`` if the control doesn't exist.
+
+        :type: int
+
+        :command: `ControlGet, $, CurrentCol
+           <https://www.autohotkey.com/docs/commands/ControlGet.htm#CurrentCol>`_
         """
         result = self._get("CurrentCol")
         if result is None:
@@ -2062,7 +2193,13 @@ class Control(BaseWindow):
         """Retrieve the text of line *lineno* in an Edit control.
 
         Line 0 is the first line. If the specified line number does not exist,
-        an ahkpy.Error is raised.
+        an :exc:`Error` is raised. Returns ``None`` if the control doesn't
+        exist.
+
+        If the *lineno* argument is negative, the number is relative to the end.
+
+        :command: `ControlGet, $, Line
+           <https://www.autohotkey.com/docs/commands/ControlGet.htm#Line>`_
         """
         line_count = self.line_count
         if line_count is None:
@@ -2087,11 +2224,12 @@ class Control(BaseWindow):
 
     @property
     def current_line(self) -> Optional[str]:
-        """Retrieve the text of the line in an Edit control where the caret
-        (insert point) resides.
+        """The text of the line in an Edit control where the caret resides
+        (read-only).
 
         If there is text selected in the control, the result is set to the line
-        number where the selection begins.
+        number where the selection begins. Returns ``None`` if the control
+        doesn't exist.
         """
         lineno = self.current_line_number
         if lineno is None:
@@ -2100,11 +2238,15 @@ class Control(BaseWindow):
 
     @property
     def selected_text(self) -> Optional[str]:
-        """Retrieve the selected text in an Edit control.
+        """The selected text in an Edit control (read-only).
 
         If no text is selected, the result is an empty string. Certain types of
         controls, such as RichEdit20A, might not produce the correct text in
-        some cases (e.g. Metapad).
+        some cases (e.g. Metapad). Returns ``None`` if the control doesn't
+        exist.
+
+        :command: `ControlGet, $, Selected
+           <https://www.autohotkey.com/docs/commands/ControlGet.htm#Selected>`_
         """
         result = self._get("Selected")
         if result is None:
@@ -2113,8 +2255,15 @@ class Control(BaseWindow):
 
     @property
     def list_choice(self) -> Optional[str]:
-        """Retrieve the name of the currently selected entry in a ListBox or
-        ComboBox.
+        """The name of the currently selected entry in a ListBox or
+        ComboBox (read-only).
+
+        Returns ``None`` if the control doesn't exist or no item is selected.
+
+        :type: str
+
+        :command: `ControlGet, $, Choice
+           <https://www.autohotkey.com/docs/commands/ControlGet.htm#Choice>`_
         """
         try:
             choice = self._get("Choice")
@@ -2128,8 +2277,12 @@ class Control(BaseWindow):
 
     @property
     def list_choice_index(self) -> Optional[int]:
-        """Retrieve or set the index of the currently selected entry in a
-        ListBox or ComboBox.
+        """The index of the currently selected entry in a ListBox or ComboBox.
+
+        The first item is 0. Returns ``None`` if the control doesn't exist.
+        Returns -1 if no item is selected.
+
+        :type: int
         """
         class_name = self.class_name
         if class_name is None:
@@ -2153,7 +2306,20 @@ class Control(BaseWindow):
         self.choose_item_index(index)
 
     def choose_item_index(self, index):
-        """Set the selection in a ListBox or ComboBox to be the Nth entry."""
+        """Set the selection in a ListBox or ComboBox to be the *index* entry.
+
+        The first item is 0. If the *index* argument is negative, it's relative
+        to the end of the list.
+
+        Does nothing if the control doesn't exist. Raises an :exc:`Error` if
+        the index is out of range.
+
+        To improve reliability, a :attr:`Settings.control_delay` is done
+        automatically after calling this method.
+
+        :command: `Control, Choose
+           <https://www.autohotkey.com/docs/commands/Control.htm#Choose>`_
+        """
         index = int(index)
         if index < 0:
             index = self.list_item_count + index
@@ -2168,18 +2334,35 @@ class Control(BaseWindow):
     def choose_item(self, value):
         """Set the selection (choice) in a ListBox or ComboBox to be the first
         entry whose leading part matches *value*.
+
+        Does nothing if the control doesn't exist. Raises an :exc:`Error` if no
+        item matches the *value*.
+
+        To improve reliability, a :attr:`Settings.control_delay` is done
+        automatically after calling this method.
+
+        :command: `Control, ChooseString
+           <https://www.autohotkey.com/docs/commands/Control.htm#ChooseString>`_
         """
         value = str(value)
         try:
             self._call("Control", "ChooseString", value, set_delay=True)
         except Error as err:
             if err.message == 1 and self.list_item_index(value) == -1:
+                # TODO: list_item_index does the exact match while choose_item
+                # matches the leading part.
                 err.message = f"list item {value!r} doesn't exist"
             raise
 
     def list_item_index(self, value) -> Optional[int]:
         """Retrieve the entry number of a ListBox or ComboBox that is a case
         insensitive match for *value*.
+
+        Returns ``None`` if the control doesn't exist. Returns -1 if no item
+        matches the *value*.
+
+        :command: `ControlGet, $, FindString
+           <https://www.autohotkey.com/docs/commands/ControlGet.htm#FindString>`_
         """
         # Let's implement this in Python because in AHK there's no difference
         # between "an error trying to find the string" and "no such string
@@ -2210,8 +2393,18 @@ class Control(BaseWindow):
 
     @property
     def list_items(self) -> Optional[list]:
-        """Retrieve a list of items from a ListView, ListBox, ComboBox, or
-        DropDownList.
+        """The list of items from a ListView, ListBox, ComboBox, or DropDownList
+        (read-only).
+
+        If the control is a ListBox, ComboBox, or DropDownList, returns a list
+        of strings. If the control is a ListView, returns a list of lists: rows
+        and columns.
+
+        Returns ``None`` if the control doesn't exist. Raises an :exc:`Error` if
+        there was a problem getting list items.
+
+        :command: `ControlGet, $, List
+           <https://www.autohotkey.com/docs/commands/ControlGet.htm#List>`_
         """
         try:
             items = self._get("List")
@@ -2221,14 +2414,13 @@ class Control(BaseWindow):
             raise
         if items is None:
             return None
-        # AHK separates list items with a '\n' character. Also, in case
-        # of ListViews the items may have multiple columns that are
-        # separated by a '\t' character. Unfortunately, AHK does not
-        # escape the '\n' and '\t' characters in the list items and
-        # columns, so there's no guaranteed way to split and get the
-        # correct values. However, the '\n' and '\t' characters are rare
-        # in these controls, so the convenience of working on a list of
-        # strings is more valuable than potential corner cases.
+        # AHK separates list items with a '\n' character. Also, in the case of
+        # ListViews, the items may have multiple columns that are separated by a
+        # '\t' character. Unfortunately, AHK does not escape the '\n' and '\t'
+        # characters in the list items and columns, so there's no guaranteed way
+        # to split and get the correct values. However, the '\n' and '\t'
+        # characters are rare in these controls, so the convenience of working
+        # on a list of strings is more valuable than potential corner cases.
         class_name = self.class_name
         if class_name is None:
             return None
@@ -2238,26 +2430,53 @@ class Control(BaseWindow):
 
     @property
     def selected_list_items(self) -> Optional[List[List[str]]]:
-        """Retrieve only the selected (highlighted) rows in a ListView control.
+        """The selected (highlighted) rows in a ListView control (read-only).
+
+        Returns ``[]`` if no item is selected. Returns ``None`` if the control
+        doesn't exist or isn't a ListView. Raises an :exc:`Error` if there was a
+        problem getting list items.
+
+        :type: List[List[str]]
+
+        :command: `ControlGet, $, List, Selected
+           <https://www.autohotkey.com/docs/commands/ControlGet.htm#List>`_
         """
         return self.get_list_items(selected=True)
 
     @property
     def focused_list_item(self) -> Optional[List[str]]:
-        """Retrieve only the focused row in a ListView control."""
+        """The focused row in a ListView control (read-only).
+
+        Returns ``None`` if the control doesn't exist, isn't a ListView, or no
+        item is focused. Raises an :exc:`Error` if there was a problem getting
+        list items.
+
+        :type: List[str]
+
+        :command: `ControlGet, $, List, Focused
+           <https://www.autohotkey.com/docs/commands/ControlGet.htm#List>`_
+        """
         items = self.get_list_items(focused=True)
         if items is None or len(items) == 0:
             return None
         return items[0]
 
-    def get_list_items(self, selected=False, focused=False, column: int = None) -> Optional[list]:
+    def get_list_items(self, *, selected=False, focused=False, column: int = None) -> Optional[list]:
         """Retrieve items from a ListView control.
 
-        :param selected: If ``True``, returns only selected rows.
-        :param focused: If ``True``, returns only the focused row.
-        :param column: return rows with only the given column, indexed by its
-           number. Supports negative indexing.
-        :type column: int
+        Returns ``None`` if the control doesn't exist or isn't a ListView.
+        Raises an :exc:`Error` if *column* is out of range or there was a
+        problem getting list items.
+
+        :param selected: if true, returns only selected rows.
+
+        :param focused: if true, returns only the focused row.
+
+        :param int column: return rows with only the given column, indexed by
+           its number. Supports negative indexing.
+
+        :command: `ControlGet, $, List
+           <https://www.autohotkey.com/docs/commands/ControlGet.htm#List>`_
         """
         options = []
         if selected:
@@ -2299,8 +2518,12 @@ class Control(BaseWindow):
 
     @property
     def list_item_count(self) -> Optional[int]:
-        """Retrieve a single number that is the total number of rows in a
-        ListBox, ComboBox, or ListView control.
+        """The total number of rows in a ListBox, ComboBox, or ListView control
+        (read-only).
+
+        Returns ``None`` if the control doesn't exist.
+
+        :type: int
         """
         class_name = self.class_name
         if class_name is None:
@@ -2324,15 +2547,32 @@ class Control(BaseWindow):
 
     @property
     def selected_list_item_count(self) -> Optional[int]:
-        """Retrieve the number of selected (highlighted) rows in a ListView
-        control.
+        """The number of selected (highlighted) rows in a ListView
+        control (read-only).
+
+        Returns ``None`` if the control doesn't exist or isn't a ListView.
+        Raises an :exc:`Error` if there was a problem getting list items.
+
+        :type: int
+
+        :command: `ControlGet, $, List, Count Selected
+           <https://www.autohotkey.com/docs/commands/ControlGet.htm#List>`_
         """
         return self._count_list_items("Selected")
 
     @property
     def focused_list_item_index(self) -> Optional[int]:
-        """Retrieve the row number (position) of the focused row (-1 if none)
-        in a ListView control.
+        """The row number of the focused row in a ListView control
+        (read-only).
+
+        The first item is 0. Returns -1 if no item is focused. Returns ``None``
+        if the control doesn't exist or isn't a ListView. Raises an :exc:`Error`
+        if there was a problem getting list items.
+
+        :type: int
+
+        :command: `ControlGet, $, List, Count Focused
+           <https://www.autohotkey.com/docs/commands/ControlGet.htm#List>`_
         """
         count = self._count_list_items("Focused")
         if count is None:
@@ -2341,8 +2581,16 @@ class Control(BaseWindow):
 
     @property
     def list_view_column_count(self) -> Optional[int]:
-        """Retrieve the number of columns in a ListView control (or -1 if the
-        count cannot be determined).
+        """The number of columns in a ListView control (read-only).
+
+        Returns -1 if the count cannot be determined. Returns ``None`` if the
+        control doesn't exist or isn't a ListView. Raises an :exc:`Error` if
+        there was a problem getting list items.
+
+        :type: int
+
+        :command: `ControlGet, $, List, Count Col
+           <https://www.autohotkey.com/docs/commands/ControlGet.htm#List>`_
         """
         return self._count_list_items("Col")
 
