@@ -25,6 +25,13 @@ Clipboard
    :members:
 
 
+Exception
+---------
+
+.. autoexception:: Error
+   :members:
+
+
 Flow
 ----
 

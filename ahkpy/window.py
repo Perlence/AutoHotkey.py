@@ -2192,7 +2192,7 @@ class Control(BaseWindow):
     def get_line(self, lineno: int) -> Optional[str]:
         """Retrieve the text of line *lineno* in an Edit control.
 
-        Line 0 is the first line. If the specified line number does not exist,
+        Line 0 is the first line. If the specified line number is out of range,
         an :exc:`Error` is raised. Returns ``None`` if the control doesn't
         exist.
 
