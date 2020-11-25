@@ -555,6 +555,11 @@ PrintErrorOrExit() {
     value := NULL
     tb := NULL
     PyErr_Fetch(type, value, tb)
+    if (value == NULL) {
+        ; The value and traceback object may be NULL even when the type object
+        ; is not.
+        ExitApp, 0
+    }
 
     args := PyTuple_Pack(1, value)
     if (args == NULL) {
