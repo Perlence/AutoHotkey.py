@@ -23,7 +23,7 @@ class ChildAHK:
         self.proc = None
 
     def run(self, args, **kwargs):
-        args = ["py.exe", "-m", "ahkpy", *args]
+        args = ["py.exe", "-m", "ahkpy", *map(str, args)]
         return subprocess.run(
             args,
             capture_output=True, encoding="utf-8",
@@ -38,7 +38,7 @@ class ChildAHK:
         return self.run(args, input=self._extract_code(code), **kwargs)
 
     def popen(self, args, **kwargs):
-        args = ["py.exe", "-m", "ahkpy", *args]
+        args = ["py.exe", "-m", "ahkpy", *map(str, args)]
         self.proc = subprocess.Popen(
             args,
             stdin=subprocess.PIPE,

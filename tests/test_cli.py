@@ -170,7 +170,7 @@ def test_pyw(tmpdir):
     script = tmpdir / "script.py"
     code = "print('hello')"
     script.write(code)
-    res = subprocess.run(["pyw.exe", "-m", "ahkpy", script])
+    res = subprocess.run(["pyw.exe", "-m", "ahkpy", str(script)])
     assert res.returncode == 0
 
 

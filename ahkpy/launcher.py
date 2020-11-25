@@ -19,7 +19,7 @@ def main():
 
     python_ahk_path = Path(__file__).parent / "Python.ahk"
     ahk_exe_path = fix_ahk_platform(get_ahk_by_assoc() or AHK)
-    args = [ahk_exe_path, python_ahk_path] + sys.argv[1:]
+    args = [str(ahk_exe_path), str(python_ahk_path)] + sys.argv[1:]
 
     while True:
         ahk = subprocess.Popen(args, stdin=sys.stdin)
