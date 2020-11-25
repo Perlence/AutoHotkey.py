@@ -88,7 +88,8 @@ def sleep(secs):
 def suspend():
     """Disable all hotkeys and hotstrings.
 
-    :command: `Suspend <https://www.autohotkey.com/docs/commands/Suspend.htm>`_
+    :command: `Suspend, On
+       <https://www.autohotkey.com/docs/commands/Suspend.htm>`_
     """
     ahk_call("Suspend", "On")
 
@@ -96,7 +97,8 @@ def suspend():
 def resume():
     """Enable all hotkeys and hotstrings.
 
-    :command: `Suspend <https://www.autohotkey.com/docs/commands/Suspend.htm>`_
+    :command: `Suspend, Off
+       <https://www.autohotkey.com/docs/commands/Suspend.htm>`_
     """
     ahk_call("Suspend", "Off")
 
@@ -104,7 +106,8 @@ def resume():
 def toggle_suspend():
     """Toggle all hotkeys and hotstrings.
 
-    :command: `Suspend <https://www.autohotkey.com/docs/commands/Suspend.htm>`_
+    :command: `Suspend, Toggle
+       <https://www.autohotkey.com/docs/commands/Suspend.htm>`_
     """
     ahk_call("Suspend", "Toggle")
 
