@@ -40,7 +40,7 @@ def test_hotkey_refcounts(request):
 
 
 def test_exceptions():
-    with pytest.raises(ahk.Error, match="invalid key name"):
+    with pytest.raises(ValueError, match="key_name must not be blank"):
         ahk.hotkey("")
 
     with pytest.raises(TypeError, match="must be callable"):

@@ -5,7 +5,6 @@ import functools
 from typing import Callable
 
 from . import hotkey_context
-from .exceptions import Error
 from .flow import ahk_call
 
 __all__ = [
@@ -66,7 +65,7 @@ def hotkey(
     # TODO: Consider adding arguments for '*', '~', and '$' prefix hotkey
     # modifiers.
     if key_name == "":
-        raise Error("invalid key name")
+        raise ValueError("key_name must not be blank")
 
     def hotkey_decorator(func):
         if args:
