@@ -121,9 +121,9 @@ Py_SetPath(path) {
     PythonDllCall("Py_SetPath", "Str", path, "Cdecl")
 }
 
-Py_SetProgramName(ByRef name) {
+Py_SetProgramName(name) {
     ; void Py_SetProgramName(const wchar_t *name)
-    PythonDllCall("Py_SetProgramName", "Ptr", &name, "Cdecl")
+    PythonDllCall("Py_SetProgramName", "Ptr", name, "Cdecl")
 }
 
 PyDict_New() {

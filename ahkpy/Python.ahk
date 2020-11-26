@@ -54,7 +54,7 @@ Main() {
     ; TODO: Consider setting programName to "ahkpy" so that the process could be
     ; restarted from the script via subprocess.run([sys.executable, *sys.argv]).
     global programName := A_AhkPath
-    Py_SetProgramName(programName)
+    Py_SetProgramName(&programName)
 
     updatepath := 1
     EnvGet, python_full_path, PYTHONFULLPATH
