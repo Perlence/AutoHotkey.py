@@ -4,6 +4,8 @@ Pressing the Escape key repeatedly while the Alt key is held down switches
 through all application windows in MRU order.
 """
 
+from ctypes import windll
+
 import ahkpy as ahk
 
 
@@ -20,7 +22,11 @@ def switch_between_app_windows():
         return
 
     process_name = active_win.process_name
-    app_windows = list(ahk.windows.filter(exe=process_name))
+    app_windows = [
+        win
+        for win in ahk.windows.filter(exe=process_name)
+        if is_alt_tab_window(win)
+    ]
     if len(app_windows) < 2:
         return
 
@@ -33,3 +39,37 @@ def switch_between_app_windows():
 def reset_app_win_index():
     global app_win_index
     app_win_index = 0
+
+
+def is_alt_tab_window(win):
+    if not win.is_visible:
+        return False
+    if not win.title:
+        return False
+
+    style = win.style
+    ex_style = win.ex_style
+    if style is None or ex_style is None:
+        return False
+    if ahk.ExWindowStyle.APPWINDOW in ex_style:
+        return True
+    if ahk.ExWindowStyle.TOOLWINDOW in ex_style:
+        return False
+    if ahk.WindowStyle.TOOLWINDOW in style:
+        return False
+    if ahk.ExWindowStyle.NOACTIVATE in ex_style:
+        return False
+
+    if win.class_name == "Windows.UI.Core.CoreWindow":
+        return False
+    if is_uwp_app_cloaked(win):
+        return False
+
+    return True
+
+
+def is_uwp_app_cloaked(win):
+    if win.class_name != "ApplicationFrameWindow":
+        return False
+    cloak_type = windll.user32.GetPropW(win.id, "ApplicationViewCloakType")
+    return cloak_type == 1
