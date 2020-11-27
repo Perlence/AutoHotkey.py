@@ -12,7 +12,14 @@ app_win_index = 0
 
 @ahk.hotkey("!Escape")  # Alt+Escape
 def switch_between_app_windows():
-    process_name = ahk.windows.get_active().process_name
+    active_win = ahk.windows.get_active()
+    if active_win.class_name == "MultitaskingViewFrame":
+        # Alt+Tab window is active. Pressing Alt+Escape should close it without
+        # switching the windows.
+        ahk.send("!{Escape}")
+        return
+
+    process_name = active_win.process_name
     app_windows = list(ahk.windows.filter(exe=process_name))
     if len(app_windows) < 2:
         return
