@@ -116,16 +116,6 @@ Py_TYPE(ob) {
     return NumGet(ob + A_PtrSize, "UPtr")
 }
 
-Py_SetPath(path) {
-    ; void Py_SetPath(const wchar_t *)
-    PythonDllCall("Py_SetPath", "Str", path, "Cdecl")
-}
-
-Py_SetProgramName(name) {
-    ; void Py_SetProgramName(const wchar_t *name)
-    PythonDllCall("Py_SetProgramName", "Ptr", name, "Cdecl")
-}
-
 PyDict_New() {
     ; PyObject* PyDict_New()
     ; Return value: New reference.
@@ -359,6 +349,11 @@ PyTuple_SetItem(p, pos, o) {
 PySys_SetArgvEx(argc, argv, updatepath:=1) {
     ; void PySys_SetArgvEx(int argc, wchar_t **argv, int updatepath)
     PythonDllCall("PySys_SetArgvEx", "Int", argc, "Ptr", argv, "Int", updatepath, "Cdecl")
+}
+
+PySys_SetPath(path) {
+    ; void PySys_SetPath(const wchar_t *path)
+    PythonDllCall("PySys_SetPath", "Str", path, "Cdecl")
 }
 
 PyTuple_Pack(n, objects*) {

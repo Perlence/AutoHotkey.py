@@ -32,7 +32,6 @@ def main():
     venv = os.getenv("VIRTUAL_ENV")
     if venv and not os.getenv("PYTHONFULLPATH"):
         import site
-        # TODO: Fix the missing init.tcl. This is broken: ahkpy -m tkinter.scrolledtext
         site.addsitedir(f"{venv}\\Lib\\site-packages")
 
     run_from_args()

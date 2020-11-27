@@ -51,24 +51,17 @@ Main() {
     LoadPython()
     PackBuiltinModule()
 
-    ; TODO: Consider setting programName to "ahkpy" so that the process could be
-    ; restarted from the script via subprocess.run([sys.executable, *sys.argv]).
-    global programName := A_AhkPath
-    Py_SetProgramName(&programName)
-
-    updatepath := 1
-    EnvGet, python_full_path, PYTHONFULLPATH
-    if (python_full_path) {
-        Py_SetPath(python_full_path)
-        updatepath := 0
-    }
-
     PyImport_AppendInittab(&AHKModule_name, Func("PyInit_ahk"))
     Py_Initialize()
 
     Py_None := Py_BuildValue("")
 
-    fullCommand := SetArgs(updatepath)
+    EnvGet, python_full_path, PYTHONFULLPATH
+    if (python_full_path) {
+        PySys_SetPath(python_full_path)
+    }
+
+    fullCommand := SetArgs()
 
     DetectHiddenWindows, On
     WinSetTitle, ahk_id %A_ScriptHwnd%, , % fullCommand " - AutoHotkey v" A_AhkVersion
@@ -239,7 +232,7 @@ PyInit_ahk() {
     return mod
 }
 
-SetArgs(updatepath) {
+SetArgs() {
     argv0 := A_ScriptFullPath
     packArgs := ["Ptr", &argv0]
     fullCommand := argv0
@@ -250,6 +243,7 @@ SetArgs(updatepath) {
     }
     argc := A_Args.Length() + 1
     Pack(argv, packArgs*)
+    updatepath := 0
     PySys_SetArgvEx(argc, &argv, updatepath)
     return fullCommand
 }

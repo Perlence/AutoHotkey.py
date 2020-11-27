@@ -180,3 +180,9 @@ def test_settings_bleed(settings):
     ahk.sleep(0.03)
 
     assert win_delays == [0.1, 0.1]
+
+
+def test_tkinter():
+    import tkinter
+    root = tkinter.Tk()
+    root.destroy()
