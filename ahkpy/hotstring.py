@@ -294,8 +294,6 @@ class Hotstring:
         elif text is not None:
             options.append("T0")
 
-        # TODO: The hotstring is not replaced when the mode is set to Input
-        # explicitly.
         if mode == "input":
             options.append("SI")
         elif mode == "play":
