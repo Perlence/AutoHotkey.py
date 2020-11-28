@@ -306,10 +306,6 @@ PythonArgsToAHK(pyArgs) {
     size := PyTuple_Size(pyArgs)
     while (i < size) {
         arg := PyTuple_GetItem(pyArgs, i)
-        if (arg == Py_None) {
-            ; Ignore all arguments after None.
-            break
-        }
         try {
             ahkArg := PythonToAHK(arg)
         } catch e {

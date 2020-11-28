@@ -311,7 +311,7 @@ class Hotstring:
         option_str = "".join(options)
 
         with self.context._manager():
-            ahk_call("Hotstring", f":{option_str}:{self.trigger}", repl or "")
+            ahk_call("Hotstring", f":{option_str}:{self.trigger}", repl)
 
 
 def reset_hotstring():

@@ -331,14 +331,14 @@ class Windows:
         self = self._filter(title, class_name, id, pid, exe, text, match)
         # WinWaitClose doesn't set Last Found Window, return False if the wait
         # was timed out.
-        ok = self._call("WinWaitClose", *self._include(), timeout or "", *self._exclude(), set_delay=True)
+        ok = self._call("WinWaitClose", *self._include(), timeout, *self._exclude(), set_delay=True)
         if ok is None:
             # There are no matching windows, and that's what we are waiting for.
             return True
         return bool(ok)
 
     def _wait(self, cmd, timeout):
-        win_id = self._call(cmd, *self._include(), timeout or "", *self._exclude(), set_delay=True)
+        win_id = self._call(cmd, *self._include(), timeout, *self._exclude(), set_delay=True)
         if not win_id:
             return Window(None)
         return Window(win_id)
