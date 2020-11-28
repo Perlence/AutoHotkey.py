@@ -105,7 +105,7 @@ def run_from_args():
         run_module(args[0])
     elif sys.stdin and (not args or args[0] == "-"):
         if args:
-            sys.argv[:] = ["-", *args[1:]]
+            sys.argv[:] = args
         else:
             sys.argv[:] = [""]
         if sys.stdin.isatty():
