@@ -475,11 +475,14 @@ class TestControl:
         edit.height /= 2
         notepad.redraw()
 
-    def test_checked(self, find_dialog):
+    def test_checked(self, request, find_dialog):
         match_case_button = find_dialog.get_control("Button2")
-        assert match_case_button.is_checked is False
-        match_case_button.is_checked = True
-        assert_equals_eventually(lambda: match_case_button.is_checked, True)
+        initial = match_case_button.is_checked
+        match_case_button.is_checked = not initial
+        request.addfinalizer(lambda: setattr(match_case_button, "is_checked", initial))
+        assert_equals_eventually(lambda: match_case_button.is_checked, not initial)
+        match_case_button.is_checked = initial
+        assert_equals_eventually(lambda: match_case_button.is_checked, initial)
 
         # find_next_button = find_dialog.get_control("Button7")
         # assert find_next_button.is_checked is False
