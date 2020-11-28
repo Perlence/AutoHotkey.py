@@ -71,7 +71,7 @@ def run_from_args():
     parser = GUIArgumentParser(usage=usage)
     parser.add_argument(
         "-q", "--quiet", action="store_true",
-        help="supress message boxes with errors",
+        help="suppress message boxes with errors",
     )
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
