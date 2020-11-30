@@ -61,16 +61,7 @@ Message Boxes
 .. autofunction:: message_box
 
 .. autoclass:: MessageBox
-
-   .. automethod:: show
-   .. automethod:: info
-   .. automethod:: warning
-   .. automethod:: error
-   .. automethod:: ok_cancel
-   .. automethod:: yes_no
-   .. automethod:: yes_no_cancel
-   .. automethod:: retry_cancel
-   .. automethod:: cancel_try_continue
+   :members:
 
 Tooltips
 ~~~~~~~~
