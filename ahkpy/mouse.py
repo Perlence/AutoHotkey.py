@@ -67,9 +67,10 @@ def click(button="left", times=1, *, modifier: str = None, blind=True, mode=None
        :kbd:`Alt`, :kbd:`Shift`, :kbd:`Ctrl`, and :kbd:`Win`. Defaults to no
        modifiers.
 
-    :param blind: if false, releases the currently held keyboard modifiers
-       before clicking the mouse. Defaults to ``True``, that is, for example, if
-       :kbd:`Ctrl` is currently down, a control-click will be produced.
+    :param blind: if true, preserves the keyboard modifiers in the down
+       position. For example, calling :func:`!click` with :kbd:`Ctrl` held down
+       will send a :kbd:`Ctrl+Click`. If false, releases the currently held
+       keyboard modifiers before the click. Defaults to ``True``.
 
     :param str mode: the mode that is used to send the clicks. For more
        information refer to the *mode* argument of the :func:`send` function.
