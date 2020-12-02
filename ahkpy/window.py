@@ -3,6 +3,8 @@ from __future__ import annotations
 import ctypes
 import dataclasses as dc
 import enum
+import struct
+from ctypes import wintypes
 from typing import Iterator, List, Optional, Tuple, Union
 
 from . import colors
@@ -1111,16 +1113,13 @@ class BaseWindow(WindowHandle):
     # TODO: Implement ControlClick.
 
     def send_message(self, msg: int, w_param: int = 0, l_param: int = 0,
-                     signed_int32=False, timeout=5) -> Optional[int]:
+                     signed_int=False, timeout=5) -> Optional[int]:
         """Send a message to the window/control and get a response.
 
         The *msg* argument is the message number to send. See the `message list
         <https://www.autohotkey.com/docs/misc/SendMessageList.htm>`_ for common
         numbers. The *w_param* and *l_param* arguments are the first and second
         components of the message.
-
-        If *signed_int32* argument is true, the response is interpreted as a
-        32-bit signed integer. Defaults to ``False``.
 
         If there is no response after *timeout* seconds, then an :exc:`Error`
         will be raised. If *timeout* is not specified or ``None``, there is no
@@ -1129,9 +1128,11 @@ class BaseWindow(WindowHandle):
         The range of possible response values depends on the target window and
         the version of AutoHotkey that is running. When using the 32-bit version
         of AutoHotkey, or if the target window is 32-bit, the result is a 32-bit
-        unsigned integer between 0 and 4294967295. When using the 64-bit version
-        of AutoHotkey with a 64-bit window, the result is a 64-bit signed
-        integer between -9223372036854775808 and 9223372036854775807.
+        integer. When using the 64-bit version of AutoHotkey with a 64-bit
+        window, the result is a 64-bit integer.
+
+        If *signed_int* argument is true, the response is interpreted as a
+        signed integer. Defaults to ``False``.
 
         Returns ``None`` if the window/control doesn't exist.
 
@@ -1147,9 +1148,9 @@ class BaseWindow(WindowHandle):
             )
             if result is None:
                 return None
-            if signed_int32:
-                # TODO: Can we check if the target window is 32-bit and do the
-                # conversion automatically?
+            if not signed_int:
+                return ctypes.c_uint64(result).value
+            elif self._is_win32():
                 return ctypes.c_int32(result).value
             return result
         except Error as err:
@@ -1158,6 +1159,38 @@ class BaseWindow(WindowHandle):
                     return None
                 err.message = "there was a problem sending message or response timed out"
             raise
+
+    def _is_win32(self):
+        if struct.calcsize('P') == 4:
+            # Using a 32-bit version of AutoHotkey, result is a 32-bit int.
+            return True
+
+        kernel32 = ctypes.windll.kernel32
+        PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+        pid = Window(self.id).pid
+        proc_handle = kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, True, pid)
+        if not proc_handle:
+            # Couldn't get the process handle.
+            return False
+
+        try:
+            process_machine = wintypes.USHORT()
+            native_machine = wintypes.USHORT()
+            ok = kernel32.IsWow64Process2(proc_handle, ctypes.byref(process_machine), ctypes.byref(native_machine))
+            if not ok:
+                # IsWow64Process2 failed.
+                return False
+
+            IMAGE_FILE_MACHINE_I386 = 0x014c
+            if native_machine.value == IMAGE_FILE_MACHINE_I386:
+                # OS is 32-bit.
+                return True
+            elif process_machine.value == IMAGE_FILE_MACHINE_I386:
+                # Target window is 32-bit.
+                return True
+            return False
+        finally:
+            kernel32.CloseHandle(proc_handle)
 
     def post_message(self, msg: int, w_param: int = 0, l_param: int = 0) -> Optional[bool]:
         """Post a message to the window/control.
@@ -2296,7 +2329,7 @@ class Control(BaseWindow):
         else:
             return None
 
-        result = self.send_message(getcursel, signed_int32=True, timeout=5)
+        result = self.send_message(getcursel, signed_int=True, timeout=5)
         if result is None:
             return None
         return result
@@ -2384,7 +2417,7 @@ class Control(BaseWindow):
             msg=find_string_exact,
             w_param=-1,
             l_param=ctypes.addressof(value_buffer),
-            signed_int32=True,
+            signed_int=True,
             timeout=5,
         )
         if result is None:

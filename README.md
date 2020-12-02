@@ -53,10 +53,11 @@ You can check out and run other
 [examples](https://github.com/Perlence/AutoHotkey.py/tree/master/examples) and
 read the [documentation](https://ahkpy.readthedocs.io/).
 
-## Supported Versions
+## Minimum Supported Versions
 
-- AutoHotkey 1.1.28 or greater (U32 and U64 variants)
-- Python 3.7 or greater
+- AutoHotkey 1.1.28 (U32 and U64 variants)
+- Python 3.7
+- Windows 10, version 1511
 
 AutoHotkey.py was tested on Windows 10 v2004, AutoHotkey v1.1.30.03, Python
 v3.8.1.
@@ -64,6 +65,6 @@ v3.8.1.
 ## Credits
 
 AutoHotkey.py was greatly inspired by Aurelain's
-[Exo](https://github.com/Aurelain/Exo). Thanks to Lexikos for his inspiring work
-on AutoHotkey. Thanks to the AutoHotkey site admins for maintaining the lively
-and welcoming forums.
+[Exo](https://github.com/Aurelain/Exo). Thanks to Lexikos for his monumental
+work on AutoHotkey. Thanks to the AutoHotkey site admins for maintaining the
+lively and welcoming forums.
