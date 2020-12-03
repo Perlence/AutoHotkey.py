@@ -82,8 +82,6 @@ def click(button="left", times=1, *, modifier: str = None, blind=True, mode=None
     :param float delay: the delay after each mouse click. For more information
        refer to the *mouse_delay* argument of the :func:`send` function.
 
-    .. TODO: The documentation of the *blind* argument is not super clear.
-
     :command: `Send, {Click}
        <https://www.autohotkey.com/docs/commands/Send.htm#Click>`_
     """
