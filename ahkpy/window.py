@@ -4,7 +4,6 @@ import ctypes
 import dataclasses as dc
 import enum
 import struct
-from ctypes import wintypes
 from typing import Iterator, List, Optional, Tuple, Union
 
 from . import colors
@@ -1161,7 +1160,7 @@ class BaseWindow(WindowHandle):
             raise
 
     def _is_win32(self):
-        if struct.calcsize('P') == 4:
+        if struct.calcsize("P") == 4:
             # Using a 32-bit version of AutoHotkey, result is a 32-bit int.
             return True
 
@@ -1174,6 +1173,7 @@ class BaseWindow(WindowHandle):
             return False
 
         try:
+            from ctypes import wintypes
             process_machine = wintypes.USHORT()
             native_machine = wintypes.USHORT()
             ok = kernel32.IsWow64Process2(proc_handle, ctypes.byref(process_machine), ctypes.byref(native_machine))
