@@ -67,7 +67,7 @@ def click(button="left", times=1, *, modifier: str = None, blind=True, mode=None
        :kbd:`Alt`, :kbd:`Shift`, :kbd:`Ctrl`, and :kbd:`Win`. Defaults to no
        modifiers.
 
-    :param blind: if true, preserves the keyboard modifiers in the down
+    :param bool blind: if true, preserves the keyboard modifiers in the down
        position. For example, calling :func:`!click` with :kbd:`Ctrl` held down
        will send a :kbd:`Ctrl+Click`. If false, releases the currently held
        keyboard modifiers before the click. Defaults to ``True``.
