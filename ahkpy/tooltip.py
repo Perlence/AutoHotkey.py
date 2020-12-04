@@ -55,15 +55,13 @@ class ToolTip:
     def show(self, text=None, *, x=UNSET, y=UNSET, relative_to=None, timeout=UNSET):
         """Show the tooltip.
 
-        The *text* argument is required either to be set as the instance
+        The *text* argument is required to either be set as the instance
         attribute, or passed as an argument.
 
-        .. TODO: Review the following paragraph.
-
-        The optional *x* and *y* arguments set the position of the tooltip
-        relative to the area specified by the *relative_to* argument which
-        defaults to ``"window"``. The valid *relative_to* arguments are the
-        following:
+        The optional *x* and *y* arguments set the tooltip's position relative
+        to the area specified by the *relative_to* argument. The default
+        *relative_to* value is ``"window"``. The valid *relative_to* values are
+        the following:
 
         - ``"screen"`` – coordinates are relative to the desktop (entire
           screen).
