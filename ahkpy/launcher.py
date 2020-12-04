@@ -37,7 +37,10 @@ def main():
             print("Reloading AHK...", file=sys.stderr)
             continue
 
-        sys.exit(ahk.returncode)
+        # On Windows, Popen.returncode is unsigned int, while the sys.exit
+        # function expects a signed int.
+        signed_status = ctypes.c_int32(ahk.returncode)
+        sys.exit(signed_status.value)
 
 
 def python_dll_path():

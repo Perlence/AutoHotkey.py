@@ -6,10 +6,13 @@ SetBatchLines, -1
 global NULL := 0
 global EMPTY_STRING := ""
 
-global LOAD_WITH_ALTERED_SEARCH_PATH := 0x8
-global ERROR_MOD_NOT_FOUND := 0x7e
 global HPYTHON_DLL := NULL
 global PYTHON_DLL_PROCS := {}
+
+; Windows constants
+global LOAD_WITH_ALTERED_SEARCH_PATH := 0x8
+global ERROR_MOD_NOT_FOUND := 0x7e
+global STATUS_CONTROL_C_EXIT := 0xC000013A ; -1073741510
 
 ; Python constants
 global METH_VARARGS := 0x0001
@@ -101,11 +104,12 @@ Main() {
 
     result := PyObject_CallObject(mainFunc, NULL)
     Py_DecRef(mainFunc)
-    ; TODO: Handle SIGTERM gracefully.
     if (result == NULL) {
         PrintErrorOrExit()
     }
     Py_DecRef(result)
+
+    SetTimer, CheckSignals, 100
 }
 
 PackBuiltinModule() {
@@ -246,6 +250,23 @@ SetArgs() {
     updatepath := 0
     PySys_SetArgvEx(argc, &argv, updatepath)
     return fullCommand
+}
+
+CheckSignals() {
+    gstate := PyGILState_Ensure()
+    err := PyErr_CheckSignals()
+    if (err == 0) {
+        PyGILState_Release(gstate)
+        return
+    }
+    ; Python's signal handler raised an exception.
+    PyExc_KeyboardInterrupt := CachedProcAddress("PyExc_KeyboardInterrupt", "PtrP")
+    if (PyErr_ExceptionMatches(PyExc_KeyboardInterrupt)) {
+        PyErr_Print()
+        ExitApp, %STATUS_CONTROL_C_EXIT%
+    }
+    PyErr_Print()
+    PyGILState_Release(gstate)
 }
 
 AHKCall(self, args) {
@@ -535,6 +556,12 @@ EncodeString(string) {
 }
 
 PrintErrorOrExit() {
+    PyExc_KeyboardInterrupt := CachedProcAddress("PyExc_KeyboardInterrupt", "PtrP")
+    if (PyErr_ExceptionMatches(PyExc_KeyboardInterrupt)) {
+        PyErr_Print()
+        ExitApp, %STATUS_CONTROL_C_EXIT%
+    }
+
     PyExc_SystemExit := CachedProcAddress("PyExc_SystemExit", "PtrP")
     if (not PyErr_ExceptionMatches(PyExc_SystemExit)) {
         PyErr_Print()

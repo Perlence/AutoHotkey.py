@@ -217,6 +217,11 @@ PyContext_Exit(ctx) {
     return PythonDllCall("PyContext_Exit", "Ptr", ctx, "Cdecl Ptr")
 }
 
+PyErr_CheckSignals() {
+    ; int PyErr_CheckSignals()
+    return PythonDllCall("PyErr_CheckSignals", "Cdecl Ptr")
+}
+
 PyErr_Clear() {
     ; void PyErr_Clear()
     PythonDllCall("PyErr_Clear", "Cdecl")

@@ -257,6 +257,8 @@ def show_traceback():
 def excepthook(type, value, tb):
     text = "".join(traceback.format_exception(type, value, tb))
     silent_exc = getattr(value, "_ahk_silent_exc", False)
+    if isinstance(value, KeyboardInterrupt):
+        silent_exc = True
     show_error(text, end="", silent_exc=silent_exc)
 
 
