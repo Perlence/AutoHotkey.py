@@ -13,6 +13,7 @@ global PYTHON_DLL_PROCS := {}
 global LOAD_WITH_ALTERED_SEARCH_PATH := 0x8
 global ERROR_MOD_NOT_FOUND := 0x7e
 global STATUS_CONTROL_C_EXIT := 0xC000013A ; -1073741510
+global CTRL_CLOSE_EVENT := 2
 
 ; Python constants
 global METH_VARARGS := 0x0001
@@ -108,6 +109,9 @@ Main() {
         PrintErrorOrExit()
     }
     Py_DecRef(result)
+
+    handleCtrlEventCB := RegisterCallback("HandleCtrlEvent", "Fast")
+    DllCall("SetConsoleCtrlHandler", "Ptr", handleCtrlEventCB, "Int", true)
 
     SetTimer, CheckSignals, 100
 }
@@ -250,6 +254,15 @@ SetArgs() {
     updatepath := 0
     PySys_SetArgvEx(argc, &argv, updatepath)
     return fullCommand
+}
+
+HandleCtrlEvent(signal) {
+    if (signal == CTRL_CLOSE_EVENT) {
+        ; Exit when the console window is closed.
+        ExitApp, 0
+    }
+    ; Let the other handlers do the work.
+    return false
 }
 
 CheckSignals() {
