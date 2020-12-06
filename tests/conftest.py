@@ -35,7 +35,7 @@ class ChildAHK:
         args = ["-"]
         if quiet:
             args.insert(0, "-q")
-        return self.run(args, input=self._extract_code(code), **kwargs)
+        return self.run(args, input=self.extract_code(code), **kwargs)
 
     def popen(self, args, **kwargs):
         args = ["py.exe", "-m", "ahkpy", *map(str, args)]
@@ -54,11 +54,11 @@ class ChildAHK:
         if quiet:
             args.insert(0, "-q")
         self.popen(args, **kwargs)
-        self.proc.stdin.write(self._extract_code(code))
+        self.proc.stdin.write(self.extract_code(code))
         self.proc.stdin.close()
         return self.proc
 
-    def _extract_code(self, code):
+    def extract_code(self, code):
         if callable(code):
             func_name = code.__name__
             source = inspect.getsource(code)

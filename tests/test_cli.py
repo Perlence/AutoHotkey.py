@@ -1,6 +1,10 @@
 import subprocess
 from textwrap import dedent
 
+import pytest
+
+from ahkpy.main import STATUS_CONTROL_C_EXIT
+
 
 def test_stdin(child_ahk):
     code = "import ahkpy as ahk, sys; print(__name__, __file__, sys.argv)"
@@ -229,3 +233,61 @@ def test_interactive_exec_in_main(request):
     proc.write("exit()\r\n")
     proc.wait()
     assert proc.exitstatus == 0
+
+
+@pytest.mark.parametrize("proc", [
+    pytest.param("", id="interrupt during no Python code"),
+    pytest.param("while True: ahk.sleep(1)", id="interrupt in Python's main"),
+    pytest.param("ahk.set_timer(0.1, lambda: None)", id="interrupt in callback"),
+])
+def test_keyboard_interrupt(request, tmpdir, child_ahk, proc):
+    from winpty import PtyProcess
+
+    def code():
+        import ahkpy as ahk
+        import sys
+        ahk.hotkey("F24", sys.exit)
+        print("ok00")
+        "{proc}"
+
+    script = tmpdir / "script.py"
+    code_str = child_ahk.extract_code(code).replace('"{proc}"', proc)
+    script.write(code_str)
+
+    proc = PtyProcess.spawn(f"py.exe -m ahkpy {script}", dimensions=(24, 120))
+    request.addfinalizer(proc.terminate)
+
+    assert "ok00" in proc.readline()
+    proc.sendintr()
+    proc.wait()
+    assert proc.exitstatus == STATUS_CONTROL_C_EXIT
+    assert "KeyboardInterrupt" in proc.read()
+
+
+def test_keyboard_interrupt_broken_handler(request, tmpdir, child_ahk):
+    from winpty import PtyProcess
+
+    import ahkpy as ahk
+
+    def code():
+        import ahkpy as ahk
+        import signal
+        import sys
+        ahk.hotkey("F24", sys.exit)
+        def handler(*args): 1/0
+        signal.signal(signal.SIGINT, handler)
+        print("ok00")
+
+    script = tmpdir / "script.py"
+    script.write(child_ahk.extract_code(code))
+
+    proc = PtyProcess.spawn(f"py.exe -m ahkpy -q {script}", dimensions=(24, 120))
+    request.addfinalizer(proc.terminate)
+
+    assert "ok00" in proc.readline()
+    proc.sendintr()
+    proc.read()
+    assert "ZeroDivisionError" in proc.read()
+    assert proc.isalive()
+    ahk.send("{F24}")
+    proc.wait()

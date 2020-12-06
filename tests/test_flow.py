@@ -98,7 +98,7 @@ def test_reload(child_ahk, tmpdir):
         ahk.message_box("ok00")
 
     script = tmpdir / "code.py"
-    script.write(child_ahk._extract_code(code))
+    script.write(child_ahk.extract_code(code))
     child_ahk.popen([script])
     assert ahk.windows.wait(title="Python.ahk", text="ok00", timeout=1)
 

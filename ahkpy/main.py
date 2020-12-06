@@ -10,6 +10,8 @@ import ahkpy as ahk
 from .exceptions import Error  # noqa: F401, used in Python.ahk
 
 
+STATUS_CONTROL_C_EXIT = 0xC000013A
+
 quiet = False
 
 
@@ -215,9 +217,10 @@ def run_code(code, filename):
             exec(code, globs)
     except SystemExit:
         raise
-    except:  # noqa: E722
+    except BaseException as exc:
         show_traceback()
-        sys.exit(1)
+        status = STATUS_CONTROL_C_EXIT if isinstance(exc, KeyboardInterrupt) else 1
+        sys.exit(status)
 
 
 def run_module(mod_name):
@@ -225,9 +228,10 @@ def run_module(mod_name):
         runpy.run_module(mod_name, run_name="__main__", alter_sys=True)
     except SystemExit:
         raise
-    except:  # noqa: E722
+    except BaseException as exc:
         show_traceback()
-        sys.exit(1)
+        status = STATUS_CONTROL_C_EXIT if isinstance(exc, KeyboardInterrupt) else 1
+        sys.exit(status)
 
 
 def show_syntax_error(filename=None):
