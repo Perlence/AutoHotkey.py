@@ -271,6 +271,3 @@ def show_error(text, end="\n", silent_exc=False):
         print(text, end=end, file=sys.stderr, flush=True)
     if not (quiet or silent_exc):
         ahk.MessageBox.error(text)
-
-
-# TODO: Consider hiding tray icon atexit.
