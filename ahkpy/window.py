@@ -777,6 +777,52 @@ class BaseWindow(WindowHandle):
         return class_name
 
     @property
+    def pid(self) -> Optional[int]:
+        """The identifier of the process that created the window/control
+        (read-only).
+
+        Returns ``None`` if the window doesn't exist.
+
+        :type: int
+
+        :command: `WinGet, PID
+           <https://www.autohotkey.com/docs/commands/WinGet.htm#PID>`_
+        """
+        return Window._get(self, "PID")
+
+    @property
+    def process_name(self) -> Optional[str]:
+        """The name of the executable that created the window/control
+        (read-only).
+
+        Returns ``None`` if the window doesn't exist.
+
+        :type: str
+
+        :alias: :attr:`exe`
+
+        :command: `WinGet, ProcessName
+           <https://www.autohotkey.com/docs/commands/WinGet.htm#ProcessName>`_
+        """
+        return Window._get(self, "ProcessName")
+
+    exe = process_name
+
+    @property
+    def process_path(self) -> Optional[str]:
+        """The full path to the executable that created the window/control
+        (read-only).
+
+        Returns ``None`` if the window doesn't exist.
+
+        :type: str
+
+        :command: `WinGet, ProcessPath
+           <https://www.autohotkey.com/docs/commands/WinGet.htm#ProcessPath>`_
+        """
+        return Window._get(self, "ProcessPath")
+
+    @property
     def rect(self) -> Optional[Tuple[int, int, int, int]]:
         """The position and size of the window/control as a ``(x, y, width,
         height)`` tuple.
@@ -1166,8 +1212,7 @@ class BaseWindow(WindowHandle):
 
         kernel32 = ctypes.windll.kernel32
         PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
-        pid = Window(self.id).pid
-        proc_handle = kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, True, pid)
+        proc_handle = kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, True, self.pid)
         if not proc_handle:
             # Couldn't get the process handle.
             return False
@@ -1306,49 +1351,6 @@ class Window(BaseWindow):
     @title.setter
     def title(self, new_title):
         return self._call("WinSetTitle", *self._include(), str(new_title))
-
-    @property
-    def pid(self) -> Optional[int]:
-        """The identifier of the process that created the window (read-only).
-
-        Returns ``None`` if the window doesn't exist.
-
-        :type: int
-
-        :command: `WinGet, PID
-           <https://www.autohotkey.com/docs/commands/WinGet.htm#PID>`_
-        """
-        return self._get("PID")
-
-    @property
-    def process_name(self) -> Optional[str]:
-        """The name of the executable that created the window (read-only).
-
-        Returns ``None`` if the window doesn't exist.
-
-        :type: str
-
-        :alias: :meth:`exe`
-
-        :command: `WinGet, ProcessName
-           <https://www.autohotkey.com/docs/commands/WinGet.htm#ProcessName>`_
-        """
-        return self._get("ProcessName")
-
-    exe = process_name
-
-    @property
-    def process_path(self) -> Optional[str]:
-        """The full path to the executable that created the window (read-only).
-
-        Returns ``None`` if the window doesn't exist.
-
-        :type: str
-
-        :command: `WinGet, ProcessPath
-           <https://www.autohotkey.com/docs/commands/WinGet.htm#ProcessPath>`_
-        """
-        return self._get("ProcessPath")
 
     @property
     def is_minimized(self) -> Optional[bool]:

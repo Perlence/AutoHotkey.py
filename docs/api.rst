@@ -323,11 +323,12 @@ Windows
 .. autoclass:: ahkpy.window.BaseWindow
    :show-inheritance:
    :members:
+   :exclude-members: exe
 
 .. autoclass:: Window
    :show-inheritance:
    :members:
-   :exclude-members: enable, disable, show, hide, exe
+   :exclude-members: enable, disable, show, hide
 
 .. autoclass:: Control
    :show-inheritance:
