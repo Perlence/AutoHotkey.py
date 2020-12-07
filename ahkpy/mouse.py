@@ -185,8 +185,8 @@ def mouse_move(x, y, *, relative_to="window", mode=None, speed=None, delay=None)
 
     .. TODO: Pasted from the ToolTip.show method. Consider referring.
 
-    The *x* and *y* arguments set the coordinates to move the mouse to relative
-    to the area specified by the *relative_to* argument which defaults to
+    The *x* and *y* arguments set the coordinates to move the mouse relative to
+    the area specified by the *relative_to* argument which defaults to
     ``"window"``. The valid *relative_to* arguments are the following:
 
     - ``"cursor"`` – coordinates are relative to its current position.
