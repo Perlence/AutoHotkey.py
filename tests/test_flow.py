@@ -120,6 +120,7 @@ def test_coop(child_ahk):
 
         print("ok00")
 
+        sys.argv.append("8010")
         ahk.coop(
             runpy.run_module,
             mod_name="http.server",
@@ -133,7 +134,7 @@ def test_coop(child_ahk):
     assert proc.stdout.readline().startswith("Serving HTTP")
 
     from urllib.request import urlopen
-    resp = urlopen("http://localhost:8000")
+    resp = urlopen("http://localhost:8010")
     assert b"Directory listing for /" in resp.read()
 
     assert '"GET / HTTP/1.1" 200' in proc.stderr.readline()
