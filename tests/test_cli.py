@@ -3,7 +3,15 @@ from textwrap import dedent
 
 import pytest
 
+import ahkpy as ahk
 from ahkpy.main import STATUS_CONTROL_C_EXIT
+
+try:
+    import winpty
+except ImportError:
+    winpty = None
+
+skip_if_winpty_is_missing = pytest.mark.skipif(winpty is None, reason="winpty is missing")
 
 
 def test_stdin(child_ahk):
@@ -178,10 +186,9 @@ def test_pyw(tmpdir):
     assert res.returncode == 0
 
 
+@skip_if_winpty_is_missing
 def test_interactive_mode(request):
-    from winpty import PtyProcess
-
-    proc = PtyProcess.spawn("py.exe -m ahkpy", dimensions=(24, 120))
+    proc = winpty.PtyProcess.spawn("py.exe -m ahkpy", dimensions=(24, 120))
     request.addfinalizer(proc.terminate)
 
     assert "Python 3" in proc.readline()
@@ -214,20 +221,16 @@ def test_interactive_mode(request):
     assert proc.exitstatus == 0
 
 
+@skip_if_winpty_is_missing
 def test_interactive_exec_in_main(request):
-    import time
-
-    import ahkpy as ahk
-    from winpty import PtyProcess
-
-    proc = PtyProcess.spawn("py.exe -m ahkpy", dimensions=(24, 120))
+    proc = winpty.PtyProcess.spawn("py.exe -m ahkpy", dimensions=(24, 120))
     request.addfinalizer(proc.terminate)
     proc.read()
 
     proc.write("ahk.wait_key_pressed_logical('F13')\r\n")
     proc.read()
     ahk.send_event("{F13}", level=10, key_duration=0.01)
-    time.sleep(0.01)
+    ahk.sleep(0.01)
     assert proc.readline().startswith("True")
 
     proc.write("exit()\r\n")
@@ -235,14 +238,13 @@ def test_interactive_exec_in_main(request):
     assert proc.exitstatus == 0
 
 
+@skip_if_winpty_is_missing
 @pytest.mark.parametrize("proc", [
     pytest.param("", id="interrupt during no Python code"),
     pytest.param("while True: ahk.sleep(1)", id="interrupt in Python's main"),
     pytest.param("ahk.set_timer(0.1, lambda: None)", id="interrupt in callback"),
 ])
 def test_keyboard_interrupt(request, tmpdir, child_ahk, proc):
-    from winpty import PtyProcess
-
     def code():
         import ahkpy as ahk
         import sys
@@ -254,7 +256,7 @@ def test_keyboard_interrupt(request, tmpdir, child_ahk, proc):
     code_str = child_ahk.extract_code(code).replace('"{proc}"', proc)
     script.write(code_str)
 
-    proc = PtyProcess.spawn(f"py.exe -m ahkpy {script}", dimensions=(24, 120))
+    proc = winpty.PtyProcess.spawn(f"py.exe -m ahkpy {script}", dimensions=(24, 120))
     request.addfinalizer(proc.terminate)
 
     assert "ok00" in proc.readline()
@@ -264,11 +266,8 @@ def test_keyboard_interrupt(request, tmpdir, child_ahk, proc):
     assert "KeyboardInterrupt" in proc.read()
 
 
+@skip_if_winpty_is_missing
 def test_keyboard_interrupt_broken_handler(request, tmpdir, child_ahk):
-    from winpty import PtyProcess
-
-    import ahkpy as ahk
-
     def code():
         import ahkpy as ahk
         import signal
@@ -281,7 +280,7 @@ def test_keyboard_interrupt_broken_handler(request, tmpdir, child_ahk):
     script = tmpdir / "script.py"
     script.write(child_ahk.extract_code(code))
 
-    proc = PtyProcess.spawn(f"py.exe -m ahkpy -q {script}", dimensions=(24, 120))
+    proc = winpty.PtyProcess.spawn(f"py.exe -m ahkpy -q {script}", dimensions=(24, 120))
     request.addfinalizer(proc.terminate)
 
     assert "ok00" in proc.readline()
