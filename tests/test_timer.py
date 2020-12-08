@@ -1,6 +1,14 @@
 import sys
 
+import pytest
+
 import ahkpy as ahk
+
+
+def test_validation():
+    t = ahk.Timer(func=None)
+    with pytest.raises(TypeError, match="must not be None"):
+        t.update()
 
 
 def test_refcounts(request):

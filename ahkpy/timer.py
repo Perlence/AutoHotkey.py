@@ -142,11 +142,12 @@ class Timer:
 
                t.update()  # Makes the timer fire twice a second.
         """
-        # TODO: Check that self.func is not None.
         if func is not None:
             self.cancel()
             self.func = func
             self._ref = None
+        elif self.func is None:
+            raise TypeError("func must not be None")
 
         # When AHK timer is deleted it releases the reference to the passed
         # callback. We can use this to check if the timer is alive.
