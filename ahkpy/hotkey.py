@@ -64,7 +64,7 @@ def hotkey(
     """
     # TODO: Consider adding arguments for '*', '~', and '$' prefix hotkey
     # modifiers.
-    if key_name == "":
+    if not key_name:
         raise ValueError("key_name must not be blank")
 
     def hotkey_decorator(func):
