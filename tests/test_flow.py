@@ -171,10 +171,10 @@ def test_settings_bleed(settings):
     win_delays = []
 
     def f():
-        with ahk.local_settings() as local:
-            win_delays.append(ahk.get_settings().win_delay)
-            local.win_delay = 0  # This must not affect other callbacks
-            ahk.sleep(0.02)
+        local = ahk.local_settings().activate()
+        win_delays.append(ahk.get_settings().win_delay)
+        local.win_delay = 0  # This must not affect other callbacks
+        ahk.sleep(0.02)
 
     ahk.set_countdown(0.01, f)
     ahk.set_countdown(0.02, f)
