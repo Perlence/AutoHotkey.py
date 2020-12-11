@@ -163,23 +163,6 @@ def coop(func, *args, **kwargs):
 
     Calling :func:`!coop` from a background thread doesn't start a new one.
     Instead, the given function is executed in the current thread.
-
-    .. TODO: Move the following section to the user's guide.
-
-    .. note::
-
-       If you need to wait for the background thread to finish, calling
-       :meth:`threading.Thread.join` in the main thread will block the handling
-       of the AHK message queue. That is, AHK won't be able to handle the
-       hotkeys and other callbacks. Let AHK handle its message queue by calling
-       :func:`ahkpy.sleep` repeatedly while checking that the background thread
-       is alive::
-
-           import threading
-           th = threading.Thread(target=some_worker)
-           th.start()
-           while th.is_alive():
-               ahkpy.sleep(0.01)
     """
     if threading.current_thread() is not threading.main_thread():
         # Just execute the function, we are already in another thread.

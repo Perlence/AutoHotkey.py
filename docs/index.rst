@@ -6,20 +6,16 @@
 Welcome to AutoHotkey.py
 ========================
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
-
-API Reference
--------------
-
-If you are looking for information on a specific function, class or
-method, this part of the documentation is for you.
+AutoHotkey.py provides a user-friendly API that lets the user write hotkeys and
+automation scripts in Python harnessing the power of AutoHotkey. It does so by
+embedding a Python DLL into the AutoHotkey process.
 
 .. toctree::
    :maxdepth: 3
 
+   install
+   quickstart
+   advanced
    api
 
 
