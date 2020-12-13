@@ -15,7 +15,6 @@ only one window left in the group, the group is dissolved.
 
 import os
 from ctypes import windll
-from ctypes.wintypes import HWND
 
 import ahkpy as ahk
 
@@ -28,7 +27,7 @@ window_group = set()
 previous_win = None
 
 ahk_win = ahk.all_windows.first(pid=os.getpid())
-windll.user32.RegisterShellHookWindow(HWND(ahk_win.id))
+windll.user32.RegisterShellHookWindow(ahk_win.id)
 msgnum = windll.user32.RegisterWindowMessageW("SHELLHOOK")
 
 

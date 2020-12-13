@@ -5,7 +5,6 @@ to Russian layout.
 """
 
 from ctypes import windll
-from ctypes.wintypes import HWND
 
 import ahkpy as ahk
 
@@ -21,7 +20,7 @@ def set_keyboard_layout(language_code):
     if not focused_control:
         return
 
-    thread_id = windll.user32.GetWindowThreadProcessId(HWND(focused_control.id), 0)
+    thread_id = windll.user32.GetWindowThreadProcessId(focused_control.id, 0)
     if not thread_id:
         return
 
