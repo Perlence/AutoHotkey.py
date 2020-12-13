@@ -69,11 +69,15 @@ def handle_system_exit(value):
 
 
 def run_from_args():
-    usage = "py -m ahkpy [-h] [-q] [-c CMD | -m MOD | FILE | -] [ARGS] ..."
+    usage = "py -m ahkpy [-h] [-q] [--no-tray] [-c CMD | -m MOD | FILE | -] [ARGS] ..."
     parser = GUIArgumentParser(usage=usage)
     parser.add_argument(
         "-q", "--quiet", action="store_true",
         help="suppress message boxes with errors",
+    )
+    parser.add_argument(
+        "--no-tray", dest="tray", action="store_false", default=True,
+        help="hide the tray icon",
     )
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
@@ -94,6 +98,9 @@ def run_from_args():
 
     global quiet
     quiet = options.quiet
+
+    if options.tray:
+        ahk.flow.ahk_call("Menu", "Tray", "Icon")
 
     if options.cmd:
         sys.argv[:] = ["-c", *args[1:]]

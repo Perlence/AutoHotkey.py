@@ -1,5 +1,6 @@
 ﻿#NoEnv
 #Warn, All, MsgBox
+#NoTrayIcon
 SendMode, Input
 SetBatchLines, -1
 
