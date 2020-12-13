@@ -37,3 +37,47 @@ function.
 
 Debugging
 ---------
+
+AutoHotkey.py supports :mod:`pdb`, the built-in Python debugger. Just put the
+:func:`breakpoint` invocation in your code where you want to enter the debugger
+and run the program. It works both during the main section and in the
+callbacks::
+
+   import ahkpy
+
+   x = 0
+
+   @ahkpy.hotkey("F1")
+   def cb():
+       global x
+       x += 1
+       breakpoint()  # Breakpoint in a callback
+
+   breakpoint()  # Breakpoint in the main section
+
+The Visual Studio Code debugger can be configured to work with AutoHotkey.py.
+Follow the `Python debug configurations in Visual Studio Code
+<https://code.visualstudio.com/docs/python/debugging>`_ guide to create your
+``launch.json``. Once created, change the Python interpreter in the
+``launch.json`` to ``ahkpy.exe``, for example:
+
+.. code-block:: javascript
+
+   {
+       "version": "0.2.0",
+       "configurations": [
+           {
+               "name": "Python: Current File",
+               "type": "python",
+               "request": "launch",
+               "program": "${file}",
+               "console": "integratedTerminal",
+               // Add the following settings:
+               "python": "ahkpy.exe",
+               "pythonArgs": ["--no-tray"]
+           }
+       ]
+   }
+
+Now you can set the breakpoints in Visual Studio Code and inspect the
+AutoHotkey.py program as you would do with a regular Python program.
