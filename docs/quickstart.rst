@@ -3,6 +3,7 @@ Quickstart
 
 .. module:: ahkpy
 
+
 Command Line Interface
 ----------------------
 
@@ -41,6 +42,7 @@ The following CLI options are specific to AutoHotkey.py:
    hotkey/hotstring sections. Hotkeys are registered as the script is executed
    line by line.
 
+
 Settings
 --------
 
@@ -72,6 +74,7 @@ This also means that the settings that the :kbd:`F2` hotkey callback has is
 the same exact settings object that the :kbd:`F1` hotkey has. If you want to
 change the settings only in one callback, use the :func:`local_settings`
 function.
+
 
 Debugging
 ---------

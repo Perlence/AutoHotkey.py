@@ -3,6 +3,7 @@ Advanced Usage
 
 This document covers some of AutoHotkey.py more advanced features.
 
+
 Threading
 ---------
 

@@ -218,7 +218,6 @@ In the following functions, the *key_name* argument is a VK or SC code, such as
    :command: `SetCapsLockState / SetNumLockState / SetScrollLockState
       <https://www.autohotkey.com/docs/commands/SetNumScrollCapsLockState.htm>`_
 
-
 Input Blocking
 ~~~~~~~~~~~~~~
 
