@@ -47,6 +47,64 @@ The following CLI options are specific to AutoHotkey.py:
    line by line.
 
 
+Hotkeys
+-------
+
+Hotkeys in AutoHotkey.py are registered with the :func:`hotkey` function. In the
+following example, the hotkey :kbd:`Win+N` is configured to launch Notepad. The
+pound sign ``#`` stands for the :kbd:`Win` key, which is known as a modifier::
+
+   import subprocess
+   import ahkpy
+
+   @ahkpy.hotkey("#n"):
+   def run_notepad():
+       subprocess.Popen(["notepad"])
+
+If you want to bind an existing function to a hotkey, pass it as an argument to
+:func:`hotkey`::
+
+   ahkpy.hotkey("#n", subprocess.Popen, ["notepad"])
+
+In the example above, the :class:`subprocess.Popen` class will be created with
+the ``["notepad"]`` argument when the user presses :kbd:`Win+N`.
+
+A key or key-combination can be disabled for the entire system by having it do
+nothing. The following example disables the right-side Win key::
+
+   ahkpy.hotkey("RWin", lambda: None)
+
+The functions :meth:`Windows.active_window_context`,
+:meth:`Windows.window_context` and :class:`HotkeyContext` can be used to make a
+hotkey perform a different action (or none at all) depending on a specific
+condition. For example::
+
+   notepad_ctx = ahkpy.windows.active_window_context(class_name="Notepad")
+   notepad_ctx.hotkey(
+       "^a", ahkpy.message_box,
+       "You pressed Ctrl-A while Notepad is active. Pressing Ctrl-A in any "
+       "other window will pass the Ctrl-A keystroke to that window.",
+   )
+   notepad_ctx.hotkey(
+       "#c", ahkpy.message_box, "You pressed Win-C while Notepad is active.",
+   )
+
+   ctx = ahkpy.windows.active_window_context()
+   ctx.hotkey(
+       "#c", ahkpy.message_box,
+       "You pressed Win-C while any window except Notepad is active.",
+   )
+
+   def is_mouse_over_taskbar():
+       win = ahkpy.get_window_under_mouse()
+       return win.class_name == "Shell_TrayWnd"
+
+   # Wheel over taskbar: increase/decrease volume.
+   taskbar_ctx = ahkpy.HotkeyContext(is_mouse_over_taskbar)
+   taskbar_ctx.hotkey("WheelUp", ahkpy.send, "{Volume_Up}")
+   taskbar_ctx.hotkey("WheelDown", ahkpy.send, "{Volume_Down}")
+
+
 Settings
 --------
 
