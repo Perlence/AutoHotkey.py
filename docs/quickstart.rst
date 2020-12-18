@@ -3,6 +3,44 @@ Quickstart
 
 .. module:: ahkpy
 
+Command Line Interface
+----------------------
+
+When invoking AutoHotkey.py, you may specify any of these options:
+
+.. code-block:: text
+
+   ahkpy [-h] [-q] [--no-tray] [-c CMD | -m MOD | FILE | -] [args]
+
+The most common use case is, of course, a simple invocation of a script:
+
+.. code-block:: text
+
+   ahkpy myscript.py
+
+The AutoHotkey.py interface resembles that of the Python interpreter. For more
+information on the interface options refer to `Python documentation
+<https://docs.python.org/3/using/cmdline.html#interface-options>`_.
+
+The following CLI options are specific to AutoHotkey.py:
+
+.. cmdoption:: -q
+
+   Suppress message boxes with errors. If this option is not specified,
+   AutoHotkey.py will show unhandled Python errors in message boxes.
+
+.. cmdoption:: --no-tray
+
+   Don't show the AutoHotkey icon in the system tray.
+
+.. note::
+
+   In contrast with AutoHotkey, the whole script is executed once it's loaded.
+   That is, there are no separate `auto-execute
+   <https://www.autohotkey.com/docs/Language.htm#auto-execute-section>`_ and
+   hotkey/hotstring sections. Hotkeys are registered as the script is executed
+   line by line.
+
 Settings
 --------
 
