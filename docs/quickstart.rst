@@ -3,6 +3,10 @@ Quickstart
 
 .. module:: ahkpy
 
+This page assumes you already have AutoHotkey.py installed. If you do not, head
+over to the :doc:`/install` section. If you need a refresher on Python, check
+out `The Python Tutorial <https://docs.python.org/3/tutorial/index.html>`_.
+
 
 Command Line Interface
 ----------------------
@@ -46,7 +50,7 @@ The following CLI options are specific to AutoHotkey.py:
 Settings
 --------
 
-.. TODO: The following text is a bit hard to understand.
+.. TODO: The following text is a bit convoluted.
 
 Every time a callable is passed to AutoHotkey as a callback, e.g. in
 :func:`hotkey`, :func:`set_timer()`, etc, the callback takes a snapshot of
@@ -83,8 +87,6 @@ AutoHotkey.py supports :mod:`pdb`, the built-in Python debugger. Just put the
 :func:`breakpoint` invocation in your code where you want to enter the debugger
 and run the program. It works both during the main section and in the
 callbacks::
-
-   import ahkpy
 
    x = 0
 
