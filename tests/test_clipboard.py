@@ -74,3 +74,32 @@ def test_on_clipboard_change(request):
     ahk.set_clipboard("hello again")
     ahk.sleep(0.1)
     assert history == ["HELLO AGAIN", "hello again!!"]
+
+
+def test_clipboard_returns(request, child_ahk):
+    stored = ahk.get_clipboard()
+    request.addfinalizer(lambda: ahk.set_clipboard(stored))
+
+    def clipboards():
+        import ahkpy as ahk
+        import sys
+
+        ahk.hotkey("F24", sys.exit)
+
+        @ahk.on_clipboard_change()
+        def objector(clipboard):
+            return object()
+
+        print("ok00")
+
+    child_ahk.popen_code(clipboards)
+    child_ahk.wait(0)
+
+    ahk.set_clipboard("371")
+    assert not ahk.windows.wait(
+        title="Python.ahk",
+        text="Error:  cannot convert '<object object",
+        timeout=0.1,
+    )
+
+    ahk.send("{F24}")

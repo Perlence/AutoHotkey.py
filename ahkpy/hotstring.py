@@ -5,7 +5,7 @@ import functools
 from typing import Callable, Union
 
 from . import hotkey_context
-from .flow import ahk_call
+from .flow import ahk_call, void
 from .sending import _get_send_mode
 
 __all__ = [
@@ -251,6 +251,9 @@ class Hotstring:
         For more information about the arguments refer to
         :meth:`HotkeyContext.hotstring`.
         """
+        if callable(repl):
+            repl = void(repl)
+
         options = []
 
         if self.case_sensitive:

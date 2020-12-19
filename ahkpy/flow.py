@@ -204,3 +204,10 @@ def _run_coop(queue, func, args, kwargs):
         # KeyboardInterrupt.
         result = None, exc
     queue.put(result)
+
+
+def void(func):
+    """Create a wrapper that calls *func* and returns nothing."""
+    def void_wrapper(*args):
+        func(*args)
+    return void_wrapper

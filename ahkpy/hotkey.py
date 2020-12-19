@@ -5,7 +5,7 @@ import functools
 from typing import Callable
 
 from . import hotkey_context
-from .flow import ahk_call
+from .flow import ahk_call, void
 
 __all__ = [
     "Hotkey",
@@ -162,4 +162,4 @@ class Hotkey:
         option_str = "".join(options)
 
         with self.context._manager():
-            ahk_call("Hotkey", self.key_name, func, option_str)
+            ahk_call("Hotkey", self.key_name, void(func), option_str)

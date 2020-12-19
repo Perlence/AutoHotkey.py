@@ -2,7 +2,7 @@ import dataclasses as dc
 import functools
 from typing import Callable
 
-from .flow import ahk_call
+from .flow import ahk_call, void
 
 __all__ = [
     "ClipboardHandler",
@@ -75,7 +75,7 @@ def on_clipboard_change(func: Callable = None, *, prepend_handler=False):
     option = 1 if not prepend_handler else -1
 
     def on_clipboard_change_decorator(func):
-        wrapper = functools.partial(_clipboard_handler, func)
+        wrapper = void(functools.partial(_clipboard_handler, func))
         ahk_call("OnClipboardChange", wrapper, option)
         return ClipboardHandler(wrapper)
 

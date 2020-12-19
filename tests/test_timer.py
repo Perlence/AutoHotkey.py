@@ -115,3 +115,23 @@ def test_change_periodic(request):
     timer.update(periodic=False)
     ahk.sleep(0.29)
     assert len(times) == 1
+
+
+def test_timer_returns(child_ahk):
+    def timers():
+        import ahkpy as ahk
+        import sys
+        ahk.hotkey("F24", sys.exit)
+        ahk.set_countdown(0.01, object)
+        print("ok00")
+
+    child_ahk.popen_code(timers)
+    child_ahk.wait(0)
+
+    assert not ahk.windows.wait(
+        title="Python.ahk",
+        text="Error:  cannot convert '<object object",
+        timeout=0.1,
+    )
+
+    ahk.send("{F24}")

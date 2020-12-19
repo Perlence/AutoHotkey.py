@@ -239,3 +239,23 @@ class TestHotstring:
         ahk.click(mode="event")
         ahk.send_event("ret ")
         assert_equals_eventually(lambda: edit.text, "redacted ")
+
+    def test_hotstring_returns(self, child_ahk):
+        def hotstrings():
+            import ahkpy as ahk
+            import sys
+            ahk.hotkey("F24", sys.exit)
+            ahk.hotstring("517", object)
+            print("ok00")
+
+        child_ahk.popen_code(hotstrings)
+        child_ahk.wait(0)
+
+        ahk.send_event("517 ")
+        assert not ahk.windows.wait(
+            title="Python.ahk",
+            text="Error:  cannot convert '<object object",
+            timeout=0.1,
+        )
+
+        ahk.send("{F24}")

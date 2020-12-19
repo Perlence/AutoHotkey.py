@@ -31,7 +31,7 @@ def test_hotkey_refcounts(request):
 
     hk2 = ahk.hotkey("F14", func1)
     request.addfinalizer(hk2.disable)
-    assert sys.getrefcount(func1) == func1_refcount + 1
+    assert sys.getrefcount(func1) == func1_refcount + 2
     assert sys.getrefcount(func2) == func2_refcount
 
     hk2.update(func=func2)
@@ -147,3 +147,24 @@ def test_hotkeys_in_child_ahk(child_ahk):
     child_ahk.close()
     assert "ZeroDivisionError:" in proc.stderr.read()
     assert proc.returncode == 0
+
+
+def test_hotkey_returns(child_ahk):
+    def hotkeys():
+        import ahkpy as ahk
+        import sys
+        ahk.hotkey("F24", sys.exit)
+        ahk.hotkey("F13", object)  # object() cannot be converted to an AHK value
+        print("ok00")
+
+    child_ahk.popen_code(hotkeys)
+    child_ahk.wait(0)
+
+    ahk.send_event("{F13}", level=10)  # Must not raise an error
+    assert not ahk.windows.wait(
+        title="Python.ahk",
+        text="Error:  cannot convert '<object object",
+        timeout=0.1,
+    )
+
+    ahk.send("{F24}")

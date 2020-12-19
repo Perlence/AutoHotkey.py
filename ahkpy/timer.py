@@ -3,7 +3,7 @@ import functools
 import weakref
 from typing import Callable, Optional
 
-from .flow import ahk_call
+from .flow import ahk_call, void
 
 __all__ = [
     "Timer",
@@ -158,7 +158,7 @@ class Timer:
             # AHK timer was deleted or never started.
             if not callable(self.func):
                 raise TypeError("timer callback must be callable")
-            func_wrapper = functools.partial(self.func)
+            func_wrapper = void(self.func)
             self._ref = weakref.ref(func_wrapper)
             force_restart = True
 
