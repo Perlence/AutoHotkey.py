@@ -279,6 +279,12 @@ Windows
 
    An instance of :class:`Windows` that matches visible and hidden windows.
 
+   The following example shows how to get the window ID of the main AutoHotkey
+   window::
+
+      import os
+      ahk_win = ahk.all_windows.first(pid=os.getpid())
+
 .. autoclass:: Windows
    :members:
    :special-members: __iter__, __len__
