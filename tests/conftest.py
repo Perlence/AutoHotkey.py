@@ -87,7 +87,7 @@ class ChildAHK:
 
 
 @pytest.fixture(params=range(20))
-def repeat(request):
+def repeat():
     return
 
 
@@ -99,7 +99,7 @@ def settings():
 
 
 @pytest.fixture(scope="class")
-def notepad(request):
+def notepad():
     import ahkpy as ahk
     notepad_proc = subprocess.Popen(["notepad.exe"])
     try:
