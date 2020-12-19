@@ -13,6 +13,8 @@ Clipboard
 
 .. TODO: Add short introductions to each section.
 
+This section describes functions that work with the Windows clipboard.
+
 .. autofunction:: get_clipboard
 
 .. autofunction:: set_clipboard
