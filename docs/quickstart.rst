@@ -2,6 +2,7 @@ Quickstart
 ==========
 
 .. module:: ahkpy
+   :noindex:
 
 This page assumes you already have AutoHotkey.py installed. If you do not, head
 over to the :doc:`/install` section. If you need a refresher on Python, check
@@ -103,6 +104,41 @@ condition. For example::
    taskbar_ctx = ahkpy.HotkeyContext(is_mouse_over_taskbar)
    taskbar_ctx.hotkey("WheelUp", ahkpy.send, "{Volume_Up}")
    taskbar_ctx.hotkey("WheelDown", ahkpy.send, "{Volume_Down}")
+
+The same handler can be assigned to multiple hotkeys::
+
+   import os
+   import re
+   import subprocess
+
+   import ahkpy
+
+   def open_explorer(mode):
+       """
+       Ctrl+Shift+O to open containing folder in Explorer.
+       Ctrl+Shift+E to open folder with current file selected.
+       Supports SciTE and Notepad++.
+       """
+       path = ahkpy.windows.get_active().title
+       if not path:
+           return
+
+       mo = re.match(r"\*?((.*)\\[^\\]+)(?= [-*] )", path)
+       if not mo:
+           return
+
+       file = mo.group(1)
+       folder = mo.group(2)
+       if mode == "folder" and os.path.exists(folder):
+           subprocess.Popen(["explorer.exe", f'/select,"{folder}"')
+       else:
+           subprocess.Popen(["explorer.exe", f'"{file}"')
+
+   ahkpy.hotkey("^+o", open_explorer, "file")
+   ahkpy.hotkey("^+e", open_explorer, "folder")
+
+For more examples see the original `Hotkeys
+<https://www.autohotkey.com/docs/Hotkeys.htm>`_ usage.
 
 
 Settings
