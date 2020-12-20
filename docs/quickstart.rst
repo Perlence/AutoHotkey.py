@@ -141,6 +141,65 @@ For more examples see the original `Hotkeys
 <https://www.autohotkey.com/docs/Hotkeys.htm>`_ usage.
 
 
+Windows
+-------
+
+AutoHotkey.py provides the :class:`Windows` class and its default instances:
+:data:`windows` and :data:`all_windows`. It is the interface to query open
+windows by multiple criteria like title and window class. At the core of the
+functionality is the :meth:`~Windows.filter` method that is used to specify the
+criteria::
+
+   console_windows = ahkpy.windows.filter(class_name="ConsoleWindowClass")
+
+The :meth:`~Windows.filter` call doesn't retrieve any windows by itself, it
+instructs the subsequent operation::
+
+   len(console_windows)  # Check how many console windows there are.
+   if console_windows:
+       pass  # Executed if there's at least one console window.
+   list(console_windows)  # Retrieve the list of window instances.
+
+Specifying multiple criteria in the :meth:`~Windows.filter` call narrows down
+the search to the windows where *all* criteria match. In the following example,
+the script waits for a window whose title contains ``My File.txt`` and whose
+class is ``Notepad``::
+
+   ahkpy.windows.filter("My File.txt", class_name="Notepad").wait()
+   # Filter chaining gives the same result.
+   ahkpy.windows.filter("My File.txt").filter(class_name="Notepad").wait()
+
+Calling :meth:`~Windows.filter` is useful when you want to create and reuse a
+selection of windows. However, all :class:`Windows` methods receive the search
+criteria, so the :meth:`~Windows.wait` example above can be shortened to the
+following::
+
+   ahkpy.windows.wait("My File.txt", class_name="Notepad")
+
+The :meth:`~Windows.exclude` method is a companion to :meth:`~Windows.filter`
+that excludes the windows from the search::
+
+   non_cmd_windows = ahkpy.windows.exclude(title="Command Prompt")
+
+For more fine-grained window filtering, use list comprehensions::
+
+   # Get all tool windows of paint.net.
+   paintnet_tool_windows = [
+      win
+      for win in ahkpy.windows.filter(exe="PaintDotNet.exe")
+      if ahkpy.ExWindowStyle.TOOLWINDOW in win.ex_style
+   ]
+
+.. TODO: Example of windows.first().
+
+To get the currently active window, use the :meth:`~Windows.get_active` method::
+
+   # Press Win+↑ to maximize the active window.
+   ahkpy.hotkey("#Up", lambda: ahkpy.windows.get_active().maximize())
+
+.. TODO: Using Window instances.
+
+
 Settings
 --------
 
