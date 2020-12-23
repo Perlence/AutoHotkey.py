@@ -141,8 +141,8 @@ For more examples see the original `Hotkeys
 <https://www.autohotkey.com/docs/Hotkeys.htm>`_ usage.
 
 
-Windows
--------
+Window Management
+-----------------
 
 AutoHotkey.py provides the :class:`Windows` class and its default instances:
 :data:`windows` and :data:`all_windows`. It is the interface to query open
@@ -150,15 +150,21 @@ windows by multiple criteria like title and window class. At the core of the
 functionality is the :meth:`~Windows.filter` method that is used to specify the
 criteria::
 
-   console_windows = ahkpy.windows.filter(class_name="ConsoleWindowClass")
+   >>> console_windows = ahkpy.windows.filter(class_name="ConsoleWindowClass")
 
 The :meth:`~Windows.filter` call doesn't retrieve any windows by itself, it
 instructs the subsequent operation::
 
-   len(console_windows)  # Check how many console windows there are.
-   if console_windows:
-       pass  # Executed if there's at least one console window.
-   list(console_windows)  # Retrieve the list of window instances.
+   >>> len(console_windows)  # Check how many console windows there are.
+   3
+   >>> if console_windows:
+   ...     print("yes")  # Executed if there's at least one console window.
+   ...
+   yes
+   >>> list(console_windows)  # Retrieve the list of window instances.
+   [Window(id=39784856), Window(id=29757762), Window(id=262780)]
+   >>> [win.title for win in console_windows]
+   ['Command Prompt', 'Windows PowerShell', 'C:\\Windows\\py.exe']
 
 Specifying multiple criteria in the :meth:`~Windows.filter` call narrows down
 the search to the windows where *all* criteria match. In the following example,
@@ -183,21 +189,58 @@ that excludes the windows from the search::
 
 For more fine-grained window filtering, use list comprehensions::
 
-   # Get all tool windows of paint.net.
-   paintnet_tool_windows = [
-      win
-      for win in ahkpy.windows.filter(exe="PaintDotNet.exe")
-      if ahkpy.ExWindowStyle.TOOLWINDOW in win.ex_style
-   ]
-
-.. TODO: Example of windows.first().
+   >>> # Get all tool windows of paint.net.
+   >>> [
+   ...     win.title
+   ...     for win in ahkpy.windows.filter(exe="PaintDotNet.exe")
+   ...     if ahkpy.ExWindowStyle.TOOLWINDOW in win.ex_style
+   ... ]
+   ['Colors', 'Layers', 'History', 'Tools']
 
 To get the currently active window, use the :meth:`~Windows.get_active` method::
 
    # Press Win+↑ to maximize the active window.
    ahkpy.hotkey("#Up", lambda: ahkpy.windows.get_active().maximize())
 
-.. TODO: Using Window instances.
+To get first (top-most) window from a query, use the :meth:`~Windows.first`
+method::
+
+   >>> ahkpy.windows.first(class_name="Notepad")
+   Window(id=6426410)
+
+The :meth:`~Windows.first`, :meth:`~Windows.last`, :meth:`~Windows.get_active`,
+:meth:`~Windows.wait` methods return a :class:`Window` instance. If there are no
+matching windows, ``Window(None)`` is returned. This object is falsy and returns
+``None`` for most of its properties::
+
+   >>> win = ahkpy.windows.first(class_name="there's no such window")
+   >>> win
+   Window(id=None)
+   >>> win.exists
+   False
+   >>> if win:
+   ...     print("window exists")  # Will not be printed.
+   ...
+   >>> win.is_visible
+   False
+   >>> win.show()  # Does nothing.
+   >>> win.class_name is None
+   True
+
+Also, a window that existed at some point in time but was closed acts the same
+as ``Window(None)``. Thus, be sure to check property values for ``None`` before
+working with them::
+
+   >>> win = ahkpy.windows.first(class_name="Notepad")
+   >>> win
+   Window(id=6819626)
+   >>> win.close()
+   >>> win.exists
+   False
+   >>> bool(win)
+   False
+   >>> win.class_name is None
+   True
 
 
 Settings
