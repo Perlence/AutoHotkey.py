@@ -243,6 +243,51 @@ working with them::
    True
 
 
+DLL Calls
+---------
+
+.. TODO: Show a few examples of using ctypes.
+
+Use :mod:`ctypes` to call DLL functions::
+
+   >>> from ctypes import windll
+   >>> windll.user32.MessageBoxW(0, "Press Yes or No", "Title of box", 4)
+   6
+
+Structure example `#11
+<https://www.autohotkey.com/docs/commands/DllCall.htm#ExStruct>`_::
+
+   >>> import subprocess
+   >>> from ctypes import byref, windll
+   >>> from ctypes.wintypes import RECT
+   >>>
+   >>> subprocess.Popen(["notepad"])
+   >>> notepad = ahkpy.windows.wait("Untitled - Notepad")
+   >>> rect = RECT()
+   >>> windll.user32.GetWindowRect(notepad.id, byref(rect))
+   1
+   >>> (rect.left, rect.top, rect.right, rect.bottom)
+   (1063, 145, 1667, 824)
+
+Structure example `#12
+<https://www.autohotkey.com/docs/commands/DllCall.htm#ExStructRect>`_::
+
+   >>> from ctypes import byref, windll
+   >>> from ctypes.wintypes import HANDLE, RECT
+   >>>
+   >>> screen_width = windll.user32.GetSystemMetrics(0)
+   >>> screen_height = windll.user32.GetSystemMetrics(1)
+   >>> rect = RECT(0, 0, screen_width//2, screen_height//2)
+   >>> # Pass zero to get the desktop's device context.
+   >>> dc = windll.user32.GetDC(0)
+   >>> # Create a red brush (0x0000FF is in BGR format).
+   >>> brush = windll.gdi32.CreateSolidBrush(0x0000FF)
+   >>> # Fill the specified rectangle using the brush above.
+   >>> windll.user32.FillRect(dc, byref(rect), brush)
+   >>> windll.gdi32.DeleteObject(brush)  # Clean-up.
+   >>> windll.user32.ReleaseDC(0, HANDLE(dc))  # Clean-up.
+
+
 Settings
 --------
 
