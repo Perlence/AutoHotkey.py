@@ -42,3 +42,10 @@ threads with :func:`time.sleep`::
        while not ahk.is_key_pressed("F1"):
            time.sleep(0)
        print("F1 pressed")
+
+
+GUI
+---
+
+.. TODO: Explain why AutoHotkey GUI is out of scope of this project and point to
+   tkinter.
