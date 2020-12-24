@@ -67,7 +67,7 @@ html_theme_options = {
     "show_related": False,
     "fixed_sidebar": True,
     "font_family": "-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif",
-    "font_size": "100%",
+    "font_size": "16px",
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

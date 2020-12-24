@@ -52,8 +52,9 @@ Hotkeys
 -------
 
 Hotkeys in AutoHotkey.py are registered with the :func:`hotkey` function. In the
-following example, the hotkey :kbd:`Win+N` is configured to launch Notepad. The
-pound sign ``#`` stands for the :kbd:`Win` key, which is known as a modifier::
+following example, the hotkey :kbd:`Win` + :kbd:`N` is configured to launch
+Notepad. The pound sign ``#`` stands for the :kbd:`Win` key, which is known as a
+modifier::
 
    import subprocess
    import ahkpy
@@ -68,7 +69,7 @@ If you want to bind an existing function to a hotkey, pass it as an argument to
    ahkpy.hotkey("#n", subprocess.Popen, ["notepad"])
 
 In the example above, the :class:`subprocess.Popen` class will be created with
-the ``["notepad"]`` argument when the user presses :kbd:`Win+N`.
+the ``["notepad"]`` argument when the user presses :kbd:`Win` + :kbd:`N`.
 
 A key or key-combination can be disabled for the entire system by having it do
 nothing. The following example disables the right-side Win key::

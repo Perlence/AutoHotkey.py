@@ -69,8 +69,8 @@ def click(button="left", times=1, *, modifier: str = None, blind=True, mode=None
 
     :param bool blind: if true, preserves the keyboard modifiers in the down
        position. For example, calling :func:`!click` with :kbd:`Ctrl` held down
-       will send a :kbd:`Ctrl+Click`. If false, releases the currently held
-       keyboard modifiers before the click. Defaults to ``True``.
+       will send a :kbd:`Ctrl` + :kbd:`Click`. If false, releases the currently
+       held keyboard modifiers before the click. Defaults to ``True``.
 
     :param str mode: the mode that is used to send the clicks. For more
        information refer to the *mode* argument of the :func:`send` function.
