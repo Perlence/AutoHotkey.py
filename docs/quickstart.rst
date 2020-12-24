@@ -246,8 +246,6 @@ working with them::
 DLL Calls
 ---------
 
-.. TODO: Show a few examples of using ctypes.
-
 Use :mod:`ctypes` to call DLL functions::
 
    >>> from ctypes import windll
@@ -291,11 +289,18 @@ Structure example `#12
 Settings
 --------
 
+Every Python function called by `timer </api.html#ahkpy.set_timer>`_, `window
+message <api.html#ahkpy.on_message>`_, by `changing clipboard
+<api.html#ahkpy.on_clipboard_change>`_, or by triggering a `hotkey
+<api.html#ahkpy.hotkey>`_ or a `hotstring <api.html#ahkpy.hotstring>`_ starts
+off fresh with the settings from the :data:`default_settings` object. The
+defaults may be changed from anywhere, from the main section and from the
+callbacks, and it will affect all subsequent Python calls.
+
 .. TODO: The following text is a bit convoluted.
 
-Every time a callable is passed to AutoHotkey as a callback, e.g. in
-:func:`hotkey`, :func:`set_timer()`, etc, the callback takes a snapshot of
-the current context using the :func:`contextvars.copy_context` function. This
+Every time a callable is passed to AutoHotkey as a callback, it takes a snapshot
+of the current context using the :func:`contextvars.copy_context` function. This
 snapshot contains a *reference* to the current :class:`Settings` object. When
 the callback is executed, it uses this reference to access the settings. This
 means, for example, that you can change the settings after the hotkey was
