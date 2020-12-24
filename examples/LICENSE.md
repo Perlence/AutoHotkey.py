@@ -1,3 +1,5 @@
+BSD Zero Clause License
+
 Copyright 2020 Sviatoslav Abakumov
 
 Permission to use, copy, modify, and/or distribute this software for any
