@@ -17,6 +17,7 @@ embedding a Python DLL into the AutoHotkey process.
    quickstart
    advanced
    api
+   appendix
 
 
 Indices and tables
