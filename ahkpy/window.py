@@ -705,7 +705,7 @@ class BaseWindow(WindowHandle):
     def style(self) -> Optional[WindowStyle]:
         """The styles of the window/control.
 
-        Returns ``None`` if the window doesn't exist.
+        Returns ``None`` unless the window exists.
 
         .. TODO: Remove :types: once
            https://github.com/sphinx-doc/sphinx/issues/7383 is resolved and
@@ -735,7 +735,7 @@ class BaseWindow(WindowHandle):
     def ex_style(self) -> Optional[ExWindowStyle]:
         """The extended styles of the window/control.
 
-        Returns ``None`` if the window doesn't exist.
+        Returns ``None`` unless the window exists.
 
         :type: ExWindowStyle
 
@@ -761,7 +761,7 @@ class BaseWindow(WindowHandle):
     def class_name(self) -> Optional[str]:
         """The window/control class name (read-only).
 
-        Returns ``None`` if the window doesn't exist.
+        Returns ``None`` unless the window exists.
 
         :type: str
 
@@ -781,7 +781,7 @@ class BaseWindow(WindowHandle):
         """The identifier of the process that created the window/control
         (read-only).
 
-        Returns ``None`` if the window doesn't exist.
+        Returns ``None`` unless the window exists.
 
         :type: int
 
@@ -795,7 +795,7 @@ class BaseWindow(WindowHandle):
         """The name of the executable that created the window/control
         (read-only).
 
-        Returns ``None`` if the window doesn't exist.
+        Returns ``None`` unless the window exists.
 
         :type: str
 
@@ -813,7 +813,7 @@ class BaseWindow(WindowHandle):
         """The full path to the executable that created the window/control
         (read-only).
 
-        Returns ``None`` if the window doesn't exist.
+        Returns ``None`` unless the window exists.
 
         :type: str
 
@@ -827,7 +827,7 @@ class BaseWindow(WindowHandle):
         """The position and size of the window/control as a ``(x, y, width,
         height)`` tuple.
 
-        Returns ``None`` if the window doesn't exist.
+        Returns ``None`` unless the window exists.
 
         :type: Tuple[int, int, int, int]
 
@@ -859,7 +859,7 @@ class BaseWindow(WindowHandle):
     def position(self):
         """The window/control position as a ``(x, y)`` tuple.
 
-        Returns ``None`` if the window doesn't exist.
+        Returns ``None`` unless the window exists.
 
         :type: Tuple[int, int]
 
@@ -886,7 +886,7 @@ class BaseWindow(WindowHandle):
     def x(self):
         """The *x* coordinate of the window/control.
 
-        Returns ``None`` if the window doesn't exist.
+        Returns ``None`` unless the window exists.
 
         :type: int
 
@@ -912,7 +912,7 @@ class BaseWindow(WindowHandle):
     def y(self):
         """The *y* coordinate of the window/control.
 
-        Returns ``None`` if the window doesn't exist.
+        Returns ``None`` unless the window exists.
 
         :type: int
 
@@ -966,7 +966,7 @@ class BaseWindow(WindowHandle):
     def width(self):
         """The window/control width.
 
-        Returns ``None`` if the window doesn't exist.
+        Returns ``None`` unless the window exists.
 
         :type: int
 
@@ -992,7 +992,7 @@ class BaseWindow(WindowHandle):
     def height(self):
         """The window/control height.
 
-        Returns ``None`` if the window doesn't exist.
+        Returns ``None`` unless the window exists.
 
         :type: int
 
@@ -1017,7 +1017,7 @@ class BaseWindow(WindowHandle):
     def move(self, x=None, y=None, width=None, height=None):
         """Move and/or resize the window/control.
 
-        Does nothing if the window/control doesn't exist.
+        Does nothing unless the window/control exists.
 
         :command: `WinMove
            <https://www.autohotkey.com/docs/commands/WinMove.htm>`_,
@@ -1035,7 +1035,7 @@ class BaseWindow(WindowHandle):
     def is_enabled(self) -> Optional[bool]:
         """The enabled state of the window/control.
 
-        Returns ``None`` if the window doesn't exist.
+        Returns ``None`` unless the window exists.
 
         :type: bool
 
@@ -1061,7 +1061,7 @@ class BaseWindow(WindowHandle):
     def enable(self):
         """Enable the window/control.
 
-        Does nothing if the window/control doesn't exist.
+        Does nothing unless the window/control exists.
 
         :command: `WinSet, Enable
            <https://www.autohotkey.com/docs/commands/WinSet.htm#Enable>`_,
@@ -1073,7 +1073,7 @@ class BaseWindow(WindowHandle):
     def disable(self):
         """Disable the window/control.
 
-        Does nothing if the window/control doesn't exist.
+        Does nothing unless the window/control exists.
 
         :command: `WinSet, Disable
            <https://www.autohotkey.com/docs/commands/WinSet.htm#Disable>`_,
@@ -1086,7 +1086,7 @@ class BaseWindow(WindowHandle):
     def is_visible(self):
         """The visibility of the window/control.
 
-        Returns ``False`` if the window doesn't exist.
+        Returns ``False`` unless the window/control exists.
 
         :type: bool
 
@@ -1112,7 +1112,7 @@ class BaseWindow(WindowHandle):
     def show(self):
         """Show the window/control.
 
-        Does nothing if the window/control doesn't exist.
+        Does nothing unless the window/control exists.
 
         :command: `WinShow
            <https://www.autohotkey.com/docs/commands/WinShow.htm>`_, `Control,
@@ -1123,7 +1123,7 @@ class BaseWindow(WindowHandle):
     def hide(self):
         """Hide the window/control.
 
-        Does nothing if the window/control doesn't exist.
+        Does nothing unless the window/control exists.
 
         :command: `WinHide
            <https://www.autohotkey.com/docs/commands/WinHide.htm>`_, `Control,
@@ -1136,7 +1136,7 @@ class BaseWindow(WindowHandle):
 
         Unlike the :func:`~ahkpy.send` function, mouse clicks cannot be sent.
 
-        Does nothing if the window/control doesn't exist.
+        Does nothing unless the window/control exists.
 
         :command: `ControlSend
            <https://www.autohotkey.com/docs/commands/ControlSend.htm>`_
@@ -1295,7 +1295,7 @@ class Window(BaseWindow):
     def is_active(self) -> bool:
         """Whether the window is active (read-only).
 
-        Returns ``None`` if the window doesn't exist.
+        Returns ``None`` unless the window/control exists.
 
         :type: bool
 
@@ -1332,7 +1332,7 @@ class Window(BaseWindow):
     def title(self) -> Optional[str]:
         """The window title.
 
-        Returns ``None`` if the window doesn't exist.
+        Returns ``None`` unless the window exists.
 
         :type: str
 
@@ -1356,7 +1356,7 @@ class Window(BaseWindow):
     def is_minimized(self) -> Optional[bool]:
         """Whether the window is minimized.
 
-        Returns ``None`` if the window doesn't exist.
+        Returns ``None`` unless the window exists.
 
         Setting ``True`` minimizes the window, setting ``False`` restores the
         window if it's minimized.
@@ -1386,7 +1386,7 @@ class Window(BaseWindow):
         """Toggle the minimized state of the window.
 
         If window is minimized, restores it. Otherwise, minimizes it. Does
-        nothing if the window doesn't exist.
+        nothing unless the window exists.
 
         :command: `WinMinimize
            <https://www.autohotkey.com/docs/commands/WinMinimize.htm>`_,
@@ -1404,7 +1404,7 @@ class Window(BaseWindow):
     def minimize(self):
         """Minimize the window.
 
-        Does nothing if the window doesn't exist.
+        Does nothing unless the window exists.
 
         :command: `WinMinimize
            <https://www.autohotkey.com/docs/commands/WinMinimize.htm>`_
@@ -1415,7 +1415,7 @@ class Window(BaseWindow):
     def is_restored(self) -> Optional[bool]:
         """Whether the window is not minimized nor maximized (read-only).
 
-        Returns ``None`` if the window doesn't exist.
+        Returns ``None`` unless the window exists.
 
         :type: bool
 
@@ -1430,7 +1430,7 @@ class Window(BaseWindow):
     def restore(self):
         """Restore the window.
 
-        Does nothing if the window doesn't exist.
+        Does nothing unless the window exists.
 
         :command: `WinRestore
            <https://www.autohotkey.com/docs/commands/WinRestore.htm>`_
@@ -1441,7 +1441,7 @@ class Window(BaseWindow):
     def is_maximized(self) -> Optional[bool]:
         """Whether the window is maximized.
 
-        Returns ``None`` if the window doesn't exist.
+        Returns ``None`` unless the window exists.
 
         Setting ``True`` maximizes the window, setting ``False`` restores the
         window if it's maximized.
@@ -1471,7 +1471,7 @@ class Window(BaseWindow):
         """Toggle the maximized state of the window.
 
         If window is maximized, restores it. Otherwise, maximizes it. Does
-        nothing if the window doesn't exist.
+        nothing unless the window exists.
 
         :command: `WinMaximize
            <https://www.autohotkey.com/docs/commands/WinMaximize.htm>`_,
@@ -1489,7 +1489,7 @@ class Window(BaseWindow):
     def maximize(self):
         """Maximize the window.
 
-        Does nothing if the window doesn't exist.
+        Does nothing unless the window exists.
 
         :command: `WinMaximize
            <https://www.autohotkey.com/docs/commands/WinMaximize.htm>`_
@@ -1500,7 +1500,7 @@ class Window(BaseWindow):
     def control_classes(self) -> Optional[List[str]]:
         """The list of class names of the window controls (read-only).
 
-        Returns ``None`` if the window doesn't exist.
+        Returns ``None`` unless the window exists.
 
         :type: List[str]
 
@@ -1516,7 +1516,7 @@ class Window(BaseWindow):
     def controls(self) -> Optional[List[Control]]:
         """The list of window controls (read-only).
 
-        Returns ``None`` if the window doesn't exist.
+        Returns ``None`` unless the window exists.
 
         :type: List[Control]
 
@@ -1581,7 +1581,7 @@ class Window(BaseWindow):
     def always_on_top(self) -> Optional[bool]:
         """Whether the window is always on top.
 
-        Returns ``None`` if the window doesn't exist.
+        Returns ``None`` unless the window exists.
 
         :type: bool
 
@@ -1603,7 +1603,7 @@ class Window(BaseWindow):
     def pin_to_top(self):
         """Make the window to always be on top.
 
-        Does nothing if the window doesn't exist.
+        Does nothing unless the window exists.
 
         :command: `WinSet, AlwaysOnTop, On
            <https://www.autohotkey.com/docs/commands/WinSet.htm#AlwaysOnTop>`_
@@ -1613,7 +1613,7 @@ class Window(BaseWindow):
     def unpin_from_top(self):
         """Unpin the window from the top.
 
-        Does nothing if the window doesn't exist.
+        Does nothing unless the window exists.
 
         :command: `WinSet, AlwaysOnTop, Off
            <https://www.autohotkey.com/docs/commands/WinSet.htm#AlwaysOnTop>`_
@@ -1623,7 +1623,7 @@ class Window(BaseWindow):
     def toggle_always_on_top(self):
         """Toggle the topmost state of the window.
 
-        Does nothing if the window doesn't exist.
+        Does nothing unless the window exists.
 
         :command: `WinSet, AlwaysOnTop, Toggle
            <https://www.autohotkey.com/docs/commands/WinSet.htm#AlwaysOnTop>`_
@@ -1633,7 +1633,7 @@ class Window(BaseWindow):
     def send_to_bottom(self):
         """Send the window to the bottom; that is, beneath all other windows.
 
-        Does nothing if the window doesn't exist.
+        Does nothing unless the window exists.
 
         :command: `WinSet, Bottom
            <https://www.autohotkey.com/docs/commands/WinSet.htm#Bottom>`_
@@ -1651,7 +1651,7 @@ class Window(BaseWindow):
         possible work-around is to call :meth:`toggle_always_on_top` twice in a
         row.
 
-        Does nothing if the window doesn't exist.
+        Does nothing unless the window exists.
 
         :command: `WinSet, Top
            <https://www.autohotkey.com/docs/commands/WinSet.htm#Top>`_
@@ -1665,7 +1665,7 @@ class Window(BaseWindow):
         controls. In addition, disabled windows are omitted from the Alt+Tab
         list.
 
-        Does nothing if the window doesn't exist.
+        Does nothing unless the window exists.
 
         :command: `WinSet, Disable
            <https://www.autohotkey.com/docs/commands/WinSet.htm#Disable>`_
@@ -1675,7 +1675,7 @@ class Window(BaseWindow):
     def enable(self):
         """Enable the window.
 
-        Does nothing if the window doesn't exist.
+        Does nothing unless the window exists.
 
         :command: `WinSet, Enable
            <https://www.autohotkey.com/docs/commands/WinSet.htm#Enable>`_
@@ -1692,7 +1692,7 @@ class Window(BaseWindow):
         :meth:`~ahkpy.window.BaseWindow.hide` in combination with
         :meth:`~ahkpy.window.BaseWindow.show`.
 
-        Does nothing if the window doesn't exist.
+        Does nothing unless the window exists.
 
         :command: `WinSet, Redraw
            <https://www.autohotkey.com/docs/commands/WinSet.htm#Redraw>`_
@@ -1702,7 +1702,7 @@ class Window(BaseWindow):
     def set_region(self, options: str):
         """Change the shape of a window to rectangle, ellipse, or polygon.
 
-        Does nothing if the window doesn't exist.
+        Does nothing unless the window exists.
 
         :command: `WinSet, Region
            <https://www.autohotkey.com/docs/commands/WinSet.htm#Region>`_
@@ -1713,7 +1713,7 @@ class Window(BaseWindow):
     def reset_region(self):
         """Restore the window to its original/default display area.
 
-        Does nothing if the window doesn't exist.
+        Does nothing unless the window exists.
 
         :command: `WinSet, Region
            <https://www.autohotkey.com/docs/commands/WinSet.htm#Region>`_
@@ -1736,8 +1736,8 @@ class Window(BaseWindow):
           been minimized, restored, and/or resized since it was made
           transparent
 
-        Setting ``None`` makes the window opaque. Does nothing if the window
-        doesn't exist.
+        Setting ``None`` makes the window opaque. Does nothing unless the window
+        exists.
 
         :type: int
 
@@ -1774,8 +1774,8 @@ class Window(BaseWindow):
           been minimized, restored, and/or resized since it was made
           transparent
 
-        Setting ``None`` makes the window opaque. Does nothing if the window
-        doesn't exist.
+        Setting ``None`` makes the window opaque. Does nothing unless the window
+        exists.
 
         :type: Tuple[int, int, int]
 
@@ -1813,7 +1813,7 @@ class Window(BaseWindow):
         *timeout* is not specified or ``None``, the function returns
         immediately.
 
-        Does nothing if the window doesn't exist.
+        Does nothing unless the window exists.
 
         :command: `WinActivate
            <https://www.autohotkey.com/docs/commands/WinActivate.htm>`_
@@ -1915,7 +1915,7 @@ class Window(BaseWindow):
         Defaults to 0, which is usually the part that contains the text of
         interest.
 
-        Returns ``None`` if the window doesn't exists or there's no status bar.
+        Returns ``None`` if the window doesn't exist or there's no status bar.
         Raises an :exc:`Error` if there was a problem accessing the status bar.
 
         :command: `StatusBarGetText
@@ -1950,7 +1950,7 @@ class Window(BaseWindow):
         The *match* argument specifies how *bar_text* is matched. Defaults to
         ``"startswith"``. For other modes refer to :meth:`Windows.filter`.
 
-        Returns ``None`` if the window doesn't exists or there's no status bar.
+        Returns ``None`` if the window doesn't exist or there's no status bar.
         Raises an :exc:`Error` if there was a problem accessing the status bar.
 
         :command: `StatusBarWait
@@ -2029,7 +2029,7 @@ class Control(BaseWindow):
     def check(self):
         """Check the checkbox or radio button.
 
-        Does nothing if the control doesn't exist.
+        Does nothing unless the control exists.
 
         To improve reliability, a :attr:`Settings.control_delay` is done
         automatically after calling this method.
@@ -2042,7 +2042,7 @@ class Control(BaseWindow):
     def uncheck(self):
         """Uncheck the checkbox or radio button.
 
-        Does nothing if the control doesn't exist.
+        Does nothing unless the control exists.
 
         To improve reliability, a :attr:`Settings.control_delay` is done
         automatically after calling this method.
@@ -2055,7 +2055,7 @@ class Control(BaseWindow):
     def enable(self):
         """Enable the control.
 
-        Does nothing if the control doesn't exist.
+        Does nothing unless the control exists.
 
         To improve reliability, a :attr:`Settings.control_delay` is done
         automatically after calling this method.
@@ -2068,7 +2068,7 @@ class Control(BaseWindow):
     def disable(self):
         """Disable the control.
 
-        Does nothing if the control doesn't exist.
+        Does nothing unless the control exists.
 
         To improve reliability, a :attr:`Settings.control_delay` is done
         automatically after calling this method.
@@ -2081,7 +2081,7 @@ class Control(BaseWindow):
     def hide(self):
         """Hide the control.
 
-        Does nothing if the control doesn't exist.
+        Does nothing unless the control exists.
 
         To improve reliability, a :attr:`Settings.control_delay` is done
         automatically after calling this method.
@@ -2094,7 +2094,7 @@ class Control(BaseWindow):
     def show(self):
         """Show the control.
 
-        Does nothing if the control doesn't exist.
+        Does nothing unless the control exists.
 
         To improve reliability, a :attr:`Settings.control_delay` is done
         automatically after calling this method.
@@ -2148,7 +2148,7 @@ class Control(BaseWindow):
     def focus(self):
         """Focus the control.
 
-        Does nothing if the control doesn't exist.
+        Does nothing unless the control exists.
 
         To improve reliability, a :attr:`Settings.control_delay` is done
         automatically after calling this method.
@@ -2161,8 +2161,8 @@ class Control(BaseWindow):
     def paste(self, text):
         """Paste *text* at the caret/insert position in an Edit control.
 
-        Does not affect the contents of the clipboard. Does nothing if the
-        control doesn't exist.
+        Does not affect the contents of the clipboard. Does nothing unless the
+        control exists.
 
         To improve reliability, a :attr:`Settings.control_delay` is done
         automatically after calling this method.
@@ -2346,7 +2346,7 @@ class Control(BaseWindow):
         The first item is 0. If the *index* argument is negative, it's relative
         to the end of the list.
 
-        Does nothing if the control doesn't exist. Raises an :exc:`Error` if
+        Does nothing unless the control exists. Raises an :exc:`Error` if
         the index is out of range.
 
         To improve reliability, a :attr:`Settings.control_delay` is done
@@ -2370,7 +2370,7 @@ class Control(BaseWindow):
         """Set the selection (choice) in a ListBox or ComboBox to be the first
         entry whose leading part matches *value*.
 
-        Does nothing if the control doesn't exist. Raises an :exc:`Error` if no
+        Does nothing unless the control exists. Raises an :exc:`Error` if no
         item matches the *value*.
 
         To improve reliability, a :attr:`Settings.control_delay` is done
