@@ -697,6 +697,14 @@ class WindowHandle:
 class BaseWindow(WindowHandle):
     """Base window class that is inherited by :class:`~ahkpy.Window` and
     :class:`~ahkpy.Control` classes.
+
+    To get a window instance, use :meth:`~ahkpy.Windows.first`,
+    :meth:`~ahkpy.Windows.last`, :meth:`~ahkpy.Windows.get_active` methods, or
+    iterate the windows with :meth:`~ahkpy.Windows.__iter__`.
+
+    To get a control instance, use the :meth:`~ahkpy.Window.get_control`,
+    :meth:`~ahkpy.Window.get_focused_control`, or get a list of window controls
+    with :attr:`~ahkpy.Window.controls`.
     """
 
     __slots__ = ("id",)
