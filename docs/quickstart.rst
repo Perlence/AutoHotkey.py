@@ -71,8 +71,9 @@ If you want to bind an existing function to a hotkey, pass it as an argument to
 In the example above, the :class:`subprocess.Popen` class will be created with
 the ``["notepad"]`` argument when the user presses :kbd:`Win` + :kbd:`N`.
 
-A key or key-combination can be disabled for the entire system by having it do
-nothing. The following example disables the right-side Win key::
+To disable a key or a combination of keys for the entire system, use the
+``lambda: None`` function. For example, this disables the right-side :kbd:`Win`
+key::
 
    ahkpy.hotkey("RWin", lambda: None)
 
