@@ -294,22 +294,20 @@ Structure example `#12
 Settings
 --------
 
-Every Python function called by `timer </api.html#ahkpy.set_timer>`_, `window
-message <api.html#ahkpy.on_message>`_, by `changing clipboard
+A *callback* is a function called by `timer </api.html#ahkpy.set_timer>`_,
+`window message <api.html#ahkpy.on_message>`_, by `changing clipboard
 <api.html#ahkpy.on_clipboard_change>`_, or by triggering a `hotkey
-<api.html#ahkpy.hotkey>`_ or a `hotstring <api.html#ahkpy.hotstring>`_ starts
-off fresh with the settings from the :data:`default_settings` object. The
-defaults may be changed from anywhere, from the main section and from the
-callbacks, and it will affect all subsequent Python calls.
+<api.html#ahkpy.HotkeyContext.hotkey>`_ or a `hotstring
+<api.html#ahkpy.HotkeyContext.hotstring>`_.
 
-.. TODO: The following text is a bit convoluted.
-
-Every time a callable is passed to AutoHotkey as a callback, it takes a snapshot
-of the current context using the :func:`contextvars.copy_context` function. This
-snapshot contains a *reference* to the current :class:`Settings` object. When
-the callback is executed, it uses this reference to access the settings. This
-means, for example, that you can change the settings after the hotkey was
-created, and the hotkey callback will be aware of that change::
+In the original AutoHotkey, a hotkey callback executes with the *copy* of the
+global settings. In contrast, in AutoHotkey.py, the callback gets a *reference*
+to the current :class:`Settings` object, set by the :func:`set_settings` call.
+Meaning that, changing the individual settings in the Python callback changes
+them everywhere. Sometimes, you'll want to avoid doing so, in which case you
+should use the :func:`local_settings` function. Other times, the implementation
+will come in handy, like when you want to create a hotkey that changes the
+global AHK settings::
 
    ahkpy.default_settings.win_delay = 0.1
 
@@ -322,13 +320,11 @@ created, and the hotkey callback will be aware of that change::
        ahkpy.default_settings.win_delay = 0.2
        assert ahkpy.get_settings() is ahkpy.default_settings
 
-If you press :kbd:`F1`, you will see ``0.1`` printed. Press :kbd:`F2` and
-then :kbd:`F1` and you will see ``0.2`` printed.
-
-This also means that the settings that the :kbd:`F2` hotkey callback has is
-the same exact settings object that the :kbd:`F1` hotkey has. If you want to
-change the settings only in one callback, use the :func:`local_settings`
-function.
+If you press :kbd:`F1`, you will see ``0.1`` printed, which is the current
+:attr:`~Settings.win_delay`. Press :kbd:`F2` and then :kbd:`F1` and you will see
+``0.2`` printed. Also, the settings object that the :kbd:`F2` hotkey callback
+gets with the :func:`get_settings` call is the same exact settings object that
+the :kbd:`F1` hotkey gets.
 
 
 Debugging
