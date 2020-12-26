@@ -11,7 +11,7 @@ and Variables) and their Python counterparts.
    :header-rows: 1
 
    + - AHK Keyword
-     - Python implementation
+     - Python Implementation
    + - `#If <https://www.autohotkey.com/docs/commands/_If.htm>`_
      - :class:`ahkpy.HotkeyContext`
    + - `#IfWinActive <https://www.autohotkey.com/docs/commands/_IfWinActive.htm>`_

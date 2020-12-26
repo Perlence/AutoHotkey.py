@@ -47,5 +47,57 @@ threads with :func:`time.sleep`::
 GUI
 ---
 
-.. TODO: Explain why AutoHotkey GUI is out of scope of this project and point to
-   tkinter.
+Out of the box, Python provides the :mod:`tkinter` package, an interface to the
+Tk GUI toolkit. AutoHotkey.py supports :mod:`tkinter`, so it can be used to
+create user interfaces.
+
+The following table contains a list of AutoHotkey GUI controls and the
+corresponding tkinter counterparts:
+
+.. list-table::
+   :header-rows: 1
+
+   + - AHK Control
+     - tkinter Widget
+   + - `Text <https://www.autohotkey.com/docs/commands/GuiControls.htm#Text>`_
+     - :class:`tkinter.ttk.Label`
+   + - `Edit <https://www.autohotkey.com/docs/commands/GuiControls.htm#Edit>`_
+     - :class:`tkinter.ttk.Entry`
+   + - `UpDown <https://www.autohotkey.com/docs/commands/GuiControls.htm#UpDown>`_
+     - :class:`tkinter.ttk.Spinbox`
+   + - `Picture <https://www.autohotkey.com/docs/commands/GuiControls.htm#Picture>`_
+     - :class:`tkinter.BitmapImage`, :class:`tkinter.PhotoImage`
+   + - `Button <https://www.autohotkey.com/docs/commands/GuiControls.htm#Button>`_
+     - :class:`tkinter.ttk.Button`
+   + - `Checkbox <https://www.autohotkey.com/docs/commands/GuiControls.htm#Checkbox>`_
+     - :class:`tkinter.ttk.Checkbutton`
+   + - `Radio <https://www.autohotkey.com/docs/commands/GuiControls.htm#Radio>`_
+     - :class:`tkinter.ttk.Radiobutton`
+   + - `DropDownList <https://www.autohotkey.com/docs/commands/GuiControls.htm#DropDownList>`_
+     - :class:`tkinter.ttk.Combobox`
+   + - `ComboBox <https://www.autohotkey.com/docs/commands/GuiControls.htm#ComboBox>`_
+     -
+   + - `ListBox <https://www.autohotkey.com/docs/commands/GuiControls.htm#ListBox>`_
+     - :class:`tkinter.Listbox`
+   + - `ListView <https://www.autohotkey.com/docs/commands/GuiControls.htm#ListView>`_
+     -
+   + - `TreeView <https://www.autohotkey.com/docs/commands/GuiControls.htm#TreeView>`_
+     - :class:`tkinter.ttk.Treeview`
+   + - `Link <https://www.autohotkey.com/docs/commands/GuiControls.htm#Link>`_
+     -
+   + - `Hotkey <https://www.autohotkey.com/docs/commands/GuiControls.htm#Hotkey>`_
+     -
+   + - `DateTime <https://www.autohotkey.com/docs/commands/GuiControls.htm#DateTime>`_
+     -
+   + - `MonthCal <https://www.autohotkey.com/docs/commands/GuiControls.htm#MonthCal>`_
+     -
+   + - `Slider <https://www.autohotkey.com/docs/commands/GuiControls.htm#Slider>`_
+     - :class:`tkinter.ttk.Scale`
+   + - `Progress <https://www.autohotkey.com/docs/commands/GuiControls.htm#Progress>`_
+     - :class:`tkinter.ttk.Progressbar`
+   + - `GroupBox <https://www.autohotkey.com/docs/commands/GuiControls.htm#GroupBox>`_
+     - :class:`tkinter.ttk.Labelframe`
+   + - `Tab3 <https://www.autohotkey.com/docs/commands/GuiControls.htm#Tab3>`_
+     - :class:`tkinter.ttk.Notebook`
+   + - `StatusBar <https://www.autohotkey.com/docs/commands/GuiControls.htm#StatusBar>`_
+     -
