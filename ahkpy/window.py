@@ -245,7 +245,7 @@ class Windows:
     def get_active(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
         """get_active(title: str = UNSET, **criteria) -> ahkpy.Window
 
-        Return the window handle of the active matching window.
+        Return the window instance of the active matching window.
 
         If no criteria are given, returns the current active window. If no
         window is active, returns ``Window(None)``.

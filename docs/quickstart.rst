@@ -147,17 +147,20 @@ Window Management
 -----------------
 
 AutoHotkey.py provides the :class:`Windows` class and its default instances:
-:data:`windows` and :data:`all_windows`. It is the interface to query open
-windows by multiple criteria like title and window class. At the core of the
-functionality is the :meth:`~Windows.filter` method that is used to specify the
-criteria::
+:data:`windows` and :data:`all_windows`. The :class:`Windows` class is the
+interface to query open windows by multiple criteria, like title and window
+class. To query the windows, set the criteria with the :meth:`~Windows.filter`
+method. For example, this prepares a query of all windows with a class named
+``ConsoleWindowClass``::
 
    >>> console_windows = ahkpy.windows.filter(class_name="ConsoleWindowClass")
 
 The :meth:`~Windows.filter` call doesn't retrieve any windows by itself, it
 instructs the subsequent operation::
 
-   >>> len(console_windows)  # Check how many console windows there are.
+   >>> console_windows
+   Windows(class_name='ConsoleWindowClass', hidden_windows=False, hidden_text=True, title_mode='startswith', text_mode='fast')
+   >>> len(console_windows)  # Check how many console windows there are now.
    3
    >>> if console_windows:
    ...     print("yes")  # Executed if there's at least one console window.
