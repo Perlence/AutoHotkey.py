@@ -77,10 +77,10 @@ key::
 
    ahkpy.hotkey("RWin", lambda: None)
 
-The functions :meth:`Windows.active_window_context`,
-:meth:`Windows.window_context` and :class:`HotkeyContext` can be used to make a
-hotkey perform a different action (or none at all) depending on a specific
-condition. For example::
+The methods :meth:`Windows.active_window_context`,
+:meth:`Windows.window_context`, and the :class:`HotkeyContext` class can be used
+to make a hotkey perform a different action (or none at all) depending on a
+specific condition. For example::
 
    notepad_ctx = ahkpy.windows.active_window_context(class_name="Notepad")
    notepad_ctx.hotkey(
