@@ -25,22 +25,35 @@ class Settings:
     durations are in seconds.
     """
 
-    #: The delay after each control-modifying method.
+    #: The delay after each control-modifying method: :meth:`~Control.check`,
+    #: :meth:`~Control.uncheck`, :meth:`~window.BaseWindow.enable`,
+    #: :meth:`~window.BaseWindow.disable`, :meth:`~window.BaseWindow.hide`,
+    #: :meth:`~window.BaseWindow.show`, :meth:`~Control.focus`,
+    #: :meth:`~Control.paste`, :meth:`~Control.choose_item_index`,
+    #: :meth:`~Control.choose_item`, :meth:`~window.BaseWindow.move`, and the
+    #: :attr:`~Control.text`, :attr:`~Control.is_checked`,
+    #: :attr:`~Control.list_choice_index`,
+    #: :attr:`~window.BaseWindow.is_enabled`,
+    #: :attr:`~window.BaseWindow.is_visible`,
+    #: :attr:`~window.BaseWindow.rect`,
+    #: :attr:`~window.BaseWindow.position`, :attr:`~window.BaseWindow.size`,
+    #: :attr:`~window.BaseWindow.x`, :attr:`~window.BaseWindow.y`,
+    #: :attr:`~window.BaseWindow.width`, :attr:`~window.BaseWindow.height`
+    #: setters.
     #:
     #: :command: `SetControlDelay
     #:    <https://www.autohotkey.com/docs/commands/SetControlDelay.htm>`_
     control_delay: float = 0.02
-    # TODO: List the affected methods.
 
     #: The delay after each keystroke sent by
-    #: :func:`~ahkpy.send_event` and :meth:`Control.send`.
+    #: :func:`~ahkpy.send_event` and :meth:`window.BaseWindow.send`.
     #:
     #: :command: `SetKeyDelay
     #:    <https://www.autohotkey.com/docs/commands/SetKeyDelay.htm>`_
     key_delay: float = 0.01
 
     #: The delay after the press of the key and before its release sent by
-    #: :func:`~ahkpy.send_event` and :meth:`Control.send`.
+    #: :func:`~ahkpy.send_event` and :meth:`window.BaseWindow.send`.
     #:
     #: :command: `SetKeyDelay
     #:    <https://www.autohotkey.com/docs/commands/SetKeyDelay.htm>`_
@@ -92,12 +105,31 @@ class Settings:
     #:    <https://www.autohotkey.com/docs/commands/SendMode.htm>`_
     send_mode: str = "input"
 
-    #: The delay after each window-modifying method.
+    #: The delay after each window-modifying method. It affects the following:
+    #:
+    #: - :class:`Windows` methods: :meth:`~Windows.wait`,
+    #:   :meth:`~Windows.wait_active`, :meth:`~Windows.wait_inactive`,
+    #:   :meth:`~Windows.wait_close`, :meth:`~Windows.close_all`,
+    #:   :meth:`~Windows.hide_all`, :meth:`~Windows.kill_all`,
+    #:   :meth:`~Windows.maximize_all`, :meth:`~Windows.minimize_all`,
+    #:   :meth:`~Windows.restore_all`, :meth:`~Windows.show_all`,
+    #: - :class:`Window` methods: :meth:`~Window.minimize`,
+    #:   :meth:`~Window.restore`, :meth:`~Window.maximize`,
+    #:   :meth:`~window.BaseWindow.hide`, :meth:`~window.BaseWindow.show`,
+    #:   :meth:`~Window.close`, :meth:`~Window.kill`,
+    #:   :meth:`~Window.wait_active`, :meth:`~Window.wait_inactive`,
+    #:   :meth:`~Window.wait_hidden`, :meth:`~Window.wait_close`,
+    #:   :meth:`~window.BaseWindow.move`,
+    #: - :class:`Window` setters: :attr:`~Window.is_maximized`,
+    #:   :attr:`~Window.is_minimized`, :attr:`~window.BaseWindow.is_enabled`,
+    #:   :attr:`~window.BaseWindow.is_visible`, :attr:`~window.BaseWindow.rect`,
+    #:   :attr:`~window.BaseWindow.position`, :attr:`~window.BaseWindow.size`,
+    #:   :attr:`~window.BaseWindow.x`, :attr:`~window.BaseWindow.y`,
+    #:   :attr:`~window.BaseWindow.width`, :attr:`~window.BaseWindow.height`,
     #:
     #: :command: `SetWinDelay
     #:    <https://www.autohotkey.com/docs/commands/SetWinDelay.htm>`_
     win_delay: float = 0.1
-    # TODO: List the affected methods.
 
     # Should CoordMode also be here? I don't think so because the above settings
     # change only some aspects like speed and delay and don't change the overall
