@@ -7,6 +7,22 @@ This document covers some of AutoHotkey.py more advanced features.
 Threading
 ---------
 
+In Python, the :mod:`threading` module can be used to improve the responsiveness
+of applications that accept user input while other tasks run in the background.
+A related use case is running I/O in parallel with computations in another
+thread. These are actual OS threads, as opposed to AHK `pseudo-threads
+<https://www.autohotkey.com/docs/misc/Threads.htm>`_.
+
+Calling AHK functions from Python is implemented in AutoHotkey.py by registering
+a callback in AHK with `RegisterCallback
+<https://www.autohotkey.com/docs/commands/RegisterCallback.htm>`_. *These
+callbacks are not reentrant.* That is, while the *main thread* is busy executing
+an AHK function, trying to call another AHK function from *another thread* leads
+to unpredictable results like program crash.
+
+Thus, a *Global AutoHotkey Lock* (GAL) was introduced. It ensures that only one
+OS thread interacts with AHK at a time.
+
 .. TODO: Background threads don't work unless the main is actively doing
    something.
 
