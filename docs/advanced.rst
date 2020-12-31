@@ -60,6 +60,37 @@ threads with :func:`time.sleep`::
        print("F1 pressed")
 
 
+asyncio
+-------
+
+AutoHotkey.py works well with :mod:`asyncio`. When starting a long-running loop,
+schedule the :func:`ahkpy.sleep` call repeatedly, so it could give time to AHK
+to process its message queue (hotkeys, menu)::
+
+   import asyncio
+
+   import ahkpy
+
+   async def main():
+       # Schedule a function that will check AHK message queue repeatedly.
+       loop = asyncio.get_running_loop()
+       loop.call_soon(sleeper, loop)
+
+       print('Hello ...')
+       await asyncio.sleep(1)
+       print('... World!')
+
+   def sleeper(loop):
+       ahkpy.sleep(0.01)
+       loop.call_soon(sleeper, loop)
+
+   asyncio.run(main())
+
+Check out the `example of a TCP server
+<https://github.com/Perlence/AutoHotkey.py/blob/master/examples/remote_send.py>`_
+that receives *keys* strings and passes them to :func:`ahkpy.send`.
+
+
 GUI
 ---
 
