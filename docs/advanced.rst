@@ -4,6 +4,9 @@ Advanced Usage
 This document covers some of AutoHotkey.py more advanced features.
 
 
+.. index::
+   single: global autohotkey lock
+
 Threading
 ---------
 
@@ -16,21 +19,20 @@ thread. These are actual OS threads, as opposed to AHK `pseudo-threads
 Calling AHK functions from Python is implemented in AutoHotkey.py by registering
 a callback in AHK with `RegisterCallback
 <https://www.autohotkey.com/docs/commands/RegisterCallback.htm>`_. *These
-callbacks are not reentrant.* That is, while the *main thread* is busy executing
-an AHK function, trying to call another AHK function from *another thread* leads
-to unpredictable results like program crash.
+callbacks are not thread-safe.* That is, while the *main thread* is busy
+executing an AHK function, trying to call another AHK function from *another
+thread* leads to unpredictable results like program crash.
 
-Thus, a *Global AutoHotkey Lock* (GAL) was introduced. It ensures that only one
-OS thread interacts with AHK at a time.
+Thus, the *global AutoHotkey lock* (GAL) was introduced. It ensures that only
+one OS thread interacts with AHK at a time.
 
-.. TODO: Background threads don't work unless the main is actively doing
-   something.
-
-If you need to wait for the background thread to finish, calling
-:meth:`threading.Thread.join` in the main thread will block the handling of the
-AHK message queue. That is, AHK won't be able to handle the hotkeys and other
-callbacks. Let AHK handle its message queue by calling :func:`ahkpy.sleep`
-repeatedly while checking that the background thread is alive::
+In order for background threads to work, the main thread must also be crunching
+Python code, for example, actively waiting for the background threads to finish.
+However, calling :meth:`threading.Thread.join` in the main thread will block the
+handling of the AHK message queue. That is, AHK won't be able to handle the
+hotkeys and other callbacks. Instead, let AHK handle its message queue by
+calling :func:`ahkpy.sleep` repeatedly while checking that the background thread
+is alive::
 
    import threading
    th = threading.Thread(target=some_worker)
@@ -38,8 +40,8 @@ repeatedly while checking that the background thread is alive::
    while th.is_alive():
        ahkpy.sleep(0.01)
 
-Calling blocking AHK functions from the background thread deadlocks the
-program::
+Because of the global AutoHotkey lock, calling blocking AHK functions from the
+background thread deadlocks the program::
 
    def bg_thread():
        ahk.wait_key_pressed("F1")
@@ -65,7 +67,7 @@ asyncio
 
 AutoHotkey.py works well with :mod:`asyncio`. When starting a long-running loop,
 schedule the :func:`ahkpy.sleep` call repeatedly, so it could give time to AHK
-to process its message queue (hotkeys, menu)::
+to process its message queue::
 
    import asyncio
 
