@@ -39,6 +39,8 @@ Flow
 
 .. autofunction:: sleep
 
+.. autofunction:: poll
+
 .. autofunction:: suspend
 
 .. autofunction:: resume

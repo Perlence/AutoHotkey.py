@@ -8,6 +8,7 @@ import _ahk
 __all__ = [
     "coop",
     "output_debug",
+    "poll",
     "reload",
     "resume",
     "sleep",
@@ -52,10 +53,18 @@ def sleep(secs):
     if secs < 0:
         raise ValueError("sleep length must be non-negative")
     elif secs == 0:
-        # TODO: Should it be -1 or 0?
-        ahk_call("Sleep", -1)
+        ahk_call("Sleep", 0)
     else:
         ahk_call("Sleep", int(secs * 1000))
+
+
+def poll():
+    """Make AHK check its the message queue.
+
+    This can be used to force any pending interruptions to occur at a specific
+    place rather than somewhere more random.
+    """
+    ahk_call("Sleep", -1)
 
 
 def suspend():
