@@ -47,7 +47,7 @@ Flow
 
 .. autofunction:: toggle_suspend
 
-.. autofunction:: reload
+.. autofunction:: restart
 
 .. autofunction:: output_debug
 

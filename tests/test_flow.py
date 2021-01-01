@@ -89,12 +89,12 @@ def test_callback_after_error(child_ahk):
     assert proc.returncode == 0
 
 
-def test_reload(child_ahk, tmpdir):
+def test_restart(child_ahk, tmpdir):
     def code():
         import ahkpy as ahk
         import sys
         ahk.hotkey("F24", sys.exit)
-        ahk.hotkey("F13", ahk.reload)
+        ahk.hotkey("F13", ahk.restart)
         ahk.message_box("ok00")
 
     script = tmpdir / "code.py"

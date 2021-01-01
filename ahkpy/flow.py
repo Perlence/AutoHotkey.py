@@ -9,7 +9,7 @@ __all__ = [
     "coop",
     "output_debug",
     "poll",
-    "reload",
+    "restart",
     "resume",
     "sleep",
     "suspend",
@@ -94,8 +94,9 @@ def toggle_suspend():
     ahk_call("Suspend", "Toggle")
 
 
-def reload():
-    """Replace the currently running instance of the script with a new one.
+def restart():
+    """Terminate the currently running instance of the script and start a new
+    one.
 
     :command: `Reload <https://www.autohotkey.com/docs/commands/Reload.htm>`_
     """
@@ -103,7 +104,7 @@ def reload():
     # keep the old script running.
     # TODO: The "Reload This Script" tray menu item is broken.
     from . import launcher
-    sys.exit(launcher.EXIT_CODE_RELOAD)
+    sys.exit(launcher.EXIT_CODE_RESTART)
 
 
 def output_debug(*objects, sep=" "):

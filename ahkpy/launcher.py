@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 AHK = "C:\\Program Files\\AutoHotkey\\AutoHotkey.exe"
-EXIT_CODE_RELOAD = 65530
+EXIT_CODE_RESTART = 65530
 
 
 def main():
@@ -33,8 +33,8 @@ def main():
                 # KeyboardInterrupt is automatically propagated to the subprocess.
                 pass
 
-        if ahk.returncode == EXIT_CODE_RELOAD:
-            print("Reloading AHK...", file=sys.stderr)
+        if ahk.returncode == EXIT_CODE_RESTART:
+            print("Restarting AHK...", file=sys.stderr)
             continue
 
         # On Windows, Popen.returncode is unsigned int, while the sys.exit

@@ -347,7 +347,7 @@ and Variables) and their Python counterparts.
    + - `RegWrite <https://www.autohotkey.com/docs/commands/RegWrite.htm>`_
      - :mod:`winreg` module
    + - `Reload <https://www.autohotkey.com/docs/commands/Reload.htm>`_
-     - :func:`ahkpy.reload`
+     - :func:`ahkpy.restart`
    + - `Round() <https://www.autohotkey.com/docs/commands/Round.htm>`_
      - :func:`round`
    + - `RTrim() <https://www.autohotkey.com/docs/commands/RTrim.htm>`_
