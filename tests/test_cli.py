@@ -135,21 +135,21 @@ def test_tracebacks(tmpdir, child_ahk):
         """)
     assert res.returncode == 1
 
-    res = child_ahk.run_code("import", quiet=True)
+    res = child_ahk.run_code("!", quiet=True)
     assert res.stderr == dedent("""\
           File "<stdin>", line 1
-            import
-                 ^
+            !
+            ^
         SyntaxError: invalid syntax
         """)
     assert res.returncode == 1
 
-    script.write("import")
+    script.write("!")
     res = child_ahk.run(["-q", str(script)])
     assert res.stderr == dedent(f"""\
           File "{script}", line 1
-            import
-                 ^
+            !
+            ^
         SyntaxError: invalid syntax
         """)
     assert res.returncode == 1
@@ -157,15 +157,15 @@ def test_tracebacks(tmpdir, child_ahk):
     beep = tmpdir / "beep.py"
     beep.write("import boop")
     boop = tmpdir / "boop.py"
-    boop.write("import")
+    boop.write("!")
     res = child_ahk.run(["-q", str(beep)])
     assert res.stderr == dedent(f"""\
         Traceback (most recent call last):
           File "{beep}", line 1, in <module>
             import boop
           File "{boop}", line 1
-            import
-                 ^
+            !
+            ^
         SyntaxError: invalid syntax
         """)
     assert res.returncode == 1
