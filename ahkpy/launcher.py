@@ -17,8 +17,13 @@ def main():
     os.environ["PYTHONFULLPATH"] = ";".join(sys.path)
     os.environ["PYTHONDLL"] = python_dll_path()
 
+    ahk_exe_path = AHK
+    ahk_assoc = get_ahk_by_assoc()
+    if ahk_assoc and Path(ahk_assoc).name.lower().startswith("autohotkey"):
+        ahk_exe_path = ahk_assoc
+    ahk_exe_path = fix_ahk_platform(ahk_exe_path)
+
     python_ahk_path = Path(__file__).parent / "Python.ahk"
-    ahk_exe_path = fix_ahk_platform(get_ahk_by_assoc() or AHK)
     args = [str(ahk_exe_path), str(python_ahk_path)] + sys.argv[1:]
 
     while True:
