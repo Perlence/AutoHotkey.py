@@ -622,6 +622,10 @@ GuiClose:
     return
 
 OnExitFunc(reason, code, label:="OnExit") {
+    ; Delete all custom menu items so that Python menu callbacks from
+    ; main.prepare_standard_tray_menu() are freed.
+    Menu, Tray, DeleteAll
+
     if (Py_FinalizeEx() < 0) {
         code := 120
     }

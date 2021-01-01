@@ -3,6 +3,7 @@ import functools
 import os
 import runpy
 import sys
+import subprocess
 import time
 import traceback
 
@@ -36,6 +37,7 @@ def main():
         import site
         site.addsitedir(f"{venv}\\Lib\\site-packages")
 
+    prepare_tray_menu()
     run_from_args()
 
 
@@ -66,6 +68,29 @@ def handle_system_exit(value):
 
     show_error(value)
     return 1
+
+
+def prepare_tray_menu():
+    ahk_win = ahk.all_windows.first(pid=os.getpid())
+    WM_COMMAND = 0x0111
+    ID_FILE_WINDOWSPY = 65402
+
+    def open_window_spy(*args):
+        ahk_win.post_message(WM_COMMAND, ID_FILE_WINDOWSPY)
+
+    def open_docs(*args):
+        subprocess.Popen(["explorer.exe", "https://ahkpy.readthedocs.io/"])
+
+    ahk.flow.ahk_call("Menu", "Tray", "NoStandard")
+    ahk.flow.ahk_call("Menu", "Tray", "Add", "&Open", lambda *_: ahk.flow.ahk_call("KeyHistory"))
+    ahk.flow.ahk_call("Menu", "Tray", "Default", "&Open")
+    ahk.flow.ahk_call("Menu", "Tray", "Add", "&Help", open_docs)
+    ahk.flow.ahk_call("Menu", "Tray", "Add")  # ---
+    ahk.flow.ahk_call("Menu", "Tray", "Add", "&Window Spy", open_window_spy)
+    ahk.flow.ahk_call("Menu", "Tray", "Add", "&Restart This Script", lambda *_: ahk.restart())
+    ahk.flow.ahk_call("Menu", "Tray", "Add")  # ---
+    ahk.flow.ahk_call("Menu", "Tray", "Add", "&Suspend Hotkeys", lambda *_: ahk.toggle_suspend())
+    ahk.flow.ahk_call("Menu", "Tray", "Add", "E&xit", lambda *_: sys.exit())
 
 
 def run_from_args():
