@@ -73,16 +73,20 @@ def handle_system_exit(value):
 def prepare_tray_menu():
     ahk_win = ahk.all_windows.first(pid=os.getpid())
     WM_COMMAND = 0x0111
-    ID_FILE_WINDOWSPY = 65402
+    ID_TRAY_OPEN = 65300
+    ID_TRAY_WINDOWSPY = 65302
+
+    def open_main_window(*args):
+        ahk_win.post_message(WM_COMMAND, ID_TRAY_OPEN)
 
     def open_window_spy(*args):
-        ahk_win.post_message(WM_COMMAND, ID_FILE_WINDOWSPY)
+        ahk_win.post_message(WM_COMMAND, ID_TRAY_WINDOWSPY)
 
     def open_docs(*args):
         subprocess.Popen(["explorer.exe", "https://ahkpy.readthedocs.io/"])
 
     ahk.flow.ahk_call("Menu", "Tray", "NoStandard")
-    ahk.flow.ahk_call("Menu", "Tray", "Add", "&Open", lambda *_: ahk.flow.ahk_call("KeyHistory"))
+    ahk.flow.ahk_call("Menu", "Tray", "Add", "&Open", open_main_window)
     ahk.flow.ahk_call("Menu", "Tray", "Default", "&Open")
     ahk.flow.ahk_call("Menu", "Tray", "Add", "&Help", open_docs)
     ahk.flow.ahk_call("Menu", "Tray", "Add")  # ---
