@@ -38,6 +38,10 @@ def main():
                 # KeyboardInterrupt is automatically propagated to the subprocess.
                 pass
 
+        if ahk.returncode == EXIT_CODE_RESTART:
+            print("Restarting AHK...", file=sys.stderr)
+            continue
+
         # On Windows, Popen.returncode is unsigned int, while the sys.exit
         # function expects a signed int.
         signed_status = ctypes.c_int32(ahk.returncode)

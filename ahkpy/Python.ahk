@@ -111,9 +111,6 @@ Main() {
     }
     Py_DecRef(result)
 
-    WM_COMMAND := 0x0111
-    OnMessage(WM_COMMAND, "HandleWMCommand", -1)
-
     handleCtrlEventCB := RegisterCallback("HandleCtrlEvent", "Fast")
     DllCall("SetConsoleCtrlHandler", "Ptr", handleCtrlEventCB, "Int", true)
 
@@ -284,20 +281,6 @@ CheckSignals() {
     }
     PyErr_Print()
     PyGILState_Release(gstate)
-}
-
-HandleWMCommand(wParam, lParam, msg, hwnd) {
-    ID_TRAY_RELOADSCRIPT := 65303
-    ID_FILE_RELOADSCRIPT := 65403
-    if (wParam == ID_TRAY_RELOADSCRIPT or wParam == ID_FILE_RELOADSCRIPT) {
-        if (Py_FinalizeEx() < 0) {
-            ExitApp, 120
-        }
-        Main()
-
-        ; Stop handling the message further, that is, override previous handlers
-        return 1
-    }
 }
 
 AHKCall(self, args) {
