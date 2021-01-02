@@ -102,8 +102,15 @@ def restart():
     """
     # TODO: If the new script has an error, AHK will show it and quit. Instead,
     # keep the old script running.
-    from . import launcher
-    sys.exit(launcher.EXIT_CODE_RESTART)
+
+    import os
+    from .window import all_windows
+
+    print("Restarting AHK...", file=sys.stderr)
+    ahk_win = all_windows.first(pid=os.getpid())
+    WM_COMMAND = 0x0111
+    ID_TRAY_RELOADSCRIPT = 65303
+    ahk_win.post_message(WM_COMMAND, ID_TRAY_RELOADSCRIPT)
 
 
 def output_debug(*objects, sep=" "):
