@@ -29,11 +29,13 @@ class Menu:
         self, item_name, callback, *,
         priority=0, default=False, enabled=True, checked=False,
         radio=False, right=False, new_column=False, bar_column=False,
+        icon=None, icon_number=None, icon_width=None,
     ):
         return self._insert_or_update(
             None, item_name, callback=callback,
             priority=priority, default=default, enabled=enabled, checked=checked,
             radio=radio, right=right, new_column=new_column, bar_column=bar_column,
+            icon=icon, icon_number=icon_number, icon_width=icon_width,
         )
 
     def add_separator(self):
@@ -43,17 +45,20 @@ class Menu:
         self, item_name, submenu, *,
         default=False, enabled=True, checked=False,
         radio=False, right=False, new_column=False, bar_column=False,
+        icon=None, icon_number=None, icon_width=None,
     ):
         return self._insert_or_update(
             None, item_name, submenu=submenu,
             default=default, enabled=enabled, checked=checked,
             radio=radio, right=right, new_column=new_column, bar_column=bar_column,
+            icon=icon, icon_number=icon_number, icon_width=icon_width,
         )
 
     def insert(
         self, insert_before, item_name=None, callback=None, *,
         priority=0, default=False, enabled=True, checked=False,
         radio=False, right=False, new_column=False, bar_column=False,
+        icon=None, icon_number=None, icon_width=None,
     ):
         if insert_before is None:
             raise TypeError("insert_before must not be None")
@@ -61,6 +66,7 @@ class Menu:
             insert_before, item_name, callback=callback,
             priority=priority, default=default, enabled=enabled, checked=checked,
             radio=radio, right=right, new_column=new_column, bar_column=bar_column,
+            icon=icon, icon_number=icon_number, icon_width=icon_width,
         )
 
     def insert_separator(self, insert_before):
@@ -72,6 +78,7 @@ class Menu:
         self, insert_before, item_name, submenu, *,
         default=False, enabled=True, checked=False,
         radio=False, right=False, new_column=False, bar_column=False,
+        icon=None, icon_number=None, icon_width=None,
     ):
         if insert_before is None:
             raise TypeError("insert_before must not be None")
@@ -79,18 +86,21 @@ class Menu:
             insert_before, item_name, submenu=submenu,
             default=default, enabled=enabled, checked=checked,
             radio=radio, right=right, new_column=new_column, bar_column=bar_column,
+            icon=icon, icon_number=icon_number, icon_width=icon_width,
         )
 
     def update(
         self, item_name, *, new_name=UNSET, callback=None, submenu=None,
         priority=None, enabled=None, checked=None,
         radio=None, right=None, new_column=None, bar_column=None,
+        icon=None, icon_number=None, icon_width=None,
     ):
         self._insert_or_update(
             item_name, new_name, callback=callback, submenu=submenu,
             update=True,
             priority=priority, enabled=enabled, checked=checked,
             radio=radio, right=right, new_column=new_column, bar_column=bar_column,
+            icon=icon, icon_number=icon_number, icon_width=icon_width,
         )
 
     def _insert_or_update(
@@ -98,6 +108,7 @@ class Menu:
         update=False,
         priority=None, default=False, enabled=True, checked=False,
         radio=None, right=None, new_column=None, bar_column=None,
+        icon=None, icon_number=None, icon_width=None,
     ):
         item_name = self._item_name(item_name)
 
@@ -139,6 +150,8 @@ class Menu:
                 self.check(item_name)
             elif checked is not None:
                 self.uncheck(item_name)
+            if icon:
+                self.set_icon(item_name, icon, icon_number, icon_width)
         else:
             self._call("Insert", item_name, new_name, thing, option_str)
             if new_name:  # If not a separator
@@ -148,6 +161,8 @@ class Menu:
                     self.disable(new_name)
                 if checked:
                     self.check(new_name)
+                if icon:
+                    self.set_icon(new_name, icon, icon_number, icon_width)
             return self
 
     def delete_item(self, item_name):
@@ -199,9 +214,10 @@ class Menu:
     def _remove_standard(self):
         self._call("NoStandard")
 
-    def set_icon(self, item_name, filename, number=None, width=None):
+    def set_icon(self, item_name, filename, number=0, width=None):
         item_name = self._item_name(item_name)
-        self._call("Icon", item_name, filename, number, width)
+        number = number or 0
+        self._call("Icon", item_name, filename, number+1, width)
 
     def remove_icon(self, item_name):
         item_name = self._item_name(item_name)
