@@ -1,7 +1,8 @@
 import dataclasses as dc
 import uuid
 
-from .flow import ahk_call
+from .flow import ahk_call, global_ahk_lock
+from .settings import COORD_MODES, _set_coord_mode
 from .unset import UNSET
 
 
@@ -225,9 +226,12 @@ class Menu:
         item_name = self._item_name(item_name)
         self._call("NoIcon", item_name)
 
-    def show(self):
-        # TODO: Coordinates
-        self._call("Show")
+    def show(self, x=None, y=None, *, relative_to="window"):
+        if relative_to not in COORD_MODES:
+            raise ValueError(f"{relative_to!r} is not a valid coord mode")
+        with global_ahk_lock:
+            _set_coord_mode("menu", relative_to)
+            self._call("Show", x, y)
 
     def set_color(self, color):
         self._call("Color", color)
@@ -238,7 +242,6 @@ class Menu:
         return name
 
     def _call(self, *args):
-        # print(*map(repr, ("Menu", self.name, *args)))
         return ahk_call("Menu", self.name, *args)
 
 
