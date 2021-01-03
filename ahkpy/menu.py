@@ -25,9 +25,11 @@ class Menu:
     def get_handle(self):
         return ahk_call("MenuGetHandle", self.name)
 
-    def add(self, item_name, callback, *,
-            priority=0, default=False, enabled=True, checked=False,
-            radio=False, right=False, new_column=False, bar_column=False):
+    def add(
+        self, item_name, callback, *,
+        priority=0, default=False, enabled=True, checked=False,
+        radio=False, right=False, new_column=False, bar_column=False,
+    ):
         return self._insert_or_update(
             None, item_name, callback=callback,
             priority=priority, default=default, enabled=enabled, checked=checked,
@@ -37,18 +39,22 @@ class Menu:
     def add_separator(self):
         return self._insert_or_update(None, None)
 
-    def add_submenu(self, item_name, submenu, *,
-                    default=False, enabled=True, checked=False,
-                    radio=False, right=False, new_column=False, bar_column=False):
+    def add_submenu(
+        self, item_name, submenu, *,
+        default=False, enabled=True, checked=False,
+        radio=False, right=False, new_column=False, bar_column=False,
+    ):
         return self._insert_or_update(
             None, item_name, submenu=submenu,
             default=default, enabled=enabled, checked=checked,
             radio=radio, right=right, new_column=new_column, bar_column=bar_column,
         )
 
-    def insert(self, insert_before, item_name=None, callback=None, *,
-               priority=0, default=False, enabled=True, checked=False,
-               radio=False, right=False, new_column=False, bar_column=False):
+    def insert(
+        self, insert_before, item_name=None, callback=None, *,
+        priority=0, default=False, enabled=True, checked=False,
+        radio=False, right=False, new_column=False, bar_column=False,
+    ):
         if insert_before is None:
             raise TypeError("insert_before must not be None")
         return self._insert_or_update(
@@ -62,9 +68,11 @@ class Menu:
             raise TypeError("insert_before must not be None")
         return self._insert_or_update(insert_before, None)
 
-    def insert_submenu(self, insert_before, item_name, submenu, *,
-                       default=False, enabled=True, checked=False,
-                       radio=False, right=False, new_column=False, bar_column=False):
+    def insert_submenu(
+        self, insert_before, item_name, submenu, *,
+        default=False, enabled=True, checked=False,
+        radio=False, right=False, new_column=False, bar_column=False,
+    ):
         if insert_before is None:
             raise TypeError("insert_before must not be None")
         return self._insert_or_update(
@@ -73,9 +81,11 @@ class Menu:
             radio=radio, right=right, new_column=new_column, bar_column=bar_column,
         )
 
-    def update(self, item_name, *, new_name=UNSET, callback=None, submenu=None,
-               priority=None, enabled=None, checked=None,
-               radio=None, right=None, new_column=None, bar_column=None):
+    def update(
+        self, item_name, *, new_name=UNSET, callback=None, submenu=None,
+        priority=None, enabled=None, checked=None,
+        radio=None, right=None, new_column=None, bar_column=None,
+    ):
         self._insert_or_update(
             item_name, new_name, callback=callback, submenu=submenu,
             update=True,
