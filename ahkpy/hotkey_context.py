@@ -1,7 +1,7 @@
 import dataclasses as dc
 import functools
 from contextlib import contextmanager
-from typing import Callable, Optional
+from typing import Callable, Optional, Union
 
 from .hotkey import hotkey as _hotkey
 from .hotstring import hotstring as _hotstring
@@ -65,9 +65,70 @@ class HotkeyContext:
         )
         object.__setattr__(self, "active_when", active_when)
 
-    hotkey = _hotkey
-    remap_key = _remap_key
-    hotstring = _hotstring
+    # Copy arguments verbatim to make Pylance's suggestions work. Use
+    # functools.wraps so that the API docs are generated.
+
+    @functools.wraps(_hotkey)
+    def hotkey(
+        self,
+        key_name: str,
+        func: Callable = None,
+        *args,
+        buffer=False,
+        priority=0,
+        max_threads=1,
+        input_level=0,
+    ):
+        return _hotkey(
+            self,
+            key_name,
+            func,
+            *args,
+            buffer=buffer,
+            priority=priority,
+            max_threads=max_threads,
+            input_level=input_level,
+        )
+
+    @functools.wraps(_remap_key)
+    def remap_key(self, origin_key, destination_key, *, mode=None, level=None):
+        return _remap_key(self, origin_key, destination_key, mode=mode, level=level)
+
+    @functools.wraps(_hotstring)
+    def hotstring(
+        self,
+        trigger: str,
+        repl: Union[str, Callable] = None,
+        *args,
+        case_sensitive=False,
+        conform_to_case=True,
+        replace_inside_word=False,
+        wait_for_end_char=True,
+        omit_end_char=False,
+        backspacing=True,
+        priority=0,
+        text=False,
+        mode=None,
+        key_delay=None,
+        reset_recognizer=False,
+    ):
+        return _hotstring(
+            self,
+            trigger,
+            repl,
+            *args,
+            case_sensitive=case_sensitive,
+            conform_to_case=conform_to_case,
+            replace_inside_word=replace_inside_word,
+            wait_for_end_char=wait_for_end_char,
+            omit_end_char=omit_end_char,
+            backspacing=backspacing,
+            priority=priority,
+            text=text,
+            mode=mode,
+            key_delay=key_delay,
+            reset_recognizer=reset_recognizer,
+        )
 
     @contextmanager
     def _manager(self):

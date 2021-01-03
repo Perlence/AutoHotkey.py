@@ -37,4 +37,9 @@ from .tooltip import *  # noqa: F401 F403
 from .window import *  # noqa: F401 F403
 from .window_message import *  # noqa: F401 F403
 
+# Override modules with functions
+hotkey = default_context.hotkey  # noqa: F405
+remap_key = default_context.remap_key  # noqa: F405
+hotstring = default_context.hotstring  # noqa: F405
+
 __version__ = "0.1.dev"
