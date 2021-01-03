@@ -1,4 +1,5 @@
 import dataclasses as dc
+import uuid
 
 from .flow import ahk_call
 
@@ -15,7 +16,9 @@ class Menu:
     name: str
     __slots__ = ("name",)
 
-    def __init__(self, name: str):
+    def __init__(self, name: str = None):
+        if name is None:
+            name = str(uuid.uuid4())
         object.__setattr__(self, "name", name.lower())
 
     def get_handle(self):
