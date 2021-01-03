@@ -2,6 +2,7 @@ import dataclasses as dc
 import uuid
 
 from .flow import ahk_call
+from .unset import UNSET
 
 
 __all__ = [
@@ -34,7 +35,7 @@ class Menu:
         )
 
     def add_separator(self):
-        return self._insert_or_update(None)
+        return self._insert_or_update(None, None)
 
     def add_submenu(self, item_name, submenu, *,
                     default=False, enabled=True, checked=False,
@@ -59,7 +60,7 @@ class Menu:
     def insert_separator(self, insert_before):
         if insert_before is None:
             raise TypeError("insert_before must not be None")
-        return self._insert_or_update(insert_before)
+        return self._insert_or_update(insert_before, None)
 
     def insert_submenu(self, insert_before, item_name, submenu, *,
                        default=False, enabled=True, checked=False,
@@ -72,18 +73,18 @@ class Menu:
             radio=radio, right=right, new_column=new_column, bar_column=bar_column,
         )
 
-    def update(self, item_name, *, callback=None, submenu=None,
+    def update(self, item_name, *, new_name=UNSET, callback=None, submenu=None,
                priority=None, enabled=None, checked=None,
                radio=None, right=None, new_column=None, bar_column=None):
         self._insert_or_update(
-            item_name, callback=callback, submenu=submenu,
+            item_name, new_name, callback=callback, submenu=submenu,
             update=True,
             priority=priority, enabled=enabled, checked=checked,
             radio=radio, right=right, new_column=new_column, bar_column=bar_column,
         )
 
     def _insert_or_update(
-        self, item_name=None, new_item_name=None, *, callback=None, submenu=None,
+        self, item_name=None, new_name=UNSET, *, callback=None, submenu=None,
         update=False,
         priority=None, default=False, enabled=True, checked=False,
         radio=None, right=None, new_column=None, bar_column=None,
@@ -112,6 +113,8 @@ class Menu:
         option_str = " ".join(option_list)
 
         if update:
+            if new_name is not UNSET:
+                self.rename(item_name, new_name)
             # Update separately. If the menu item doesn't exist, setting the
             # options will fail.
             if option_str:
@@ -127,15 +130,15 @@ class Menu:
             elif checked is not None:
                 self.uncheck(item_name)
         else:
-            self._call("Insert", item_name, new_item_name, thing, option_str)
-            if new_item_name:
+            self._call("Insert", item_name, new_name, thing, option_str)
+            if new_name:  # If not a separator
                 if default:
-                    self.set_default(new_item_name)
+                    self.set_default(new_name)
                 if not enabled:
-                    self.disable(new_item_name)
+                    self.disable(new_name)
                 if checked:
-                    self.check(new_item_name)
-                return self
+                    self.check(new_name)
+            return self
 
     def delete_item(self, item_name):
         item_name = self._item_name(item_name)
@@ -147,10 +150,10 @@ class Menu:
     def delete_menu(self):
         self._call("Delete")
 
-    def rename(self, item_name=None):
+    def rename(self, item_name, new_name=None):
         if item_name is not None:
             item_name = self._item_name(item_name)
-        self._call("Rename", item_name)
+        self._call("Rename", item_name, new_name)
 
     def check(self, item_name):
         item_name = self._item_name(item_name)
