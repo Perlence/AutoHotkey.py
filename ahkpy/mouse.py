@@ -10,6 +10,7 @@ __all__ = [
     "click",
     "double_click",
     "get_control_under_mouse",
+    "get_cursor_type",
     "get_mouse_pos",
     "get_window_under_mouse",
     "mouse_move",
@@ -323,3 +324,17 @@ def get_control_under_mouse(simple=False):
     if not win_id:
         return Control(None)
     return Control(win_id)
+
+
+def get_cursor_type() -> str:
+    """Get the type of mouse cursor currently being displayed.
+
+    Returns one of the following words: AppStarting, Arrow, Cross, Help,
+    IBeam, Icon, No, Size, SizeAll, SizeNESW, SizeNS, SizeNWSE, SizeWE, UpArrow,
+    Wait, Unknown.
+
+    The acronyms used with the size-type cursors are compass directions, e.g.
+    NESW = NorthEast+SouthWest. The hand-shaped cursors (pointing and grabbing)
+    are classified as Unknown.
+    """
+    return ahk_call("GetVar", "A_Cursor")

@@ -160,6 +160,8 @@ implemented as follows::
 .. autofunction:: get_window_under_mouse
 .. autofunction:: get_control_under_mouse
 
+.. autofunction:: get_cursor_type
+
 Key States
 ~~~~~~~~~~
 
