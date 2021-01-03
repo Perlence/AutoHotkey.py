@@ -76,24 +76,18 @@ def prepare_tray_menu():
     ID_TRAY_OPEN = 65300
     ID_TRAY_WINDOWSPY = 65302
 
-    def open_main_window(*args):
-        ahk_win.post_message(WM_COMMAND, ID_TRAY_OPEN)
-
-    def open_window_spy(*args):
-        ahk_win.post_message(WM_COMMAND, ID_TRAY_WINDOWSPY)
-
-    def open_docs(*args):
+    def open_docs():
         subprocess.Popen(["explorer.exe", "https://ahkpy.readthedocs.io/"])
 
     ahk.tray_menu._remove_standard()
-    ahk.tray_menu.add("&Open", open_main_window, default=True)
+    ahk.tray_menu.add("&Open", ahk_win.post_message, WM_COMMAND, ID_TRAY_OPEN, default=True)
     ahk.tray_menu.add("&Help", open_docs)
     ahk.tray_menu.add_separator()
-    ahk.tray_menu.add("&Window Spy", open_window_spy)
-    ahk.tray_menu.add("&Restart This Script", lambda *_: ahk.restart())
+    ahk.tray_menu.add("&Window Spy", ahk_win.post_message, WM_COMMAND, ID_TRAY_WINDOWSPY)
+    ahk.tray_menu.add("&Restart This Script", ahk.restart)
     ahk.tray_menu.add_separator()
-    ahk.tray_menu.add("&Suspend Hotkeys", lambda *_: ahk.toggle_suspend())
-    ahk.tray_menu.add("E&xit", lambda *_: sys.exit())
+    ahk.tray_menu.add("&Suspend Hotkeys", ahk.toggle_suspend)
+    ahk.tray_menu.add("E&xit", sys.exit)
 
 
 def run_from_args():

@@ -1,7 +1,8 @@
 import dataclasses as dc
+import functools
 import uuid
 
-from .flow import ahk_call, global_ahk_lock
+from .flow import ahk_call, global_ahk_lock, _wrap_callback
 from .settings import COORD_MODES, _set_coord_mode
 from .unset import UNSET
 
@@ -27,13 +28,13 @@ class Menu:
         return ahk_call("MenuGetHandle", self.name)
 
     def add(
-        self, item_name, callback, *,
+        self, item_name, callback, *args,
         priority=0, default=False, enabled=True, checked=False,
         radio=False, right=False, new_column=False, bar_column=False,
         icon=None, icon_number=None, icon_width=None,
     ):
         return self._insert_or_update(
-            None, item_name, callback=callback,
+            None, item_name, callback=callback, args=args,
             priority=priority, default=default, enabled=enabled, checked=checked,
             radio=radio, right=right, new_column=new_column, bar_column=bar_column,
             icon=icon, icon_number=icon_number, icon_width=icon_width,
@@ -56,7 +57,7 @@ class Menu:
         )
 
     def insert(
-        self, insert_before, item_name=None, callback=None, *,
+        self, insert_before, item_name=None, callback=None, *args,
         priority=0, default=False, enabled=True, checked=False,
         radio=False, right=False, new_column=False, bar_column=False,
         icon=None, icon_number=None, icon_width=None,
@@ -64,7 +65,7 @@ class Menu:
         if insert_before is None:
             raise TypeError("insert_before must not be None")
         return self._insert_or_update(
-            insert_before, item_name, callback=callback,
+            insert_before, item_name, callback=callback, args=args,
             priority=priority, default=default, enabled=enabled, checked=checked,
             radio=radio, right=right, new_column=new_column, bar_column=bar_column,
             icon=icon, icon_number=icon_number, icon_width=icon_width,
@@ -107,7 +108,7 @@ class Menu:
         )
 
     def _insert_or_update(
-        self, item_name=None, new_name=UNSET, *, callback=None, submenu=None,
+        self, item_name=None, new_name=UNSET, *, callback=None, args=(), submenu=None,
         update=False,
         priority=None, default=False, enabled=True, checked=False,
         radio=None, right=None, new_column=None, bar_column=None,
@@ -118,8 +119,12 @@ class Menu:
         if submenu is not None:
             thing = f":{submenu.name}"
         elif callback is not None:
-            # TODO: Pass Menu instance to callback.
-            thing = callback
+            thing = _wrap_callback(
+                functools.partial(callback, *args),
+                ("item_name", "item_pos", "menu"),
+                _bare_menu_item_handler,
+                _menu_item_handler,
+            )
         else:
             thing = None
 
@@ -243,6 +248,14 @@ class Menu:
 
     def _call(self, *args):
         return ahk_call("Menu", self.name, *args)
+
+
+def _bare_menu_item_handler(callback, *_):
+    return callback()
+
+
+def _menu_item_handler(callback, item_name, item_pos, menu_name):
+    return callback(item_name=item_name, item_pos=item_pos, menu=Menu(menu_name))
 
 
 class TrayMenu(Menu):
