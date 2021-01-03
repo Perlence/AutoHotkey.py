@@ -134,8 +134,6 @@ class Menu:
         option_str = " ".join(option_list)
 
         if update:
-            if new_name is not UNSET:
-                self.rename(item_name, new_name)
             # Update separately. If the menu item doesn't exist, setting the
             # options will fail.
             if option_str:
@@ -152,6 +150,8 @@ class Menu:
                 self.uncheck(item_name)
             if icon:
                 self.set_icon(item_name, icon, icon_number, icon_width)
+            if new_name is not UNSET:
+                self.rename(item_name, new_name)
         else:
             self._call("Insert", item_name, new_name, thing, option_str)
             if new_name:  # If not a separator
