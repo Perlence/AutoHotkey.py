@@ -215,8 +215,10 @@ _ListHotkeys() {
     ListHotkeys
 }
 
-_Menu(MenuName,Cmd,P3="",P4="",P5="") {
-    Menu %MenuName%,%Cmd%,%P3%,%P4%,%P5%
+_Menu(MenuName,Cmd,P3="",P4="",P5="",P6="") {
+    StringLower, MenuName, MenuName
+    MENUS[MenuName] := 1
+    Menu %MenuName%,%Cmd%,%P3%,%P4%,%P5%,%P6%
 }
 
 _MouseClick(WhichButton="",X="",Y="",ClickCount="",Speed="",State="",R="") {

@@ -85,16 +85,15 @@ def prepare_tray_menu():
     def open_docs(*args):
         subprocess.Popen(["explorer.exe", "https://ahkpy.readthedocs.io/"])
 
-    ahk.flow.ahk_call("Menu", "Tray", "NoStandard")
-    ahk.flow.ahk_call("Menu", "Tray", "Add", "&Open", open_main_window)
-    ahk.flow.ahk_call("Menu", "Tray", "Default", "&Open")
-    ahk.flow.ahk_call("Menu", "Tray", "Add", "&Help", open_docs)
-    ahk.flow.ahk_call("Menu", "Tray", "Add")  # ---
-    ahk.flow.ahk_call("Menu", "Tray", "Add", "&Window Spy", open_window_spy)
-    ahk.flow.ahk_call("Menu", "Tray", "Add", "&Restart This Script", lambda *_: ahk.restart())
-    ahk.flow.ahk_call("Menu", "Tray", "Add")  # ---
-    ahk.flow.ahk_call("Menu", "Tray", "Add", "&Suspend Hotkeys", lambda *_: ahk.toggle_suspend())
-    ahk.flow.ahk_call("Menu", "Tray", "Add", "E&xit", lambda *_: sys.exit())
+    ahk.tray_menu._remove_standard()
+    ahk.tray_menu.add("&Open", open_main_window, default=True)
+    ahk.tray_menu.add("&Help", open_docs)
+    ahk.tray_menu.add_separator()
+    ahk.tray_menu.add("&Window Spy", open_window_spy)
+    ahk.tray_menu.add("&Restart This Script", lambda *_: ahk.restart())
+    ahk.tray_menu.add_separator()
+    ahk.tray_menu.add("&Suspend Hotkeys", lambda *_: ahk.toggle_suspend())
+    ahk.tray_menu.add("E&xit", lambda *_: sys.exit())
 
 
 def run_from_args():

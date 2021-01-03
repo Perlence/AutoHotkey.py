@@ -27,6 +27,7 @@ from .flow import *  # noqa: F401 F403
 from .hotkey import *  # noqa: F401 F403
 from .hotstring import *  # noqa: F401 F403
 from .key_state import *  # noqa: F401 F403
+from .menu import *  # noqa: F401 F403
 from .message_box import *  # noqa: F401 F403
 from .mouse import *  # noqa: F401 F403
 from .remap_key import *  # noqa: F401 F403

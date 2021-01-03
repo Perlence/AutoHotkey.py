@@ -24,6 +24,7 @@ global Py_TPFLAGS_UNICODE_SUBCLASS := 1 << 28
 global Py_TPFLAGS_BASE_EXC_SUBCLASS := 1 << 30
 
 global WRAPPED_PYTHON_CALLABLE := {}
+global MENUS := {}
 
 global AHKMethods
 global AHKModule
@@ -35,7 +36,7 @@ global Py_EmptyString := NULL
 global Py_AHKError := NULL
 global Py_HandleSystemExit := NULL
 
-OnExit("OnExitFunc")
+OnExit("HandleExit")
 
 Main()
 
@@ -618,13 +619,19 @@ End(message) {
 }
 
 GuiClose:
-    OnExitFunc("Close", 0, A_ThisLabel)
+    HandleExit("Close", 0, A_ThisLabel)
     return
 
-OnExitFunc(reason, code, label:="OnExit") {
-    ; Delete all custom menu items so that Python menu callbacks from
-    ; main.prepare_tray_menu() are freed.
-    Menu, Tray, DeleteAll
+HandleExit(reason, code, label:="OnExit") {
+    ; Delete all custom menu items so that Python menu callbacks are freed.
+    for menuName, _ in MENUS {
+        try {
+            Menu, %menuName%, DeleteAll
+        } catch {
+            ; Menu might not exist.
+            continue
+        }
+    }
 
     if (Py_FinalizeEx() < 0) {
         code := 120
