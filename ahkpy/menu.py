@@ -95,6 +95,8 @@ class Menu:
         radio=None, right=None, new_column=None, bar_column=None,
         icon=None, icon_number=None, icon_width=None,
     ):
+        if item_name is None:
+            raise TypeError("item_name must not be None")
         self._insert_or_update(
             item_name, new_name, callback=callback, submenu=submenu,
             update=True,
