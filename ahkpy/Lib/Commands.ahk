@@ -1,7 +1,3 @@
-_A_SendLevel() {
-    return %A_SendLevel%
-}
-
 _BlockInput(Mode) {
     BlockInput %Mode%
 }
@@ -10,12 +6,13 @@ _Click(Item1="",Item2="",Item3="",Item4="",Item5="",Item6="",Item7="") {
     Click %Item1%,%Item2%,%Item3%,%Item4%,%Item5%,%Item6%,%Item7%
 }
 
-_GetClipboard() {
-    return Clipboard
+_GetVar(Name) {
+    result := % %Name%
+    return result
 }
 
-_SetClipboard(Value) {
-    Clipboard := Value
+_SetVar(Name, Value) {
+    %Name% := Value
 }
 
 _ClipWait(SecondsToWait="",AnyKindOfData="") {

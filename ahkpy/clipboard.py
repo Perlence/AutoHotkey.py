@@ -19,7 +19,7 @@ def get_clipboard() -> str:
     :command: `Clipboard
        <https://www.autohotkey.com/docs/misc/Clipboard.htm>`_
     """
-    return ahk_call("GetClipboard")
+    return ahk_call("GetVar", "Clipboard")
 
 
 def set_clipboard(value):
@@ -28,7 +28,7 @@ def set_clipboard(value):
     :command: `Clipboard = Value
        <https://www.autohotkey.com/docs/misc/Clipboard.htm>`_
     """
-    return ahk_call("SetClipboard", str(value))
+    return ahk_call("SetVar", "Clipboard", str(value))
 
 
 def wait_clipboard(timeout: float = None) -> str:
