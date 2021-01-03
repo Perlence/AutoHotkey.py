@@ -5,7 +5,7 @@ import functools
 from typing import Callable, Union
 
 from . import hotkey_context
-from .flow import ahk_call, void
+from .flow import ahk_call, _wrap_callback
 from .sending import _get_send_mode
 
 __all__ = [
@@ -44,6 +44,10 @@ def hotstring(
     the following: ``-()[]{}':;"/\\,.?!\\n \\t``. If *repl* is an instance of
     :class:`str`, the user's input will be replaced with *repl*. If *repl* is a
     callable, it will be called when the hotstring is triggered.
+
+    When the hotstring is triggered and *repl* is a callable, *repl* is called
+    with the :class:`Hotstring` instance as the *hotstring* argument if the
+    function supports it.
 
     The optional positional *args* will be passed to the *repl* when it is
     called. If you want the *repl* to be called with keyword arguments use
@@ -252,7 +256,12 @@ class Hotstring:
         :meth:`HotkeyContext.hotstring`.
         """
         if callable(repl):
-            repl = void(repl)
+            repl = _wrap_callback(
+                repl,
+                ("hotstring",),
+                _bare_hotstring_handler,
+                functools.partial(_hotstring_handler, hotstring=self),
+            )
 
         options = []
 
@@ -315,6 +324,14 @@ class Hotstring:
 
         with self.context._manager():
             ahk_call("Hotstring", f":{option_str}:{self.trigger}", repl)
+
+
+def _bare_hotstring_handler(func):
+    func()
+
+
+def _hotstring_handler(func, hotstring):
+    func(hotstring=hotstring)
 
 
 def reset_hotstring():

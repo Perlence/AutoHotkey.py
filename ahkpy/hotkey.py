@@ -5,7 +5,7 @@ import functools
 from typing import Callable
 
 from . import hotkey_context
-from .flow import ahk_call, void
+from .flow import ahk_call, _wrap_callback
 
 __all__ = [
     "Hotkey",
@@ -29,6 +29,15 @@ def hotkey(
     For valid *key_name* values refer to `Hotkey Modifier Symbols
     <https://www.autohotkey.com/docs/Hotkeys.htm#Symbols>`_ and `List of Keys
     <https://www.autohotkey.com/docs/KeyList.htm>`_.
+
+    When the hotkey is triggered, *func* is called with the :class:`Hotkey`
+    instance as the *hotkey* argument if the function supports it::
+
+        ahkpy.hotkey("F1", lambda hotkey: print(hotkey))
+
+    Pressing :kbd:`F1` prints the following::
+
+        Hotkey(key_name='F1', context=HotkeyContext(active_when=None))
 
     The optional positional *args* will be passed to the *func* when it is
     called. If you want the *func* to be called with keyword arguments use
@@ -140,8 +149,17 @@ class Hotkey:
         For more information about the arguments refer to
         :meth:`HotkeyContext.hotkey`.
         """
-        if not callable(func):
-            raise TypeError(f"object {func!r} must be callable")
+        if func is not None:
+            if not callable(func):
+                raise TypeError(f"object {func!r} must be callable")
+
+            # TODO: Test changing options without changing the handler.
+            func = _wrap_callback(
+                func,
+                ("hotkey",),
+                _bare_hotkey_handler,
+                functools.partial(_hotkey_handler, hotkey=self),
+            )
 
         options = []
 
@@ -162,4 +180,12 @@ class Hotkey:
         option_str = "".join(options)
 
         with self.context._manager():
-            ahk_call("Hotkey", self.key_name, void(func), option_str)
+            ahk_call("Hotkey", self.key_name, func, option_str)
+
+
+def _bare_hotkey_handler(func):
+    func()
+
+
+def _hotkey_handler(func, hotkey):
+    func(hotkey=hotkey)

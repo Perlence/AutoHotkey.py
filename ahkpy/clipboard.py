@@ -2,7 +2,7 @@ import dataclasses as dc
 import functools
 from typing import Callable
 
-from .flow import ahk_call, void
+from .flow import ahk_call, _wrap_callback
 
 __all__ = [
     "ClipboardHandler",
@@ -50,11 +50,15 @@ def wait_clipboard(timeout: float = None) -> str:
     return get_clipboard()
 
 
-def on_clipboard_change(func: Callable = None, *, prepend_handler=False):
+def on_clipboard_change(func: Callable = None, *args, prepend_handler=False):
     """Register *func* to be called on clipboard change.
 
-    On clipboard change, the *func* will be called with the clipboard text as an
-    argument.
+    On clipboard change, *func* will be called with the clipboard text as the
+    *clipboard* argument.
+
+    The optional positional *args* will be passed to the *func* when it is
+    called. If you want the callback to be called with keyword arguments use
+    :func:`functools.partial`.
 
     If the optional *prepend_handler* argument is set to ``True``, the *func*
     will be registered to be called before any other previously registered
@@ -64,8 +68,8 @@ def on_clipboard_change(func: Callable = None, *, prepend_handler=False):
     Otherwise, the function works as a decorator::
 
         @ahkpy.on_clipboard_change()
-        def handler(clipboard_text):
-            print(clipboard_text.upper())
+        def handler(clipboard):
+            print(clipboard.upper())
 
         assert isinstance(handler, ahkpy.ClipboardHandler)
 
@@ -75,23 +79,33 @@ def on_clipboard_change(func: Callable = None, *, prepend_handler=False):
     option = 1 if not prepend_handler else -1
 
     def on_clipboard_change_decorator(func):
-        wrapper = void(functools.partial(_clipboard_handler, func))
-        ahk_call("OnClipboardChange", wrapper, option)
-        return ClipboardHandler(wrapper)
+        func = _wrap_callback(
+            functools.partial(func, *args),
+            ("clipboard",),
+            _bare_clipboard_handler,
+            _clipboard_handler,
+        )
+        ahk_call("OnClipboardChange", func, option)
+        return ClipboardHandler(func)
 
     if func is None:
         return on_clipboard_change_decorator
     return on_clipboard_change_decorator(func)
 
 
+def _bare_clipboard_handler(func, *_):
+    return bool(func())
+
+
 def _clipboard_handler(func, typ):
+    # TODO: Document returning a truthy object.
     if typ == 0:
-        return func("")
+        return bool(func(clipboard=""))
     elif typ == 1:
-        return func(get_clipboard())
+        return bool(func(clipboard=get_clipboard()))
     elif typ == 2:
         # TODO: Return ClipboardAll.
-        return func(get_clipboard())
+        return bool(func(clipboard=get_clipboard()))
 
 
 @dc.dataclass(frozen=True)

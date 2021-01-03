@@ -87,7 +87,7 @@ def test_clipboard_returns(request, child_ahk):
         ahk.hotkey("F24", sys.exit)
 
         @ahk.on_clipboard_change()
-        def objector(clipboard):
+        def objector():
             return object()
 
         print("ok00")

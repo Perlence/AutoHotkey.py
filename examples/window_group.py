@@ -32,7 +32,7 @@ msgnum = windll.user32.RegisterWindowMessageW("SHELLHOOK")
 
 
 @ahk.on_message(msgnum)
-def handle_shell_message(w_param, l_param, *args):
+def handle_shell_message(w_param, l_param, **kw):
     win_id = l_param
     win = ahk.Window(win_id)
     if w_param == HSHELL_WINDOWDESTROYED:

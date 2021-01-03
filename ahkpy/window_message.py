@@ -1,7 +1,8 @@
 import dataclasses as dc
+import functools
 from typing import Callable
 
-from .flow import ahk_call
+from .flow import ahk_call, _wrap_callback
 
 __all__ = [
     "MessageHandler",
@@ -9,11 +10,11 @@ __all__ = [
 ]
 
 
-def on_message(msg_number: int, func=None, *, max_threads=1, prepend_handler=False):
+def on_message(msg_number: int, func=None, *args, max_threads=1, prepend_handler=False):
     """Register *func* to be called on window message *msg_number*.
 
     Upon receiving a window message, the *func* will be called with the
-    following positional arguments:
+    following arguments:
 
     :param int w_param: the message's *wParam* value
 
@@ -24,6 +25,10 @@ def on_message(msg_number: int, func=None, *, max_threads=1, prepend_handler=Fal
 
     :param int hwnd: the HWND (unique ID) of the window or control to which the
        message was sent
+
+    The optional positional *args* will be passed to the *func* when it is
+    called. If you want the callback to be called with keyword arguments use
+    :func:`functools.partial`.
 
     The optional *max_threads* argument sets the number of messages AHK can
     handle concurrently.
@@ -53,12 +58,26 @@ def on_message(msg_number: int, func=None, *, max_threads=1, prepend_handler=Fal
         max_threads *= -1
 
     def on_message_decorator(func):
+        func = _wrap_callback(
+            functools.partial(func, *args),
+            ("w_param", "l_param", "msg", "hwnd"),
+            _bare_message_handler,
+            _message_handler,
+        )
         ahk_call("OnMessage", int(msg_number), func, max_threads)
         return MessageHandler(msg_number, func)
 
     if func is None:
         return on_message_decorator
     return on_message_decorator(func)
+
+
+def _bare_message_handler(func, *_):
+    return func()
+
+
+def _message_handler(func, w_param, l_param, msg, hwnd):
+    return func(w_param=w_param, l_param=l_param, msg=msg, hwnd=hwnd)
 
 
 @dc.dataclass(frozen=True)

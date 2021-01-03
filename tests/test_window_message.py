@@ -24,17 +24,17 @@ def test_on_message(request):
     assert result == 42
     assert args == (0, 99, 0x5555, win.id)
 
-    null_handler_called = False
+    bare_handler_called = False
 
     @ahk.on_message(0x5556)
-    def null_handler(w_param, l_param, msg, hwnd):
-        nonlocal null_handler_called
-        null_handler_called = True
+    def bare_handler():
+        nonlocal bare_handler_called
+        bare_handler_called = True
         return None
 
     result = win.send_message(0x5556, 0, 99)
     assert result == 0
-    assert null_handler_called
+    assert bare_handler_called
 
     result = win.post_message(0x5556, 0, 99)
     assert result is True
@@ -57,7 +57,7 @@ def test_on_message_timeout(child_ahk):
         ahk.hotkey("F24", sys.exit)
 
         @ahk.on_message(0x5555)
-        def slow_handler(w_param, l_param, msg, hwnd):
+        def slow_handler():
             ahk.sleep(1)
             return 42
 

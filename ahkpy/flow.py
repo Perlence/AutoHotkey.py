@@ -1,4 +1,6 @@
 import ctypes
+import functools
+import inspect
 import queue
 import sys
 import threading
@@ -193,3 +195,29 @@ def void(func):
     def void_wrapper(*args):
         func(*args)
     return void_wrapper
+
+
+def _wrap_callback(func, arg_names, bare_cb, keyword_cb):
+    try:
+        signature = inspect.signature(func)
+    except ValueError:
+        # Usually ctypes functions.
+        return functools.partial(bare_cb, func)
+
+    missing_args = set()
+    for arg_name in arg_names:
+        try:
+            signature.bind_partial(**{arg_name: None})
+        except TypeError:
+            missing_args.add(arg_name)
+
+    # There must be either all arg_names in the func signature, or no arg_names.
+    # Specifying only a part of arg_names raises a TypeError. All or nothing.
+    if not missing_args:
+        return functools.partial(keyword_cb, func)
+    if missing_args == set(arg_names):
+        signature.bind()  # Check required arguments
+        return functools.partial(bare_cb, func)
+    else:
+        msg = f"the following keyword arguments are missing: {', '.join(missing_args)}"
+        raise TypeError(msg)
