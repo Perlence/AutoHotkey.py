@@ -59,6 +59,16 @@ Flow
 GUI
 ---
 
+Menus
+~~~~~
+
+.. autoclass:: Menu
+   :members:
+
+.. autoclass:: TrayMenu
+   :show-inheritance:
+   :members:
+
 Message Boxes
 ~~~~~~~~~~~~~
 

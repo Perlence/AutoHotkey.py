@@ -16,6 +16,63 @@ __all__ = [
 
 @dc.dataclass(frozen=True)
 class Menu:
+    """The menu object.
+
+    Can be used to create, modify, and show menus.
+
+    The optional *name* argument identifies the menu. If omitted, a random name
+    is generated.
+
+    Example usage::
+
+       def menu_handler(item_name, item_pos, menu):
+           ahkpy.message_box(f"You selected {item_name} from {menu}.")
+
+       # Create the popup menu by adding some items to it.
+       menu = ahkpy.Menu()
+       menu.add("Item1", menu_handler)
+       menu.add("Item2", menu_handler)
+       menu.add_separator()
+
+       # Create another menu destined to become a submenu of the above menu.
+       submenu = ahkpy.Menu()
+       submenu.add("Item1", menu_handler)
+       submenu.add("Item2", menu_handler)
+
+       # Create a submenu in the first menu (a right-arrow indicator). When the
+       # user selects it, the second menu is displayed.
+       menu.add_submenu("My Submenu", submenu)
+
+       # Add more items beneath the submenu.
+       menu.add_separator()
+       menu.add("Item3", menu_handler)
+
+       ahk.hotkey("F1", menu.show)
+
+    The :class:`!Menu` instances also support the chaining API. The above
+    example can be written as follows::
+
+       def menu_handler(item_name, menu, **kw):
+           ahkpy.message_box(f"You selected {item_name} from {menu}.")
+
+       menu = (
+           ahkpy.Menu()
+           .add("Item1", menu_handler)
+           .add("Item2", menu_handler)
+           .add_separator()
+           .add_submenu(
+               "My Submenu",
+               ahkpy.Menu()
+               .add("Item1", menu_handler)
+               .add("Item2", menu_handler)
+           )
+           .add_separator()
+           .add("Item3", menu_handler)
+       )
+
+       ahk.hotkey("F1", menu.show)
+    """
+
     name: str
     __slots__ = ("name",)
 
