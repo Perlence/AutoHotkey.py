@@ -88,8 +88,7 @@ class Menu:
         priority=None, default=False, enabled=True, checked=False,
         radio=None, right=None, new_column=None, bar_column=None,
     ):
-        if isinstance(item_name, int):
-            item_name = f"{item_name + 1}&"
+        item_name = self._item_name(item_name)
 
         if submenu is not None:
             thing = f":{submenu.name}"
@@ -139,6 +138,7 @@ class Menu:
                 return self
 
     def delete_item(self, item_name):
+        item_name = self._item_name(item_name)
         self._call("Delete", item_name)
 
     def delete_all_items(self):
@@ -148,27 +148,36 @@ class Menu:
         self._call("Delete")
 
     def rename(self, item_name=None):
+        if item_name is not None:
+            item_name = self._item_name(item_name)
         self._call("Rename", item_name)
 
     def check(self, item_name):
+        item_name = self._item_name(item_name)
         self._call("Check", item_name)
 
     def uncheck(self, item_name):
+        item_name = self._item_name(item_name)
         self._call("Uncheck", item_name)
 
     def toggle_check(self, item_name):
+        item_name = self._item_name(item_name)
         self._call("ToggleCheck", item_name)
 
     def enable(self, item_name):
+        item_name = self._item_name(item_name)
         self._call("Enable", item_name)
 
     def disable(self, item_name):
+        item_name = self._item_name(item_name)
         self._call("Disable", item_name)
 
     def toggle_enable(self, item_name):
+        item_name = self._item_name(item_name)
         self._call("ToggleEnable", item_name)
 
     def set_default(self, item_name):
+        item_name = self._item_name(item_name)
         self._call("Default", item_name)
 
     def remove_default(self):
@@ -178,9 +187,11 @@ class Menu:
         self._call("NoStandard")
 
     def set_icon(self, item_name, filename, number=None, width=None):
+        item_name = self._item_name(item_name)
         self._call("Icon", item_name, filename, number, width)
 
     def remove_icon(self, item_name):
+        item_name = self._item_name(item_name)
         self._call("NoIcon", item_name)
 
     def show(self):
@@ -189,6 +200,11 @@ class Menu:
 
     def set_color(self, color):
         self._call("Color", color)
+
+    def _item_name(self, name):
+        if isinstance(name, int):
+            name = f"{name + 1}&"
+        return name
 
     def _call(self, *args):
         # print(*map(repr, ("Menu", self.name, *args)))
