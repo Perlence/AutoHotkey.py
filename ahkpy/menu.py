@@ -248,16 +248,63 @@ class TrayMenu(Menu):
     def __init__(self):
         super().__init__("tray")
 
-    def set_tray_icon(self, filename, *, freeze=False):
-        self._call("Icon", filename)
+    @property
+    def tray_icon_file(self):
+        return ahk_call("GetVar", "A_IconFile") or None
 
-    def remove_tray_icon(self):
+    @tray_icon_file.setter
+    def tray_icon_file(self, filename):
+        self.set_tray_icon(filename)
+
+    @property
+    def tray_icon_number(self):
+        number = ahk_call("GetVar", "A_IconNumber")
+        if isinstance(number, int):
+            return number - 1
+        # Default icon, no number.
+        return None
+
+    @tray_icon_number.setter
+    def tray_icon_number(self, number):
+        filename = self.tray_icon_file
+        if filename:
+            self.set_tray_icon(filename, number=number)
+
+    def set_tray_icon(self, filename=None, *, number=0, affected_by_suspend=None):
+        if affected_by_suspend:
+            freeze = "0"
+        elif affected_by_suspend is not None:
+            freeze = "1"
+        else:
+            freeze = None
+        self._call("Icon", filename, number+1, freeze)
+
+    @property
+    def is_tray_icon_visible(self):
+        return not ahk_call("GetVar", "A_IconHidden")
+
+    @is_tray_icon_visible.setter
+    def is_tray_icon_visible(self, is_tray_icon_visible):
+        if is_tray_icon_visible:
+            self.show_tray_icon()
+        else:
+            self.hide_tray_icon()
+
+    def show_tray_icon(self):
+        self._call("Icon")
+
+    def hide_tray_icon(self):
         self._call("NoIcon")
 
-    def set_tip(self, text):
+    @property
+    def tip(self):
+        return ahk_call("GetVar", "A_IconTip") or None
+
+    @tip.setter
+    def tip(self, text):
         self._call("Tip", text)
 
-    def set_click(self, number):
+    def set_clicks(self, number):
         self._call("Click", number)
 
 
