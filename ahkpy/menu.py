@@ -87,13 +87,13 @@ class Menu:
     def add(
         self, item_name, callback, *args,
         priority=0, default=False, enabled=True, checked=False,
-        radio=False, right=False, new_column=False, bar_column=False,
+        radio=False, new_column=False, bar_column=False,
         icon=None, icon_number=None, icon_width=None,
     ):
         return self._insert_or_update(
             None, item_name, callback=callback, args=args,
             priority=priority, default=default, enabled=enabled, checked=checked,
-            radio=radio, right=right, new_column=new_column, bar_column=bar_column,
+            radio=radio, new_column=new_column, bar_column=bar_column,
             icon=icon, icon_number=icon_number, icon_width=icon_width,
         )
 
@@ -103,20 +103,20 @@ class Menu:
     def add_submenu(
         self, item_name, submenu, *,
         default=False, enabled=True, checked=False,
-        radio=False, right=False, new_column=False, bar_column=False,
+        radio=False, new_column=False, bar_column=False,
         icon=None, icon_number=None, icon_width=None,
     ):
         return self._insert_or_update(
             None, item_name, submenu=submenu,
             default=default, enabled=enabled, checked=checked,
-            radio=radio, right=right, new_column=new_column, bar_column=bar_column,
+            radio=radio, new_column=new_column, bar_column=bar_column,
             icon=icon, icon_number=icon_number, icon_width=icon_width,
         )
 
     def insert(
         self, insert_before, item_name=None, callback=None, *args,
         priority=0, default=False, enabled=True, checked=False,
-        radio=False, right=False, new_column=False, bar_column=False,
+        radio=False, new_column=False, bar_column=False,
         icon=None, icon_number=None, icon_width=None,
     ):
         if insert_before is None:
@@ -124,7 +124,7 @@ class Menu:
         return self._insert_or_update(
             insert_before, item_name, callback=callback, args=args,
             priority=priority, default=default, enabled=enabled, checked=checked,
-            radio=radio, right=right, new_column=new_column, bar_column=bar_column,
+            radio=radio, new_column=new_column, bar_column=bar_column,
             icon=icon, icon_number=icon_number, icon_width=icon_width,
         )
 
@@ -136,7 +136,7 @@ class Menu:
     def insert_submenu(
         self, insert_before, item_name, submenu, *,
         default=False, enabled=True, checked=False,
-        radio=False, right=False, new_column=False, bar_column=False,
+        radio=False, new_column=False, bar_column=False,
         icon=None, icon_number=None, icon_width=None,
     ):
         if insert_before is None:
@@ -144,14 +144,14 @@ class Menu:
         return self._insert_or_update(
             insert_before, item_name, submenu=submenu,
             default=default, enabled=enabled, checked=checked,
-            radio=radio, right=right, new_column=new_column, bar_column=bar_column,
+            radio=radio, new_column=new_column, bar_column=bar_column,
             icon=icon, icon_number=icon_number, icon_width=icon_width,
         )
 
     def update(
         self, item_name, *, new_name=UNSET, callback=None, submenu=None,
         priority=None, enabled=None, checked=None,
-        radio=None, right=None, new_column=None, bar_column=None,
+        radio=None, new_column=None, bar_column=None,
         icon=None, icon_number=None, icon_width=None,
     ):
         if item_name is None:
@@ -160,7 +160,7 @@ class Menu:
             item_name, new_name, callback=callback, submenu=submenu,
             update=True,
             priority=priority, enabled=enabled, checked=checked,
-            radio=radio, right=right, new_column=new_column, bar_column=bar_column,
+            radio=radio, new_column=new_column, bar_column=bar_column,
             icon=icon, icon_number=icon_number, icon_width=icon_width,
         )
 
@@ -168,7 +168,7 @@ class Menu:
         self, item_name=None, new_name=UNSET, *, callback=None, args=(), submenu=None,
         update=False,
         priority=None, default=False, enabled=True, checked=False,
-        radio=None, right=None, new_column=None, bar_column=None,
+        radio=None, new_column=None, bar_column=None,
         icon=None, icon_number=None, icon_width=None,
     ):
         item_name = self._item_name(item_name)
@@ -190,8 +190,6 @@ class Menu:
             option_list.append(f"P{priority}")
         if radio is not None:
             option_list.append(f"{'+' if radio else '-'}Radio")
-        if right is not None:
-            option_list.append(f"{'+' if right else '-'}Right")
         if new_column is not None:
             option_list.append(f"{'+' if new_column else '-'}Break")
         if bar_column is not None:
