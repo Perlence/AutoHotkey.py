@@ -312,7 +312,7 @@ def _bare_menu_item_handler(callback, *_):
 
 
 def _menu_item_handler(callback, item_name, item_pos, menu_name):
-    callback(item_name=item_name, item_pos=item_pos, menu=Menu(menu_name))
+    callback(item_name=item_name, item_pos=item_pos-1, menu=Menu(menu_name))
 
 
 class TrayMenu(Menu):
