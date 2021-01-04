@@ -49,8 +49,9 @@ def hotkey(
         keypresses when the *max_threads* limit has been reached. Defaults to
         ``False``.
 
-    :param int priority: the priority of the AHK thread where *func* will be
-        executed. It must be an integer between -2147483648 and 2147483647.
+    :param int priority: the priority of the `AHK thread
+        <https://www.autohotkey.com/docs/misc/Threads.htm>`__ where *func* will
+        be executed. It must be an integer between -2147483648 and 2147483647.
         Defaults to 0.
 
     :param int max_threads: the number of keypresses AHK can handle

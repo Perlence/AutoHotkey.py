@@ -104,9 +104,10 @@ def hotstring(
 
       Defaults to ``True``.
 
-    - **priority** (:class:`int`) – the priority of the AHK thread where *repl*
-      will be executed if it's a callable. It must be an integer between
-      -2147483648 and 2147483647. Defaults to 0.
+    - **priority** (:class:`int`) – the priority of the `AHK thread
+      <https://www.autohotkey.com/docs/misc/Threads.htm>`_ where *repl* will be
+      executed if it's a callable. It must be an integer between -2147483648 and
+      2147483647. Defaults to 0.
 
     - **text** – if true, sends the replacement text raw, without translating
       each character to a keystroke. For details, see `Text mode
