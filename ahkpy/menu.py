@@ -88,7 +88,7 @@ class Menu:
         self, item_name, callback, *args,
         priority=0, default=False, enabled=True, checked=False,
         radio=False, new_column=False, bar_column=False,
-        icon=None, icon_number=None, icon_width=None,
+        icon=UNSET, icon_number=None, icon_width=None,
     ):
         return self._insert_or_update(
             None, item_name, callback=callback, args=args,
@@ -104,7 +104,7 @@ class Menu:
         self, item_name, submenu, *,
         default=False, enabled=True, checked=False,
         radio=False, new_column=False, bar_column=False,
-        icon=None, icon_number=None, icon_width=None,
+        icon=UNSET, icon_number=None, icon_width=None,
     ):
         return self._insert_or_update(
             None, item_name, submenu=submenu,
@@ -117,7 +117,7 @@ class Menu:
         self, insert_before, item_name=None, callback=None, *args,
         priority=0, default=False, enabled=True, checked=False,
         radio=False, new_column=False, bar_column=False,
-        icon=None, icon_number=None, icon_width=None,
+        icon=UNSET, icon_number=None, icon_width=None,
     ):
         if insert_before is None:
             raise TypeError("insert_before must not be None")
@@ -137,7 +137,7 @@ class Menu:
         self, insert_before, item_name, submenu, *,
         default=False, enabled=True, checked=False,
         radio=False, new_column=False, bar_column=False,
-        icon=None, icon_number=None, icon_width=None,
+        icon=UNSET, icon_number=None, icon_width=None,
     ):
         if insert_before is None:
             raise TypeError("insert_before must not be None")
@@ -152,7 +152,7 @@ class Menu:
         self, item_name, *, new_name=UNSET, callback=None, submenu=None,
         priority=None, enabled=None, checked=None,
         radio=None, new_column=None, bar_column=None,
-        icon=None, icon_number=None, icon_width=None,
+        icon=UNSET, icon_number=None, icon_width=None,
     ):
         if item_name is None:
             raise TypeError("item_name must not be None")
@@ -169,7 +169,7 @@ class Menu:
         update=False,
         priority=None, default=False, enabled=True, checked=False,
         radio=None, new_column=None, bar_column=None,
-        icon=None, icon_number=None, icon_width=None,
+        icon=UNSET, icon_number=None, icon_width=None,
     ):
         item_name = self._item_name(item_name)
 
@@ -213,6 +213,8 @@ class Menu:
                 self.uncheck(item_name)
             if icon:
                 self.set_icon(item_name, icon, icon_number, icon_width)
+            elif icon is None:
+                self.remove_icon(item_name)
             if new_name is not UNSET:
                 self.rename(item_name, new_name)
         else:
@@ -226,6 +228,8 @@ class Menu:
                     self.check(new_name)
                 if icon:
                     self.set_icon(new_name, icon, icon_number, icon_width)
+                elif icon is None:
+                    self.remove_icon(item_name)
             return self
 
     def delete_item(self, item_name):
