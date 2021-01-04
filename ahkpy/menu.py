@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dataclasses as dc
 import functools
 import uuid
@@ -81,7 +83,12 @@ class Menu:
             name = str(uuid.uuid4())
         object.__setattr__(self, "name", name.lower())
 
-    def get_handle(self):
+    def get_handle(self) -> int:
+        """Retrieve the Win32 menu handle of a menu (HMENU).
+
+        :command: `MenuGetHandle
+           <https://www.autohotkey.com/docs/commands/MenuGetHandle.htm>`_
+        """
         return ahk_call("MenuGetHandle", self.name)
 
     def add(
@@ -90,6 +97,49 @@ class Menu:
         radio=False, new_column=False, bar_column=False,
         icon=UNSET, icon_number=None, icon_width=None,
     ):
+        """add(item_name, callback, *args, priority=0, **options)
+
+        Append a menu item *item_name*.
+
+        When the user selects the menu item, the *callback* function is called
+        with *item_name*, *item_pos*, and *menu* arguments.
+
+        The optional positional *args* will be passed to the *callback* when it
+        is called. If you want the *callback* to be called with keyword
+        arguments use :func:`functools.partial`.
+
+        The optional *priority* argument sets the priority of the `AHK thread
+        <https://www.autohotkey.com/docs/misc/Threads.htm>`_ where *callback*
+        will be executed. It must be an :class:`int` between -2147483648 and
+        2147483647. Defaults to 0.
+
+        The following keyword-only arguments set the menu item *options*:
+
+        :param bool default: if true, the menu item is promoted to a
+           default one for the menu. Defaults to ``False``.
+
+        :param bool enabled: if false, the menu item is disabled. Enabled by
+           default.
+
+        :param bool checked: if true, the menu item is checked. Defaults to
+           ``False``.
+
+        :param bool radio: if true, a bullet point is used instead of a check
+           mark when the item is checked. Defaults to ``False``.
+
+        :param bool new_column: if true, the item begins a new column in a popup
+           menu. Defaults to ``False``.
+
+        :param bool bar_column: if true, the item begins a new column in a popup
+           menu divided by a vertical bar. Defaults to ``False``.
+
+        :param str icon: along with the *icon_number* and *icon_width* arguments
+           set an icon for the specified menu item. For more details refer to
+           :meth:`set_icon`. To remove the icon, pass ``None`` to *icon*.
+
+        :command: `Menu, $, Insert,, MenuItemName, %FuncObj%, Options
+           <https://www.autohotkey.com/docs/commands/Menu.htm#Insert>`_
+        """
         return self._insert_or_update(
             None, item_name, callback=callback, args=args,
             priority=priority, default=default, enabled=enabled, checked=checked,
@@ -98,14 +148,28 @@ class Menu:
         )
 
     def add_separator(self):
+        """Append a separator.
+
+        :command: `Menu, $, Insert,,
+           <https://www.autohotkey.com/docs/commands/Menu.htm#Insert>`_
+        """
         return self._insert_or_update(None, None)
 
     def add_submenu(
-        self, item_name, submenu, *,
+        self, item_name, submenu: Menu, *,
         default=False, enabled=True, checked=False,
         radio=False, new_column=False, bar_column=False,
         icon=UNSET, icon_number=None, icon_width=None,
     ):
+        """add_submenu(item_name, submenu: Menu, **options)
+
+        Append a submenu named *item_name*.
+
+        For *options* refer to :meth:`add`.
+
+        :command: `Menu, $, Insert,, MenuItemName, :Submenu, Options
+           <https://www.autohotkey.com/docs/commands/Menu.htm#Insert>`_
+        """
         return self._insert_or_update(
             None, item_name, submenu=submenu,
             default=default, enabled=enabled, checked=checked,
@@ -119,6 +183,30 @@ class Menu:
         radio=False, new_column=False, bar_column=False,
         icon=UNSET, icon_number=None, icon_width=None,
     ):
+        """insert(insert_before, item_name, callback, *args, priority=0, **options)
+
+        Insert a menu item *item_name* before the item referred to by *insert_before*.
+
+        The *insert_before* argument can be either menu item's name or its
+        position number.
+
+        When the user selects the menu item, the *callback* function is called
+        with *item_name*, *item_pos*, and *menu* arguments.
+
+        The optional positional *args* will be passed to the *callback* when it
+        is called. If you want the *callback* to be called with keyword
+        arguments use :func:`functools.partial`.
+
+        The optional *priority* argument sets the priority of the `AHK thread
+        <https://www.autohotkey.com/docs/misc/Threads.htm>`_ where *callback*
+        will be executed. It must be an :class:`int` between -2147483648 and
+        2147483647. Defaults to 0.
+
+        For *options* refer to :meth:`add`.
+
+        :command: `Menu, $, Insert, InsertBefore, MenuItemName, %FuncObj%,
+           Options <https://www.autohotkey.com/docs/commands/Menu.htm#Insert>`_
+        """
         if insert_before is None:
             raise TypeError("insert_before must not be None")
         return self._insert_or_update(
@@ -129,16 +217,38 @@ class Menu:
         )
 
     def insert_separator(self, insert_before):
+        """
+        Insert a separator before the item referred to by *insert_before*.
+
+        The *insert_before* argument can be either menu item's name or its
+        position number.
+
+        :command: `Menu, $, Insert, InsertBefore
+           <https://www.autohotkey.com/docs/commands/Menu.htm#Insert>`_
+        """
         if insert_before is None:
             raise TypeError("insert_before must not be None")
         return self._insert_or_update(insert_before, None)
 
     def insert_submenu(
-        self, insert_before, item_name, submenu, *,
+        self, insert_before, item_name, submenu: Menu, *,
         default=False, enabled=True, checked=False,
         radio=False, new_column=False, bar_column=False,
         icon=UNSET, icon_number=None, icon_width=None,
     ):
+        """insert_submenu(insert_before, item_name, submenu: Menu, **options)
+
+        Insert a submenu named *item_name* before the item referred to by
+        *insert_before*.
+
+        The *insert_before* argument can be either menu item's name or its
+        position number.
+
+        For *options* refer to :meth:`add`.
+
+        :command: `Menu, $, Insert, InsertBefore, :Submenu, Options
+           <https://www.autohotkey.com/docs/commands/Menu.htm#Insert>`_
+        """
         if insert_before is None:
             raise TypeError("insert_before must not be None")
         return self._insert_or_update(
@@ -154,6 +264,27 @@ class Menu:
         radio=None, new_column=None, bar_column=None,
         icon=UNSET, icon_number=None, icon_width=None,
     ):
+        """update(item_name, *, new_name=UNSET, callback=None, submenu=None, priority=None, **options)
+
+        Update an existing menu item.
+
+        The *item_name* argument can be either menu item's name or its position
+        number.
+
+        To rename the menu item, specify the *new_name* argument. To convert the
+        menu item to a separator, pass ``None`` to *new_name*.
+
+        To convert a regular menu item to submenu, specify the *submenu*
+        argument. To convert a separator to a menu item, specify its position
+        and pass the *new_name*.
+
+        For *options* refer to :meth:`add`, with the only exception of the
+        *default* argument. To change the default item of the menu, use
+        :meth:`set_default` and :meth:`remove_default`.
+
+        :command: `Menu, $, Add, MenuItemName, LabelOrSubmenu, Options
+           <https://www.autohotkey.com/docs/commands/Menu.htm#Add>`_
+        """
         if item_name is None:
             raise TypeError("item_name must not be None")
         self._insert_or_update(
@@ -233,64 +364,212 @@ class Menu:
             return self
 
     def delete_item(self, item_name):
+        """Delete the item from the menu.
+
+        The *item_name* argument can be either menu item's name or its position
+        number.
+
+        :command: `Menu, $, Delete, MenuItemName
+           <https://www.autohotkey.com/docs/commands/Menu.htm#Delete>`_
+        """
         item_name = self._item_name(item_name)
         self._call("Delete", item_name)
 
     def delete_all_items(self):
+        """Delete all items from the menu.
+
+        :command: `Menu, $, DeleteAll
+           <https://www.autohotkey.com/docs/commands/Menu.htm#DeleteAll>`_
+        """
         self._call("DeleteAll")
 
     def delete_menu(self):
+        """Delete the entire menu and any menu items in other menus that use
+        this menu as a submenu.
+
+        :command: `Menu, $, Delete
+           <https://www.autohotkey.com/docs/commands/Menu.htm#Delete>`_
+        """
         self._call("Delete")
 
     def rename(self, item_name, new_name=None):
+        """Rename the menu item.
+
+        The *item_name* argument can be either menu item's name or its position
+        number.
+
+        To convert the menu item to a separator, pass ``None`` to *new_name*. To
+        convert a separator to a menu item, specify its position and pass the
+        *new_name*.
+
+        :command: `Menu, $, Rename, MenuItemName, NewName
+           <https://www.autohotkey.com/docs/commands/Menu.htm#Rename>`_
+        """
         if item_name is not None:
             item_name = self._item_name(item_name)
         self._call("Rename", item_name, new_name)
 
     def check(self, item_name):
+        """Add a visible checkmark in the menu next to the specified menu item.
+
+        The *item_name* argument can be either menu item's name or its position
+        number.
+
+        :command: `Menu, $, Check, MenuItemName
+           <https://www.autohotkey.com/docs/commands/Menu.htm#Check>`_
+        """
         item_name = self._item_name(item_name)
         self._call("Check", item_name)
 
     def uncheck(self, item_name):
+        """Remove the checkmark from the specified menu item.
+
+        The *item_name* argument can be either menu item's name or its position
+        number.
+
+        :command: `Menu, $, Uncheck, MenuItemName
+           <https://www.autohotkey.com/docs/commands/Menu.htm#Uncheck>`_
+        """
         item_name = self._item_name(item_name)
         self._call("Uncheck", item_name)
 
     def toggle_check(self, item_name):
+        """Add a checkmark to the specified menu item if there wasn't one;
+        otherwise, remove it.
+
+        The *item_name* argument can be either menu item's name or its position
+        number.
+
+        :command: `Menu, $, ToggleCheck, MenuItemName
+           <https://www.autohotkey.com/docs/commands/Menu.htm#ToggleCheck>`_
+        """
         item_name = self._item_name(item_name)
         self._call("ToggleCheck", item_name)
 
     def enable(self, item_name):
+        """Allow the user to select the specified menu item if it was previously
+        disabled.
+
+        The *item_name* argument can be either menu item's name or its position
+        number.
+
+        :command: `Menu, $, Enable, MenuItemName
+           <https://www.autohotkey.com/docs/commands/Menu.htm#Enable>`_
+        """
         item_name = self._item_name(item_name)
         self._call("Enable", item_name)
 
     def disable(self, item_name):
+        """Change the specified menu item to a gray color to indicate that the
+        user cannot select it.
+
+        The *item_name* argument can be either menu item's name or its position
+        number.
+
+        :command: `Menu, $, Disable, MenuItemName
+           <https://www.autohotkey.com/docs/commands/Menu.htm#Disable>`_
+        """
         item_name = self._item_name(item_name)
         self._call("Disable", item_name)
 
     def toggle_enable(self, item_name):
+        """Disable the specified menu item if it was previously enabled;
+        otherwise, enable it.
+
+        The *item_name* argument can be either menu item's name or its position
+        number.
+
+        :command: `Menu, $, ToggleEnable, MenuItemName
+           <https://www.autohotkey.com/docs/commands/Menu.htm#ToggleEnable>`_
+        """
         item_name = self._item_name(item_name)
         self._call("ToggleEnable", item_name)
 
     def set_default(self, item_name):
+        """Changes the menu's default item to be the specified menu item and
+        makes its font bold.
+
+        The *item_name* argument can be either menu item's name or its position
+        number.
+
+        :command: `Menu, $, Default, MenuItemName
+           <https://www.autohotkey.com/docs/commands/Menu.htm#Default>`_
+        """
         item_name = self._item_name(item_name)
         self._call("Default", item_name)
 
     def remove_default(self):
+        """Convert the default menu item to a regular one.
+
+        :command: `Menu, $, NoDefault
+           <https://www.autohotkey.com/docs/commands/Menu.htm#NoDefault>`_
+        """
         self._call("NoDefault")
 
     def _remove_standard(self):
         self._call("NoStandard")
 
     def set_icon(self, item_name, filename, number=0, width=None):
+        """Set an icon for the specified menu item.
+
+        The *item_name* argument can be either menu item's name or its position
+        number.
+
+        The *filename* argument can be either an icon file (ICO, CUR, ANI, EXE,
+        DLL, CPL, SCR) or any image in a format supported by AutoHotkey.
+
+        The optional *number* argument sets the icon group to use. It defaults
+        to 0, which is the first group in the file. If *number* is negative, its
+        absolute value is assumed to be the resource ID of an icon within an
+        executable file.
+
+        The optional *width* argument sets the desired width of the icon. If the
+        icon group indicated by *number* contains multiple icon sizes, the
+        closest match is used and the icon is scaled to the specified size.
+
+        :command: `Menu, $, Icon, MenuItemName, FileName, IconNumber, IconWidth
+           <https://www.autohotkey.com/docs/commands/Menu.htm#Icon>`_
+        """
         item_name = self._item_name(item_name)
         number = number or 0
         self._call("Icon", item_name, filename, number+1, width)
 
     def remove_icon(self, item_name):
+        """Remove the icon from the specified menu item.
+
+        The *item_name* argument can be either menu item's name or its position
+        number.
+
+        :command: `Menu, $, NoIcon, MenuItem
+           <https://www.autohotkey.com/docs/commands/Menu.htm#NoIcon>`_
+        """
         item_name = self._item_name(item_name)
         self._call("NoIcon", item_name)
 
     def show(self, x=None, y=None, *, relative_to="window"):
+        """Show the menu.
+
+        If the method is called without arguments, the menu is shown at the
+        mouse cursor.
+
+        Otherwise, the menu's position depends on the *relative_to* argument.
+        Valid *relative_to* values are:
+
+        - ``"screen"`` – coordinates are relative to the desktop (entire
+          screen).
+        - ``"window"`` – coordinates are relative to the active window.
+        - ``"client"`` – coordinates are relative to the active window's client
+          area, excluding title bar, menu and borders.
+
+        The optional *x* and *y* arguments set the menu's position relative to
+        the area specified by the *relative_to* argument. The default
+        *relative_to* value is ``"window"``. So if you call ``menu.show(x=42)``,
+        the *y* coordinate will be the mouse cursor's *y* coordinate, and the
+        *x* coordinate will be 42 pixels to the right of the active window.
+
+        :command: `Menu, $, Show, X, Y
+           <https://www.autohotkey.com/docs/commands/Menu.htm#Show>`_
+        """
         if relative_to not in COORD_MODES:
             raise ValueError(f"{relative_to!r} is not a valid coord mode")
         with global_ahk_lock:
@@ -298,6 +577,20 @@ class Menu:
             self._call("Show", x, y)
 
     def set_color(self, color, affects_submenus=True):
+        """Set the background color of the menu.
+
+        The *color* argument accepts one of the 16 primary HTML color names or a
+        6-digit hexademical RGB color value.
+
+        To reset the default color, pass ``None`` to *color*.
+
+        If the optional *affects_submenus* argument is false, the submenus
+        attached to this menu will not be changed in color. Defaults to
+        ``True``.
+
+        :command: `Menu, $, Color, ColorValue
+           <https://www.autohotkey.com/docs/commands/Menu.htm#Icon>`_
+        """
         single = "single" if not affects_submenus else ""
         self._call("Color", color, single)
 

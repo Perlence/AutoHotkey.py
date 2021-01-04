@@ -55,8 +55,11 @@ class ToolTip:
     def show(self, text=None, *, x=UNSET, y=UNSET, relative_to=None, timeout=UNSET):
         """Show the tooltip.
 
-        The tooltip's position depends on the *relative_to* argument. Valid
-        *relative_to* values are:
+        If the method is called without the *x* and *y* arguments, the menu is
+        shown at the mouse cursor.
+
+        Otherwise, the tooltip's position depends on the *relative_to* argument.
+        Valid *relative_to* values are:
 
         - ``"screen"`` – coordinates are relative to the desktop (entire
           screen).
@@ -67,7 +70,7 @@ class ToolTip:
         The optional *x* and *y* arguments set the tooltip's position relative
         to the area specified by the *relative_to* argument. The default
         *relative_to* value is ``"window"``. So if you call
-        ``ToolTip.show("hello", x=42)``, the *y* coordinate will be the mouse
+        ``tooltip.show("hello", x=42)``, the *y* coordinate will be the mouse
         cursor's *y* coordinate, and the *x* coordinate will be 42 pixels to the
         right of the active window.
 
