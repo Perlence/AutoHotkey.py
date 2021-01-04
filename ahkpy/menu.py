@@ -297,8 +297,9 @@ class Menu:
             _set_coord_mode("menu", relative_to)
             self._call("Show", x, y)
 
-    def set_color(self, color):
-        self._call("Color", color)
+    def set_color(self, color, affects_submenus=True):
+        single = "single" if not affects_submenus else ""
+        self._call("Color", color, single)
 
     def _item_name(self, name):
         if isinstance(name, int):
