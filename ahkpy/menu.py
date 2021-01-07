@@ -153,7 +153,8 @@ class Menu:
         :command: `Menu, $, Insert,,
            <https://www.autohotkey.com/docs/commands/Menu.htm#Insert>`_
         """
-        return self._insert_or_update(None, None)
+        self._call("Insert")
+        return self
 
     def add_submenu(
         self, item_name, submenu: Menu, *,
@@ -228,7 +229,9 @@ class Menu:
         """
         if insert_before is None:
             raise TypeError("insert_before must not be None")
-        return self._insert_or_update(insert_before, None)
+        insert_before = self._item_name(insert_before)
+        self._call("Insert", insert_before)
+        return self
 
     def insert_submenu(
         self, insert_before, item_name, submenu: Menu, *,
@@ -331,7 +334,7 @@ class Menu:
             # Update separately. If the menu item doesn't exist, setting the
             # options will fail.
             if option_str:
-                self._call("Add", item_name, "", option_str)
+                self._call("Add", item_name, None, option_str)
             if thing is not None:
                 self._call("Add", item_name, thing)
             if enabled:
@@ -359,8 +362,6 @@ class Menu:
                     self.check(new_name)
                 if icon:
                     self.set_icon(new_name, icon, icon_number, icon_width)
-                elif icon is None:
-                    self.remove_icon(item_name)
             return self
 
     def delete_item(self, item_name):
@@ -433,7 +434,7 @@ class Menu:
         item_name = self._item_name(item_name)
         self._call("Uncheck", item_name)
 
-    def toggle_check(self, item_name):
+    def toggle_checked(self, item_name):
         """Add a checkmark to the specified menu item if there wasn't one;
         otherwise, remove it.
 
@@ -472,7 +473,7 @@ class Menu:
         item_name = self._item_name(item_name)
         self._call("Disable", item_name)
 
-    def toggle_enable(self, item_name):
+    def toggle_enabled(self, item_name):
         """Disable the specified menu item if it was previously enabled;
         otherwise, enable it.
 
@@ -591,7 +592,7 @@ class Menu:
         :command: `Menu, $, Color, ColorValue
            <https://www.autohotkey.com/docs/commands/Menu.htm#Icon>`_
         """
-        single = "single" if not affects_submenus else ""
+        single = "Single" if not affects_submenus else None
         self._call("Color", color, single)
 
     def _item_name(self, name):
