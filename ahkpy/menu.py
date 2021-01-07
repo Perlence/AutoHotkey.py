@@ -517,7 +517,8 @@ class Menu:
         number.
 
         The *filename* argument can be either an icon file (ICO, CUR, ANI, EXE,
-        DLL, CPL, SCR) or any image in a format supported by AutoHotkey.
+        DLL, CPL, SCR) or any image in a format supported by AutoHotkey. Passing
+        ``None`` removes the icon.
 
         The optional *number* argument sets the icon group to use. It defaults
         to 0, which is the first group in the file. If *number* is negative, its
@@ -681,7 +682,7 @@ class TrayMenu(Menu):
         if filename:
             self.set_tray_icon(filename, number=number)
 
-    def set_tray_icon(self, filename=None, *, number=0, affected_by_suspend=None):
+    def set_tray_icon(self, filename=UNSET, *, number=None, affected_by_suspend=None):
         """Change the script's tray icon.
 
         The *filename* argument can be either an icon file (ICO, CUR, ANI, EXE,
@@ -701,13 +702,19 @@ class TrayMenu(Menu):
         :command: `Menu, Tray, Icon, FileName, IconNumber
            <https://www.autohotkey.com/docs/commands/Menu.htm#TrayIcon>`_
         """
+        if filename is None:
+            # Set default icon.
+            self.set_tray_icon("*")
+            return
+        if isinstance(number, int):
+            number += 1
         if affected_by_suspend:
             freeze = "0"
         elif affected_by_suspend is not None:
             freeze = "1"
         else:
             freeze = None
-        self._call("Icon", filename, number+1, freeze)
+        self._call("Icon", filename or "", number, freeze)
 
     @property
     def is_tray_icon_visible(self):

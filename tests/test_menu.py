@@ -309,3 +309,55 @@ def test_set_color(call_spy, menu):
     call_spy.assert_has_calls([
         call("Menu", menu.name, "Color", "ffffff", "Single")
     ])
+
+
+def test_tray_icon(call_spy):
+    assert ahk.tray_menu.tray_icon_file is None
+    assert ahk.tray_menu.tray_icon_number is None
+
+    call_spy.reset_mock()
+    ahk.tray_menu.set_tray_icon(sys.executable, number=2, affected_by_suspend=True)
+    ahk.tray_menu.set_tray_icon(affected_by_suspend=False)
+    call_spy.assert_has_calls([
+        call("Menu", "tray", "Icon", sys.executable, 3, "0"),
+        call("Menu", "tray", "Icon", "", None, "1")
+    ])
+    assert ahk.tray_menu.tray_icon_file == sys.executable
+    assert ahk.tray_menu.tray_icon_number == 2
+
+    ahk.tray_menu.tray_icon_file = None
+    assert ahk.tray_menu.tray_icon_file is None
+    assert ahk.tray_menu.tray_icon_number is None
+
+    ahk.tray_menu.tray_icon_file = sys.executable
+    ahk.tray_menu.tray_icon_number = 2
+    assert ahk.tray_menu.tray_icon_file == sys.executable
+    assert ahk.tray_menu.tray_icon_number == 2
+
+    assert ahk.tray_menu.is_tray_icon_visible is True
+    ahk.tray_menu.is_tray_icon_visible = False
+    assert ahk.tray_menu.is_tray_icon_visible is False
+    ahk.tray_menu.is_tray_icon_visible = True
+    assert ahk.tray_menu.is_tray_icon_visible is True
+
+    ahk.tray_menu.hide_tray_icon()
+    assert ahk.tray_menu.is_tray_icon_visible is False
+    ahk.tray_menu.show_tray_icon()
+    assert ahk.tray_menu.is_tray_icon_visible is True
+
+    ahk.tray_menu.toggle_tray_icon()
+    assert ahk.tray_menu.is_tray_icon_visible is False
+    ahk.tray_menu.toggle_tray_icon()
+    assert ahk.tray_menu.is_tray_icon_visible is True
+
+    ahk.tray_menu.tip is None
+    ahk.tray_menu.tip = "Nooo"
+    ahk.tray_menu.tip == "Nooo"
+    ahk.tray_menu.tip = None
+    ahk.tray_menu.tip is None
+
+    call_spy.reset_mock()
+    ahk.tray_menu.set_clicks(1)
+    call_spy.assert_has_calls([
+        call("Menu", "tray", "Click", 1),
+    ])
