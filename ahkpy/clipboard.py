@@ -16,7 +16,7 @@ __all__ = [
 def get_clipboard() -> str:
     """Get text from the Windows clipboard.
 
-    :command: `Clipboard
+    :variable: `Clipboard
        <https://www.autohotkey.com/docs/misc/Clipboard.htm>`_
     """
     return ahk_call("GetVar", "Clipboard")
@@ -25,7 +25,7 @@ def get_clipboard() -> str:
 def set_clipboard(value):
     """Put text into the Windows clipboard.
 
-    :command: `Clipboard = Value
+    :variable: `Clipboard
        <https://www.autohotkey.com/docs/misc/Clipboard.htm>`_
     """
     return ahk_call("SetVar", "Clipboard", str(value))

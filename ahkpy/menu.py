@@ -528,7 +528,7 @@ class Menu:
         closest match is used and the icon is scaled to the specified size.
 
         :command: `Menu, $, Icon, MenuItemName, FileName, IconNumber, IconWidth
-           <https://www.autohotkey.com/docs/commands/Menu.htm#Icon>`_
+           <https://www.autohotkey.com/docs/commands/Menu.htm#MenuIcon>`_
         """
         item_name = self._item_name(item_name)
         number = number or 0
@@ -612,6 +612,23 @@ def _menu_item_handler(callback, item_name, item_pos, menu_name):
 
 
 class TrayMenu(Menu):
+    """The tray menu object.
+
+    Can be used to change items in the tray menu and the appearence of the
+    application in the notification area.
+
+    Example usage::
+
+        ahkpy.tray_menu.hide_tray_icon()
+        ahkpy.tray_menu.show_tray_icon()
+        ahkpy.tray_menu.set_clicks(1)
+
+        ahkpy.hotkey("F1", ahkpy.tray_menu.toggle_tray_icon)
+
+        ahkpy.tray_menu.delete_all_items()
+        ahkpy.tray_menu.add("E&xit", sys.exit, default=True)
+    """
+
     __slots__ = ("name",)
 
     def __init__(self):
@@ -619,6 +636,19 @@ class TrayMenu(Menu):
 
     @property
     def tray_icon_file(self):
+        """The current tray icon file name.
+
+        Returns ``None`` if the icon hasn't been changed.
+
+        Setting a new file name resets the icon number to 0.
+
+        :type: str
+
+        :variable: `A_IconFile
+           <https://www.autohotkey.com/docs/Variables.htm#IconFile>`_
+        :command: `Menu, Tray, Icon, FileName, 0
+           <https://www.autohotkey.com/docs/commands/Menu.htm#TrayIcon>`_
+        """
         return ahk_call("GetVar", "A_IconFile") or None
 
     @tray_icon_file.setter
@@ -627,6 +657,17 @@ class TrayMenu(Menu):
 
     @property
     def tray_icon_number(self):
+        """The current tray icon number in an icon group.
+
+        Returns ``None`` if the icon hasn't been changed.
+
+        :type: int
+
+        :variable: `A_IconNumber
+           <https://www.autohotkey.com/docs/Variables.htm#IconNumber>`_
+        :command: `Menu, Tray, Icon, %A_IconFile%, Number
+           <https://www.autohotkey.com/docs/commands/Menu.htm#TrayIcon>`_
+        """
         number = ahk_call("GetVar", "A_IconNumber")
         if isinstance(number, int):
             return number - 1
@@ -640,6 +681,25 @@ class TrayMenu(Menu):
             self.set_tray_icon(filename, number=number)
 
     def set_tray_icon(self, filename=None, *, number=0, affected_by_suspend=None):
+        """Change the script's tray icon.
+
+        The *filename* argument can be either an icon file (ICO, CUR, ANI, EXE,
+        DLL, CPL, SCR) or any image in a format supported by AutoHotkey.
+
+        To restore the default tray icon, pass ``None`` to *filename*.
+
+        The optional *number* argument sets the icon group to use. It defaults
+        to 0, which is the first group in the file. If *number* is negative, its
+        absolute value is assumed to be the resource ID of an icon within an
+        executable file.
+
+        If the optional *affected_by_suspend* argument is true (default),
+        enabling Suspended mode via :func:`suspend` or via the tray menu changes
+        the icon.
+
+        :command: `Menu, Tray, Icon, FileName, IconNumber
+           <https://www.autohotkey.com/docs/commands/Menu.htm#TrayIcon>`_
+        """
         if affected_by_suspend:
             freeze = "0"
         elif affected_by_suspend is not None:
@@ -650,6 +710,15 @@ class TrayMenu(Menu):
 
     @property
     def is_tray_icon_visible(self):
+        """Whether the icon is visible in the notification area.
+
+        :type: bool
+
+        :variable: `A_IconHidden
+           <https://www.autohotkey.com/docs/Variables.htm#IconHidden>`_
+        :command: `Menu, Tray, Icon
+           <https://www.autohotkey.com/docs/Variables.htm#Icon>`_
+        """
         return not ahk_call("GetVar", "A_IconHidden")
 
     @is_tray_icon_visible.setter
@@ -659,14 +728,29 @@ class TrayMenu(Menu):
         else:
             self.hide_tray_icon()
 
+    def toggle_tray_icon(self):
+        """Toggle the icon visibility in the notification area."""
+        self.is_tray_icon_visible = not self.is_tray_icon_visible
+
     def show_tray_icon(self):
+        """Show the icon in the notification area."""
         self._call("Icon")
 
     def hide_tray_icon(self):
+        """Hide the icon from the notification area."""
         self._call("NoIcon")
 
     @property
     def tip(self):
+        """The tray icon's tooltip text.
+
+        To restore the default text, set the property to ``None``.
+
+        :variable: `A_IconTip
+           <https://www.autohotkey.com/docs/Variables.htm#IconTip>`_
+        :command: `Menu, Tray, Tip
+           <https://www.autohotkey.com/docs/Variables.htm#Icon>`_
+        """
         return ahk_call("GetVar", "A_IconTip") or None
 
     @tip.setter
@@ -674,6 +758,11 @@ class TrayMenu(Menu):
         self._call("Tip", text)
 
     def set_clicks(self, number):
+        """Set the number of clicks to activate the tray menu's default menu
+        item.
+
+        Defaults to 2 clicks.
+        """
         self._call("Click", number)
 
 

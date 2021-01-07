@@ -65,6 +65,10 @@ Menus
 .. autoclass:: Menu
    :members:
 
+.. data:: tray_menu
+
+   The default instance of :class:`TrayMenu`.
+
 .. autoclass:: TrayMenu
    :show-inheritance:
    :members:
