@@ -2,9 +2,11 @@ __pycache__/
 *.py[cod]
 build/
 dist/
+htmlcov/
 prof/
 *.egg-info/
 .tox/
+.coverage
 
 docs/_build/
 
