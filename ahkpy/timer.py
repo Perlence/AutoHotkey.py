@@ -144,7 +144,7 @@ class Timer:
                t.update()  # Makes the timer fire twice a second.
         """
         if func is not None:
-            self.cancel()
+            self.stop()
             self.func = func
             self._ref = None
         elif self.func is None:
