@@ -15,14 +15,8 @@ class TestWindows:
 
             ahk.hotkey("F24", sys.exit)
 
-            @ahk.set_countdown(0.1)
-            def win1():
-                ahk.message_box("win1", title="ahkpy win1")
-
-            @ahk.set_countdown(0.2)
-            def win2():
-                ahk.message_box("win2", title="ahkpy win2")
-
+            ahk.set_countdown(0.1, ahk.message_box, "win1", "ahkpy win1")
+            ahk.set_countdown(0.3, ahk.message_box, "win2", "ahkpy win2")
             ahk.sleep(1)
             sys.exit()
 
