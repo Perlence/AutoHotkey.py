@@ -154,7 +154,6 @@ class Hotkey:
             if not callable(func):
                 raise TypeError(f"object {func!r} must be callable")
 
-            # TODO: Test changing options without changing the handler.
             func = _wrap_callback(
                 func,
                 ("hotkey",),

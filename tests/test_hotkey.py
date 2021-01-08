@@ -149,6 +149,25 @@ def test_hotkeys_in_child_ahk(child_ahk):
     assert proc.returncode == 0
 
 
+def test_update_options(request):
+    calls = []
+    hk = ahk.hotkey("F13", calls.append, "F13")
+    request.addfinalizer(hk.disable)
+    ahk.send_event("{F13}", level=10)
+    ahk.sleep(0)
+    assert calls == ["F13"]
+
+    calls.clear()
+    hk.update(input_level=20)
+    ahk.send_event("{F13}", level=10)
+    ahk.sleep(0)
+    assert calls == []
+
+    ahk.send_event("{F13}", level=21)
+    ahk.sleep(0)
+    assert calls == ["F13"]
+
+
 def test_hotkey_returns(child_ahk):
     def hotkeys():
         import ahkpy as ahk
