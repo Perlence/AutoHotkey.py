@@ -96,7 +96,7 @@ def hotstring(
       the hotstring before producing the *repl*::
 
           ahkpy.hotstring("<em>", "</em>{Left 5}",
-                          wait_for_end_char=false,
+                          wait_for_end_char=False,
                           backspacing=False)
 
       Given the code above, typing ``<em>`` produces ``<em>|</em>``, where ``|``
