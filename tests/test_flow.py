@@ -146,25 +146,6 @@ def test_coop(child_ahk):
     ahk.send("{F24}")
 
 
-def test_deadlock(child_ahk):
-    def code():
-        import threading
-        import ahkpy as ahk
-
-        def bg():
-            print(ahk.wait_key_pressed("F13"))  # Some blocking operation
-
-        th = threading.Thread(target=bg, daemon=True)
-        th.start()
-        while th.is_alive():
-            ahk.sleep(0.01)
-
-    proc = child_ahk.popen_code(code)
-    proc.wait(timeout=5)
-    assert proc.returncode == 1
-    assert proc.stderr.read().count("RuntimeError: deadlock occurred") == 1
-
-
 def test_settings_bleed(settings):
     settings.win_delay = 0.1
 
