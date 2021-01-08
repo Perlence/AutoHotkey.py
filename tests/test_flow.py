@@ -81,7 +81,7 @@ def test_callback_after_error(child_ahk):
 
     proc = child_ahk.popen_code(code)
     try:
-        proc.wait(timeout=1)
+        proc.wait(timeout=2)
     except subprocess.TimeoutExpired:
         ahk.send("{F24}")
     assert proc.stdout.read() == ""
@@ -100,7 +100,7 @@ def test_restart(child_ahk, tmpdir):
     script = tmpdir / "code.py"
     script.write(child_ahk.extract_code(code))
     child_ahk.popen([script])
-    assert ahk.windows.wait(title="Python.ahk", text="ok00", timeout=1)
+    assert ahk.windows.wait(title="Python.ahk", text="ok00", timeout=2)
 
     ahk.send("{F13}")
     assert ahk.windows.wait_close(title="Python.ahk", text="ok00", timeout=1)
