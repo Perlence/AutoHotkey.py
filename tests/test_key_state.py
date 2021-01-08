@@ -35,14 +35,14 @@ def test_key_wait(child_ahk):
 
         print("ok00")
         result = ahk.wait_key_pressed("RShift")
-        assert result is True, "result must be True"
+        assert result is True, f"result must be True, got {result!r}"
         print("ok01")
         result = ahk.wait_key_released("RShift")
-        assert result is True, "result must be True"
+        assert result is True, f"result must be True, got {result!r}"
         print("ok02")
 
         result = ahk.wait_key_pressed("RShift", timeout=.1)
-        assert result is False, "result must be False"
+        assert result is False, f"result must be False, got {result!r}"
         print("ok03")
 
         sys.exit()
