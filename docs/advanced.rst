@@ -40,27 +40,6 @@ is alive::
    while th.is_alive():
        ahkpy.sleep(0.01)
 
-Because of the global AutoHotkey lock, calling blocking AHK functions from the
-background thread deadlocks the program::
-
-   def bg_thread():
-       ahk.wait_key_pressed("F1")
-       # ^^ Blocks the thread until F1 is pressed
-       print("F1 pressed")
-
-   th = threading.Thread(target=bg_thread, daemon=True)
-   th.start()
-   while th.is_alive():
-       ahk.sleep(0.01)
-
-Instead, use their nonblocking versions and yield control to other Python
-threads with :func:`time.sleep`::
-
-   def bg():
-       while not ahk.is_key_pressed("F1"):
-           time.sleep(0)
-       print("F1 pressed")
-
 
 asyncio
 -------
