@@ -422,7 +422,6 @@ class WrappedPythonCallable {
         }
         ahkFunc := new WrappedPythonCallable(pyObject)
         WRAPPED_PYTHON_CALLABLE[pyObject] := &ahkFunc
-        ; TODO: Pass A_ThisHotkey to hotkey callback.
         return ahkFunc
     }
 

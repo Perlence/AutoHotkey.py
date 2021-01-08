@@ -11,7 +11,6 @@ def test_on_message(request):
 
     @ahk.on_message(0x5555)
     def handler(w_param, l_param, msg, hwnd):
-        # TODO: handler() takes 2 positional arguments but 4 were given
         nonlocal args
         args = (w_param, l_param, msg, hwnd)
         return 42
