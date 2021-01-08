@@ -9,7 +9,7 @@ from typing import Iterator, List, Optional, Tuple, Union
 from . import colors
 from . import sending
 from .exceptions import Error
-from .flow import ahk_call, global_ahk_lock
+from .flow import ahk_call, global_ahk_lock, _wait_for
 from .hotkey_context import HotkeyContext
 from .settings import get_settings, optional_ms
 from .unset import UNSET, UnsetType
@@ -280,7 +280,7 @@ class Windows:
            <https://www.autohotkey.com/docs/commands/WinWait.htm>`_
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
-        return self._wait("WinWait", timeout)
+        return _wait_for(timeout, self.first) or Window(None)
 
     def wait_active(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None,
                     timeout=None):
@@ -297,13 +297,16 @@ class Windows:
         query = self._query()
         if query == ("", "", "", ""):
             self = dc.replace(self, title="A")
-        return self._wait("WinWaitActive", timeout)
+        return _wait_for(timeout, self.get_active) or Window(None)
 
     def wait_inactive(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None,
-                      timeout=None):
-        """wait_inactive(title: str = UNSET, *, timeout=None, **criteria) -> ahkpy.Window
+                      timeout=None) -> bool:
+        """wait_inactive(title: str = UNSET, *, timeout=None, **criteria) -> bool
 
-        Wait until the window is inactive and return it.
+        Returns ``True`` if there are no matching active windows. If there are
+        still matching windows after *timeout* seconds, then ``False`` will be
+        returned. If *timeout* is not specified or ``None``, there is no limit
+        to the wait time.
 
         For more information refer to :meth:`wait`.
 
@@ -311,7 +314,7 @@ class Windows:
            <https://www.autohotkey.com/docs/commands/WinWaitActive.htm>`_
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
-        return self._wait("WinWaitNotActive", timeout)
+        return _wait_for(timeout, lambda: not self.get_active()) or False
 
     def wait_close(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None,
                    timeout=None):
@@ -332,17 +335,7 @@ class Windows:
         self = self._filter(title, class_name, id, pid, exe, text, match)
         # WinWaitClose doesn't set Last Found Window, return False if the wait
         # was timed out.
-        ok = self._call("WinWaitClose", *self._include(), timeout, *self._exclude(), set_delay=True)
-        if ok is None:
-            # There are no matching windows, and that's what we are waiting for.
-            return True
-        return bool(ok)
-
-    def _wait(self, cmd, timeout):
-        win_id = self._call(cmd, *self._include(), timeout, *self._exclude(), set_delay=True)
-        if not win_id:
-            return Window(None)
-        return Window(win_id)
+        return _wait_for(timeout, lambda: not self.first()) or False
 
     def close_all(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None,
                   timeout=None):
@@ -460,9 +453,9 @@ class Windows:
         query_hash_str = str(query_hash).replace("-", "m")  # AHK doesn't allow "-" in group names
         label = ""
         self._call("GroupAdd", query_hash_str, *self._include(), label, *self._exclude())
-        self._call(cmd, f"ahk_group {query_hash_str}", "", timeout or "", set_delay=True)
+        self._call(cmd, f"ahk_group {query_hash_str}", "", "", set_delay=True)
         if timeout is not UNSET:
-            return not self.exist()
+            return self.wait_close(timeout=timeout)
 
     def window_context(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
         """window_context(title: str = UNSET, **criteria) -> ahkpy.HotkeyContext
@@ -1175,8 +1168,8 @@ class BaseWindow(WindowHandle):
         components of the message.
 
         If there is no response after *timeout* seconds, then an :exc:`Error`
-        will be raised. If *timeout* is not specified or ``None``, there is no
-        limit to the wait time.
+        will be raised. If *timeout* ``None``, there is no limit to the wait
+        time.
 
         The range of possible response values depends on the target window and
         the version of AutoHotkey that is running. When using the 32-bit version
@@ -1869,8 +1862,7 @@ class Window(BaseWindow):
         :command: `WinWaitActive
            <https://www.autohotkey.com/docs/commands/WinWaitActive.htm>`_
         """
-        win_id = self._call("WinWaitActive", *self._include(), timeout, set_delay=True)
-        return bool(win_id)
+        return bool(all_windows.wait_active(id=self.id, timeout=timeout))
 
     def wait_inactive(self, timeout=None) -> bool:
         """Wait until the window is inactive.
@@ -1883,11 +1875,7 @@ class Window(BaseWindow):
         :command: `WinWaitNotActive
            <https://www.autohotkey.com/docs/commands/WinWaitActive.htm>`_
         """
-        win_id = self._call("WinWaitNotActive", *self._include(), timeout, set_delay=True)
-        if win_id == "":
-            # Non-existent window is inactive.
-            return True
-        return bool(win_id)
+        return bool(all_windows.wait_inactive(id=self.id, timeout=timeout))
 
     def wait_hidden(self, timeout=None) -> bool:
         """Wait until the window is hidden.
@@ -1900,8 +1888,7 @@ class Window(BaseWindow):
         :command: `WinWaitClose
            <https://www.autohotkey.com/docs/commands/WinWaitClose.htm>`_
         """
-        ok = self._call("WinWaitClose", *self._include(), timeout, hidden_windows=False, set_delay=True)
-        return bool(ok)
+        return bool(windows.wait_close(id=self.id, timeout=timeout))
 
     def wait_close(self, timeout=None) -> bool:
         """Wait until the window is closed.
@@ -1913,8 +1900,7 @@ class Window(BaseWindow):
         :command: `WinWaitClose
            <https://www.autohotkey.com/docs/commands/WinWaitClose.htm>`_
         """
-        ok = self._call("WinWaitClose", *self._include(), timeout, set_delay=True)
-        return bool(ok)
+        return bool(all_windows.wait_close(id=self.id, timeout=timeout))
 
     def get_status_bar_text(self, part=0) -> Optional[str]:
         """Get the status bar text from the window.
@@ -1964,11 +1950,14 @@ class Window(BaseWindow):
         :command: `StatusBarWait
            <https://www.autohotkey.com/docs/commands/StatusBarWait.htm>`_
         """
+        # TODO: StatusBarWait is blocking and is not interruptable. However, it
+        # is usually more efficient to use StatusBarWait rather than calling
+        # StatusBarGetText in a loop.
         try:
             ok = self._call(
                 "StatusBarWait",
                 bar_text,
-                timeout if timeout is not None else "",
+                timeout,
                 part + 1,
                 *self._include(),
                 interval * 1000,

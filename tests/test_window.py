@@ -99,6 +99,8 @@ class TestWindows:
 
     def test_activate(self, msg_boxes, win1, win2):
         assert win1.activate(timeout=1)
+        assert msg_boxes.wait_inactive(id=win2.id, timeout=1)
+        assert win2.wait_inactive(timeout=1)
         assert win2.is_active is False
 
     def test_top_bottom(self, msg_boxes, win1):
