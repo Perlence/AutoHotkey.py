@@ -46,19 +46,19 @@ def test_timeout(request):
 
     t.show(timeout=0.1)
     assert tooltips.exist()
-    ahk.sleep(0.1)
+    ahk.sleep(0.11)
     assert not tooltips.exist()
 
     t.show(timeout=0.1)
     t.show()  # This must cancel the timeout.
     assert tooltips.exist()
-    ahk.sleep(0.1)
+    ahk.sleep(0.11)
     assert tooltips.exist()
 
     t.show()
     t.show(timeout=0.1)
     assert tooltips.exist()
-    ahk.sleep(0.1)
+    ahk.sleep(0.11)
     assert not tooltips.exist()
 
     t.show(timeout=0.1)

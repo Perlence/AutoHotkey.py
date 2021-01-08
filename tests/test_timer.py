@@ -94,11 +94,11 @@ def test_countdown_start(request):
     request.addfinalizer(timer.stop)
 
     timer.start(interval=0.1)  # Restart a non-finished countdown
-    ahk.sleep(0.1)
+    ahk.sleep(0.11)
     assert len(times) == 1
 
     timer.start()  # Start a finished countdown with its previous interval
-    ahk.sleep(0.1)
+    ahk.sleep(0.11)
     assert len(times) == 2
 
 

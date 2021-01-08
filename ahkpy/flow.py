@@ -4,6 +4,7 @@ import inspect
 import queue
 import sys
 import threading
+import time
 
 import _ahk
 
@@ -54,10 +55,18 @@ def sleep(secs):
     """
     if secs < 0:
         raise ValueError("sleep length must be non-negative")
-    elif secs == 0:
-        ahk_call("Sleep", 0)
+    elif secs <= _poll_interval:
+        time.sleep(secs)
+        poll()
     else:
-        ahk_call("Sleep", int(secs * 1000))
+        stop = time.perf_counter() + secs
+        while time.perf_counter() < stop:
+            time.sleep(_poll_interval)
+            poll()
+
+
+# The interval between AHK message queue polls during the blocking operations.
+_poll_interval = 0.01
 
 
 def poll():
