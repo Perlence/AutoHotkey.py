@@ -1185,26 +1185,33 @@ class BaseWindow(WindowHandle):
         :command: `SendMessage
            <https://www.autohotkey.com/docs/commands/PostMessage.htm>`_
         """
-        control = exclude_title = exclude_text = ""
-        try:
-            result = self._call(
-                "SendMessage", int(msg), int(w_param), int(l_param), control,
-                *self._include(), exclude_title, exclude_text,
-                int(timeout * 1000),
-            )
-            if result is None:
+        # TODO: SendMessage is not interruptable.
+        if not self.id:
+            return None
+
+        SMTO_ABORTIFHUNG = 0x0002
+        result = ctypes.c_void_p()
+        send_result = ctypes.windll.user32.SendMessageTimeoutW(
+            self.id,
+            int(msg),
+            int(w_param),
+            int(l_param),
+            SMTO_ABORTIFHUNG,
+            int(timeout * 1000),
+            ctypes.byref(result),
+        )
+        if not send_result:
+            if not self.exists:
                 return None
-            if not signed_int:
-                return ctypes.c_uint64(result).value
-            elif self._is_win32():
-                return ctypes.c_int32(result).value
-            return result
-        except Error as err:
-            if err.message == "FAIL":
-                if not self.exists:
-                    return None
-                err.message = "there was a problem sending message or response timed out"
-            raise
+            message = "there was a problem sending message or response timed out"
+            raise Error(message)
+
+        result = result.value or 0
+        if not signed_int:
+            return ctypes.c_uint64(result).value
+        elif self._is_win32():
+            return ctypes.c_int32(result).value
+        return ctypes.c_int64(result).value
 
     def _is_win32(self):
         if struct.calcsize("P") == 4:
