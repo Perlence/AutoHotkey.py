@@ -185,7 +185,7 @@ def coop(func, *args, **kwargs):
         try:
             if not th.is_alive():
                 break
-            sleep(0.01)
+            sleep(_poll_interval)
         except KeyboardInterrupt:
             set_async_exc = ctypes.pythonapi.PyThreadState_SetAsyncExc
             thread_id = th.ident
