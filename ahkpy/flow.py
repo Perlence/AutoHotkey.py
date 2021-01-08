@@ -53,16 +53,29 @@ def sleep(secs):
 
     :command: `Sleep <https://www.autohotkey.com/docs/commands/Sleep.htm>`_
     """
+    if not isinstance(secs, (int, float)):
+        raise TypeError(f"a number is required (got type {secs.__class__.__name__})")
+    _wait_for(secs, lambda: None)
+
+
+def _wait_for(secs, check_fn):
+    if secs is None:
+        secs = float("inf")
+
     if secs < 0:
         raise ValueError("sleep length must be non-negative")
     elif secs <= _poll_interval:
         time.sleep(secs)
         poll()
+        return check_fn()
     else:
         stop = time.perf_counter() + secs
         while time.perf_counter() < stop:
             time.sleep(_poll_interval)
             poll()
+            result = check_fn()
+            if result:
+                return result
 
 
 # The interval between AHK message queue polls during the blocking operations.
