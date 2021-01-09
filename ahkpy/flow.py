@@ -55,7 +55,7 @@ def sleep(secs):
     """
     if not isinstance(secs, (int, float)):
         raise TypeError(f"a number is required (got type {secs.__class__.__name__})")
-    _wait_for(secs, lambda: None)
+    _wait_for(secs, None)
 
 
 def _wait_for(secs, check_fn):
@@ -67,13 +67,13 @@ def _wait_for(secs, check_fn):
     elif secs <= _poll_interval:
         time.sleep(secs)
         poll()
-        return check_fn()
+        return check_fn and check_fn()
     else:
         stop = time.perf_counter() + secs
         while time.perf_counter() < stop:
             time.sleep(_poll_interval)
             poll()
-            result = check_fn()
+            result = check_fn and check_fn()
             if result:
                 return result
 
