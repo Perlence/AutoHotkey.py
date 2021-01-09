@@ -107,25 +107,21 @@ class Settings:
 
     #: The delay after each window-modifying method. It affects the following:
     #:
-    #: - :class:`Windows` methods: :meth:`~Windows.wait`,
-    #:   :meth:`~Windows.wait_active`, :meth:`~Windows.wait_inactive`,
-    #:   :meth:`~Windows.wait_close`, :meth:`~Windows.close_all`,
+    #: - :class:`Windows` methods: :meth:`~Windows.close_all`,
     #:   :meth:`~Windows.hide_all`, :meth:`~Windows.kill_all`,
     #:   :meth:`~Windows.maximize_all`, :meth:`~Windows.minimize_all`,
-    #:   :meth:`~Windows.restore_all`, :meth:`~Windows.show_all`,
+    #:   :meth:`~Windows.restore_all`, :meth:`~Windows.show_all`
     #: - :class:`Window` methods: :meth:`~Window.minimize`,
     #:   :meth:`~Window.restore`, :meth:`~Window.maximize`,
     #:   :meth:`~window.BaseWindow.hide`, :meth:`~window.BaseWindow.show`,
     #:   :meth:`~Window.close`, :meth:`~Window.kill`,
-    #:   :meth:`~Window.wait_active`, :meth:`~Window.wait_inactive`,
-    #:   :meth:`~Window.wait_hidden`, :meth:`~Window.wait_close`,
-    #:   :meth:`~window.BaseWindow.move`,
+    #:   :meth:`~window.BaseWindow.move`
     #: - :class:`Window` setters: :attr:`~Window.is_maximized`,
     #:   :attr:`~Window.is_minimized`, :attr:`~window.BaseWindow.is_enabled`,
     #:   :attr:`~window.BaseWindow.is_visible`, :attr:`~window.BaseWindow.rect`,
     #:   :attr:`~window.BaseWindow.position`, :attr:`~window.BaseWindow.size`,
     #:   :attr:`~window.BaseWindow.x`, :attr:`~window.BaseWindow.y`,
-    #:   :attr:`~window.BaseWindow.width`, :attr:`~window.BaseWindow.height`,
+    #:   :attr:`~window.BaseWindow.width`, :attr:`~window.BaseWindow.height`
     #:
     #: :command: `SetWinDelay
     #:    <https://www.autohotkey.com/docs/commands/SetWinDelay.htm>`_
