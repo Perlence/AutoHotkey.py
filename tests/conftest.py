@@ -103,8 +103,7 @@ def notepad():
     import ahkpy as ahk
     notepad_proc = subprocess.Popen(["notepad.exe"])
     try:
-        notepad_win = ahk.windows.wait(pid=notepad_proc.pid)
-        assert notepad_win.is_active
+        notepad_win = ahk.windows.wait_active(pid=notepad_proc.pid, timeout=5)
         yield notepad_win
     finally:
         notepad_proc.terminate()
