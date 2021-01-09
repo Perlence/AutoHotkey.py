@@ -311,7 +311,10 @@ def test_set_color(call_spy, menu):
     ])
 
 
-def test_tray_icon(call_spy):
+def test_tray_icon(request, call_spy):
+    request.addfinalizer(lambda: ahk.tray_menu.set_tray_icon(None))
+    request.addfinalizer(lambda: setattr(ahk.tray_menu, "tip", None))
+
     assert ahk.tray_menu.tray_icon_file is None
     assert ahk.tray_menu.tray_icon_number is None
 
