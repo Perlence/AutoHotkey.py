@@ -280,7 +280,7 @@ class Windows:
            <https://www.autohotkey.com/docs/commands/WinWait.htm>`_
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
-        return _wait_for(timeout, self.first) or Window(None)
+        return _wait_for(timeout, self.exist) or Window(None)
 
     def wait_active(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None,
                     timeout=None):
@@ -335,7 +335,7 @@ class Windows:
         self = self._filter(title, class_name, id, pid, exe, text, match)
         # WinWaitClose doesn't set Last Found Window, return False if the wait
         # was timed out.
-        return _wait_for(timeout, lambda: not self.first()) or False
+        return _wait_for(timeout, lambda: not self.exist()) or False
 
     def close_all(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None,
                   timeout=None):
