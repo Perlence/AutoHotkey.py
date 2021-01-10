@@ -173,7 +173,6 @@ def interact():
     console.raw_input = lambda prompt="": ahk.coop(interactive_input, prompt)
     console.interact(exitmsg="")
     # Force close AHK if it became persistent.
-    # TODO: Add a test for this.
     sys.exit(0)
 
 
