@@ -1841,8 +1841,9 @@ class Window(BaseWindow):
         :command: `WinClose
            <https://www.autohotkey.com/docs/commands/WinClose.htm>`_
         """
-        self._call("WinClose", *self._include(), timeout, set_delay=True)
-        # TODO: Test timeout.
+        self._call("WinClose", *self._include(), set_delay=True)
+        if timeout is not None:
+            return all_windows.wait_close(id=self.id)
         return not self.exists
 
     def kill(self, timeout=None) -> bool:
@@ -1855,8 +1856,9 @@ class Window(BaseWindow):
         :command: `WinKill
            <https://www.autohotkey.com/docs/commands/WinKill.htm>`_
         """
-        self._call("WinKill", *self._include(), timeout, set_delay=True)
-        # TODO: Test timeout.
+        self._call("WinKill", *self._include(), set_delay=True)
+        if timeout is not None:
+            return all_windows.wait_close(id=self.id)
         return not self.exists
 
     def wait_active(self, timeout=None) -> bool:

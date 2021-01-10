@@ -408,7 +408,7 @@ class TestControl:
         find_dialog = ahk.windows.wait_active(title="Find", pid=notepad.pid, timeout=1)
         assert find_dialog
         yield find_dialog
-        find_dialog.close()
+        assert find_dialog.close(timeout=1)
         notepad.get_control("Edit1").text = ""
 
     def test_nonexistent_control(self):
