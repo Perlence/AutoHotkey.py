@@ -212,7 +212,7 @@ def run_path(filename):
                 with open_code(filename) as f:
                     code = compile(f.read(), filename, "exec")
         else:
-            # TODO: Write a test for running directories.
+            # Run directory.
             code = functools.partial(runpy.run_path, filename, run_name="__main__")
     except FileNotFoundError as err:
         show_error(f"Can't open file: {err}")

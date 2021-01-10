@@ -83,6 +83,15 @@ def test_module(tmpdir, child_ahk):
     assert res.returncode == 0
 
 
+def test_directory(tmpdir, child_ahk):
+    script = tmpdir / "__main__.py"
+    script.write("import ahkpy as ahk, sys; print(__name__, __file__, sys.argv)")
+    res = child_ahk.run([str(tmpdir), "ahk.py", "1", "2"])
+    assert res.stderr == ""
+    assert res.stdout == f"__main__ {str(script)} [{repr(str(tmpdir))}, 'ahk.py', '1', '2']\n"
+    assert res.returncode == 0
+
+
 def test_system_exit(child_ahk):
     res = child_ahk.run_code("import ahkpy as ahk, sys; sys.exit()")
     assert res.returncode == 0
