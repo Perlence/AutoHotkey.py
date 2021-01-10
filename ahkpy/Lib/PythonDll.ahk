@@ -398,7 +398,6 @@ PyUnicode_AsWideCharString(unicode) {
     if (wchars == NULL) {
         throw Exception("cannot convert Python unicode to AHK string.")
     }
-    ; TODO: Should we check for the MemoryError?
     size := NumGet(size)
     result := StrGet(wchars, size)
     PyMem_Free(wchars)
