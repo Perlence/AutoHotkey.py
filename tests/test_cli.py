@@ -186,6 +186,23 @@ def test_pyw(tmpdir):
     assert res.returncode == 0
 
 
+def test_import_ahk(tmpdir):
+    script = tmpdir / "script.py"
+    code = "import ahkpy; print('ok')"
+    script.write(code)
+    res = subprocess.run(["py.exe", str(script)], encoding="utf-8", capture_output=True)
+    assert res.stderr == ""
+    assert res.stdout == "ok\n"
+    assert res.returncode == 0
+
+    code = "import ahkpy; ahkpy.poll(); print('ok')"
+    script.write(code)
+    res = subprocess.run(["py.exe", str(script)], encoding="utf-8", capture_output=True)
+    assert "RuntimeError: AHK interop is not available." in res.stderr
+    assert res.stdout == ""
+    assert res.returncode == 1
+
+
 @skip_if_winpty_is_missing
 def test_interactive_mode(request):
     proc = winpty.PtyProcess.spawn("py.exe -m ahkpy", dimensions=(24, 120))

@@ -13,7 +13,6 @@ except ModuleNotFoundError:
                 f"AHK interop is not available. Please start your code as 'py -m ahkpy {quoted_args}'.",
             )
 
-    # TODO: Write a test for this.
     _sys.modules["_ahk"] = _shim()
     del _shim
 
