@@ -126,8 +126,8 @@ def run_from_args():
 
     if options.cmd:
         sys.argv[:] = ["-c", *args[1:]]
-        # TODO: Consider importing ahkpy.
-        run_source(args[0])
+        # Add "ahkpy" and "ahk" to globals.
+        run_source(args[0], extra_globals={"ahkpy": ahk, "ahk": ahk})
     elif options.module:
         sys.argv[:] = args
         cwd = os.path.abspath(os.getcwd())
@@ -223,21 +223,22 @@ def run_path(filename):
         run_code(code, filename)
 
 
-def run_source(source, filename="<stdin>"):
+def run_source(source, filename="<stdin>", extra_globals=None):
     try:
         code = compile(source, filename, "exec")
     except (OverflowError, SyntaxError, ValueError):
         show_syntax_error(filename)
     else:
-        run_code(code, filename)
+        run_code(code, filename, extra_globals)
 
 
-def run_code(code, filename):
+def run_code(code, filename, extra_globals=None):
     try:
         globs = {
             "__name__": "__main__",
             "__doc__": None,
             "__file__": filename,
+            **(extra_globals or {}),
         }
         if callable(code):
             code()
