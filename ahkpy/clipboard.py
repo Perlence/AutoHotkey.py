@@ -59,6 +59,8 @@ def on_clipboard_change(func: Callable = None, *args, prepend_handler=False):
     will be registered to be called before any other previously registered
     functions.
 
+    If *func* returns true, then the other clipboard handlers won't be called.
+
     If *func* is given, returns an instance of :class:`ClipboardHandler`.
     Otherwise, the function works as a decorator::
 
@@ -93,7 +95,6 @@ def _bare_clipboard_handler(func, *_):
 
 
 def _clipboard_handler(func, typ):
-    # TODO: Document returning a truthy object.
     if typ == 0:
         return bool(func(clipboard=""))
     elif typ == 1:
