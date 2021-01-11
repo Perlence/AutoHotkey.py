@@ -32,7 +32,7 @@ def test_get_handle(menu):
 def test_add(call_spy, menu):
     res = menu.add("E&xit", sys.exit, default=True, icon="c:/Windows/py.exe", icon_number=1)
     call_spy.assert_has_calls([
-        call("Menu", menu.name, "Insert", None, "E&xit", call_spy.mock_calls[0].args[5], "P0 -Radio -Break -BarBreak"),
+        call("Menu", menu.name, "Insert", None, "E&xit", call_spy.mock_calls[0][1][5], "P0 -Radio -Break -BarBreak"),
         call("Menu", menu.name, "Default", "E&xit"),
         call("Menu", menu.name, "Icon", "E&xit", "c:/Windows/py.exe", 2, None)
     ])
@@ -47,7 +47,7 @@ def test_add(call_spy, menu):
     call_spy.reset_mock()
     menu.add("Radio", lambda: menu.toggle_checked("Radio"), radio=True)
     call_spy.assert_has_calls([
-        call("Menu", menu.name, "Insert", None, "Radio", call_spy.mock_calls[0].args[5], "P0 +Radio -Break -BarBreak"),
+        call("Menu", menu.name, "Insert", None, "Radio", call_spy.mock_calls[0][1][5], "P0 +Radio -Break -BarBreak"),
     ])
 
     call_spy.reset_mock()
@@ -61,7 +61,7 @@ def test_add(call_spy, menu):
     call_spy.reset_mock()
     submenu.add("I1", noop)
     call_spy.assert_has_calls([
-        call("Menu", submenu.name, "Insert", None, "I1", call_spy.mock_calls[0].args[5], "P0 -Radio -Break -BarBreak"),
+        call("Menu", submenu.name, "Insert", None, "I1", call_spy.mock_calls[0][1][5], "P0 -Radio -Break -BarBreak"),
     ])
 
     call_spy.reset_mock()
@@ -74,25 +74,36 @@ def test_add(call_spy, menu):
     call_spy.reset_mock()
     menu.add("NewCol", noop, new_column=True)
     call_spy.assert_has_calls([
-        call("Menu", menu.name, "Insert", None, "NewCol", call_spy.mock_calls[0].args[5], "P0 -Radio +Break -BarBreak"),
+        call("Menu", menu.name, "Insert", None, "NewCol", call_spy.mock_calls[0][1][5], "P0 -Radio +Break -BarBreak"),
     ])
 
     call_spy.reset_mock()
     menu.add("NewCol", noop, new_column=True, checked=True)
     call_spy.assert_has_calls([
-        call("Menu", menu.name, "Insert", None, "NewCol", call_spy.mock_calls[0].args[5], "P0 -Radio +Break -BarBreak"),
+        call("Menu", menu.name, "Insert", None, "NewCol", call_spy.mock_calls[0][1][5], "P0 -Radio +Break -BarBreak"),
         call("Menu", menu.name, "Check", "NewCol"),
     ])
 
     call_spy.reset_mock()
     menu.add("Dis", noop, enabled=False)
     call_spy.assert_has_calls([
-        call("Menu", menu.name, "Insert", None, "Dis", call_spy.mock_calls[0].args[5], "P0 -Radio -Break -BarBreak"),
+        call("Menu", menu.name, "Insert", None, "Dis", call_spy.mock_calls[0][1][5], "P0 -Radio -Break -BarBreak"),
         call("Menu", menu.name, "Disable", "Dis"),
     ])
 
 
 def test_chaining(call_spy):
+    submenu = (
+        ahk.Menu()
+        .add("S1", noop)
+        .add("S2", noop)
+    )
+    call_spy.assert_has_calls([
+        call("Menu", submenu.name, "Insert", None, "S1", call_spy.mock_calls[0][1][5], "P0 -Radio -Break -BarBreak"),
+        call("Menu", submenu.name, "Insert", None, "S2", call_spy.mock_calls[1][1][5], "P0 -Radio -Break -BarBreak"),
+    ])
+
+    call_spy.reset_mock()
     menu = (
         ahk.Menu()
         .add("Item1", noop)
@@ -100,22 +111,18 @@ def test_chaining(call_spy):
         .add_separator()
         .add_submenu(
             "My Submenu",
-            submenu := ahk.Menu()
-            .add("S1", noop)
-            .add("S2", noop)
+            submenu,
         )
         .add_separator()
         .add("Item3", noop)
     )
     call_spy.assert_has_calls([
-        call("Menu", menu.name, "Insert", None, "Item1", call_spy.mock_calls[0].args[5], "P0 -Radio -Break -BarBreak"),
-        call("Menu", menu.name, "Insert", None, "Item2", call_spy.mock_calls[1].args[5], "P0 -Radio -Break -BarBreak"),
+        call("Menu", menu.name, "Insert", None, "Item1", call_spy.mock_calls[0][1][5], "P0 -Radio -Break -BarBreak"),
+        call("Menu", menu.name, "Insert", None, "Item2", call_spy.mock_calls[1][1][5], "P0 -Radio -Break -BarBreak"),
         call("Menu", menu.name, "Insert"),
-        call("Menu", submenu.name, "Insert", None, "S1", call_spy.mock_calls[3].args[5], "P0 -Radio -Break -BarBreak"),
-        call("Menu", submenu.name, "Insert", None, "S2", call_spy.mock_calls[4].args[5], "P0 -Radio -Break -BarBreak"),
         call("Menu", menu.name, "Insert", None, "My Submenu", f":{submenu.name}", "-Radio -Break -BarBreak"),
         call("Menu", menu.name, "Insert"),
-        call("Menu", menu.name, "Insert", None, "Item3", call_spy.mock_calls[7].args[5], "P0 -Radio -Break -BarBreak")
+        call("Menu", menu.name, "Insert", None, "Item3", call_spy.mock_calls[5][1][5], "P0 -Radio -Break -BarBreak")
     ])
 
 
@@ -128,13 +135,13 @@ def test_insert(call_spy, menu):
     call_spy.reset_mock()
     menu.insert("Test", "2&", noop)
     call_spy.assert_has_calls([
-        call("Menu", menu.name, "Insert", "Test", "2&", call_spy.mock_calls[0].args[5], "P0 -Radio -Break -BarBreak"),
+        call("Menu", menu.name, "Insert", "Test", "2&", call_spy.mock_calls[0][1][5], "P0 -Radio -Break -BarBreak"),
     ])
 
     call_spy.reset_mock()
     menu.insert(1, "2&", noop)
     call_spy.assert_has_calls([
-        call("Menu", menu.name, "Insert", "2&", "2&", call_spy.mock_calls[0].args[5], "P0 -Radio -Break -BarBreak"),
+        call("Menu", menu.name, "Insert", "2&", "2&", call_spy.mock_calls[0][1][5], "P0 -Radio -Break -BarBreak"),
     ])
 
 
@@ -175,7 +182,7 @@ def test_update(call_spy, menu):
     menu.update("Test", callback=noop, radio=True, icon=sys.executable)
     call_spy.assert_has_calls([
         call("Menu", menu.name, "Add", "Test", None, "+Radio"),
-        call("Menu", menu.name, "Add", "Test", call_spy.mock_calls[1].args[4]),
+        call("Menu", menu.name, "Add", "Test", call_spy.mock_calls[1][1][4]),
     ])
 
     call_spy.reset_mock()
@@ -223,7 +230,7 @@ def test_update(call_spy, menu):
     call_spy.reset_mock()
     menu.update(0, new_name="New name", callback=lambda: print("New name"))
     call_spy.assert_has_calls([
-        call("Menu", menu.name, "Add", "1&", call_spy.mock_calls[0].args[4]),
+        call("Menu", menu.name, "Add", "1&", call_spy.mock_calls[0][1][4]),
         call("Menu", menu.name, "Rename", "1&", "New name")
     ])
 
@@ -249,7 +256,7 @@ def test_update_separator(child_ahk):
 def test_update_remove_icon(call_spy, menu):
     menu.add("Test", noop, icon=sys.executable)
     call_spy.assert_has_calls([
-        call("Menu", menu.name, "Insert", None, "Test", call_spy.mock_calls[0].args[5], "P0 -Radio -Break -BarBreak"),
+        call("Menu", menu.name, "Insert", None, "Test", call_spy.mock_calls[0][1][5], "P0 -Radio -Break -BarBreak"),
         call("Menu", menu.name, "Icon", "Test", sys.executable, 1, None)
     ])
 
