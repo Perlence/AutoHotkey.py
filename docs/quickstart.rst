@@ -24,6 +24,13 @@ The most common use case is, of course, a simple invocation of a script:
 
    ahkpy myscript.py
 
+The REPL interface works best when invoked through the ``python`` executable,
+because it enables the arrow keys to traverse the command history.
+
+.. code-block:: text
+
+   python -m ahkpy
+
 The AutoHotkey.py interface resembles that of the Python interpreter. For more
 information on the interface options refer to `Python documentation
 <https://docs.python.org/3/using/cmdline.html#interface-options>`_.
