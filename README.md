@@ -10,18 +10,14 @@ embedding a Python DLL into the AutoHotkey process.
 
 ## Quickstart
 
-Create a virtual environment for your script and activate it. To do that, copy
-and paste the following into a PowerShell window:
+Ensure that you have installed [Python](https://www.python.org/downloads/) 3.7
+and newer, and [AutoHotkey](https://www.autohotkey.com/) 1.1.28 and newer.
+
+Install the package from the URL to the Python user install directory. To do
+that, copy and paste the following into a PowerShell window:
 
 ```powershell
-py -m venv env
-& .\env\Scripts\Activate.ps1
-```
-
-Install the package from the URL:
-
-```powershell
-pip install git+https://github.com/Perlence/AutoHotkey.py
+py -m pip install --user git+https://github.com/Perlence/AutoHotkey.py
 ```
 
 Write the sample code into the `playground.py` file:
