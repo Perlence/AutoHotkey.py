@@ -46,6 +46,16 @@ The following CLI options are specific to AutoHotkey.py:
 
    Don't show the AutoHotkey icon in the system tray.
 
+When started, AutoHotkey.py searches for the AutoHotkey executable in the
+following sequence:
+
+1. Check the ``AUTOHOTKEY`` environment variable. If the variable is set,
+   treat it as the AutoHotkey executable path.
+2. Find the program associated with the ``*.ahk`` files. If the program name
+   starts with ``autohotkey`` (case-insensitive), treat it as the AutoHotkey
+   executable path.
+3. Use the default ``C:\Program Files\AutoHotkey\AutoHotkey.exe`` path.
+
 .. note::
 
    In contrast with AutoHotkey, the whole script is executed once it's loaded.

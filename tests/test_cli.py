@@ -196,6 +196,27 @@ def test_pyw(tmpdir):
     assert res.returncode == 0
 
 
+def test_ahk_path_envvar(tmpdir):
+    spy = tmpdir / "spy.bat"
+    code = "@echo %0 %*"
+    spy.write(code)
+
+    script = tmpdir / "script.py"
+    code = "print('hello')"
+    script.write(code)
+
+    import os
+    res = subprocess.run(
+        ["py.exe", "-m", "ahkpy", str(script)],
+        env={**os.environ, "AUTOHOTKEY": str(spy)},
+        encoding="utf-8",
+        capture_output=True,
+    )
+    assert res.stderr == ""
+    assert res.stdout.lower() == f"{spy} {ahk.__path__[0]}\\Python.ahk {script}\n".lower()
+    assert res.returncode == 0
+
+
 def test_import_ahk(tmpdir):
     script = tmpdir / "script.py"
     code = "import ahkpy; print('ok')"
