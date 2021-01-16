@@ -31,6 +31,12 @@ because it enables the arrow keys to traverse the command history.
 
    python -m ahkpy
 
+To start AutoHotkey.py without the terminal window, use *pyw*:
+
+.. code-block:: text
+
+   pyw -m ahkpy myscript.py
+
 The AutoHotkey.py interface resembles that of the Python interpreter. For more
 information on the interface options refer to `Python documentation
 <https://docs.python.org/3/using/cmdline.html#interface-options>`_.
