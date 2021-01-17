@@ -158,18 +158,17 @@ def mouse_scroll(direction: str, times=1, *, modifier: str = None, blind=True, m
 
     Scroll the mouse wheel.
 
-    :param str direction: the scroll direction. Takes one of the following
-       values: ``"up"``, ``"down"``, ``"left"``, ``"right"``.
+    The *direction* argument specifies the scroll direction. Takes one of the
+    following values: ``"up"``, ``"down"``, ``"left"``, ``"right"``.
 
-    :param int times: the number of notches to turn the wheel. However, some
-       applications do not obey *times* higher than 1. Use the following
-       workaround::
+    The *times* argument specifies the number of notches to turn the wheel.
+    However, some applications do not obey *times* higher than 1. Use the
+    following workaround::
 
-           for _ in range(5):
-               ahkpy.mouse_scroll("up")
+        for _ in range(5):
+            ahkpy.mouse_scroll("up")
 
-    :param options: the optional keyword-only arguments that :func:`click`
-       takes.
+    For the *options* arguments refer to :func:`click`.
 
     :command: `Send, {Click}
        <https://www.autohotkey.com/docs/commands/Send.htm#Click>`_
@@ -334,7 +333,7 @@ def get_cursor_type() -> str:
     Wait, Unknown.
 
     The acronyms used with the size-type cursors are compass directions, e.g.
-    NESW = NorthEast+SouthWest. The hand-shaped cursors (pointing and grabbing)
+    NESW is NorthEast+SouthWest. The hand-shaped cursors (pointing and grabbing)
     are classified as Unknown.
     """
     return ahk_call("GetVar", "A_Cursor")
