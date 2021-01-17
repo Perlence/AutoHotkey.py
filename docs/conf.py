@@ -64,6 +64,7 @@ html_theme_options = {
     "github_user": "Perlence",
     "github_repo": "AutoHotkey.py",
     "github_banner": True,
+    "github_type": "star",
     "show_related": False,
     "fixed_sidebar": True,
     "font_family": "-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif",
