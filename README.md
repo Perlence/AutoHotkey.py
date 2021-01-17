@@ -13,11 +13,11 @@ embedding a Python DLL into the AutoHotkey process.
 Ensure that you have installed [Python](https://www.python.org/downloads/) 3.7
 and newer, and [AutoHotkey](https://www.autohotkey.com/) 1.1.28 and newer.
 
-Install the package from the URL to the Python user install directory. To do
-that, copy and paste the following into a PowerShell window:
+Install the package to the Python user install directory. To do that, copy and
+paste the following into a PowerShell window:
 
 ```powershell
-py -m pip install --user git+https://github.com/Perlence/AutoHotkey.py
+py -m pip install --user autohotkey.py
 ```
 
 Write the sample code into the `playground.py` file:
