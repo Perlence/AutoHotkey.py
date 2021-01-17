@@ -1305,7 +1305,7 @@ class Window(BaseWindow):
     def is_active(self) -> bool:
         """Whether the window is active (read-only).
 
-        Returns ``None`` unless the window/control exists.
+        Returns ``None`` unless the window exists.
 
         :type: bool
 
@@ -1551,7 +1551,7 @@ class Window(BaseWindow):
         argument specifies the matching behavior and defaults to
         ``"startswith"``. For other modes refer to :meth:`Windows.filter`.
 
-        Returns ``Control(None)`` if the either window or control doesn't exist.
+        Returns ``Control(None)`` if either window or control doesn't exist.
 
         :command: `ControlGet
            <https://www.autohotkey.com/docs/commands/ControlGet.htm>`_
@@ -1611,7 +1611,7 @@ class Window(BaseWindow):
             self.unpin_from_top()
 
     def pin_to_top(self):
-        """Make the window to always be on top.
+        """Make the window be always on top.
 
         Does nothing unless the window exists.
 
