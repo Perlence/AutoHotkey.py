@@ -137,6 +137,9 @@ def get_key_name_from_vk(vk: int) -> str:
 
         >>> ahkpy.get_key_name_from_vk(112)
         'F1'
+
+    :command: `GetKeyName
+       <https://www.autohotkey.com/docs/commands/GetKey.htm>`_
     """
     return get_key_name(f"vk{vk}")
 
@@ -146,6 +149,9 @@ def get_key_name_from_sc(sc: int) -> str:
 
         >>> ahkpy.get_key_name_from_sc(59)
         'F1'
+
+    :command: `GetKeyName
+       <https://www.autohotkey.com/docs/commands/GetKey.htm>`_
     """
     return get_key_name(f"sc{sc}")
 
