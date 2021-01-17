@@ -137,7 +137,7 @@ class Menu:
            set an icon for the specified menu item. For more details refer to
            :meth:`set_icon`. To remove the icon, pass ``None`` to *icon*.
 
-        :command: `Menu, $, Insert,, MenuItemName, %FuncObj%, Options
+        :command: `Menu, $, Add, MenuItemName, %FuncObj%, Options
            <https://www.autohotkey.com/docs/commands/Menu.htm#Insert>`_
         """
         return self._insert_or_update(
@@ -150,7 +150,7 @@ class Menu:
     def add_separator(self):
         """Append a separator.
 
-        :command: `Menu, $, Insert,,
+        :command: `Menu, $, Add
            <https://www.autohotkey.com/docs/commands/Menu.htm#Insert>`_
         """
         self._call("Insert")
@@ -168,7 +168,7 @@ class Menu:
 
         For *options* refer to :meth:`add`.
 
-        :command: `Menu, $, Insert,, MenuItemName, :Submenu, Options
+        :command: `Menu, $, Add, MenuItemName, :Submenu, Options
            <https://www.autohotkey.com/docs/commands/Menu.htm#Insert>`_
         """
         return self._insert_or_update(
