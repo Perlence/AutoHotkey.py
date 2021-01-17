@@ -40,6 +40,12 @@ and Variables) and their Python counterparts.
      - :attr:`ahkpy.Settings.mouse_speed`
    + - `A_Hour <https://www.autohotkey.com/docs/Variables.htm#Hour>`_
      - ``datetime.datetime.now().hour``
+   + - `A_IconFile <https://www.autohotkey.com/docs/Variables.htm#IconFile>`_
+     - :attr:`ahkpy.TrayMenu.tray_icon_file`
+   + - `A_IconHidden <https://www.autohotkey.com/docs/Variables.htm#IconHidden>`_
+     - :attr:`ahkpy.TrayMenu.is_tray_icon_visible`
+   + - `A_IconNumber <https://www.autohotkey.com/docs/Variables.htm#IconNumber>`_
+     - :attr:`ahkpy.TrayMenu.tray_icon_number`
    + - `A_Is64bitOS <https://www.autohotkey.com/docs/Variables.htm#Is64bitOS>`_
      - :func:`platform.architecture`
    + - `A_MDay <https://www.autohotkey.com/docs/Variables.htm#MDay>`_
@@ -307,6 +313,48 @@ and Variables) and their Python counterparts.
      - :meth:`str.lstrip`
    + - `Mod() <https://www.autohotkey.com/docs/commands/Mod.htm>`_
      - The ``%`` (modulo) operator
+   + - `Menu, $, Add <https://www.autohotkey.com/docs/commands/Menu.html#Add>`_
+     - :meth:`ahkpy.Menu.add`
+   + - `Menu, $, Insert <https://www.autohotkey.com/docs/commands/Menu.html#Insert>`_
+     - :meth:`ahkpy.Menu.insert`
+   + - `Menu, $, Delete <https://www.autohotkey.com/docs/commands/Menu.html#Delete>`_
+     - :meth:`ahkpy.Menu.delete_item`, :meth:`ahkpy.Menu.delete_menu`
+   + - `Menu, $, DeleteAll <https://www.autohotkey.com/docs/commands/Menu.html#DeleteAll>`_
+     - :meth:`ahkpy.Menu.delete_all_items`
+   + - `Menu, $, Rename <https://www.autohotkey.com/docs/commands/Menu.html#Rename>`_
+     - :meth:`ahkpy.Menu.rename`
+   + - `Menu, $, Check <https://www.autohotkey.com/docs/commands/Menu.html#Check>`_
+     - :meth:`ahkpy.Menu.check`
+   + - `Menu, $, Uncheck <https://www.autohotkey.com/docs/commands/Menu.html#Uncheck>`_
+     - :meth:`ahkpy.Menu.uncheck`
+   + - `Menu, $, ToggleCheck <https://www.autohotkey.com/docs/commands/Menu.html#ToggleCheck>`_
+     - :meth:`ahkpy.Menu.toggle_checked`
+   + - `Menu, $, Enable <https://www.autohotkey.com/docs/commands/Menu.html#Enable>`_
+     - :meth:`ahkpy.Menu.enable`
+   + - `Menu, $, Disable <https://www.autohotkey.com/docs/commands/Menu.html#Disable>`_
+     - :meth:`ahkpy.Menu.disable`
+   + - `Menu, $, ToggleEnable <https://www.autohotkey.com/docs/commands/Menu.html#ToggleEnable>`_
+     - :meth:`ahkpy.Menu.toggle_enabled`
+   + - `Menu, $, Default <https://www.autohotkey.com/docs/commands/Menu.html#Default>`_
+     - :meth:`ahkpy.Menu.set_default`
+   + - `Menu, $, NoDefault <https://www.autohotkey.com/docs/commands/Menu.html#NoDefault>`_
+     - :meth:`ahkpy.Menu.remove_default`
+   + - `Menu, $, Icon <https://www.autohotkey.com/docs/commands/Menu.html#Icon>`_
+     - :meth:`ahkpy.Menu.set_icon`
+   + - `Menu, $, NoIcon <https://www.autohotkey.com/docs/commands/Menu.html#NoIcon>`_
+     - :meth:`ahkpy.Menu.remove_icon`
+   + - `Menu, $, Show <https://www.autohotkey.com/docs/commands/Menu.html#Show>`_
+     - :meth:`ahkpy.Menu.show`
+   + - `Menu, $, Color <https://www.autohotkey.com/docs/commands/Menu.html#Color>`_
+     - :meth:`ahkpy.Menu.set_color`
+   + - `Menu, Tray, Icon <https://www.autohotkey.com/docs/commands/Menu.html#TrayIcon>`_
+     - :meth:`ahkpy.TrayMenu.set_tray_icon`, :meth:`ahkpy.TrayMenu.toggle_tray_icon`, :meth:`ahkpy.TrayMenu.show_tray_icon`
+   + - `Menu, Tray, NoIcon <https://www.autohotkey.com/docs/commands/Menu.html#NoIcon>`_
+     - :meth:`ahkpy.TrayMenu.hide_tray_icon`
+   + - `Menu, Tray, Tip <https://www.autohotkey.com/docs/commands/Menu.html#Tip>`_
+     - :attr:`ahkpy.TrayMenu.tip`
+   + - `Menu, Tray, Click <https://www.autohotkey.com/docs/commands/Menu.html#Click>`_
+     - :meth:`ahkpy.TrayMenu.set_clicks`
    + - `MouseClick <https://www.autohotkey.com/docs/commands/MouseClick.htm>`_
      - :func:`ahkpy.click`, also :func:`~ahkpy.right_click`, :func:`~ahkpy.double_click`, :func:`~ahkpy.mouse_press`,
        :func:`~ahkpy.mouse_release`, :func:`~ahkpy.mouse_scroll`, :func:`~ahkpy.mouse_move`
