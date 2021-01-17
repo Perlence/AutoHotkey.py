@@ -57,8 +57,10 @@ def set_countdown(interval=0.25, func=None, *args, priority=0):
     If you want the *func* to be called with keyword arguments use
     :func:`functools.partial`.
 
-    The optional parameter *priority* is an integer between -2147483648 and
-    2147483647.
+    The optional *priority* argument sets the priority of the `AHK thread
+    <https://www.autohotkey.com/docs/misc/Threads.htm>`_ where *func* will be
+    executed. It must be an :class:`int` between -2147483648 and
+    2147483647. Defaults to 0.
 
     If *func* is given, returns an instance :class:`Timer`. Otherwise, the
     function works as a decorator::
