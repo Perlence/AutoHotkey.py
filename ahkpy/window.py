@@ -303,12 +303,14 @@ class Windows:
                       timeout=None) -> bool:
         """wait_inactive(title: str = UNSET, *, timeout=None, **criteria) -> bool
 
+        Wait until there are no matching active windows.
+
         Returns ``True`` if there are no matching active windows. If there are
         still matching windows after *timeout* seconds, then ``False`` will be
         returned. If *timeout* is not specified or ``None``, there is no limit
         to the wait time.
 
-        For more information refer to :meth:`wait`.
+        For other arguments refer to :meth:`filter`.
 
         :command: `WinWaitNotActive
            <https://www.autohotkey.com/docs/commands/WinWaitActive.htm>`_
