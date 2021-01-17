@@ -24,7 +24,8 @@ def switch_between_app_windows():
     process_name = active_win.process_name
     app_windows = [
         win
-        for win in ahk.windows.filter(exe=process_name)
+        # Filter all windows to find windows on all virtual desktops.
+        for win in ahk.all_windows.filter(exe=process_name)
         if is_alt_tab_window(win)
     ]
     if len(app_windows) < 2:
