@@ -241,7 +241,15 @@ In the following functions, the *key_name* argument is a VK or SC code, such as
 Input Blocking
 ~~~~~~~~~~~~~~
 
-A couple of context managers to block user input.
+A couple of context managers to block user input::
+
+   with ahkpy.block_input():
+       subprocess.Popen(["notepad"])
+       ahkpy.windows.wait_active("Untitled - Notepad")
+       ahkpy.send("{F5}")  # Pastes time and date
+
+Use sparingly. Prefer the Input and Play send modes instead, because they buffer
+the user input while sending.
 
 .. autofunction:: block_input
 
