@@ -16,7 +16,7 @@ When invoking AutoHotkey.py, you may specify any of these options:
 
 .. code-block:: text
 
-   ahkpy [-h] [-q] [--no-tray] [-c CMD | -m MOD | FILE | -] [args]
+   ahkpy [-h] [-V] [-q] [--no-tray] [-c CMD | -m MOD | FILE | -] [args]
 
 The most common use case is, of course, a simple invocation of a script:
 

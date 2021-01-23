@@ -91,8 +91,11 @@ def prepare_tray_menu():
 
 
 def run_from_args():
-    usage = "py -m ahkpy [-h] [-q] [--no-tray] [-c CMD | -m MOD | FILE | -] [ARGS] ..."
-    parser = GUIArgumentParser(usage=usage)
+    usage = "py -m ahkpy [-h] [-V] [-q] [--no-tray] [-c CMD | -m MOD | FILE | -] [ARGS] ..."
+    parser = GUIArgumentParser(usage=usage, prog="ahkpy")
+    parser.add_argument(
+        "-V", "--version", action="version", version=version(),
+    )
     parser.add_argument(
         "-q", "--quiet", action="store_true",
         help="suppress message boxes with errors",
@@ -165,6 +168,12 @@ class GUIArgumentParser(argparse.ArgumentParser):
                 ahk.message_box(message)
                 return
             file.write(message)
+
+
+def version():
+    python_version, _, _ = sys.version.partition(" ")
+    ahk_version = ahk.flow.ahk_call("GetVar", "A_AhkVersion")
+    return f"AutoHotkey.py {ahk.__version__}, Python {python_version}, AutoHotkey {ahk_version}"
 
 
 def interact():
