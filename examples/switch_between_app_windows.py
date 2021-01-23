@@ -56,8 +56,6 @@ def is_alt_tab_window(win):
         return True
     if ahk.ExWindowStyle.TOOLWINDOW in ex_style:
         return False
-    if ahk.WindowStyle.TOOLWINDOW in style:
-        return False
     if ahk.ExWindowStyle.NOACTIVATE in ex_style:
         return False
 
