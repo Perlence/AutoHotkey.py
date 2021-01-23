@@ -13,7 +13,6 @@ EXIT_CODE_RESTART = 65530
 
 def main():
     os.environ["PYTHONUNBUFFERED"] = "1"
-    os.environ["PYTHONNOUSERSITE"] = "1"
     os.environ["PYTHONFULLPATH"] = ";".join(sys.path)
     os.environ["PYTHONDLL"] = python_dll_path()
 
