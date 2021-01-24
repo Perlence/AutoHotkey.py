@@ -121,6 +121,8 @@ specific condition. For example::
        "You pressed Win-C while any window except Notepad is active.",
    )
 
+.. code-block::
+
    def is_mouse_over_taskbar():
        win = ahkpy.get_window_under_mouse()
        return win.class_name == "Shell_TrayWnd"
