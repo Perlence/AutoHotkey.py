@@ -91,7 +91,7 @@ If you want to bind an existing function to a hotkey, pass it as an argument to
 
    ahkpy.hotkey("#n", subprocess.Popen, ["notepad"])
 
-In the example above, the :class:`subprocess.Popen` class will be created with
+In the example above, the :class:`subprocess.Popen` object will be created with
 the ``["notepad"]`` argument when the user presses :kbd:`Win` + :kbd:`N`.
 
 To disable a key or a combination of keys for the entire system, use the
