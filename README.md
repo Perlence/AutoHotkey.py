@@ -39,7 +39,7 @@ def bye():
 Finally, run the sample code:
 
 ```powershell
-ahkpy playground.py
+py -m ahkpy playground.py
 ```
 
 It will show a "Hello!" message box. When the user presses <kbd>F1</kbd>, it
