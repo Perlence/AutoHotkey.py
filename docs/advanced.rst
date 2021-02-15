@@ -1,7 +1,7 @@
 Advanced Usage
 ==============
 
-This document covers some of AutoHotkey.py more advanced features.
+This document covers some of AutoHotkey.py's more advanced features.
 
 
 .. index::
@@ -10,29 +10,31 @@ This document covers some of AutoHotkey.py more advanced features.
 Threading
 ---------
 
-In Python, the :mod:`threading` module can be used to improve the responsiveness
-of applications that accept user input while other tasks run in the background.
-A related use case is running I/O in parallel with computations in another
-thread. These are actual OS threads, as opposed to AHK `pseudo-threads
+In Python, the :mod:`threading` module can improve the responsiveness
+of applications that accept user input while other tasks are running in the
+background. A related use case is running I/O in parallel with computations in
+another thread. These are actual OS threads, as opposed to AHK `pseudo-threads
 <https://www.autohotkey.com/docs/misc/Threads.htm>`_.
 
-Calling AHK functions from Python is implemented in AutoHotkey.py by registering
-a callback in AHK with `RegisterCallback
+AutoHotkey.py calls AHK functions from python by registering a callback in AHK
+with `RegisterCallback
 <https://www.autohotkey.com/docs/commands/RegisterCallback.htm>`_. *These
-callbacks are not thread-safe.* That is, while the *main thread* is busy
-executing an AHK function, trying to call another AHK function from *another
-thread* leads to unpredictable results like program crash.
+callbacks are not thread-safe.* That is, while the *main thread* is busy executing
+an AHK function, calling another AHK
+function from *another thread* yields unpredictable results. It may even crash
+the program.
 
-Thus, the *global AutoHotkey lock* (GAL) was introduced. It ensures that only
+Thus, the *global AutoHotkey lock* (GAL) was introduced. GAL ensures that only
 one OS thread interacts with AHK at a time.
 
-In order for background threads to work, the main thread must also be crunching
+For background threads to work, the main thread must also be crunching
 Python code, for example, actively waiting for the background threads to finish.
-However, calling :meth:`threading.Thread.join` in the main thread will block the
-handling of the AHK message queue. That is, AHK won't be able to handle the
-hotkeys and other callbacks. Instead, let AHK handle its message queue by
-calling :func:`ahkpy.sleep` repeatedly while checking that the background thread
-is alive::
+However, calling :meth:`threading.Thread.join` in the main thread blocks AHK
+message queue handling. In such cases, AHK cannot handle hotkeys and other
+callbacks.
+
+Instead, let AHK handle its message queue by calling :func:`ahkpy.sleep`
+repeatedly while checking that the background thread is alive::
 
    import threading
    th = threading.Thread(target=some_worker)
@@ -45,8 +47,8 @@ asyncio
 -------
 
 AutoHotkey.py works well with :mod:`asyncio`. When starting a long-running loop,
-schedule the :func:`ahkpy.sleep` call repeatedly, so it could give time to AHK
-to process its message queue::
+schedule the :func:`ahkpy.sleep` call repeatedly. This gives AHK time to
+process its message queue::
 
    import asyncio
 
