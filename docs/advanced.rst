@@ -10,8 +10,8 @@ This document covers some of AutoHotkey.py's more advanced features.
 Threading
 ---------
 
-In Python, the :mod:`threading` module can improve the responsiveness
-of applications that accept user input while other tasks are running in the
+In Python, the :mod:`threading` module can improve the responsiveness of
+applications that accept user input while other tasks are running in the
 background. A related use case is running I/O in parallel with computations in
 another thread. These are actual OS threads, as opposed to AHK `pseudo-threads
 <https://www.autohotkey.com/docs/misc/Threads.htm>`_.
@@ -19,16 +19,15 @@ another thread. These are actual OS threads, as opposed to AHK `pseudo-threads
 AutoHotkey.py calls AHK functions from python by registering a callback in AHK
 with `RegisterCallback
 <https://www.autohotkey.com/docs/commands/RegisterCallback.htm>`_. *These
-callbacks are not thread-safe.* That is, while the *main thread* is busy executing
-an AHK function, calling another AHK
-function from *another thread* yields unpredictable results. It may even crash
-the program.
+callbacks are not thread-safe.* That is, while the *main thread* is busy
+executing an AHK function, calling another AHK function from *another thread*
+yields unpredictable results. It may even crash the program.
 
 Thus, the *global AutoHotkey lock* (GAL) was introduced. GAL ensures that only
 one OS thread interacts with AHK at a time.
 
-For background threads to work, the main thread must also be crunching
-Python code, for example, actively waiting for the background threads to finish.
+For background threads to work, the main thread must also be crunching Python
+code, for example, actively waiting for the background threads to finish.
 However, calling :meth:`threading.Thread.join` in the main thread blocks AHK
 message queue handling. In such cases, AHK cannot handle hotkeys and other
 callbacks.
@@ -47,8 +46,8 @@ asyncio
 -------
 
 AutoHotkey.py works well with :mod:`asyncio`. When starting a long-running loop,
-schedule the :func:`ahkpy.sleep` call repeatedly. This gives AHK time to
-process its message queue::
+schedule the :func:`ahkpy.sleep` call repeatedly. This gives AHK time to process
+its message queue::
 
    import asyncio
 
