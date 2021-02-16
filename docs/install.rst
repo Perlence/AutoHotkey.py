@@ -4,7 +4,7 @@ Installation
 AutoHotkey.py requires `Python <https://www.python.org/downloads/>`_ 3.7 or
 later and `AutoHotkey <https://www.autohotkey.com/>`_ 1.1.28 or later.
 
-Once you've installed python, install the AutoHotkey.py package to the Python
+Once you've installed Python, install the AutoHotkey.py package to the Python
 user install directory. To do that, copy and paste the following into a
 PowerShell window:
 

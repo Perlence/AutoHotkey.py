@@ -16,7 +16,7 @@ background. A related use case is running I/O in parallel with computations in
 another thread. These are actual OS threads, as opposed to AHK `pseudo-threads
 <https://www.autohotkey.com/docs/misc/Threads.htm>`_.
 
-AutoHotkey.py calls AHK functions from python by registering a callback in AHK
+AutoHotkey.py calls AHK functions from Python by registering a callback in AHK
 with `RegisterCallback
 <https://www.autohotkey.com/docs/commands/RegisterCallback.htm>`_. *These
 callbacks are not thread-safe.* That is, while the *main thread* is busy
