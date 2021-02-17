@@ -4,7 +4,7 @@ Quickstart
 .. module:: ahkpy
    :noindex:
 
-This page assumes you already have AutoHotkey.py installed. If you do not, head
+This page assumes you've already installed AutoHotkey.py. If you haven't, head
 over to the :doc:`/install` section. If you need a refresher on Python, check
 out `The Python Tutorial <https://docs.python.org/3/tutorial/index.html>`_.
 
@@ -18,14 +18,15 @@ When invoking AutoHotkey.py, you may specify any of these options:
 
    ahkpy [-h] [-V] [-q] [--no-tray] [-c CMD | -m MOD | FILE | -] [args]
 
-The most common use case is, of course, a simple invocation of a script:
+The most common use case, of course, simply invokes a script:
 
 .. code-block:: text
 
    ahkpy myscript.py
 
-The REPL interface works best when invoked through the ``python`` executable,
-because it enables the arrow keys to traverse the command history.
+The REPL interface works best when you invoke it with the ``python``
+executable, which allows you to explore your command history with the up and
+down arrow keys.
 
 .. code-block:: text
 
@@ -37,30 +38,31 @@ To start AutoHotkey.py without the terminal window, use *pyw*:
 
    pyw -m ahkpy myscript.py
 
-The AutoHotkey.py interface resembles that of the Python interpreter. For more
-information on the interface options refer to `Python documentation
+The AutoHotkey.py interface resembles that of the Python interpreter. To learn
+more about your interface options, refer to the `Python documentation
 <https://docs.python.org/3/using/cmdline.html#interface-options>`_.
 
 The following CLI options are specific to AutoHotkey.py:
 
 .. cmdoption:: -q
 
-   Suppress message boxes with errors. If this option is not specified,
-   AutoHotkey.py will show unhandled Python errors in message boxes.
+   Suppress message boxes with errors. If you don't specify this option,
+   AutoHotkey.py shows unhandled Python errors in message boxes.
 
 .. cmdoption:: --no-tray
 
    Don't show the AutoHotkey icon in the system tray.
 
-When started, AutoHotkey.py searches for the AutoHotkey executable in the
+Once started, AutoHotkey.py searches for the AutoHotkey executable in the
 following sequence:
 
-1. Check the ``AUTOHOTKEY`` environment variable. If the variable is set,
-   treat it as the AutoHotkey executable path.
-2. Find the program associated with the ``*.ahk`` files. If the program name
-   starts with ``autohotkey`` (case-insensitive), treat it as the AutoHotkey
-   executable path.
-3. Use the default ``C:\Program Files\AutoHotkey\AutoHotkey.exe`` path.
+1. First, checks whether the ``AUTOHOTKEY`` environment variable is set. If it
+   is, AutoHotkey.py uses the environment variable as the AutoHotkey executable
+   path.
+2. If not, checks the Windows Registry to find whether a program's set to run
+when a user opens an AHK file.
+3. Otherwise, defaults to the path
+   ``C:\Program Files\AutoHotkey\AutoHotkey.exe``.
 
 .. note::
 
@@ -74,10 +76,10 @@ following sequence:
 Hotkeys
 -------
 
-Hotkeys in AutoHotkey.py are registered with the :func:`hotkey` function. In the
+The :func:`hotkey` function registers HotKeys. In the
 following example, the hotkey :kbd:`Win` + :kbd:`N` is configured to launch
-Notepad. The pound sign ``#`` stands for the :kbd:`Win` key, which is known as a
-modifier::
+Notepad. The pound sign ``#`` stands for the :kbd:`Win` key, one of the hotkey
+modifiers::
 
    import subprocess
    import ahkpy
@@ -91,8 +93,9 @@ If you want to bind an existing function to a hotkey, pass it as an argument to
 
    ahkpy.hotkey("#n", subprocess.Popen, ["notepad"])
 
-In the example above, the :class:`subprocess.Popen` object will be created with
-the ``["notepad"]`` argument when the user presses :kbd:`Win` + :kbd:`N`.
+In the preceding example, when a user presses :kbd:`Win` + :kbd:`N`,
+they create a :class:`subprocess.Popen` object with the argument
+``["notepad"]``.
 
 To disable a key or a combination of keys for the entire system, use the
 ``lambda: None`` function. For example, this disables the right-side :kbd:`Win`
@@ -100,10 +103,10 @@ key::
 
    ahkpy.hotkey("RWin", lambda: None)
 
-The methods :meth:`Windows.active_window_context`,
-:meth:`Windows.window_context`, and the :class:`HotkeyContext` class can be used
-to make a hotkey perform a different action (or none at all) depending on a
-specific condition. For example::
+If you want to specify certain conditions when a hotkey performs a different
+action (or no action at all), you can use the methods
+:meth:`Windows.active_window_context` and :meth:`Windows.window_context`,
+or the class :class:`HotkeyContext`. For example::
 
    notepad_ctx = ahkpy.windows.active_window_context(class_name="Notepad")
    notepad_ctx.hotkey(
@@ -172,16 +175,17 @@ Window Management
 -----------------
 
 AutoHotkey.py provides the :class:`Windows` class and its default instances:
-:data:`windows` and :data:`all_windows`. The :class:`Windows` class is the
-interface to query open windows by multiple criteria, like title and window
-class. To query the windows, set the criteria with the :meth:`~Windows.filter`
-method. For example, this prepares a query of all windows with a class named
-``ConsoleWindowClass``::
+:data:`windows` and :data:`all_windows`. With the :class:`Windows` class
+interface, you can query windows through multiple search parameters, like
+``title`` and ``window``. To query the windows, set the criteria with the
+:meth:`~Windows.filter` method. For example, this prepares a query of all
+windows of the class ``ConsoleWindowClass``::
 
    >>> console_windows = ahkpy.windows.filter(class_name="ConsoleWindowClass")
 
-The :meth:`~Windows.filter` call doesn't retrieve any windows by itself, it
-instructs the subsequent operation::
+The only role of the :meth:`~Windows.filter` method is to pack the
+query parameters. Once you've filtered the object you want, you can perform
+a real operation, like get the count of matching windows::
 
    >>> console_windows
    Windows(class_name='ConsoleWindowClass', hidden_windows=False, hidden_text=True, title_mode='startswith', text_mode='fast')
@@ -196,10 +200,10 @@ instructs the subsequent operation::
    >>> [win.title for win in console_windows]
    ['Command Prompt', 'Windows PowerShell', 'C:\\Windows\\py.exe']
 
-Specifying multiple criteria in the :meth:`~Windows.filter` call narrows down
-the search to the windows where *all* criteria match. In the following example,
-the script waits for a window whose title contains ``My File.txt`` and whose
-class is ``Notepad``::
+Specifying multiple criteria for :meth:`~Windows.filter` narrows the
+the search down to only the windows where *all* criteria match. In the
+following example, the script waits for a window whose title contains
+``My File.txt`` and whose class is ``Notepad``::
 
    ahkpy.windows.filter("My File.txt", class_name="Notepad").wait()
    # Filter chaining gives the same result.
@@ -213,7 +217,7 @@ following::
    ahkpy.windows.wait("My File.txt", class_name="Notepad")
 
 The :meth:`~Windows.exclude` method is a companion to :meth:`~Windows.filter`
-that excludes the windows from the search::
+that excludes a window from a search::
 
    non_cmd_windows = ahkpy.windows.exclude(title="Command Prompt")
 
@@ -257,7 +261,7 @@ matching windows, ``Window(None)`` is returned. This object is falsy and returns
    >>> win.class_name is None
    True
 
-Also, a window that existed at some point in time but was closed acts the same
+Also, if a window existed at some point in time but was closed, it acts the same
 as ``Window(None)``. Thus, be sure to check property values for ``None`` before
 working with them::
 
@@ -395,4 +399,4 @@ Follow the `Python debug configurations in Visual Studio Code
    }
 
 Now you can set the breakpoints in Visual Studio Code and inspect the
-AutoHotkey.py program as you would do with a regular Python program.
+AutoHotkey.py program, as you would with a regular Python program.
