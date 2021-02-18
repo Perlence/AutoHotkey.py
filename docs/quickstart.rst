@@ -24,9 +24,9 @@ The most common use case, of course, simply invokes a script:
 
    ahkpy myscript.py
 
-The REPL interface works best when you invoke it with the ``python``
-executable, which allows you to explore your command history with the up and
-down arrow keys.
+The REPL interface works best when you invoke it with the ``python`` executable,
+which allows you to explore your command history with the up and down arrow
+keys.
 
 .. code-block:: text
 
@@ -60,7 +60,8 @@ following sequence:
    is, AutoHotkey.py uses the environment variable as the AutoHotkey executable
    path.
 2. If not, checks the Windows Registry to find whether a program's set to run
-when a user opens an AHK file.
+   when a user opens an AHK file. If the program name starts with ``autohotkey``
+   (case-insensitive), AutoHotkey.py uses it as the AutoHotkey executable path.
 3. Otherwise, defaults to the path
    ``C:\Program Files\AutoHotkey\AutoHotkey.exe``.
 
@@ -76,10 +77,9 @@ when a user opens an AHK file.
 Hotkeys
 -------
 
-The :func:`hotkey` function registers HotKeys. In the
-following example, the hotkey :kbd:`Win` + :kbd:`N` is configured to launch
-Notepad. The pound sign ``#`` stands for the :kbd:`Win` key, one of the hotkey
-modifiers::
+The :func:`hotkey` function registers Hotkeys. In the following example, the
+hotkey :kbd:`Win` + :kbd:`N` is configured to launch Notepad. The pound sign
+``#`` stands for the :kbd:`Win` key, one of the hotkey modifiers::
 
    import subprocess
    import ahkpy
@@ -93,9 +93,8 @@ If you want to bind an existing function to a hotkey, pass it as an argument to
 
    ahkpy.hotkey("#n", subprocess.Popen, ["notepad"])
 
-In the preceding example, when a user presses :kbd:`Win` + :kbd:`N`,
-they create a :class:`subprocess.Popen` object with the argument
-``["notepad"]``.
+In the preceding example, when a user presses :kbd:`Win` + :kbd:`N`, they create
+a :class:`subprocess.Popen` object with the argument ``["notepad"]``.
 
 To disable a key or a combination of keys for the entire system, use the
 ``lambda: None`` function. For example, this disables the right-side :kbd:`Win`
@@ -105,8 +104,8 @@ key::
 
 If you want to specify certain conditions when a hotkey performs a different
 action (or no action at all), you can use the methods
-:meth:`Windows.active_window_context` and :meth:`Windows.window_context`,
-or the class :class:`HotkeyContext`. For example::
+:meth:`Windows.active_window_context` and :meth:`Windows.window_context`, or the
+class :class:`HotkeyContext`. For example::
 
    notepad_ctx = ahkpy.windows.active_window_context(class_name="Notepad")
    notepad_ctx.hotkey(
@@ -175,17 +174,17 @@ Window Management
 -----------------
 
 AutoHotkey.py provides the :class:`Windows` class and its default instances:
-:data:`windows` and :data:`all_windows`. With the :class:`Windows` class
-interface, you can query windows through multiple search parameters, like
-``title`` and ``window``. To query the windows, set the criteria with the
-:meth:`~Windows.filter` method. For example, this prepares a query of all
-windows of the class ``ConsoleWindowClass``::
+:data:`windows` and :data:`all_windows`. With the :class:`Windows` class, you
+can query windows through multiple search parameters, like title and window
+class. To query the windows, set the criteria with the :meth:`~Windows.filter`
+method. For example, this prepares a query of all windows of the class
+``ConsoleWindowClass``::
 
    >>> console_windows = ahkpy.windows.filter(class_name="ConsoleWindowClass")
 
-The only role of the :meth:`~Windows.filter` method is to pack the
-query parameters. Once you've filtered the object you want, you can perform
-a real operation, like get the count of matching windows::
+The only role of the :meth:`~Windows.filter` method is to pack the query
+parameters. Once you've set the filters you want, you can perform a real
+operation, like get the count of matching windows::
 
    >>> console_windows
    Windows(class_name='ConsoleWindowClass', hidden_windows=False, hidden_text=True, title_mode='startswith', text_mode='fast')
@@ -200,10 +199,10 @@ a real operation, like get the count of matching windows::
    >>> [win.title for win in console_windows]
    ['Command Prompt', 'Windows PowerShell', 'C:\\Windows\\py.exe']
 
-Specifying multiple criteria for :meth:`~Windows.filter` narrows the
-the search down to only the windows where *all* criteria match. In the
-following example, the script waits for a window whose title contains
-``My File.txt`` and whose class is ``Notepad``::
+Specifying multiple criteria for :meth:`~Windows.filter` narrows the search down
+to only the windows where *all* criteria match. In the following example, the
+script waits for a window whose title contains ``My File.txt`` and whose class
+is ``Notepad``::
 
    ahkpy.windows.filter("My File.txt", class_name="Notepad").wait()
    # Filter chaining gives the same result.
