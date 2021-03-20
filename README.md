@@ -11,7 +11,7 @@ embedding a Python DLL into the AutoHotkey process.
 ## Quickstart
 
 Ensure that you have installed [Python](https://www.python.org/downloads/) 3.7
-and newer, and [AutoHotkey](https://www.autohotkey.com/) 1.1.28 and newer.
+or later and [AutoHotkey](https://www.autohotkey.com/) 1.1.28 or later.
 
 Install the package to the Python user install directory. To do that, copy and
 paste the following into a PowerShell window:
