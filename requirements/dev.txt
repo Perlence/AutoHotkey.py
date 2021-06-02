@@ -8,8 +8,6 @@ alabaster==0.7.12
     # via sphinx
 appdirs==1.4.4
     # via virtualenv
-atomicwrites==1.4.0
-    # via pytest
 attrs==20.3.0
     # via pytest
 babel==2.9.0
@@ -23,11 +21,7 @@ chardet==4.0.0
 click==7.1.2
     # via pip-tools
 colorama==0.4.4
-    # via
-    #   pytest
-    #   sphinx
-    #   sphinx-autobuild
-    #   tox
+    # via sphinx-autobuild
 distlib==0.3.1
     # via virtualenv
 docutils==0.16
@@ -37,7 +31,7 @@ filelock==3.0.12
     #   tox
     #   virtualenv
 flake8==3.9.0
-    # via -r .\requirements\dev.in
+    # via -r dev.in
 identify==2.2.0
     # via pre-commit
 idna==2.10
@@ -64,13 +58,13 @@ packaging==20.9
 pep517==0.10.0
     # via pip-tools
 pip-tools==6.0.1
-    # via -r .\requirements\dev.in
+    # via -r dev.in
 pluggy==0.13.1
     # via
     #   pytest
     #   tox
 pre-commit==2.11.1
-    # via -r .\requirements\dev.in
+    # via -r dev.in
 py==1.10.0
     # via
     #   pytest
@@ -84,15 +78,15 @@ pygments==2.8.1
 pyparsing==2.4.7
     # via packaging
 pytest-mock==3.5.1
-    # via -r .\requirements\tests.in
+    # via -r tests.in
 pytest==6.2.2
     # via
-    #   -r .\requirements\tests.in
+    #   -r tests.in
     #   pytest-mock
 pytz==2021.1
     # via babel
 pywinpty==0.5.7
-    # via -r .\requirements\tests.in
+    # via -r tests.in
 pyyaml==5.4.1
     # via pre-commit
 requests==2.25.1
@@ -105,10 +99,10 @@ six==1.15.0
 snowballstemmer==2.1.0
     # via sphinx
 sphinx-autobuild==2021.3.14
-    # via -r .\requirements\dev.in
+    # via -r dev.in
 sphinx==3.5.2
     # via
-    #   -r .\requirements\docs.in
+    #   -r docs.in
     #   sphinx-autobuild
 sphinxcontrib-applehelp==1.0.2
     # via sphinx
@@ -131,8 +125,8 @@ toml==0.10.2
 tornado==6.1
     # via livereload
 tox==3.23.0
-    # via -r .\requirements\dev.in
-urllib3==1.26.4
+    # via -r dev.in
+urllib3==1.26.5
     # via requests
 virtualenv==20.4.3
     # via
