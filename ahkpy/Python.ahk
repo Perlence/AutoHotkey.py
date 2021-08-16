@@ -269,19 +269,21 @@ HandleCtrlEvent(signal) {
 
 CheckSignals() {
     gstate := PyGILState_Ensure()
-    err := PyErr_CheckSignals()
-    if (err == 0) {
-        PyGILState_Release(gstate)
-        return
-    }
-    ; Python's signal handler raised an exception.
-    PyExc_KeyboardInterrupt := CachedProcAddress("PyExc_KeyboardInterrupt", "PtrP")
-    if (PyErr_ExceptionMatches(PyExc_KeyboardInterrupt)) {
+    try {
+        err := PyErr_CheckSignals()
+        if (err == 0) {
+            return
+        }
+        ; Python's signal handler raised an exception.
+        PyExc_KeyboardInterrupt := CachedProcAddress("PyExc_KeyboardInterrupt", "PtrP")
+        if (PyErr_ExceptionMatches(PyExc_KeyboardInterrupt)) {
+            PyErr_Print()
+            ExitApp, %STATUS_CONTROL_C_EXIT%
+        }
         PyErr_Print()
-        ExitApp, %STATUS_CONTROL_C_EXIT%
+    } finally {
+        PyGILState_Release(gstate)
     }
-    PyErr_Print()
-    PyGILState_Release(gstate)
 }
 
 AHKCall(self, args) {
@@ -432,9 +434,12 @@ class WrappedPythonCallable {
     __Delete() {
         WRAPPED_PYTHON_CALLABLE.Delete(this.pyFunc)
         gstate := PyGILState_Ensure()
-        Py_DecRef(this.pyFunc)
-        Py_DecRef(this.ctx)
-        PyGILState_Release(gstate)
+        try {
+            Py_DecRef(this.pyFunc)
+            Py_DecRef(this.ctx)
+        } finally {
+            PyGILState_Release(gstate)
+        }
     }
 }
 
