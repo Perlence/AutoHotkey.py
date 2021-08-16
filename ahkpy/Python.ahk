@@ -627,7 +627,9 @@ GuiClose:
     return
 
 HandleExit(reason, code, label:="OnExit") {
-    ; Delete all custom menu items so that Python menu callbacks are freed.
+    ; Delete all custom menus so that Python menu callbacks are not referenced
+    ; by the menu items. Not doing so prevents the application from exitting
+    ; correctly.
     for menuName, _ in MENUS {
         try {
             Menu, %menuName%, DeleteAll
@@ -639,6 +641,6 @@ HandleExit(reason, code, label:="OnExit") {
 
     if (Py_FinalizeEx() < 0) {
         code := 120
+        ExitApp, %code%
     }
-    ExitApp, %code%
 }
