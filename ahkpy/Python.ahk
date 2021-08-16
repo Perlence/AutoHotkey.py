@@ -105,15 +105,15 @@ Main() {
 
     Py_DecRef(mainModule)
 
+    handleCtrlEventCB := RegisterCallback("HandleCtrlEvent", "Fast")
+    DllCall("SetConsoleCtrlHandler", "Ptr", handleCtrlEventCB, "Int", true)
+
     result := PyObject_CallObject(mainFunc, NULL)
     Py_DecRef(mainFunc)
     if (result == NULL) {
         PrintErrorOrExit()
     }
     Py_DecRef(result)
-
-    handleCtrlEventCB := RegisterCallback("HandleCtrlEvent", "Fast")
-    DllCall("SetConsoleCtrlHandler", "Ptr", handleCtrlEventCB, "Int", true)
 
     SetTimer, CheckSignals, 100
 }
