@@ -9,6 +9,7 @@ global EMPTY_STRING := ""
 
 global HPYTHON_DLL := NULL
 global PYTHON_DLL_PROCS := {}
+global EMERGENCY_EXIT := false
 
 ; Windows constants
 global LOAD_WITH_ALTERED_SEARCH_PATH := 0x8
@@ -261,6 +262,7 @@ SetArgs() {
 HandleCtrlEvent(signal) {
     if (signal == CTRL_CLOSE_EVENT) {
         ; Exit when the console window is closed.
+        EMERGENCY_EXIT := true
         ExitApp, 0
     }
     ; Let the other handlers do the work.
@@ -433,6 +435,13 @@ class WrappedPythonCallable {
 
     __Delete() {
         WRAPPED_PYTHON_CALLABLE.Delete(this.pyFunc)
+        if (EMERGENCY_EXIT) {
+            ; For some reason, the app freezes trying to acquire the GIL when
+            ; the user closes the console window. So, freeing the memory here is
+            ; not as important, since the app is going to exit and free all the
+            ; memory anyway.
+            return
+        }
         gstate := PyGILState_Ensure()
         try {
             Py_DecRef(this.pyFunc)
