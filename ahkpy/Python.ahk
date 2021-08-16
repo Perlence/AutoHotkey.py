@@ -648,7 +648,9 @@ HandleExit(reason, code, label:="OnExit") {
         }
     }
 
-    if (Py_FinalizeEx() < 0) {
+    err := Py_FinalizeEx()
+    HPYTHON_DLL := NULL
+    if (err) {
         code := 120
         ExitApp, %code%
     }

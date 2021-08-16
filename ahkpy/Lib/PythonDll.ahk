@@ -53,7 +53,9 @@ LoadLibraryEx(libFileName, flags:=0) {
 }
 
 PythonDllCall(function, args*) {
-    return DllCall(CachedProcAddress(function), args*)
+    if (HPYTHON_DLL) {
+        return DllCall(CachedProcAddress(function), args*)
+    }
 }
 
 CachedProcAddress(symbol, returnType:="Ptr") {
@@ -81,9 +83,7 @@ Py_BuildValue(format) {
 
 Py_FinalizeEx() {
     ; int Py_FinalizeEx()
-    if (HPYTHON_DLL) {
-        return PythonDllCall("Py_FinalizeEx", "Cdecl Int")
-    }
+    return PythonDllCall("Py_FinalizeEx", "Cdecl Int")
 }
 
 Py_IncRef(pyObject) {
