@@ -4,6 +4,7 @@ import inspect
 import queue
 import sys
 import threading
+import time
 
 import _ahk
 
@@ -54,12 +55,31 @@ def sleep(secs):
     """
     if not isinstance(secs, (int, float)):
         raise TypeError(f"a number is required (got type {secs.__class__.__name__})")
+    _wait_for(secs, None)
+
+
+def _wait_for(secs, check_fn):
+    if secs is None:
+        secs = float("inf")
+
     if secs < 0:
         raise ValueError("sleep length must be non-negative")
-    elif secs == 0:
-        ahk_call("Sleep", 0)
+    elif secs <= _poll_interval:
+        time.sleep(secs)
+        poll()
+        return check_fn and check_fn()
     else:
-        ahk_call("Sleep", int(secs * 1000))
+        stop = time.perf_counter() + secs
+        while time.perf_counter() < stop:
+            time.sleep(_poll_interval)
+            poll()
+            result = check_fn and check_fn()
+            if result:
+                return result
+
+
+# The interval between AHK message queue polls during the blocking operations.
+_poll_interval = 0.01
 
 
 def poll():
@@ -128,10 +148,6 @@ def output_debug(*objects, sep=" "):
         sep = " "
     debug_str = sep.join(map(str, objects))
     ctypes.windll.kernel32.OutputDebugStringW(debug_str)
-
-
-# The interval between AHK message queue polls during the blocking operations.
-_poll_interval = 0.01
 
 
 def coop(func, *args, **kwargs):

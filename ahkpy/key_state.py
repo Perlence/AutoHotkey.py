@@ -1,4 +1,6 @@
-from .flow import ahk_call
+import functools
+
+from .flow import ahk_call, _wait_for
 
 __all__ = [
     "get_caps_lock_state",
@@ -96,34 +98,22 @@ def wait_key_pressed(key_name, timeout: float = None) -> bool:
     after *timeout* seconds, then ``False`` will be returned. If *timeout* is
     not specified or ``None``, there is no limit to the wait time.
     """
-    return _key_wait(key_name, down=True, logical=False, timeout=timeout)
+    return _wait_for(timeout, functools.partial(is_key_pressed, key_name)) or False
 
 
 def wait_key_released(key_name, timeout: float = None) -> bool:
     """Wait for a key or mouse/joystick button to be released physically."""
-    return _key_wait(key_name, down=False, logical=False, timeout=timeout)
+    return _wait_for(timeout, lambda: not is_key_pressed(key_name)) or False
 
 
 def wait_key_pressed_logical(key_name, timeout: float = None) -> bool:
     """Wait for a key or mouse/joystick button logical state to be pressed."""
-    return _key_wait(key_name, down=True, logical=True, timeout=timeout)
+    return _wait_for(timeout, functools.partial(is_key_pressed_logical, key_name)) or False
 
 
 def wait_key_released_logical(key_name, timeout: float = None) -> bool:
     """Wait for a key or mouse/joystick button logical state to be released."""
-    return _key_wait(key_name, down=False, logical=True, timeout=timeout)
-
-
-def _key_wait(key_name, down=False, logical=False, timeout=None) -> bool:
-    options = []
-    if down:
-        options.append("D")
-    if logical:
-        options.append("L")
-    if timeout is not None:
-        options.append(f"T{timeout}")
-    ok = ahk_call("KeyWait", str(key_name), "".join(options))
-    return bool(ok)
+    return _wait_for(timeout, lambda: not is_key_pressed_logical(key_name)) or False
 
 
 def get_key_name(key_name: str) -> str:

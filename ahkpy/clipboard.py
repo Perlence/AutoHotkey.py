@@ -2,7 +2,7 @@ import dataclasses as dc
 import functools
 from typing import Callable
 
-from .flow import ahk_call, _wrap_callback
+from .flow import ahk_call, _wait_for, _wrap_callback
 
 __all__ = [
     "ClipboardHandler",
@@ -36,18 +36,13 @@ def wait_clipboard(timeout: float = None) -> str:
 
     If there is no text in the clipboard after *timeout* seconds, then an empty
     string will be returned. If *timeout* is not specified or ``None``, there is
-    no limit to the wait time. Specifying 0 is the same as specifying 0.5.
+    no limit to the wait time.
 
     :command: `ClipWait
        <https://www.autohotkey.com/docs/commands/ClipWait.htm>`_
     """
     # TODO: Implement WaitForAnyData argument.
-    if timeout is not None:
-        timeout = float(timeout)
-    ok = ahk_call("ClipWait", timeout)
-    if not ok:
-        return ""
-    return get_clipboard()
+    return _wait_for(timeout, get_clipboard) or ""
 
 
 def on_clipboard_change(func: Callable = None, *args, prepend_handler=False):
