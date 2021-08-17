@@ -9,7 +9,7 @@ from typing import Iterator, List, Optional, Tuple, Union
 from . import colors
 from . import sending
 from .exceptions import Error
-from .flow import ahk_call, global_ahk_lock, _wait_for
+from .flow import ahk_call, global_ahk_lock
 from .hotkey_context import HotkeyContext
 from .settings import get_settings, optional_ms
 from .unset import UNSET, UnsetType
@@ -280,7 +280,7 @@ class Windows:
            <https://www.autohotkey.com/docs/commands/WinWait.htm>`_
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
-        return _wait_for(timeout, self.exist) or Window(None)
+        return self._wait("WinWait", timeout)
 
     def wait_active(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None,
                     timeout=None):
@@ -297,7 +297,7 @@ class Windows:
         query = self._query()
         if query == ("", "", "", ""):
             self = dc.replace(self, title="A")
-        return _wait_for(timeout, self.get_active) or Window(None)
+        return self._wait("WinWaitActive", timeout)
 
     def wait_inactive(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None,
                       timeout=None) -> bool:
@@ -316,7 +316,7 @@ class Windows:
            <https://www.autohotkey.com/docs/commands/WinWaitActive.htm>`_
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
-        return _wait_for(timeout, lambda: not self.get_active()) or False
+        return self._wait_close("WinWaitNotActive", timeout)
 
     def wait_close(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None,
                    timeout=None):
@@ -335,9 +335,22 @@ class Windows:
            <https://www.autohotkey.com/docs/commands/WinWaitClose.htm>`_
         """
         self = self._filter(title, class_name, id, pid, exe, text, match)
-        # WinWaitClose doesn't set Last Found Window, return False if the wait
-        # was timed out.
-        return _wait_for(timeout, lambda: not self.exist()) or False
+        return self._wait_close("WinWaitClose", timeout)
+
+    def _wait(self, cmd, timeout):
+        win_id = self._call(cmd, *self._include(), timeout, *self._exclude(), set_delay=True)
+        if not win_id:
+            return Window(None)
+        return Window(win_id)
+
+    def _wait_close(self, cmd, timeout):
+        # WinWaitClose and WinWaitNotActive don't set the Last Found Window,
+        # return False if the wait was timed out.
+        ok = self._call(cmd, *self._include(), timeout, *self._exclude(), set_delay=True)
+        if ok is None:
+            # There are no matching windows, and that's what we are waiting for.
+            return True
+        return bool(ok)
 
     def close_all(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None,
                   timeout=None):
@@ -455,9 +468,9 @@ class Windows:
         query_hash_str = str(query_hash).replace("-", "m")  # AHK doesn't allow "-" in group names
         label = ""
         self._call("GroupAdd", query_hash_str, *self._include(), label, *self._exclude())
-        self._call(cmd, f"ahk_group {query_hash_str}", "", "", set_delay=True)
+        self._call(cmd, f"ahk_group {query_hash_str}", "", timeout or "", set_delay=True)
         if timeout is not UNSET:
-            return self.wait_close(timeout=timeout)
+            return not self.exist()
 
     def window_context(self, title=UNSET, *, class_name=UNSET, id=UNSET, pid=UNSET, exe=UNSET, text=UNSET, match=None):
         """window_context(title: str = UNSET, **criteria) -> ahkpy.HotkeyContext
@@ -1961,14 +1974,11 @@ class Window(BaseWindow):
         :command: `StatusBarWait
            <https://www.autohotkey.com/docs/commands/StatusBarWait.htm>`_
         """
-        # TODO: StatusBarWait is blocking and is not interruptable. However, it
-        # is usually more efficient to use StatusBarWait rather than calling
-        # StatusBarGetText in a loop.
         try:
             ok = self._call(
                 "StatusBarWait",
                 bar_text,
-                timeout,
+                timeout if timeout is not None else "",
                 part + 1,
                 *self._include(),
                 interval * 1000,
