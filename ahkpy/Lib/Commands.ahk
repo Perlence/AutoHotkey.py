@@ -614,10 +614,5 @@ _WinWaitClose(WinTitle="",WinText="",Seconds="",ExcludeTitle="",ExcludeText="") 
 
 _WinWaitNotActive(WinTitle="",WinText="",Seconds="",ExcludeTitle="",ExcludeText="") {
     WinWaitNotActive %WinTitle%,%WinText%,%Seconds%,%ExcludeTitle%,%ExcludeText%
-    if (ErrorLevel > 0) {
-        return 0
-    }
-    ; Get Last Found Window
-    WinGet, id, ID
-    return id
+    return not ErrorLevel
 }
