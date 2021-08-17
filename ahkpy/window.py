@@ -1170,8 +1170,8 @@ class BaseWindow(WindowHandle):
         components of the message.
 
         If there is no response after *timeout* seconds, then an :exc:`Error`
-        will be raised. If *timeout* ``None``, there is no limit to the wait
-        time.
+        will be raised. If *timeout* is not specified or ``None``, there is no
+        limit to the wait time.
 
         The range of possible response values depends on the target window and
         the version of AutoHotkey that is running. When using the 32-bit version
