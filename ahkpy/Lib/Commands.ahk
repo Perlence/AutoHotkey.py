@@ -103,6 +103,10 @@ _EnvGet(EnvVarName) {
     return OutputVar
 }
 
+_ExitApp(ExitCode=0) {
+    ExitApp, %ExitCode%
+}
+
 _FileCreateShortcut(Target,LinkFile,WorkingDir="",Args="",Description="",IconFile="",ShortcutKey="",IconNumber="",RunState="") {
     FileCreateShortcut %Target%,%LinkFile%,%WorkingDir%,%Args%,%Description%,%IconFile%,%ShortcutKey%,%IconNumber%,%RunState%
 }

@@ -9,7 +9,6 @@ global EMPTY_STRING := ""
 
 global HPYTHON_DLL := NULL
 global PYTHON_DLL_PROCS := {}
-global EMERGENCY_EXIT := false
 
 ; Windows constants
 global LOAD_WITH_ALTERED_SEARCH_PATH := 0x8
@@ -262,8 +261,15 @@ SetArgs() {
 HandleCtrlEvent(signal) {
     if (signal == CTRL_CLOSE_EVENT) {
         ; Exit when the console window is closed.
-        EMERGENCY_EXIT := true
-        ExitApp, 0
+        ;
+        ; The system creates a new thread in the process to execute the
+        ; HandleCtrlEvent function. Calling ExitApp here in this thread will
+        ; eventually try to acquire the GIL in order to clean up the menu
+        ; handlers. However, it won't succeed because the GIL will have been
+        ; acquired by the main thread. So instead, schedule the exit to be
+        ; executed in the main thread.
+        SetTimer, _ExitApp, -1
+        Sleep, 100
     }
     ; Let the other handlers do the work.
     return false
@@ -435,13 +441,6 @@ class WrappedPythonCallable {
 
     __Delete() {
         WRAPPED_PYTHON_CALLABLE.Delete(this.pyFunc)
-        if (EMERGENCY_EXIT) {
-            ; For some reason, the app freezes trying to acquire the GIL when
-            ; the user closes the console window. So, freeing the memory here is
-            ; not as important, since the app is going to exit and free all the
-            ; memory anyway.
-            return
-        }
         gstate := PyGILState_Ensure()
         try {
             Py_DecRef(this.pyFunc)
