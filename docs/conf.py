@@ -22,7 +22,7 @@ copyright = "2020 Sviatoslav Abakumov"
 author = "Sviatoslav Abakumov"
 
 # The full version, including alpha/beta/rc tags
-release = "0.1"
+release = "0.1.1"
 
 
 # -- General configuration ---------------------------------------------------
