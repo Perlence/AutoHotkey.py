@@ -19,7 +19,7 @@ def get_clipboard() -> str:
     :variable: `Clipboard
        <https://www.autohotkey.com/docs/misc/Clipboard.htm>`_
     """
-    return ahk_call("GetVar", "Clipboard")
+    return str(ahk_call("GetVar", "Clipboard"))
 
 
 def set_clipboard(value):

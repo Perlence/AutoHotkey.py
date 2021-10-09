@@ -101,5 +101,6 @@ def test_clipboard_returns(request, child_ahk):
         text="Error:  cannot convert '<object object",
         timeout=0.1,
     )
+    assert ahk.get_clipboard() == "371"
 
     ahk.send("{F24}")
