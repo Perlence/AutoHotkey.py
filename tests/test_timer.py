@@ -21,7 +21,7 @@ def test_refcounts(request):
 
     timer = ahk.set_countdown(0.01, func)
     func_refcount = sys.getrefcount(func)
-    ahk.sleep(0.01)
+    ahk.sleep(0.02)
     assert sys.getrefcount(func) == func_refcount - 1
 
 

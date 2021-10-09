@@ -10,7 +10,7 @@ prof/
 
 docs/_build/
 
-env/
+venv/
 testenv/
 testvenv/
 
