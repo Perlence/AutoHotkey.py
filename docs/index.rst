@@ -10,6 +10,9 @@ AutoHotkey.py provides a user-friendly API that lets the user write hotkeys and
 automation scripts in Python harnessing the power of AutoHotkey. It does so by
 embedding a Python DLL into the AutoHotkey process.
 
+For the original AutoHotkey documentation visit
+`this link <https://www.autohotkey.com/docs/AutoHotkey.htm>`_.
+
 .. toctree::
    :maxdepth: 3
 
