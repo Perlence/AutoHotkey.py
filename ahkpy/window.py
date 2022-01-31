@@ -93,7 +93,7 @@ class Windows:
         """
         return self._filter(title, class_name, id, pid, exe, text, match)
 
-    def _filter(self, title, class_name, id, pid, exe, text, match):
+    def _filter(self, title, class_name, id, pid, exe, text, match) -> 'Windows':
         if (
             title is UNSET and class_name is UNSET and id is UNSET and pid is UNSET and exe is UNSET and
             text is UNSET and match is None
