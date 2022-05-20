@@ -84,7 +84,7 @@ hotkey :kbd:`Win` + :kbd:`N` is configured to launch Notepad. The pound sign
    import subprocess
    import ahkpy
 
-   @ahkpy.hotkey("#n"):
+   @ahkpy.hotkey("#n")
    def run_notepad():
        subprocess.Popen(["notepad"])
 
