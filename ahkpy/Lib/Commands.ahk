@@ -475,7 +475,7 @@ _Suspend(Mode="") {
 
 _SysGet(Subcommand,Param2="") {
     SysGet v, %Subcommand%, %Param2%
-    if (Subcommand == "Monitor") {
+    if (Subcommand == "Monitor" or Subcommand == "MonitorWorkArea") {
         return {Left: vLeft, Top: vTop, Right: vRight, Bottom: vBottom}
     } else if (Subcommand == "MonitorName") {
         return v
