@@ -75,6 +75,10 @@ Py_Initialize() {
     PythonDllCall("Py_Initialize", "Cdecl")
 }
 
+Py_SetPath(path) {
+    PythonDllCall("Py_SetPath", "WStr", path, "Cdecl")
+}
+
 Py_BuildValue(format) {
     ; PyObject* Py_BuildValue(const char *format, ...)
     ; Return value: New reference.

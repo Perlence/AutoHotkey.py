@@ -58,11 +58,17 @@ Main() {
     PackBuiltinModule()
 
     PyImport_AppendInittab(&AHKModule_name, Func("PyInit_ahk"))
+
+    EnvGet, python_full_path, PYTHONFULLPATH
+
+    ; Py_SetPath is deprecated but the Py_Initialize_With_config
+    ; seems to be much more complicated. This must be used before Py_Initialize()
+    ; Probably the later PySys_SetPath can be removed then (?) from both files.
+    Py_SetPath(python_full_path)
     Py_Initialize()
 
     Py_None := Py_BuildValue("")
 
-    EnvGet, python_full_path, PYTHONFULLPATH
     if (python_full_path) {
         PySys_SetPath(python_full_path)
     }
