@@ -13,6 +13,7 @@ EXIT_CODE_RESTART = 65530
 
 def main():
     os.environ["PYTHONUNBUFFERED"] = "1"
+    os.environ["PYTHONHOME"] = sys._home or sys.base_prefix or sys.prefix  # For conda
     os.environ["PYTHONFULLPATH"] = ";".join(sys.path)
     os.environ["PYTHONDLL"] = python_dll_path()
 

@@ -62,9 +62,9 @@ Main() {
 
     Py_None := Py_BuildValue("")
 
-    EnvGet, python_full_path, PYTHONFULLPATH
-    if (python_full_path) {
-        PySys_SetPath(python_full_path)
+    EnvGet, pythonFullPath, PYTHONFULLPATH
+    if (pythonFullPath) {
+        PySys_SetPath(pythonFullPath)
     }
 
     fullCommand := SetArgs()
