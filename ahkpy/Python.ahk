@@ -60,6 +60,12 @@ Main() {
     PyImport_AppendInittab(&AHKModule_name, Func("PyInit_ahk"))
     Py_Initialize()
 
+    EnvGet, prefix, PYTHONPREFIX
+    pyPrefix := PyUnicode_FromString(prefix)
+    PySys_SetObject("prefix", pyPrefix)
+    PySys_SetObject("exec_prefix", pyPrefix)
+    Py_DecRef(pyPrefix)
+
     Py_None := Py_BuildValue("")
 
     EnvGet, pythonFullPath, PYTHONFULLPATH
