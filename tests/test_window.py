@@ -519,10 +519,10 @@ class TestControl:
         assert focused_control.is_focused is True
 
         match_case_button = find_dialog.get_control("Button2")
-        match_case_button.focus()
-        ahk.sleep(0.01)
-        focused_control = find_dialog.get_focused_control()
-        assert focused_control == match_case_button
+        assert_equals_eventually(
+            lambda: (match_case_button.focus(), find_dialog.get_focused_control())[1],
+            match_case_button,
+        )
         assert match_case_button.is_focused is True
         assert edit.is_focused is False
 
