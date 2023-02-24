@@ -232,7 +232,7 @@ def test_ahk_path_envvar(tmpdir):
 
     import os
     res = subprocess.run(
-        ["py.exe", "-m", "ahkpy", str(script)],
+        [sys.executable, "-m", "ahkpy", str(script)],
         env={**os.environ, "AUTOHOTKEY": str(spy)},
         encoding="utf-8",
         capture_output=True,
@@ -246,14 +246,14 @@ def test_import_ahk(tmpdir):
     script = tmpdir / "script.py"
     code = "import ahkpy; print('ok')"
     script.write(code)
-    res = subprocess.run(["py.exe", str(script)], encoding="utf-8", capture_output=True)
+    res = subprocess.run([sys.executable, str(script)], encoding="utf-8", capture_output=True)
     assert res.stderr == ""
     assert res.stdout == "ok\n"
     assert res.returncode == 0
 
     code = "import ahkpy; ahkpy.poll(); print('ok')"
     script.write(code)
-    res = subprocess.run(["py.exe", str(script)], encoding="utf-8", capture_output=True)
+    res = subprocess.run([sys.executable, str(script)], encoding="utf-8", capture_output=True)
     assert "RuntimeError: AHK interop is not available." in res.stderr
     assert res.stdout == ""
     assert res.returncode == 1
@@ -261,7 +261,7 @@ def test_import_ahk(tmpdir):
 
 @skip_if_winpty_is_missing
 def test_interactive_mode(request):
-    proc = winpty.PtyProcess.spawn("py.exe -m ahkpy", dimensions=(24, 120))
+    proc = winpty.PtyProcess.spawn([sys.executable, "-m", "ahkpy"], dimensions=(24, 120))
     request.addfinalizer(proc.terminate)
 
     assert "Python 3" in proc.readline()
@@ -296,7 +296,7 @@ def test_interactive_mode(request):
 
 @skip_if_winpty_is_missing
 def test_interactive_mode_persistent(request):
-    proc = winpty.PtyProcess.spawn("py.exe -m ahkpy", dimensions=(24, 120))
+    proc = winpty.PtyProcess.spawn([sys.executable, "-m", "ahkpy"], dimensions=(24, 120))
     request.addfinalizer(proc.terminate)
     proc.read()
 
@@ -310,7 +310,7 @@ def test_interactive_mode_persistent(request):
 
 @skip_if_winpty_is_missing
 def test_interactive_exec_in_main(request):
-    proc = winpty.PtyProcess.spawn("py.exe -m ahkpy", dimensions=(24, 120))
+    proc = winpty.PtyProcess.spawn([sys.executable, "-m", "ahkpy"], dimensions=(24, 120))
     request.addfinalizer(proc.terminate)
     proc.read()
 
@@ -342,7 +342,7 @@ def test_keyboard_interrupt(request, tmpdir, child_ahk, proc):
     code_str = child_ahk.extract_code(code).replace('"{proc}"', proc)
     script.write(code_str)
 
-    proc = winpty.PtyProcess.spawn(f"py.exe -m ahkpy {script}", dimensions=(24, 120))
+    proc = winpty.PtyProcess.spawn([sys.executable, "-m", "ahkpy", script], dimensions=(24, 120))
     request.addfinalizer(proc.terminate)
 
     assert "ok00" in proc.readline()
@@ -365,7 +365,7 @@ def test_keyboard_interrupt_broken_handler(request, tmpdir, child_ahk):
     script = tmpdir / "script.py"
     script.write(child_ahk.extract_code(code))
 
-    proc = winpty.PtyProcess.spawn(f"py.exe -m ahkpy -q {script}", dimensions=(24, 120))
+    proc = winpty.PtyProcess.spawn([sys.executable, "-m", "ahkpy", "-q", script], dimensions=(24, 120))
     request.addfinalizer(proc.terminate)
 
     assert "ok00" in proc.readline()
