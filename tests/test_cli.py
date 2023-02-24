@@ -1,5 +1,6 @@
 import os
 import subprocess
+import sys
 from textwrap import dedent
 
 import pytest
@@ -153,21 +154,39 @@ def test_tracebacks(tmpdir, child_ahk):
     script = tmpdir / "script.py"
     script.write("1/0")
     res = child_ahk.run(["-q", str(script)])
-    assert res.stderr == dedent(f"""\
-        Traceback (most recent call last):
-          File "{script}", line 1, in <module>
-            1/0
-        ZeroDivisionError: division by zero
-        """)
+    if sys.version_info < (3, 11):
+        assert res.stderr == dedent(f"""\
+            Traceback (most recent call last):
+              File "{script}", line 1, in <module>
+                1/0
+            ZeroDivisionError: division by zero
+            """)
+    else:
+        assert res.stderr == dedent(f"""\
+            Traceback (most recent call last):
+              File "{script}", line 1, in <module>
+                1/0
+                ~^~
+            ZeroDivisionError: division by zero
+            """)
     assert res.returncode == 1
 
     res = child_ahk.run(["-q", "script.py"], cwd=tmpdir)
-    assert res.stderr == dedent("""\
-        Traceback (most recent call last):
-          File "script.py", line 1, in <module>
-            1/0
-        ZeroDivisionError: division by zero
-        """)
+    if sys.version_info < (3, 11):
+        assert res.stderr == dedent("""\
+            Traceback (most recent call last):
+              File "script.py", line 1, in <module>
+                1/0
+            ZeroDivisionError: division by zero
+            """)
+    else:
+        assert res.stderr == dedent("""\
+            Traceback (most recent call last):
+              File "script.py", line 1, in <module>
+                1/0
+                ~^~
+            ZeroDivisionError: division by zero
+            """)
     assert res.returncode == 1
 
     res = child_ahk.run_code("!", quiet=True)
@@ -286,7 +305,10 @@ def test_interactive_mode(request):
     assert '  File "<console>"' in proc.readline()
     assert "    !" in proc.readline()
     assert "    ^" in proc.readline()
-    assert "SyntaxError: invalid syntax" in proc.readline()
+    if sys.version_info < (3, 11):
+        assert "SyntaxError: invalid syntax" in proc.readline()
+    else:
+        assert "SyntaxError: incomplete input" in proc.readline()
     assert ">>>" in proc.read()
 
     proc.write("exit()\r\n")
