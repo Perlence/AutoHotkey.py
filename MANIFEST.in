@@ -3,8 +3,8 @@ include README.md
 include CHANGES.md
 include tox.ini
 include requirements/*.txt
-include ahkpy/*.ahk
-include ahkpy/Lib/*.ahk
+include src/ahkpy/*.ahk
+include src/ahkpy/Lib/*.ahk
 graft tests
 graft examples
 graft docs
