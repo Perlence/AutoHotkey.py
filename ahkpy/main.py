@@ -32,11 +32,6 @@ def main():
     else:
         sys.stdin = sys.__stdin__ = open_console("CONIN$", "r")
 
-    venv = os.getenv("VIRTUAL_ENV")
-    if venv and not os.getenv("PYTHONFULLPATH"):
-        import site
-        site.addsitedir(f"{venv}\\Lib\\site-packages")
-
     prepare_tray_menu()
     run_from_args()
 

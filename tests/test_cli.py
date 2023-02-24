@@ -43,6 +43,27 @@ def test_stdin(child_ahk):
     assert res.returncode == 0
 
 
+def test_sys_parameters(tmpdir):
+    script = tmpdir / "script.py"
+    script.write(dedent("""\
+        import sys
+        import ahkpy as ahk
+        print(sys._home)
+        print(sys.prefix)
+        print(sys.exec_prefix)
+        print(sys.base_prefix)
+        print(sys.base_exec_prefix)
+        print(sys.executable)
+        print(sys.argv)
+        print(*sys.path, sep="\\n")
+    """))
+    # ahk_res = child_ahk.run([str(script)])
+    ahk_res = subprocess.run([sys.executable, "-m", "ahkpy", str(script)], capture_output=True, text=True)
+    py_res = subprocess.run([sys.executable, str(script)], capture_output=True, text=True)
+    assert ahk_res.stderr == py_res.stderr == ""
+    assert ahk_res.stdout == py_res.stdout
+
+
 def test_script(tmpdir, child_ahk):
     script = tmpdir / "script.py"
     script.write("import ahkpy as ahk, sys; print(__name__, __file__, sys.argv)")

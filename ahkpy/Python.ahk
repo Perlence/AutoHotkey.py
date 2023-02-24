@@ -57,21 +57,19 @@ Main() {
     LoadPython()
     PackBuiltinModule()
 
+    global pythonExecutable
+    EnvGet, pythonExecutable, PYTHONEXECUTABLE
+    Py_SetProgramName(pythonExecutable)
+    _Py_SetProgramFullPath(pythonExecutable)
+
     PyImport_AppendInittab(&AHKModule_name, Func("PyInit_ahk"))
     Py_Initialize()
 
-    EnvGet, prefix, PYTHONPREFIX
-    pyPrefix := PyUnicode_FromString(prefix)
-    PySys_SetObject("prefix", pyPrefix)
-    PySys_SetObject("exec_prefix", pyPrefix)
-    Py_DecRef(pyPrefix)
+    pyAkhPath := PyUnicode_FromString(A_AhkPath)
+    PySys_SetObject("ahk_executable", pyAkhPath)
+    Py_DecRef(pyAkhPath)
 
     Py_None := Py_BuildValue("")
-
-    EnvGet, pythonFullPath, PYTHONFULLPATH
-    if (pythonFullPath) {
-        PySys_SetPath(pythonFullPath)
-    }
 
     fullCommand := SetArgs()
 
