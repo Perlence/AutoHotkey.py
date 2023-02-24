@@ -6,7 +6,6 @@ import pytest
 
 import ahkpy as ahk
 from ahkpy.main import STATUS_CONTROL_C_EXIT
-from .conftest import assert_equals_eventually
 
 try:
     import winpty
@@ -283,9 +282,9 @@ def test_interactive_mode_persistent(request):
     proc.write("ahk.hotkey('F24', exit)\r\n")
     proc.read()
 
-    proc.sendcontrol("Z")
-    proc.write("\r\n")
-    assert_equals_eventually(lambda: proc.exitstatus, 0)
+    proc.write("exit()\r\n")
+    proc.wait()
+    assert proc.exitstatus == 0
 
 
 @skip_if_winpty_is_missing
