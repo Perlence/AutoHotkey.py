@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import ctypes
 import dataclasses as dc
 import enum
@@ -531,7 +529,7 @@ class Windows:
         self = self._filter(title, class_name, id, pid, exe, text, match)
         return HotkeyContext(lambda: not self.get_active())
 
-    def __iter__(self) -> Iterator[Window]:
+    def __iter__(self) -> Iterator['Window']:
         """__iter__() -> typing.Iterator[ahkpy.Window]
 
         Return matching windows ordered from top to bottom.
@@ -705,7 +703,7 @@ class BaseWindow(WindowHandle):
     __slots__ = ("id",)
 
     @property
-    def style(self) -> Optional[WindowStyle]:
+    def style(self) -> Optional['WindowStyle']:
         """The styles of the window/control.
 
         Returns ``None`` unless the window exists.
@@ -735,7 +733,7 @@ class BaseWindow(WindowHandle):
         self._set("Style", int(value))
 
     @property
-    def ex_style(self) -> Optional[ExWindowStyle]:
+    def ex_style(self) -> Optional['ExWindowStyle']:
         """The extended styles of the window/control.
 
         Returns ``None`` unless the window exists.
@@ -1523,7 +1521,7 @@ class Window(BaseWindow):
         return names.splitlines()
 
     @property
-    def controls(self) -> Optional[List[Control]]:
+    def controls(self) -> Optional[List['Control']]:
         """The list of window controls (read-only).
 
         Returns ``None`` unless the window exists.
@@ -1542,7 +1540,7 @@ class Window(BaseWindow):
             for hwnd in hwnds
         ]
 
-    def get_control(self, class_or_text, match="startswith") -> Control:
+    def get_control(self, class_or_text, match="startswith") -> 'Control':
         """get_control(class_or_text, match="startswith") -> ahkpy.Control
 
         Find the window control by its class name or text.
@@ -1565,7 +1563,7 @@ class Window(BaseWindow):
                 return Control(None)
             raise
 
-    def get_focused_control(self) -> Control:
+    def get_focused_control(self) -> 'Control':
         """get_focused_control() -> ahkpy.Control
 
         Get the currently focused control.

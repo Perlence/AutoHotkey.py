@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import dataclasses as dc
 import functools
 import uuid
@@ -157,7 +155,7 @@ class Menu:
         return self
 
     def add_submenu(
-        self, item_name, submenu: Menu, *,
+        self, item_name, submenu: 'Menu', *,
         default=False, enabled=True, checked=False,
         radio=False, new_column=False, bar_column=False,
         icon=UNSET, icon_number=None, icon_width=None,
@@ -234,7 +232,7 @@ class Menu:
         return self
 
     def insert_submenu(
-        self, insert_before, item_name, submenu: Menu, *,
+        self, insert_before, item_name, submenu: 'Menu', *,
         default=False, enabled=True, checked=False,
         radio=False, new_column=False, bar_column=False,
         icon=UNSET, icon_number=None, icon_width=None,

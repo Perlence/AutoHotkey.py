@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import dataclasses as dc
 import functools
 from typing import Callable, Union
