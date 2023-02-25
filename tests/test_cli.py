@@ -58,9 +58,8 @@ def test_sys_parameters(tmpdir):
         print(sys.argv)
         print(*sys.path, sep="\\n")
     """))
-    # ahk_res = child_ahk.run([str(script)])
-    ahk_res = subprocess.run([sys.executable, "-m", "ahkpy", str(script)], capture_output=True, text=True)
-    py_res = subprocess.run([sys.executable, str(script)], capture_output=True, text=True)
+    ahk_res = subprocess.run([sys.executable, "-m", "ahkpy", script], capture_output=True, text=True)
+    py_res = subprocess.run([sys.executable, script], capture_output=True, text=True)
     assert ahk_res.stderr == py_res.stderr == ""
     assert ahk_res.stdout == py_res.stdout
 
@@ -68,16 +67,16 @@ def test_sys_parameters(tmpdir):
 def test_script(tmpdir, child_ahk):
     script = tmpdir / "script.py"
     script.write("import ahkpy as ahk, sys; print(__name__, __file__, sys.argv)")
-    res = child_ahk.run([str(script)])
+    res = child_ahk.run([script])
     assert res.stderr == ""
-    assert res.stdout == f"__main__ {str(script)} [{repr(str(script))}]\n"
+    assert res.stdout == f"__main__ {script} [{repr(str(script))}]\n"
     assert res.returncode == 0
 
     beep = tmpdir / "beep.py"
     beep.write("import ahkpy as ahk, sys; print(sys.argv); import boop")
     boop = tmpdir / "boop.py"
     boop.write("print('boop')")
-    res = child_ahk.run([str(beep)])
+    res = child_ahk.run([beep])
     assert res.stderr == ""
     assert res.stdout == f"[{repr(str(beep))}]\nboop\n", (
         "module 'beep' must be able to load the module 'boop' because they are "
@@ -105,16 +104,16 @@ def test_module(tmpdir, child_ahk):
     script.write("import ahkpy as ahk, sys; print(__name__, __file__, sys.argv)")
     res = child_ahk.run(["-m", "script", "ahk.py", "1", "2"], cwd=tmpdir)
     assert res.stderr == ""
-    assert res.stdout == f"__main__ {str(script)} [{repr(str(script))}, 'ahk.py', '1', '2']\n"
+    assert res.stdout == f"__main__ {script} [{repr(str(script))}, 'ahk.py', '1', '2']\n"
     assert res.returncode == 0
 
 
 def test_directory(tmpdir, child_ahk):
     script = tmpdir / "__main__.py"
     script.write("import ahkpy as ahk, sys; print(__name__, __file__, sys.argv)")
-    res = child_ahk.run([str(tmpdir), "ahk.py", "1", "2"])
+    res = child_ahk.run([tmpdir, "ahk.py", "1", "2"])
     assert res.stderr == ""
-    assert res.stdout == f"__main__ {str(script)} [{repr(str(tmpdir))}, 'ahk.py', '1', '2']\n"
+    assert res.stdout == f"__main__ {script} [{repr(str(tmpdir))}, 'ahk.py', '1', '2']\n"
     assert res.returncode == 0
 
 
@@ -153,7 +152,7 @@ def test_tracebacks(tmpdir, child_ahk):
 
     script = tmpdir / "script.py"
     script.write("1/0")
-    res = child_ahk.run(["-q", str(script)])
+    res = child_ahk.run(["-q", script])
     if sys.version_info < (3, 11):
         assert res.stderr == dedent(f"""\
             Traceback (most recent call last):
@@ -199,7 +198,7 @@ def test_tracebacks(tmpdir, child_ahk):
     assert res.returncode == 1
 
     script.write("!")
-    res = child_ahk.run(["-q", str(script)])
+    res = child_ahk.run(["-q", script])
     assert res.stderr == dedent(f"""\
           File "{script}", line 1
             !
@@ -212,7 +211,7 @@ def test_tracebacks(tmpdir, child_ahk):
     beep.write("import boop")
     boop = tmpdir / "boop.py"
     boop.write("!")
-    res = child_ahk.run(["-q", str(beep)])
+    res = child_ahk.run(["-q", beep])
     assert res.stderr == dedent(f"""\
         Traceback (most recent call last):
           File "{beep}", line 1, in <module>
@@ -236,7 +235,7 @@ def test_pyw(tmpdir):
     script = tmpdir / "script.py"
     code = "print('hello')"
     script.write(code)
-    res = subprocess.run(["pyw.exe", "-m", "ahkpy", str(script)])
+    res = subprocess.run(["pyw.exe", "-m", "ahkpy", script])
     assert res.returncode == 0
 
 
@@ -251,7 +250,7 @@ def test_ahk_path_envvar(tmpdir):
 
     import os
     res = subprocess.run(
-        [sys.executable, "-m", "ahkpy", str(script)],
+        [sys.executable, "-m", "ahkpy", script],
         env={**os.environ, "AUTOHOTKEY": str(spy)},
         encoding="utf-8",
         capture_output=True,
@@ -265,14 +264,14 @@ def test_import_ahk(tmpdir):
     script = tmpdir / "script.py"
     code = "import ahkpy; print('ok')"
     script.write(code)
-    res = subprocess.run([sys.executable, str(script)], encoding="utf-8", capture_output=True)
+    res = subprocess.run([sys.executable, script], encoding="utf-8", capture_output=True)
     assert res.stderr == ""
     assert res.stdout == "ok\n"
     assert res.returncode == 0
 
     code = "import ahkpy; ahkpy.poll(); print('ok')"
     script.write(code)
-    res = subprocess.run([sys.executable, str(script)], encoding="utf-8", capture_output=True)
+    res = subprocess.run([sys.executable, script], encoding="utf-8", capture_output=True)
     assert "RuntimeError: AHK interop is not available." in res.stderr
     assert res.stdout == ""
     assert res.returncode == 1

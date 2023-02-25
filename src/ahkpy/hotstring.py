@@ -211,7 +211,7 @@ class Hotstring:
     trigger: str
     case_sensitive: bool
     replace_inside_word: bool
-    context: hotkey_context.HotkeyContext
+    context: 'hotkey_context.HotkeyContext'
     __slots__ = ("trigger", "case_sensitive", "replace_inside_word", "context")
 
     # There are no 'repl' and option fields in Hotstring object. See the

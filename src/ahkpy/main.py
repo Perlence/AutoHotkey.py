@@ -195,13 +195,6 @@ def run_path(filename):
         import io
         from pkgutil import get_importer, read_code
 
-        try:
-            open_code = io.open_code
-        except AttributeError:
-            # The function is missing in Python 3.7
-            def open_code(path):
-                return open(path, "rb")
-
         importer = get_importer(filename)
         is_NullImporter = False
         if type(importer).__module__ == "imp":
@@ -209,11 +202,11 @@ def run_path(filename):
                 is_NullImporter = True
         if isinstance(importer, type(None)) or is_NullImporter:
             # runpy._get_code_from_file:
-            with open_code(filename) as f:
+            with io.open_code(filename) as f:
                 code = read_code(f)
             if code is None:
                 # That didn't work, so try it as normal source code
-                with open_code(filename) as f:
+                with io.open_code(filename) as f:
                     code = compile(f.read(), filename, "exec")
         else:
             # Run directory.

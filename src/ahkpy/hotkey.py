@@ -114,7 +114,7 @@ class Hotkey:
     """
 
     key_name: str
-    context: hotkey_context.HotkeyContext
+    context: 'hotkey_context.HotkeyContext'
     __slots__ = ("key_name", "context")
 
     # I decided not to have 'func' and hotkey options as fields, because:

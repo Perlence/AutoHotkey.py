@@ -10,7 +10,7 @@ embedding a Python DLL into the AutoHotkey process.
 
 ## Quickstart
 
-Ensure that you have installed [Python](https://www.python.org/downloads/) 3.7
+Ensure that you have installed [Python](https://www.python.org/downloads/) 3.8
 or later and [AutoHotkey](https://www.autohotkey.com/) 1.1.28 or later.
 
 Install the package to the Python user install directory. To do that, copy and
@@ -52,14 +52,14 @@ read the [documentation](https://ahkpy.readthedocs.io/).
 ## Minimum Supported Versions
 
 - AutoHotkey 1.1.28 (U32 and U64 variants)
-- Python 3.7
+- Python 3.8
 - Windows 10, version 1511
 
 AutoHotkey.py was tested on the following software:
 
 - Windows 10 v2004, v20H2
 - AutoHotkey v1.1.30.03, v1.1.33.02
-- Python v3.7.9, v3.8.1, v3.8.6, v3.9.1
+- Python v3.8.1, v3.8.6, v3.9.1, 3.10.7, 3.11.2
 
 ## Credits
 
