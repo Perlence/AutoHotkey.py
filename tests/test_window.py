@@ -1,4 +1,6 @@
 import dataclasses
+import subprocess
+import uuid
 
 import pytest
 
@@ -531,7 +533,6 @@ class TestControl:
         assert edit.text == "123"
 
     def test_paste(self, edit):
-        import uuid
         text = str(uuid.uuid4())
         edit.paste(text)
         assert edit.text == text
@@ -589,8 +590,6 @@ class TestControl:
 
     @pytest.fixture(scope="class")
     def list_playground(self, request):
-        import subprocess
-
         proc = subprocess.Popen([ahk.executable, "/CP65001", "*"], stdin=subprocess.PIPE, encoding='utf-8')
         request.addfinalizer(proc.terminate)
         proc.stdin.write("""\
