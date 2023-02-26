@@ -590,9 +590,8 @@ class TestControl:
     @pytest.fixture(scope="class")
     def list_playground(self, request):
         import subprocess
-        import sys
 
-        proc = subprocess.Popen([sys.ahk_executable, "/CP65001", "*"], stdin=subprocess.PIPE, encoding='utf-8')
+        proc = subprocess.Popen([ahk.executable, "/CP65001", "*"], stdin=subprocess.PIPE, encoding='utf-8')
         request.addfinalizer(proc.terminate)
         proc.stdin.write("""\
             Gui, Add, ComboBox, vColorChoice, Red|Green|Синий|Black|White

@@ -179,7 +179,7 @@ def test_update(call_spy, menu):
         menu.update(None, new_name="Test")
 
     call_spy.reset_mock()
-    menu.update("Test", callback=noop, radio=True, icon=sys.ahk_executable)
+    menu.update("Test", callback=noop, radio=True, icon=ahk.executable)
     call_spy.assert_has_calls([
         call("Menu", menu.name, "Add", "Test", None, "+Radio"),
         call("Menu", menu.name, "Add", "Test", call_spy.mock_calls[1][1][4]),
@@ -254,10 +254,10 @@ def test_update_separator(child_ahk):
 
 
 def test_update_remove_icon(call_spy, menu):
-    menu.add("Test", noop, icon=sys.ahk_executable)
+    menu.add("Test", noop, icon=ahk.executable)
     call_spy.assert_has_calls([
         call("Menu", menu.name, "Insert", None, "Test", call_spy.mock_calls[0][1][5], "P0 -Radio -Break -BarBreak"),
-        call("Menu", menu.name, "Icon", "Test", sys.ahk_executable, 1, None)
+        call("Menu", menu.name, "Icon", "Test", ahk.executable, 1, None)
     ])
 
     call_spy.reset_mock()
@@ -326,22 +326,22 @@ def test_tray_icon(request, call_spy):
     assert ahk.tray_menu.tray_icon_number is None
 
     call_spy.reset_mock()
-    ahk.tray_menu.set_tray_icon(sys.ahk_executable, number=2, affected_by_suspend=True)
+    ahk.tray_menu.set_tray_icon(ahk.executable, number=2, affected_by_suspend=True)
     ahk.tray_menu.set_tray_icon(affected_by_suspend=False)
     call_spy.assert_has_calls([
-        call("Menu", "tray", "Icon", sys.ahk_executable, 3, "0"),
+        call("Menu", "tray", "Icon", ahk.executable, 3, "0"),
         call("Menu", "tray", "Icon", "", None, "1")
     ])
-    assert ahk.tray_menu.tray_icon_file == sys.ahk_executable
+    assert ahk.tray_menu.tray_icon_file == ahk.executable
     assert ahk.tray_menu.tray_icon_number == 2
 
     ahk.tray_menu.tray_icon_file = None
     assert ahk.tray_menu.tray_icon_file is None
     assert ahk.tray_menu.tray_icon_number is None
 
-    ahk.tray_menu.tray_icon_file = sys.ahk_executable
+    ahk.tray_menu.tray_icon_file = ahk.executable
     ahk.tray_menu.tray_icon_number = 2
-    assert ahk.tray_menu.tray_icon_file == sys.ahk_executable
+    assert ahk.tray_menu.tray_icon_file == ahk.executable
     assert ahk.tray_menu.tray_icon_number == 2
 
     assert ahk.tray_menu.is_tray_icon_visible is True

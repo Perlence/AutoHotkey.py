@@ -23,7 +23,7 @@ and Variables) and their Python counterparts.
    + - `1, 2, 3, etc <https://www.autohotkey.com/docs/Variables.htm#CommandLine>`_
      - :data:`sys.argv`
    + - `A_AhkPath <https://www.autohotkey.com/docs/Variables.htm#AhkPath>`_
-     - :data:`sys.executable`
+     - :data:`ahk.executable`
    + - `A_AppData <https://www.autohotkey.com/docs/Variables.htm#AppData>`_
      - ``os.getenv("APPDATA")``
    + - `A_AppDataCommon <https://www.autohotkey.com/docs/Variables.htm#AppDataCommon>`_

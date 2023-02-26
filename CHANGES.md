@@ -6,10 +6,10 @@
 
 - Dropped support for Python 3.7.
 - The `sys.executable` attribute now holds the absolute path to the Python
-  executable that was used to start AutoHotkey, and `sys.ahk_executable` holds
-  the absolute path to the AutoHotkey executable, acting as AutoHotkey's
-  `A_AhkPath` global variable. Previously, `sys.executable` held the path to the
-  AutoHotkey executable.
+  executable that was used to start AutoHotkey, and `ahk.executable` holds the
+  absolute path to the AutoHotkey executable, acting as AutoHotkey's `A_AhkPath`
+  global variable. Previously, `sys.executable` held the path to the AutoHotkey
+  executable.
 
 ### Changes
 

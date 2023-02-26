@@ -63,10 +63,6 @@ Main() {
     PyImport_AppendInittab(&AHKModule_name, Func("PyInit_ahk"))
     Py_Initialize()
 
-    pyAkhPath := PyUnicode_FromString(A_AhkPath)
-    PySys_SetObject("ahk_executable", pyAkhPath)
-    Py_DecRef(pyAkhPath)
-
     Py_None := Py_BuildValue("")
 
     fullCommand := SetArgs()
@@ -237,6 +233,13 @@ PyInit_ahk() {
     pyScriptFullPath := AHKToPython(A_ScriptFullPath)
     result := PyObject_SetAttrString(mod, "script_full_path", pyScriptFullPath)
     Py_DecRef(pyScriptFullPath)
+    if (result < 0) {
+        return NULL
+    }
+
+    pyAhkPath := AHKToPython(A_AhkPath)
+    result := PyObject_SetAttrString(mod, "executable", pyAhkPath)
+    Py_DecRef(pyAhkPath)
     if (result < 0) {
         return NULL
     }

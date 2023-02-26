@@ -1,5 +1,7 @@
 try:
-    from _ahk import script_full_path  # noqa: F401
+    executable: str
+    script_full_path: str
+    from _ahk import executable, script_full_path  # noqa: F401
 except ModuleNotFoundError:
     import sys as _sys
 
