@@ -51,7 +51,8 @@ read the [documentation](https://ahkpy.readthedocs.io/).
 
 ## Minimum Supported Versions
 
-- AutoHotkey 1.1.28 (U32 and U64 variants)
+- AutoHotkey v1.1.28 (U32 and U64 variants), AutoHotkey v2.0 is not supported
+  [#23](https://github.com/Perlence/AutoHotkey.py/issues/23)
 - Python 3.8
 - Windows 10, version 1511
 
