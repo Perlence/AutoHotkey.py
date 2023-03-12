@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 0.2 (TBA)
+## Version 0.2 (2023-03-12)
 
 ### Backward-incompatible changes
 
