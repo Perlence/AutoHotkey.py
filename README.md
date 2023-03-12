@@ -55,12 +55,6 @@ read the [documentation](https://ahkpy.readthedocs.io/).
 - Python 3.8
 - Windows 10, version 1511
 
-AutoHotkey.py was tested on the following software:
-
-- Windows 10 v2004, v20H2
-- AutoHotkey v1.1.30.03, v1.1.33.02
-- Python v3.8.1, v3.8.6, v3.9.1, 3.10.7, 3.11.2
-
 ## Credits
 
 AutoHotkey.py was greatly inspired by Aurelain's
