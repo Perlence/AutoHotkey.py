@@ -63,7 +63,7 @@ html_theme_options = {
     "description": "Write AutoHotkey scripts in Python",
     "github_user": "Perlence",
     "github_repo": "AutoHotkey.py",
-    "github_banner": True,
+    "github_banner": False,
     "github_type": "star",
     "show_related": False,
     "fixed_sidebar": True,
