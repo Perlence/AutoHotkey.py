@@ -1,7 +1,7 @@
 [project]
 name = "AutoHotkey.py"
 dynamic = ["version"]
-description = "Write AutoHotkey scripts in Python"
+description = "Write AutoHotkey scripts in Python."
 readme = "README.md"
 license = {text = "BSD-3-Clause"}
 requires-python = ">= 3.8"
