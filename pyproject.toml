@@ -71,6 +71,9 @@ source-include = [
 ]
 source-exclude = ["/docs/_build", "/docs/_themes"]
 
+[tool.flake8]
+max-line-length = 120
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = ["-vv"]
