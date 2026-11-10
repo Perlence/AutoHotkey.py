@@ -1,16 +1,16 @@
 [project]
 name = "AutoHotkey.py"
-dynamic = ["version"]
+version = "0.2"
 description = "Write AutoHotkey scripts in Python."
 readme = "README.md"
-license = {text = "BSD-3-Clause"}
+license = "BSD-3-Clause"
+license-files = ["LICENSE.md"]
 requires-python = ">= 3.8"
 authors = [{name = "Sviatoslav Abakumov", email = "dust.harvesting@gmail.com"}]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Console",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: BSD License",
     "Operating System :: Microsoft :: Windows",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
@@ -28,10 +28,6 @@ Changelog = "https://github.com/Perlence/AutoHotkey.py/blob/master/CHANGES.md"
 
 [project.scripts]
 ahkpy = "ahkpy.launcher:main"
-
-[build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
 
 [dependency-groups]
 dev = [
@@ -59,8 +55,21 @@ tests = [
 dev = {requires-python = ">=3.11"}
 docs = {requires-python = ">=3.10"}
 
-[tool.setuptools.dynamic]
-version = {attr = "ahkpy.__version__"}
+[build-system]
+requires = ["uv_build>=0.13.7,<0.14"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "ahkpy"
+source-include = [
+    "CHANGES.md",
+    "tox.ini",
+    "uv.lock",
+    "tests/**",
+    "examples/**",
+    "docs/**",
+]
+source-exclude = ["/docs/_build", "/docs/_themes"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -1,3 +1,6 @@
+from importlib.metadata import version as _version
+
+
 try:
     executable: str
     script_full_path: str
@@ -44,4 +47,4 @@ hotkey = default_context.hotkey  # noqa: F405
 remap_key = default_context.remap_key  # noqa: F405
 hotstring = default_context.hotstring  # noqa: F405
 
-__version__ = "0.2"
+__version__ = _version("AutoHotkey.py")
