@@ -3,10 +3,13 @@
         {
             "type": "process",
             "label": "Serve the docs",
-            "command": "env/Scripts/sphinx-autobuild.exe",
+            "command": "uv",
             "args": [
+                "run",
+                "--locked",
+                "sphinx-autobuild",
                 "--watch",
-                "ahkpy",
+                "src/ahkpy",
                 "docs",
                 "docs/_build/html"
             ],

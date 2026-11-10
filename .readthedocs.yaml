@@ -3,10 +3,13 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.11"
+  jobs:
+    install:
+      - UV_PROJECT_ENVIRONMENT=$READTHEDOCS_VIRTUALENV_PATH uv sync --locked --no-default-groups --group docs
 python:
   install:
-    - requirements: requirements/docs.txt
-    - path: .
+    - method: uv
+      command: sync
 sphinx:
   configuration: docs/conf.py
 formats:

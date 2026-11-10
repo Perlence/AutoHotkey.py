@@ -1,8 +1,0 @@
-# Development tooling requires Python 3.11 or later.
--r docs.in
--r tests.in
-flake8
-pip-tools
-pre-commit
-sphinx-autobuild
-tox
